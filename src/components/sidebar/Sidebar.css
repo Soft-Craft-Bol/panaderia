@@ -1,0 +1,44 @@
+@import '../../../src/index.css';
+.sidebar-container{
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    padding-top: 0px;
+    padding-bottom: 30px;
+    background-color: #c04309;
+    
+}
+.sidebar-container img{
+    width: 100%;
+}
+.sidebar-container div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 28px;
+    padding-left: 35px;
+    padding-right: 35px;
+}
+.sidebar-container div div {
+    padding: 4px 10px 4px ;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    border-radius: 15px;
+    cursor: pointer;
+}
+.sidebar-container h4{
+    margin: 0;
+    font-weight: 600;
+    color: white;
+    font-size: 13px;
+}
+.sidebar-container h4.active-text {
+    color: #a1a1a1;
+}
