@@ -1,0 +1,32 @@
+@import '../../../src/index.css';
+.info-chard{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+    background-color: #ffffff;
+    width: 351px;
+    justify-content: space-between;
+    border-radius: 10px;
+    padding-inline: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.info-chard div h5{
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+.info-chard div h4{
+    font-weight: 800;
+    margin: 0;
+    font-size: 1.4rem;
+}
+.info-chard div h4 span{
+    color: var(--color-green-parameter);
+    font-weight: 600;
+    font-size: small;
+}
+.icon-wallet{
+    color: var(--primary-color);
+    font-size: 20px;
+}
