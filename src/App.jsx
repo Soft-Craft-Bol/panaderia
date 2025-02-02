@@ -10,7 +10,7 @@ function App() {
     <Router>
       <div> 
         <Sidebar />
-        <div style={{ flex: 1, padding: '20px' }}>
+        <div >
           <Routes>
             <Route path="/" element={<Inicio />} />
             <Route path="/sucursales" element={<h1>Sucursales</h1>} />
