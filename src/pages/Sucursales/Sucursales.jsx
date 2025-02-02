@@ -15,6 +15,18 @@ const Sucursales = () => {
                         <th>Acciones</th>
                     </tr>
                 </thead>
+                <tbody>
+                    <tr>
+                        <td>Villa Armonia</td>
+                        <td>Zona Sud</td>
+                        <td>Beto</td>
+                        <td>
+                            <button className="detalles-sucursal">
+                                Ver detalles
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
         </div>
