@@ -43,7 +43,7 @@ const Sidebar = () => {
                 </div>
                 <div className={selected === 'Sucursales' ? 'active' : ''} onClick={() => handleSelection('Sucursales')}>
                     <FaHome className="icon" />
-                    <h4 className={selected === 'Sucursales' ? 'active-text' : ''}>Sucirsales</h4>
+                    <h4 className={selected === 'Sucursales' ? 'active-text' : ''}>Sucursales</h4>
                 </div>
                 <div className={selected === 'Usuarios' ? 'active' : ''} onClick={() => handleSelection('Usuarios')}>
                     <FaUsers className="icon" />
