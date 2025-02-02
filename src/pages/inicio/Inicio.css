@@ -6,7 +6,31 @@
     width: 100%;
     justify-content: space-between;
     border-radius: 10px;
-    padding-inline: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+.tot-cont{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-top: 10px;
+}
+.tot-cont .left{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    
+}
+.tot-cont .rigth{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 4;
+    margin-bottom: 10px;    
+}
+.tot-cont .rigth .ventas,.inventario{
+    background-color: white;
+    flex: 1;
+    border-radius: 10px;
 }
