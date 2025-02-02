@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css'
 import Sidebar from './components/sidebar/Sidebar';
-
+import Inicio from './pages/inicio/Inicio';
 function App() {
   const [count, setCount] = useState(0);
 
@@ -12,7 +12,7 @@ function App() {
         <Sidebar />
         <div style={{ flex: 1, padding: '20px' }}>
           <Routes>
-            <Route path="/" element={<h1>Inicio</h1>} />
+            <Route path="/" element={<Inicio />} />
             <Route path="/sucursales" element={<h1>Sucursales</h1>} />
             <Route path="/usuarios" element={<h1>Usuarios</h1>} />
             <Route path="/facturacion" element={<h1>Facturación</h1>} />
