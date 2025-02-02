@@ -6,8 +6,8 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #c04309;
-    padding-bottom: 30px;
+    background-color: var(--primary-color);
+    padding-bottom: 20px;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     transition: width 0.3s ease-in-out;
 }
@@ -23,7 +23,7 @@
     align-items: center;
     width: 100%;
     padding: 20px 0;
-    gap: 20px;
+    /*gap: 20px;*/
 }
 
 .sidebar-item {
@@ -34,10 +34,12 @@
     border-radius: 10px;
     cursor: pointer;
     transition: background 0.3s ease-in-out;
+    transform: translateX(calc(-0.15em * 3 - 0.08em * 2));
 }
 
 .sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
+    color: black;
 }
 
 .icon {
@@ -55,9 +57,11 @@
 }
 
 .sidebar-item.active {
-    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(0.15em);
+    border: 5px black;
 }
 
 .sidebar-item.active h4 {
     color: #f7f7f7;
+    font-weight: 900;
 }
