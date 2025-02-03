@@ -14,6 +14,8 @@
   
   .button-primary:hover {
     background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
   }
   
   .button-secondary {

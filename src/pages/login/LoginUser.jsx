@@ -57,8 +57,9 @@ console.log(result);
 
   return (
     <div className="login-container">
-      <div className="login-form">
-        <h2>Inicia sesión</h2>
+        <img className="logo-fesa" src={ImagenesApp.inpased} alt="Inpased" height="100px"/>
+        <div className="login-form">
+        <h1>Inicia sesión</h1>
         <Suspense fallback={<div>Cargando imagen...</div>}>
           <img className="logo-fesa" src={ImagenesApp.logo} alt="Logo" height="80px" />
         </Suspense>
@@ -69,21 +70,26 @@ console.log(result);
           onSubmit={handleSubmit}
         >
           {({ isSubmitting }) => (
-            <Form>
+            <Form style={{flexDirection: "column"}}>
               <Suspense fallback={<div>Cargando campo...</div>}>
-                <Field name="username" type="text" placeholder="Nombre de usuario" />
-                <ErrorMessage name="username" component="div" className="error-message" />
+              <h5>Nombre de usuario:</h5>
+              <Field name="username" type="text" placeholder="Ingrese el nombre de usuario" 
+                style={{ width: "60%", padding: "10px", border: "1px solid var(--primary-color)", borderRadius: "5px" }} 
+                />
+              <ErrorMessage name="username" component="div" className="error-message" />
 
-                <Field name="password" type="password" placeholder="Contraseña" />
+              <h5>Contraseña</h5>
+                <Field name="password" type="password" placeholder="Introduzca su contraseña" 
+                style={{ width: "60%", padding: "10px", border: "1px solid var(--primary-color)", borderRadius: "5px", paddingRight: "-10%"}}/>
                 <ErrorMessage name="password" component="div" className="error-message" />
               </Suspense>
-
+            <div>
               {loginError && <span className="error-message">{loginError}</span>}
-
               <Link to="/reset">¿Olvidaste la contraseña?</Link>
               <Button type="submit" variant="primary" disabled={isSubmitting}>
                 {isSubmitting ? 'Ingresando...' : 'Ingresar'}
               </Button>
+            </div>
             </Form>
           )}
         </Formik>
