@@ -7,6 +7,7 @@ const Inicio = lazy(() => import("../pages/inicio/Inicio"));
 const Sucursales = lazy(() => import("../pages/Sucursales/Sucursales"));
 const Usuarios = lazy(() => import("../pages/usuarios/usuarios"));
 const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
+const Horarios = lazy(() => import("../pages/horarios/Horarios"));
 
 
 const AppRoutes = () => (
@@ -18,6 +19,7 @@ const AppRoutes = () => (
         <Route path="/home" element={<PrivateRoute>< Inicio/></PrivateRoute>} />
         <Route path="/sucursales" element={<Sucursales />} />
         <Route path="/users" element={<Usuarios />} />
+        <Route path="/horario" element={<Horarios/>} />
         <Route path="/facturacion" element={<Facturacion />} />
         <Route path="/punto-de-venta" element={<h1>Punto de Venta</h1>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />
