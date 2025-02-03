@@ -73,8 +73,9 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-top: 15px;
-  padding-left: 240px;
+  padding-top: 0px;
+  margin: 0;
+  /* padding-left: 240px; */
 }
 h1,h2,h3,h4,h5,h6{
   margin: 0;
