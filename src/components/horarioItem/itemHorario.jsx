@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './itemHorario.css';
 
-const ItemHorario= () => {
+const ItemHorario= (props) => {
     const [checkedDays, setCheckedDays] = useState([false, false, false, false, false, false, false]); // Array para los 7 días de la semana
 
   const handleCheckboxChange = (index) => {
@@ -13,7 +13,7 @@ const ItemHorario= () => {
     return (
         <tbody>
             <tr>
-                <td>Torrico</td>
+                <td>{props.nombre}</td>
                 <td>
                     <select>
                         <option selected value="0">Seleccione horario de ingreso</option>
