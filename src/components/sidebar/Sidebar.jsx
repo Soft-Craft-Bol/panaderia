@@ -5,7 +5,7 @@ import SidebarItem from '../sidebarItem/SidebarItem';
 import './Sidebar.css';
 
 const menuItems = [
-    { title: 'Inicio', icon: FaHome, route: '/' },
+    { title: 'Inicio', icon: FaHome, route: '/home' },
     { title: 'Sucursales', icon: FaHome, route: '/sucursales' },
     { title: 'Usuarios', icon: FaUsers, route: '/users' },
     { title: 'Facturación', icon: FaBookMedical, route: '/facturacion' },
