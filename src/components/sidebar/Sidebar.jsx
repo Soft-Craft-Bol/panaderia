@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaHome, FaUsers, FaBookMedical, FaCalendarAlt, FaToolbox, FaMoneyCheckAlt } from "react-icons/fa";
+import { FaHome, FaUsers, FaBookMedical, FaCalendarAlt, FaToolbox, FaCalendarWeek, FaMoneyCheckAlt } from "react-icons/fa";
 import ImagesApp from '../../assets/ImagesApp';
 import SidebarItem from '../sidebarItem/SidebarItem';
 import './Sidebar.css';
@@ -9,9 +9,10 @@ const menuItems = [
     { title: 'Sucursales', icon: FaHome, route: '/sucursales' },
     { title: 'Usuarios', icon: FaUsers, route: '/users' },
     { title: 'Facturación', icon: FaBookMedical, route: '/facturacion' },
+    { title: 'Horarios', icon: FaCalendarWeek, route: '/horario' },
     { title: 'Punto de Venta', icon: FaCalendarAlt, route: '/punto-de-venta' },
     { title: 'Contaduría', icon: FaToolbox, route: '/contaduria' },
-    { title: 'Caja', icon: FaMoneyCheckAlt, route: '/caja' }
+    { title: 'Caja', icon: FaMoneyCheckAlt, route: '/caja' },
 ];
 
 const Sidebar = () => {
