@@ -5,6 +5,8 @@ import Sidebar from './components/sidebar/Sidebar';
 import Inicio from './pages/inicio/Inicio';
 import Sucursales from './pages/Sucursales/Sucursales'
 import Usuarios from './pages/usuarios/usuarios';
+import Facturacion from './pages/facturacion/Facturacion';
+
 
 function App() {
   const [count, setCount] = useState(0);
@@ -18,7 +20,7 @@ function App() {
             <Route path="/" element={<Inicio />} />
             <Route path="/sucursales" element={<Sucursales />} />
             <Route path="/users" element={<Usuarios/>} />
-            <Route path="/facturacion" element={<h1>Facturación</h1>} />
+            <Route path="/facturacion" element={<Facturacion />} />
             <Route path="/punto-de-venta" element={<h1>Punto de Venta</h1>} />
             <Route path="/contaduria" element={<h1>Contaduría</h1>} />
           </Routes>
