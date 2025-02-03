@@ -1,32 +1,25 @@
-import { useState } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { lazy, Suspense } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from "./context/AuthContext";
+import AppRoutes from "./routes/AppRoutes";
 import './App.css'
-import Sidebar from './components/sidebar/Sidebar';
-import Inicio from './pages/inicio/Inicio';
-import Sucursales from './pages/Sucursales/Sucursales'
-import Usuarios from './pages/usuarios/usuarios';
-import Facturacion from './pages/facturacion/Facturacion';
 
 
 function App() {
-  const [count, setCount] = useState(0);
+
+  const LoadingComponent = () => <div className="loading-spinner">Cargando...</div>;
 
   return (
-    <Router>
-      <div> 
-        <Sidebar />
-        <div >
-          <Routes>
-            <Route path="/" element={<Inicio />} />
-            <Route path="/sucursales" element={<Sucursales />} />
-            <Route path="/users" element={<Usuarios/>} />
-            <Route path="/facturacion" element={<Facturacion />} />
-            <Route path="/punto-de-venta" element={<h1>Punto de Venta</h1>} />
-            <Route path="/contaduria" element={<h1>Contaduría</h1>} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <AuthProvider>
+    <ThemeProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Suspense fallback={<LoadingComponent />}>
+            <AppRoutes />
+          </Suspense>
+        </BrowserRouter>
+    </ThemeProvider>
+  </AuthProvider>
   );
 }
 
