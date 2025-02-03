@@ -16,15 +16,15 @@ const ItemHorario= (props) => {
                 <td>{props.nombre}</td>
                 <td>
                     <select>
-                        <option selected value="0">Seleccione horario de ingreso</option>
-                        <option value="1">08:00</option>
+                    <option value="" disabled selected>Seleccione horario de ingreso</option>
+                    <option value="1">08:00</option>
                         <option value="2">09:00</option>
                         <option value="3">10:00</option>
                     </select>
                 </td>
                 <td>
                     <select>
-                        <option selected value="0">Seleccione horario de salida</option>
+                        <option value="" disabled selected>Seleccione horario de salida</option>
                         <option value="1">19:00</option>
                         <option value="2">20:00</option>
                         <option value="3">21:00</option>

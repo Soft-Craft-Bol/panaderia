@@ -78,7 +78,7 @@ console.log(result);
                 />
               <ErrorMessage name="username" component="div" className="error-message" />
 
-              <h5>Contraseña</h5>
+              <h5>Contraseña:</h5>
                 <Field name="password" type="password" placeholder="Introduzca su contraseña" 
                 style={{ width: "60%", padding: "10px", border: "1px solid var(--primary-color)", borderRadius: "5px", paddingRight: "-10%"}}/>
                 <ErrorMessage name="password" component="div" className="error-message" />
