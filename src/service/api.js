@@ -23,3 +23,7 @@ const api = axios.create({
 export default api;
 
 export const loginUser = (data) => api.post('/auth/log-in', data);
+export const getAllClient = () => api.get('/clientes');
+export const createClient = (data) => api.post('/clientes/create', data);
+export const fetchProductos = () => api.get('/productos-servicios');
+export const emitirFactura = (data) => api.post('/factura/emitir', data);
