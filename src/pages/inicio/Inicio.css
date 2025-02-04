@@ -10,6 +10,10 @@
     padding-bottom: 5px;
     margin-right: 240px;
 }
+.main-cont-inicio{
+    width: 95%;
+    max-width: max-content;
+}
 .tot-cont{
     display: flex;
     flex-direction: row;

@@ -21,7 +21,7 @@ const AppRoutes = () => (
         <Route path="/users" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
-        <Route path="/punto-de-venta" element={<h1>Punto de Venta</h1>} />
+        <Route path="/punto-de-venta" element={<PrivateRoute><h1>Punto de Venta</h1></PrivateRoute>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />
     </Routes>
 );

@@ -16,7 +16,7 @@ const data = [
 
 const Inicio = () => {
   return (
-    <main>
+    <main className='main-cont-inicio'>
     <div className='info-cont'>
         <TopCard title="Ingresos" quantity="1500" porcentaje="10%"/>
         <TopCard title="Egresos" quantity="1500" porcentaje="10%"/>
