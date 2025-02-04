@@ -1,82 +1,85 @@
 :root {
+  /* 🎨 Colores principales */
   --primary-color: #FFAF5A;
-  --sec-color: #1e776d;
-  --bg-app: #e0e0e0;/*f5f5f5*/
-  --bg--component-color-white: #ffffff;
+  --secondary-color: #1e776d;
 
+  /* 🖼️ Fondos */
+  --bg-app: #e0e0e0; /* Alternativa: #f5f5f5 */
+  --bg-component-white: #ffffff;
+  --sidebar-color: #f8efeb;
+
+  /* 🎨 Colores de texto */
   --color-text-primary: #000000;
   --color-text-secondary: #6d7784;
   --color-text-tertiary: #ffffff;
   --color-text-quaternary: #ebebeb;
 
-  --color-green-parameter:#27c02f;
-  --color-red-parameter:#E53E3E;
+  /* 🔴🟢 Colores de parámetros */
+  --color-green-parameter: #27c02f;
+  --color-red-parameter: #E53E3E;
+
+  /* 🔠 Tipografía */
   --font-size-title: 18px;
+
+  /* 🔘 Iconos */
   --color-icon: #0d0b80;
-
 }
 
-a {
-
-}
-a:hover {
-
-}
-
-body {
-  background-color: white;
-}
-
-h1 {
-
-}
-
-button {
-  
-}
-button:hover {
-
-}
-button:focus,
-button:focus-visible {
-
-}
-
+/* 🖥️ Media query para modo claro */
 @media (prefers-color-scheme: light) {
   :root {
-
-  }
-  a:hover {
-
-  }
-  button {
-
+    --bg-app: #ffffff;
+    --color-text-primary: #000000;
   }
 }
 
+/* 📌 Reset y estilos base */
 *,
 *::before,
 *::after {
-}
-
-ul {
-  list-style: none;
+  box-sizing: border-box;
 }
 
 body {
   color: var(--color-text-primary);
-  /* background: var(--bg-app); */
-  background: rgb(238, 237, 237);
+  background: var(--bg-app);
   line-height: 1.6;
-  font-family:
-  Helvetica,Arial,sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-top: 0px;
   margin: 0;
-  /* padding-left: 240px; */
 }
-h1,h2,h3,h4,h5,h6{
+
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
+}
+
+/* ✅ Mejora de accesibilidad en botones y enlaces */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+button {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+}
+
+/* 🔄 Lista sin viñetas */
+ul {
+  list-style: none;
 }

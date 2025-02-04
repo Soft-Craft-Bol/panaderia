@@ -84,13 +84,13 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
               isAdmin && (
                 
               )
-            } */}<SidebarLink to="/listTeacher" icon={<PiChalkboardTeacher />} text="Perfil" />
+            } */}<SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" />
-            <SidebarLink to="/userManagement" icon={<FaUser/>} text="Usuarios" />
+            <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
             
-            <SidebarLink to="/list-indicador" icon={<AiOutlineGroup />} text="Ficha" />
-            <SidebarLink to="/calendar" icon={<FaCalendarAlt />} text="Calendario" />
-            <SidebarLink to="/graphics" icon={<GrAnalytics />} text="Cronograma" />
+            <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
+            <SidebarLink to="/punto-de-venta" icon={<FaCalendarAlt />} text="Punto de venta" />
+            <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduria" />
             <SidebarLink to="/me-gustas" icon={<FaUserGraduate />} text="Reportes" />
           </ul>
         </div>

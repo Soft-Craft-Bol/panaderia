@@ -7,6 +7,7 @@ import { Button } from '../../components/buttons/ButtonPrimary';
 import { loginUser } from '../../service/api';
 import { saveToken, saveUser } from '../../utils/authFunctions';
 import ImagenesApp from '../../assets/ImagesApp';
+import { parseJwt } from '../../utils/Auth';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -27,33 +28,37 @@ function LoginUser() {
     const handleSubmit = useCallback(async (values, { setSubmitting }) => {
         setLoginError('');
         try {
-            const result = await loginUser({
-                username: values.username.trim(), // Asegurar que no haya espacios extras
-                password: values.password,
+          const result = await loginUser({
+            username: values.username.trim(),
+            password: values.password,
+          });
+      
+          if (result?.data?.jwt) {
+            const token = result.data.jwt;
+            const decodedToken = parseJwt(token);
+            const roles = decodedToken?.authorities?.split(',') || []; // Extraer roles del token
+      
+            saveToken(token);
+            saveUser({
+              username: result.data.username,
+              roles: roles, // Guardamos los roles
             });
-            console.log(result);
-            if (result?.data?.jwt) {
-                saveToken(result.data.jwt);
-                saveUser({
-                    username: result.data.username,
-                    //roles: result.data.roles,
-                    //photo: result.data.photo,
-                    //full_name: result.data.full_name,
-                });
-                navigate('/home');
-            } else {
-                setLoginError('Usuario o contraseña incorrectos.');
-            }
+      
+            navigate('/home');
+          } else {
+            setLoginError('Usuario o contraseña incorrectos.');
+          }
         } catch (error) {
-            console.error('Error en el login:', error);
-            setLoginError(
-                error.response?.status === 401
-                    ? 'Usuario o contraseña incorrectos.'
-                    : 'Ocurrió un error. Intente más tarde.'
-            );
+          console.error('Error en el login:', error);
+          setLoginError(
+            error.response?.status === 401
+              ? 'Usuario o contraseña incorrectos.'
+              : 'Ocurrió un error. Intente más tarde.'
+          );
         }
         setSubmitting(false);
-    }, [navigate]);
+      }, [navigate]);
+      
 
     return (
         <div className="login-container">

@@ -18,9 +18,9 @@ const AppRoutes = () => (
         {/* Rutas privadas */}
         <Route path="/home" element={<PrivateRoute><Inicio /></PrivateRoute>} />
         <Route path="/sucursales" element={<PrivateRoute><Sucursales /></PrivateRoute>} />
-        <Route path="/users" element={<Usuarios />} />
-        <Route path="/horario" element={<Horarios/>} />
-        <Route path="/facturacion" element={<Facturacion />} />
+        <Route path="/users" element={<PrivateRoute><Usuarios /></PrivateRoute>} />
+        <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
+        <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/punto-de-venta" element={<h1>Punto de Venta</h1>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />
     </Routes>
