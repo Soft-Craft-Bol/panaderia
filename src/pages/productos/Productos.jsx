@@ -9,7 +9,12 @@ const Productos = () => {
                (+) &emsp; Agregar nuevo
             </button>
             <div className="cardsProducto-contenedor">
-                <CardProducto/>
+                <CardProducto
+                nomProducto="Pan en molde"
+                foto= "https://imag.bonviveur.com/pan-de-trigo-rustico-foto-principal.jpg"/>
+                <CardProducto
+                nomProducto="Puta me costo harto"
+                foto= "https://pic-bstarstatic.akamaized.net/ugc/12ab90beed69859203c989428ff7db9a9f9b7d7a.jpg"/>
             </div>
         </div>
     )
