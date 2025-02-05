@@ -1,0 +1,15 @@
+.productos-contenedor{
+    flex-direction: column;
+}
+.productos-btnAgregar{
+    padding: 6px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    height: 40px;
+    width: 80%;
+    background-color: var(--primary-color);
+    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
+    color: white;
+}
