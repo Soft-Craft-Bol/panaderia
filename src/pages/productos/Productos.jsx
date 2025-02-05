@@ -1,5 +1,6 @@
 import React from "react";
-import './Productos.css'
+import './Productos.css';
+import CardProducto, { } from '../../components/cardProducto/cardProducto'
 const Productos = () => {
     return(
         <div className="productos-contenedor">
@@ -8,7 +9,7 @@ const Productos = () => {
                (+) &emsp; Agregar nuevo
             </button>
             <div className="cardsProducto-contenedor">
-                
+                <CardProducto/>
             </div>
         </div>
     )
