@@ -22,9 +22,11 @@ import { FaClockRotateLeft } from "react-icons/fa6";
 import { GiTeacher } from "react-icons/gi";
 import { FaCamera } from "react-icons/fa";
 import { FaCalendarAlt } from "react-icons/fa";
+import { GiSlicedBread } from "react-icons/gi";
 
 
 export {
+  GiSlicedBread,
   MdAdminPanelSettings,
   PiNotePencilBold,
   FaCalendarAlt,

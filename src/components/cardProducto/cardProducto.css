@@ -1,0 +1,25 @@
+.cardP {
+    position: relative;
+    padding: 1rem;
+    width: 300px;
+    max-width: 50%;
+    height: 450px;
+    box-shadow: -1px 15px 30px -12px rgb(32, 32, 32);
+    border-radius: 0.9rem;
+    border: 4px solid var(--primary-color);
+    line-height: 0.9;
+    text-align: start;
+  }
+
+.cardP img{
+  height: 50%;
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
+.cardFooter{
+  justify-content: space-between;
+  display: flex;
+  padding: 5px 0;
+}
