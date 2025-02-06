@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Facturacion.css';
+import { getAllClient, createClient, fetchProductos, emitirFactura } from '../../service/api';
 
 const Facturacion = () => {
   const contribuyente = {
     nit: '3655579015',
-    razonSocial: 'COA CARDONA DE CARDOZO ANTONIA    ',
+    razonSocial: 'COA CARDONA DE CARDOZO ANTONIA',
     dependencia: 'CHUQUISACA'
   };
 
@@ -18,6 +19,7 @@ const Facturacion = () => {
   });
 
   const [cliente, setCliente] = useState({
+    id: null, // Nuevo campo para guardar el ID del cliente
     razonSocial: '',
     correo: '',
     nit: ''
@@ -31,14 +33,90 @@ const Facturacion = () => {
     descuento: 0
   });
 
-  const handleEmitir = () => {
-    console.log('Emitir factura', { contribuyente, transaccion, cliente, detalle });
+  const [productos, setProductos] = useState([]);
+  const [mensaje, setMensaje] = useState('');
+
+  useEffect(() => {
+    // Cargar productos al montar el componente
+    fetchProductos().then(response => {
+      setProductos(response.data);
+    }).catch(error => {
+      console.error('Error fetching productos:', error);
+    });
+  }, []);
+
+  const buscarCliente = async (numeroDocumento) => {
+    try {
+      const response = await getAllClient();
+      const clienteEncontrado = response.data.find(cliente => cliente.numeroDocumento === numeroDocumento);
+      if (clienteEncontrado) {
+        setCliente({
+          id: clienteEncontrado.id, // Guardar el ID del cliente encontrado
+          razonSocial: clienteEncontrado.nombreRazonSocial,
+          correo: clienteEncontrado.email || '',
+          nit: clienteEncontrado.numeroDocumento
+        });
+        setMensaje('');
+      } else {
+        setMensaje('Cliente no encontrado. Por favor, cree un nuevo cliente.');
+      }
+    } catch (error) {
+      console.error('Error buscando cliente:', error);
+    }
+  };
+
+  const crearCliente = async () => {
+    const nuevoCliente = {
+      nombreRazonSocial: cliente.razonSocial,
+      codigoTipoDocumentoIdentidad: 5, // Asumiendo que 5 es el código para CI
+      numeroDocumento: cliente.nit,
+      complemento: null,
+      codigoCliente: `C-${cliente.nit}`,
+      email: cliente.correo
+    };
+
+    try {
+      const response = await createClient(nuevoCliente);
+      setCliente({
+        ...cliente,
+        id: response.data.id // Guardar el ID del cliente creado
+      });
+      setMensaje('Cliente creado exitosamente.');
+    } catch (error) {
+      console.error('Error creando cliente:', error);
+    }
+  };
+
+  const handleEmitir = async () => {
+    if (!cliente.id) {
+      setMensaje('Por favor, complete los datos del cliente.');
+      return;
+    }
+
+    const facturaData = {
+      idPuntoVenta: transaccion.sucursal,
+      idCliente: cliente.id, // Usar el ID del cliente
+      usuario: contribuyente.razonSocial,
+      detalle: [{
+        idProducto: detalle.producto,
+        cantidad: detalle.cantidad,
+        montoDescuento: detalle.descuento
+      }]
+    };
+
+    try {
+      await emitirFactura(facturaData);
+      setMensaje('Factura emitida exitosamente.');
+    } catch (error) {
+      console.error('Error emitiendo factura:', error);
+    }
   };
 
   const handleLimpiar = () => {
     setTransaccion({ sucursal: '', actividad: '', casoEspecial: 'Ninguna', tipoDocumento: '', documento: '', correo: '' });
-    setCliente({ razonSocial: '', correo: '', nit: '' });
+    setCliente({ id: null, razonSocial: '', correo: '', nit: '' });
     setDetalle({ producto: '', cantidad: 1, unidad: '', precioUnitario: 0, descuento: 0 });
+    setMensaje('');
   };
 
   return (
@@ -59,12 +137,8 @@ const Facturacion = () => {
         <h2>Datos de la Transacción</h2>
         <div className="input-grid">
           <label>
-            Sucursal:
+            Punto de Venta:
             <input type="text" value={transaccion.sucursal} onChange={e => setTransaccion({ ...transaccion, sucursal: e.target.value })} />
-          </label>
-          <label>
-            Actividad:
-            <input type="text" value={transaccion.actividad} onChange={e => setTransaccion({ ...transaccion, actividad: e.target.value })} />
           </label>
           <label>
             Caso Especial:
@@ -81,7 +155,16 @@ const Facturacion = () => {
           </label>
           <label>
             Nº Documento/NIT:
-            <input type="text" value={transaccion.documento} onChange={e => setTransaccion({ ...transaccion, documento: e.target.value })} />
+            <input 
+              type="text" 
+              value={transaccion.documento} 
+              onChange={e => {
+                setTransaccion({ ...transaccion, documento: e.target.value });
+                if (e.target.value.length === 8 || e.target.value.length === 10) { // Asumiendo que el CI tiene 8 dígitos y el NIT 10
+                  buscarCliente(e.target.value);
+                }
+              }} 
+            />
           </label>
           <label>
             Correo:
@@ -106,6 +189,10 @@ const Facturacion = () => {
             <input type="text" value={cliente.nit} onChange={e => setCliente({ ...cliente, nit: e.target.value })} />
           </label>
         </div>
+        {mensaje && <p>{mensaje}</p>}
+        {mensaje === 'Cliente no encontrado. Por favor, cree un nuevo cliente.' && (
+          <button onClick={crearCliente}>Crear Cliente</button>
+        )}
       </div>
 
       <div className="section detalle-section">
@@ -113,15 +200,16 @@ const Facturacion = () => {
         <div className="input-grid">
           <label className="producto-input">
             Producto/Descripción:
-            <input type="text" value={detalle.producto} onChange={e => setDetalle({ ...detalle, producto: e.target.value })} />
+            <select value={detalle.producto} onChange={e => setDetalle({ ...detalle, producto: e.target.value })}>
+              <option value="">Seleccione un producto</option>
+              {productos.map(producto => (
+                <option key={producto.id} value={producto.id}>{producto.descripcionProducto}</option>
+              ))}
+            </select>
           </label>
           <label>
             Cantidad:
             <input type="number" value={detalle.cantidad} onChange={e => setDetalle({ ...detalle, cantidad: parseInt(e.target.value) })} />
-          </label>
-          <label>
-            Unidad de Medida:
-            <input type="text" value={detalle.unidad} onChange={e => setDetalle({ ...detalle, unidad: e.target.value })} />
           </label>
           <label>
             Precio Unitario (Bs):
