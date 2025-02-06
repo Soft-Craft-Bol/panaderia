@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
+import theProducts from "./theProducts.json";
 
 const Productos = () => {
     // Estado que almacena los productos
-    const [productos, setProductos] = useState([
-        { id: 1, nomProducto: "Pan en molde", foto: "https://imag.bonviveur.com/pan-de-trigo-rustico-foto-principal.jpg" },
-        { id: 2, nomProducto: "Joder me costo", foto: "https://media.tenor.com/ItvR-h4N1REAAAAe/paimon-cry.png" }
-    ]);
+    const [productos, setProductos] = useState([]);
 
+    useEffect(() => {
+        setProductos(theProducts);
+    }, []);
+
+    const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     const [productoAEliminar, setProductoAEliminar] = useState(null);
 
@@ -34,7 +38,10 @@ const Productos = () => {
     return (
         <div className="productos-contenedor">
             <h1>Productos en stock</h1>
-            <button className="productos-btnAgregar">
+            <button 
+                className="productos-btnAgregar"
+                onClick={() => navigate("/productos/addProduct")}
+            >
                 (+) &emsp; Agregar nuevo
             </button>
             <div className="cardsProducto-contenedor">
