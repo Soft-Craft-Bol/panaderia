@@ -26,7 +26,7 @@ const AppRoutes = () => (
         <Route path="/punto-de-venta" element={<PrivateRoute><h1>Punto de Venta</h1></PrivateRoute>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />
         <Route path="/productos" element = {<PrivateRoute> <Productos/> </PrivateRoute>}/>
-        <Route path="/productos/addProduct" element = {<PrivateRoute> <AddProduct/> </PrivateRoute>}/>
+        <Route path="/productos/addProduct" element = {<PrivateRoute> <AddProduct /> </PrivateRoute>}/>
     </Routes>
 );
 

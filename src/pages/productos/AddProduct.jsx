@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Importar useNavigate
+import { useNavigate } from "react-router-dom";
 import "./Productos.css";
 
 const estiloInput = {
@@ -14,7 +14,7 @@ const estiloInput = {
 };
 
 const AddProduct = ({ onAddProduct }) => {
-    const navigate = useNavigate(); // Hook para la navegación
+    const navigate = useNavigate();
 
     return (
         <div>
@@ -30,7 +30,7 @@ const AddProduct = ({ onAddProduct }) => {
                 onSubmit={(values) => {
                     console.log("Datos del producto:", values);
                     
-                    // Agregar el producto a la lista (lo enviamos como prop a Productos.jsx)
+                    // Agregar el producto a la lista
                     onAddProduct({
                         id: Date.now(),
                         nomProducto: values.nameProduct,
@@ -38,8 +38,6 @@ const AddProduct = ({ onAddProduct }) => {
                         /*priceProduct: values.priceProduct,
                         priceVent: values.priceVent,*/
                     });
-
-                    // Regresar a la página anterior
                     navigate("/productos");
                 }}
             >

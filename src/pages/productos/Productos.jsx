@@ -35,6 +35,8 @@ const Productos = () => {
         setProductoAEliminar(null);
     };
 
+    
+
     return (
         <div className="productos-contenedor">
             <h1>Productos en stock</h1>
