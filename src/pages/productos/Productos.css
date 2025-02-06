@@ -19,3 +19,13 @@
     display: flex;
     gap: 15px;
 }
+
+.form__input {
+    /*width: clamp(120px, 50vw, 420px);*/
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid black;
+    border-radius: 2px;
+    margin: 0.625rem auto;
+    transition: all 250ms;
+}
