@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchProductos, emitirFactura } from '../../service/api';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api';
 
 const FacturaForm = () => {
   const location = useLocation();
@@ -13,48 +13,61 @@ const FacturaForm = () => {
     numeroDocumento: "14382800019 CB"
   };
 
-  const [productos, setProductos] = useState([]);
+  const [items, setItems] = useState([]);
+  const [puntosDeVenta, setPuntosDeVenta] = useState([]);
 
   useEffect(() => {
-    const getProductos = async () => {
+    const getItems = async () => {
       try {
-        const response = await fetchProductos();
-        setProductos(response.data);
+        const response = await fetchItems();
+        setItems(response.data);
       } catch (error) {
-        console.error('Error fetching productos:', error);
+        console.error('Error fetching items:', error);
       }
     };
 
-    getProductos();
+    const getPuntosDeVenta = async () => {
+      try {
+        const response = await fetchPuntosDeVenta();
+        setPuntosDeVenta(response.data);
+      } catch (error) {
+        console.error('Error fetching puntos de venta:', error);
+      }
+    };
+
+    getItems();
+    getPuntosDeVenta();
   }, []);
 
   const initialValues = {
-    producto: '',
+    item: '',
     cantidad: '',
     unidadMedida: '',
     precioUnitario: '',
-    descuento: ''
+    descuento: '',
+    puntoDeVenta: ''
   };
 
   const validationSchema = Yup.object({
-    producto: Yup.string().required('Seleccione un producto'),
+    item: Yup.string().required('Seleccione un item'),
     cantidad: Yup.number().required('Ingrese la cantidad').positive('Debe ser un número positivo'),
     unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
     precioUnitario: Yup.number().required('Ingrese el precio unitario').positive('Debe ser un número positivo'),
-    descuento: Yup.number().min(0, 'Debe ser un número positivo o cero')
+    descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
+    puntoDeVenta: Yup.string().required('Seleccione un punto de venta')
   });
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const selectedProducto = productos.find(producto => producto.descripcionProducto === values.producto);
+      const selectedItem = items.find(item => item.descripcion === values.item);
+      const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
       const facturaData = {
-        idPuntoVenta: 1,
+        idPuntoVenta: selectedPuntoDeVenta.id,
         idCliente: client.id,
         usuario: client.nombreRazonSocial,
         detalle: [
           {
-            //idProducto: selectedProducto.id,
-            idProducto: 1,
+            idProducto: selectedItem.id,
             cantidad: values.cantidad,
             montoDescuento: values.descuento
           }
@@ -75,36 +88,55 @@ const FacturaForm = () => {
       <h2>Datos del Cliente</h2>
       <div className="form-group">
         <label>Razón Social:</label>
-        <input type="text" value={client.nombreRazonSocial} readOnly />
+        <input type="text" value={client.nombreRazonSocial || ''} readOnly />
       </div>
       <div className="form-group">
         <label>Correo:</label>
-        <input type="email" value={client.email} readOnly />
+        <input type="email" value={client.email || ''} readOnly />
       </div>
       <div className="form-group">
         <label>NIT/CI:</label>
-        <input type="text" value={client.numeroDocumento} readOnly />
+        <input type="text" value={client.numeroDocumento || ''} readOnly />
       </div>
 
-      <h2>Detalle de la Transacción</h2>
+      <h2>Punto de Venta</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ resetForm }) => (
+        {({ resetForm, setFieldValue }) => (
           <Form>
             <div className="form-group">
-              <label>Producto/Descripción:</label>
-              <Field as="select" name="producto">
-                <option value="">Seleccione un producto</option>
-                {productos.map(producto => (
-                  <option key={producto.id} value={producto.descripcionProducto}>
-                    {producto.descripcionProducto}
+              <label>Punto de Venta:</label>
+              <Field as="select" name="puntoDeVenta">
+                <option value="">Seleccione un punto de venta</option>
+                {puntosDeVenta.map(punto => (
+                  <option key={punto.id} value={punto.nombre}>
+                    {punto.nombre}
                   </option>
                 ))}
               </Field>
-              <ErrorMessage name="producto" component="div" className="error-message" />
+              <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
+            </div>
+
+            <h2>Detalle de la Transacción</h2>
+            <div className="form-group">
+              <label>Item/Descripción:</label>
+              <Field as="select" name="item" onChange={(e) => {
+                const selectedItem = items.find(item => item.descripcion === e.target.value);
+                setFieldValue('item', e.target.value);
+                setFieldValue('unidadMedida', selectedItem ? selectedItem.unidadMedida : '');
+                setFieldValue('precioUnitario', selectedItem ? selectedItem.precioUnitario : '');
+              }}>
+                <option value="">Seleccione un item</option>
+                {items.map(item => (
+                  <option key={item.id} value={item.descripcion}>
+                    {item.descripcion}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="item" component="div" className="error-message" />
             </div>
             <div className="row">
               <div className="form-group">
@@ -114,14 +146,14 @@ const FacturaForm = () => {
               </div>
               <div className="form-group">
                 <label>Unidad de Medida:</label>
-                <Field type="text" name="unidadMedida" />
+                <Field type="text" name="unidadMedida" readOnly />
                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
               </div>
             </div>
             <div className="row">
               <div className="form-group">
                 <label>Precio Unitario (Bs):</label>
-                <Field type="number" name="precioUnitario" />
+                <Field type="number" name="precioUnitario" readOnly />
                 <ErrorMessage name="precioUnitario" component="div" className="error-message" />
               </div>
               <div className="form-group">

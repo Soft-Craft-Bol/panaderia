@@ -17,7 +17,7 @@ const Facturacion = () => {
       const clients = response.data;
       const client = clients.find(client => client.numeroDocumento.toString() === nit);
       if (client) {
-        alert(`Cliente encontrado: ${client.nombreRazonSocial}`);
+        //alert(`Cliente encontrado: ${client.nombreRazonSocial}`);
         navigate('/impuestos-form', { state: { client } });
       } else {
         alert('Cliente no encontrado');
