@@ -11,7 +11,6 @@ const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
 const Horarios = lazy(() => import("../pages/horarios/Horarios"));
 const Productos = lazy(() => import("../pages/productos/Productos"));
 const FacturaForm = lazy(() => import("../components/facturaForm/FacturaForm"));
-const Productos = lazy(() => import("../pages/productos/Productos"));
 const AddProductos = lazy(() => import("../pages/productos/AddProduct"))
 const AppRoutes = () => (
     <Routes>

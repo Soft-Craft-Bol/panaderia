@@ -37,7 +37,7 @@ const Horarios = () => {
                         <ItemHorario key={index} nombre={nombre} />
                     ))}
             </table>
-            <button className="boton-add" onClick={handleOpenModal}>
+            <button className="btn-general" onClick={handleOpenModal}>
                 + Agregar nuevo
             </button>
 

@@ -91,7 +91,7 @@ function LoginUser() {
                             <div>
                                 {loginError && <span className="error-message">{loginError}</span>}
                                 <Link to="/reset">¿Olvidaste la contraseña?</Link>
-                                <Button type="submit" variant="primary" disabled={isSubmitting}>
+                                <Button type="submit" variant="primary" disabled={isSubmitting} className="btn-general">
                                     {isSubmitting ? 'Ingresando...' : 'Ingresar'}
                                 </Button>
                             </div>

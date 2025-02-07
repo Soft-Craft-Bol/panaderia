@@ -32,14 +32,7 @@
   justify-content: center;
   align-items: center;
 }
-.card button{
-  height: 40px;
-  width: 50%;
-  font-family: 'Courier New', Courier, monospace;
-  background-color: var(--primary-color);
-  font-weight: 700;
-  border-radius: 10px;
-}
+
 .card-body{
   height: 70%;
 }
