@@ -21,7 +21,7 @@ const Sucursales = () => {
                         <td>Zona Sud</td>
                         <td>Beto</td>
                         <td>
-                            <button className="detalles-sucursal">
+                            <button className="btn-general">
                                 Ver detalles
                             </button>
                         </td>
@@ -32,7 +32,7 @@ const Sucursales = () => {
                         <td>Zona Sud</td>
                         <td>Beto</td>
                         <td>
-                            <button className="detalles-sucursal">
+                            <button className="btn-general">
                                 Ver detalles
                             </button>
                         </td>

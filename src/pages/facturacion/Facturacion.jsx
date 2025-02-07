@@ -38,7 +38,7 @@ const Facturacion = () => {
             value={nit}
             onChange={handleInputChange}
           />
-          <button onClick={handleButtonClick}>Continuar a la facturacion</button>
+          <button className='btn-general' onClick={handleButtonClick}>Continuar a la facturacion</button>
         </div>
       </div>
     </main>

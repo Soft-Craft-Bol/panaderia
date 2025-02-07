@@ -58,24 +58,13 @@ const AddProduct = ({ onAddProduct }) => {
                         <h5>Precio Venta:</h5>
                         <Field name="priceVent" type="number" placeholder="Introduzca el precio de venta" style={estiloInput} />
                         <ErrorMessage name="priceVent" component="div" className="error-message" />
-                        
-                        <button type="button" 
-                        style={{width:"30%", padding: "6px 16px",
-                            border: "none",
-                            backgroundColor: "#f9635c",
-                            color: "white",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "0.9rem",
-                            height: "40px",
-                            gap:"10px",
-                            marginRight:"20%",
-                            marginTop:"30px"}}
+                        <div style={{display:"flex", justifyContent: "space-between"}}>
+                        <button type="button" className="btn-cancel"
                         onClick={() => navigate("/productos")}>
                                 Cancelar
                             </button>
-                            <button type="submit" className="productos-btnAgregar" style={{width:"30%"}}>Agregar Producto</button>
-                        
+                            <button type="submit" className="btn-general" style={{width:"40%"}}>Agregar Producto</button>
+                        </div>
                     </Form>
                 )}
             </Formik>

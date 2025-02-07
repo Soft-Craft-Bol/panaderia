@@ -41,7 +41,7 @@ const Productos = () => {
         <div className="productos-contenedor">
             <h1>Productos en stock</h1>
             <button 
-                className="productos-btnAgregar"
+                className="btn-general"
                 onClick={() => navigate("/productos/addProduct")}
             >
                 (+) &emsp; Agregar nuevo
