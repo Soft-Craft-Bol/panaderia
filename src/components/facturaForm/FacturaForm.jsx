@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchProductos,emitirFactura } from '../../service/api';
+import { fetchProductos, emitirFactura } from '../../service/api';
 
 const FacturaForm = () => {
   const location = useLocation();
@@ -12,7 +14,6 @@ const FacturaForm = () => {
   };
 
   const [productos, setProductos] = useState([]);
-  const [selectedProducto, setSelectedProducto] = useState('');
 
   useEffect(() => {
     const getProductos = async () => {
@@ -27,8 +28,46 @@ const FacturaForm = () => {
     getProductos();
   }, []);
 
-  const handleProductoChange = (e) => {
-    setSelectedProducto(e.target.value);
+  const initialValues = {
+    producto: '',
+    cantidad: '',
+    unidadMedida: '',
+    precioUnitario: '',
+    descuento: ''
+  };
+
+  const validationSchema = Yup.object({
+    producto: Yup.string().required('Seleccione un producto'),
+    cantidad: Yup.number().required('Ingrese la cantidad').positive('Debe ser un número positivo'),
+    unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
+    precioUnitario: Yup.number().required('Ingrese el precio unitario').positive('Debe ser un número positivo'),
+    descuento: Yup.number().min(0, 'Debe ser un número positivo o cero')
+  });
+
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      const selectedProducto = productos.find(producto => producto.descripcionProducto === values.producto);
+      const facturaData = {
+        idPuntoVenta: 1,
+        idCliente: client.id,
+        usuario: client.nombreRazonSocial,
+        detalle: [
+          {
+            //idProducto: selectedProducto.id,
+            idProducto: 1,
+            cantidad: values.cantidad,
+            montoDescuento: values.descuento
+          }
+        ]
+      };
+      const response = await emitirFactura(facturaData);
+      console.log('Respuesta del servidor:', response.data);
+      alert('Factura emitida con éxito');
+      resetForm();
+    } catch (error) {
+      console.error('Error al emitir la factura:', error);
+      alert('Error al emitir la factura');
+    }
   };
 
   return (
@@ -48,37 +87,56 @@ const FacturaForm = () => {
       </div>
 
       <h2>Detalle de la Transacción</h2>
-      <div className="form-group">
-        <label>Producto/Descripción:</label>
-        <select value={selectedProducto} onChange={handleProductoChange}>
-          <option value="">Seleccione un producto</option>
-          {productos.map(producto => (
-            <option key={producto.id} value={producto.descripcionProducto}>
-              {producto.descripcionProducto}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="row">
-        <div className="form-group">
-          <label>Cantidad:</label>
-          <input type="number"/>
-        </div>
-        <div className="form-group">
-          <label>Unidad de Medida:</label>
-          <input type="text"/>
-        </div>
-      </div>
-      <div className="row">
-        <div className="form-group">
-          <label>Precio Unitario (Bs):</label>
-          <input type="number"/>
-        </div>
-        <div className="form-group">
-          <label>Descuento (Bs):</label>
-          <input type="number"/>
-        </div>
-      </div>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ resetForm }) => (
+          <Form>
+            <div className="form-group">
+              <label>Producto/Descripción:</label>
+              <Field as="select" name="producto">
+                <option value="">Seleccione un producto</option>
+                {productos.map(producto => (
+                  <option key={producto.id} value={producto.descripcionProducto}>
+                    {producto.descripcionProducto}
+                  </option>
+                ))}
+              </Field>
+              <ErrorMessage name="producto" component="div" className="error-message" />
+            </div>
+            <div className="row">
+              <div className="form-group">
+                <label>Cantidad:</label>
+                <Field type="number" name="cantidad" />
+                <ErrorMessage name="cantidad" component="div" className="error-message" />
+              </div>
+              <div className="form-group">
+                <label>Unidad de Medida:</label>
+                <Field type="text" name="unidadMedida" />
+                <ErrorMessage name="unidadMedida" component="div" className="error-message" />
+              </div>
+            </div>
+            <div className="row">
+              <div className="form-group">
+                <label>Precio Unitario (Bs):</label>
+                <Field type="number" name="precioUnitario" />
+                <ErrorMessage name="precioUnitario" component="div" className="error-message" />
+              </div>
+              <div className="form-group">
+                <label>Descuento (Bs):</label>
+                <Field type="number" name="descuento" />
+                <ErrorMessage name="descuento" component="div" className="error-message" />
+              </div>
+            </div>
+            <div className="form-buttons">
+              <button type="submit">Emitir Factura</button>
+              <button type="button" onClick={resetForm}>Borrar</button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </main>
   );
 };
