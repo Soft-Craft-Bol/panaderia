@@ -1,38 +1,38 @@
 @import '../../../src/index.css';
 .info-cont{
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    width: 100%;
-    justify-content: space-between;
-    border-radius: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-right: 240px;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  width: 100vh;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .main-cont-inicio{
-    width: 95%;
-    max-width: max-content;
+    /* width: 100%;
+    position: absolute; */
+    max-width: 100vh;
 }
 .tot-cont{
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  margin-top: 10px;
+  width: 100%;
 }
 .tot-cont .left{
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex: 1;
-    
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
 }
 .tot-cont .rigth{
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex: 4;
-    margin-bottom: 10px;    
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 4;
+  margin-bottom: 10px;    
 }
 .tot-cont .rigth .ventas,.inventario{
     background-color: white;

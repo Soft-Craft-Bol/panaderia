@@ -1,0 +1,36 @@
+@import '../../../src/index.css';
+.factura-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+  
+  .factura-container h2 {
+    margin-bottom: 15px;
+    font-size: 1.5em;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  .factura-container label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .factura-container input {
+    padding: 8px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    background-color: #fff;
+  }
