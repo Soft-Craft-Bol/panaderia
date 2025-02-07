@@ -1,0 +1,12 @@
+[
+    {
+        "id": 1,
+        "nomProducto": "Pan en molde",
+        "foto": "https://imag.bonviveur.com/pan-de-trigo-rustico-foto-principal.jpg"
+    },
+    {
+        "id": 2,
+        "nomProducto": "Carajo me costo",
+        "foto": "https://media.tenor.com/ItvR-h4N1REAAAAe/paimon-cry.png"
+    }
+]

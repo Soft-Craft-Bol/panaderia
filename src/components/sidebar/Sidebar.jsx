@@ -14,6 +14,7 @@ const menuItems = [
     { title: 'Contaduría', icon: FaToolbox, route: '/contaduria' },
     { title: 'Caja', icon: FaMoneyCheckAlt, route: '/caja' },
     { title: 'Productos', route: '/productos'}
+    
 ];
 
 const Sidebar = () => {
