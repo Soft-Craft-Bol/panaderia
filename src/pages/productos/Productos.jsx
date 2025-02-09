@@ -10,6 +10,7 @@ const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getProducts = async () => {
