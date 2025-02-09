@@ -1,0 +1,41 @@
+.select-component {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+  
+  .select-component label {
+    font-size: 14px;
+    color: var(--text-color);
+    transition: var(--tran-03);
+  }
+  
+  .select-component .required {
+    color: var(--color-5);
+    margin-left: 4px;
+  }
+  
+  .select-input {
+    padding: 8px;
+    border: 1px solid var(--toggle-color);
+    background-color: var(--sidebar-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: var(--tran-04);
+  }
+  
+  .select-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color-light);
+    outline: none;
+  }
+  
+  .error-message {
+    font-size: 12px;
+    color: var(--color-5);
+    margin-top: 4px;
+    transition: var(--tran-03);
+  }
+  

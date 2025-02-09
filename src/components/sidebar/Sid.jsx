@@ -49,7 +49,7 @@ export const SidebarSearch = () => (
 
 const SidebarLogout = () => (
   <li>
-    <Link to="/logout" onClick={signOut}>
+    <Link to="/" onClick={signOut}>
       <i className="icon"><TbLogout /></i>
       <span className="text nav-text">Cerrar sesión</span>
     </Link>
@@ -85,7 +85,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
               isAdmin && (
                 
               )
-            } */}<SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
+            } */}<SidebarLink to="/registerUser" icon={<PiChalkboardTeacher />} text="Usuarios" />
 
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" />
             <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
