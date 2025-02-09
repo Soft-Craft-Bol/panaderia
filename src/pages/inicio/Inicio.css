@@ -8,10 +8,10 @@
     border-radius: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
-    margin-right: 240px;
 }
 .main-cont-inicio{
-    width: 95%;
+    width: 80%;
+    position: absolute;
     max-width: max-content;
 }
 .tot-cont{

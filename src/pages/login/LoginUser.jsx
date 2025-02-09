@@ -1,6 +1,6 @@
-import React, { useState, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import './LoginUser.css';
 import { Button } from '../../components/buttons/ButtonPrimary';
@@ -8,8 +8,8 @@ import { loginUser } from '../../service/api';
 import { saveToken, saveUser } from '../../utils/authFunctions';
 import ImagenesApp from '../../assets/ImagesApp';
 import { parseJwt } from '../../utils/Auth';
+import InputText from '../../components/inputs/InputText';
 
-const InputText = lazy(() => import('../../components/inputs/InputText'));
 
 const initialValues = {
     username: '',
@@ -77,16 +77,8 @@ function LoginUser() {
                     {({ isSubmitting }) => (
                         <Form style={{ flexDirection: "column" }}>
                             <Suspense fallback={<div>Cargando campo...</div>}>
-                                <h5>Nombre de usuario:</h5>
-                                <Field name="username" type="text" placeholder="Ingrese el nombre de usuario"
-                                    style={{ width: "60%", padding: "10px", border: "1px solid var(--primary-color)", borderRadius: "5px" }}
-                                />
-                                <ErrorMessage name="username" component="div" className="error-message" />
-
-                                <h5>Contraseña:</h5>
-                                <Field name="password" type="password" placeholder="Introduzca su contraseña"
-                                    style={{ width: "60%", padding: "10px", border: "1px solid var(--primary-color)", borderRadius: "5px", paddingRight: "-10%" }} />
-                                <ErrorMessage name="password" component="div" className="error-message" />
+                                <InputText name="username" placeholder="Introduzca su nombre de usuario" label={"Nombre de usuario"} />
+                                <InputText name="password" type="password" placeholder="Introduzca su contraseña" label={"Contraseña"}/>
                             </Suspense>
                             <div>
                                 {loginError && <span className="error-message">{loginError}</span>}

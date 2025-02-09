@@ -18,62 +18,17 @@
     flex-direction: column;
   }
   
-  .login-form h1{
-    text-align: center;
-    margin-bottom: 2rem;
-    color: var(--primary-color);
-  }
-  
   .logo-fesa {
     display: block;
     margin: 0 auto 1rem auto;
   }
   
-  .login-form .error-message {
-    color: red;
-    margin-bottom: 1rem;
-  }
-  
-  .login-form .input-wrapper {
-    margin-bottom: 1rem;
-  }
-  
   .login-form .input-component label {
-    display: block;
     font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
+    text-align: start;
   }
+ 
   
-  .input-component .text-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--toggle-color);
-    border-radius: 4px;
-    background-color: var(--sidebar-color);
-    color: var(--text-color);
-    transition: var(--tran-05);
-  }
-  
-  .login-form .input-component .text-input:focus {
-    border-color: var(--primary-color);
-  }
-  
-  .login-form .toggle-password-btn {
-    background: none;
-    border: none;
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--text-color);
-    transition: var(--tran-04);
-  }
-  
-  .login-form .toggle-password-btn:hover {
-    color: var(--primary-color);
-  }
   
   .login-form .button-primary {
     width: 100%;
@@ -86,14 +41,6 @@
     transition: var(--tran-05);
   }
   
-  .login-form .button-primary:disabled {
-    background-color: var(--toggle-color);
-    cursor: not-allowed;
-  }
-  
-  .login-form .button-primary:hover:not(:disabled) {
-    background-color: var(--color-3);
-  }
   
   .login-form a {
     display: block;
