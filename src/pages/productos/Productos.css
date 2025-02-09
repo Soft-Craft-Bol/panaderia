@@ -1,21 +1,21 @@
 .productos-contenedor{
     flex-direction: column;
 }
-.productos-btnAgregar{
-    padding: 6px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    height: 40px;
-    width: 80%;
-    background-color: var(--primary-color);
-    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
-    color: white;
-}
 
 .cardsProducto-contenedor{
     margin:15px;
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
+    justify-items: center;
+}
+
+.form__input {
+    /*width: clamp(120px, 50vw, 420px);*/
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid black;
+    border-radius: 2px;
+    margin: 0.625rem auto;
+    transition: all 250ms;
 }

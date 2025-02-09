@@ -1,58 +1,72 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
+import { fetchItems } from '../../service/api';
 
 const Productos = () => {
-    // Estado que almacena los productos
-    const [productos, setProductos] = useState([
-        { id: 1, nomProducto: "Pan en molde", foto: "https://imag.bonviveur.com/pan-de-trigo-rustico-foto-principal.jpg" },
-        { id: 2, nomProducto: "Joder me costo", foto: "https://media.tenor.com/ItvR-h4N1REAAAAe/paimon-cry.png" }
-    ]);
+  const [productos, setProductos] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
+  const navigate = useNavigate();
 
-    const [showModal, setShowModal] = useState(false);
-    const [productoAEliminar, setProductoAEliminar] = useState(null);
-
-    const handleOpenModal = (producto) => {
-        setProductoAEliminar(producto);
-        setShowModal(true);
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const response = await fetchItems();
+        setProductos(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setProductoAEliminar(null);
-    };
+    getProducts();
+  }, []);
 
-    const confirmarAccion = () => {
-        if (productoAEliminar) {
-            setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
-        }
-        setShowModal(false);
-        setProductoAEliminar(null);
-    };
+  const handleOpenModal = (product) => {
+    setProductoAEliminar(product);
+    setShowModal(true);
+  };
 
-    return (
-        <div className="productos-contenedor">
-            <h1>Productos en stock</h1>
-            <button className="productos-btnAgregar">
-                (+) &emsp; Agregar nuevo
-            </button>
-            <div className="cardsProducto-contenedor">
-                {productos.map((product) => (
-                    <CardProducto
-                        key={product.id}
-                        product={product}
-                        onEliminar={() => handleOpenModal(product)}
-                    />
-                ))}
-            </div>
-            <ModalConfirm 
-                showModal={showModal}
-                handleCloseModal={handleCloseModal}
-                confirmarAccion={confirmarAccion}
-            />
-        </div>
-    );
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setProductoAEliminar(null);
+  };
+
+  const confirmarAccion = () => {
+    if (productoAEliminar) {
+      setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
+    }
+    setShowModal(false);
+    setProductoAEliminar(null);
+  };
+
+  return (
+    <div className="productos-contenedor">
+      <h1>Productos en stock</h1>
+      <button 
+        className="btn-general"
+        onClick={() => navigate("/productos/addProduct")}
+      >
+        (+) &emsp; Agregar nuevo
+      </button>
+      <div className="cardsProducto-contenedor">
+        {productos.map((product) => (
+          <CardProducto
+            key={product.id}
+            product={product}
+            onEliminar={() => handleOpenModal(product)}
+          />
+        ))}
+      </div>
+      <ModalConfirm 
+        showModal={showModal}
+        handleCloseModal={handleCloseModal}
+        confirmarAccion={confirmarAccion}
+      />
+    </div>
+  );
 };
 
 export default Productos;

@@ -1,124 +1,36 @@
-@import '../../../src/index.css';
-.facturacion-container {
-    height: 90vh;
-    width: 100%;
-    margin: 0;
-    padding: 15px;
-    background: #ffffff;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    box-sizing: border-box;
-  }
-  
-  .contribuyente-section {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    padding: 8px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .contribuyente-item {
-    font-size: 0.9rem;
-    padding: 4px;
-  }
-  
-  .section {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-  }
-  
-  .section h2 {
-    font-size: 0.95rem;
-    margin: 0 0 8px 0;
-    color: #333;
-  }
-  
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  
-  .producto-input {
-    grid-column: span 2;
-  }
-  
-  label {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.85rem;
-    margin: 0;
-  }
-  
-  input, select {
-    width: 100%;
-    height: 28px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    box-sizing: border-box;
-    margin-top: 2px;
-  }
-  
-  .buttons-container {
-    grid-column: span 2;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 5px 0;
-    height: 40px;
-  }
-  
-  .btn-emitir,
-  .btn-limpiar {
-    padding: 6px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    height: 40px;
+.fact-main-cont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-  
-  .btn-emitir {
-    background-color: #3b6088;
-    color: white;
-  }
-  
-  .btn-limpiar {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .btn-emitir:hover {
-    background-color: #2c4866;
-  }
-  
-  .btn-limpiar:hover {
-    background-color: #c82333;
-  }
-  
-  .transaccion-section .input-grid,
-  .detalle-section .input-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .cliente-section .input-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-  
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+.fact-main-cont .card {
+  padding: 20px;
+  height: 40vw;
+  width: 50vw;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+.fact-main-cont h1{
+  margin-bottom: 3%;
+}
+.card input{
+  display: block;
+  width: 100%;
+  height: 50px;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 8%;
+  font-weight: 700;
+}
+.card input::placeholder{
+  font-size: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-body{
+  height: 70%;
+}

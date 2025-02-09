@@ -22,7 +22,7 @@ const Usuarios = () => {
                         <td>correo@example.com</td>
                         <td>Administrador</td>
                         <td>
-                            <button className="detalles-sucursal">
+                            <button className="btn-general" style={{width:"90%"}}>
                                 <FaEdit/> Editar
                             </button>
                         </td>
