@@ -1,41 +1,80 @@
 @import '../../../src/index.css';
-.info-cont{
+.info-cont {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   gap: 15px;
-  width: 100vh;
   justify-content: space-between;
   border-radius: 10px;
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.main-cont-inicio{
-    /* width: 100%;
-    position: absolute; */
-    max-width: 100vh;
-}
-.tot-cont{
+
+.tot-cont {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   gap: 15px;
   margin-top: 10px;
   width: 100%;
 }
-.tot-cont .left{
+
+.tot-cont .left {
   display: flex;
   flex-direction: column;
   gap: 5px;
   flex: 1;
+  min-width: 250px;
 }
-.tot-cont .rigth{
+
+.tot-cont .rigth {
   display: flex;
   flex-direction: column;
   gap: 15px;
   flex: 4;
-  margin-bottom: 10px;    
+  margin-bottom: 10px;
+  min-width: 300px;
 }
-.tot-cont .rigth .ventas,.inventario{
-    background-color: white;
-    flex: 1;
-    border-radius: 10px;
+
+.tot-cont .rigth .ventas, .inventario {
+  background-color: white;
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 1024px) {
+  .info-cont {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tot-cont {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tot-cont .left, .tot-cont .rigth {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tot-cont .rigth {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-cont {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tot-cont .left, .tot-cont .rigth {
+    width: 100%;
+  }
+
+  .tot-cont .rigth .ventas, .inventario {
+    padding: 5px;
+  }
 }
