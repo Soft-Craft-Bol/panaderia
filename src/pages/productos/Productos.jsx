@@ -6,7 +6,6 @@ import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import theProducts from "./theProducts.json";
 
 const Productos = () => {
-    // Estado que almacena los productos
     const [productos, setProductos] = useState([]);
 
     useEffect(() => {

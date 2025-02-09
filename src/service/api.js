@@ -29,3 +29,4 @@ export const fetchProductos = () => api.get('/productos-servicios');
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
+export const createItem = (data) => api.post('/items', data);
