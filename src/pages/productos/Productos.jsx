@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import theProducts from "./theProducts.json";
 import { fetchItems } from '../../service/api';
 
 const Productos = () => {

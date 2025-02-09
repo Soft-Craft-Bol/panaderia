@@ -1,7 +1,7 @@
 .cardP {
     position: relative;
     padding: 1rem;
-    width: 300px;
+    width: 290px;
     max-width: 50%;
     height: 450px;
     box-shadow: -1px 15px 30px -12px rgb(32, 32, 32);
@@ -10,6 +10,12 @@
     line-height: 0.9;
     text-align: start;
   }
+.cardP h2{
+  height: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .cardP img{
   height: 50%;
@@ -17,6 +23,7 @@
   border-radius: 10px;
   margin-bottom: 5px;
   margin-top: 10px;
+  object-fit: cover;
 }
 .cardFooter{
   justify-content: space-between;
