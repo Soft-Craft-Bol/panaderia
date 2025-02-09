@@ -30,3 +30,12 @@ export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
 export const createItem = (data) => api.post('/items', data);
+export const addUser = (data) => api.post('/auth/sign-up', data);
+
+
+export const deleteUser = (id) => api.delete(`/users/${id}`);
+export const getRoles = () => api.get('/roles');
+export const getUsers = () => api.get('/users');
+export const updateUser = (id, data) => api.put(`/users/${id}`, data);
+export const getUserById = (id) => api.get(`/users/${id}`);
+
