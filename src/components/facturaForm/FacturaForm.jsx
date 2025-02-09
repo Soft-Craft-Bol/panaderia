@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
@@ -7,6 +7,8 @@ import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api
 
 const FacturaForm = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const client = location.state?.client || {
     nombreRazonSocial: "Torricos SRL",
     email: "gfredo@softcraft.bo",
@@ -56,6 +58,10 @@ const FacturaForm = () => {
     descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
     puntoDeVenta: Yup.string().required('Seleccione un punto de venta')
   });
+
+  const handleBack = () => {
+    navigate("/facturacion");
+  };
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
@@ -169,6 +175,7 @@ const FacturaForm = () => {
           </Form>
         )}
       </Formik>
+      <button className='btn-back' onClick={handleBack}>Generar factura con un NIT diferente</button>
     </main>
   );
 };
