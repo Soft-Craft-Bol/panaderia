@@ -24,6 +24,9 @@ const Horarios = () => {
     return (
         <div className="horarios-contenedor">
             <h1>Asignación de horarios</h1>
+            <button className="btn-general" onClick={handleOpenModal}>
+                (+) Agregar nuevo
+            </button>
             <table>
                 <thead>
                     <tr>
@@ -37,10 +40,7 @@ const Horarios = () => {
                         <ItemHorario key={index} nombre={nombre} />
                     ))}
             </table>
-            <button className="btn-general" onClick={handleOpenModal}>
-                + Agregar nuevo
-            </button>
-
+            
             {/* Modal */}
             {showModal && (
                 <div className="modalHorario">
