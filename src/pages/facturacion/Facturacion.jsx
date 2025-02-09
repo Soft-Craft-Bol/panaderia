@@ -17,10 +17,10 @@ const Facturacion = () => {
       const clients = response.data;
       const client = clients.find(client => client.numeroDocumento.toString() === nit);
       if (client) {
-        //alert(`Cliente encontrado: ${client.nombreRazonSocial}`);
         navigate('/impuestos-form', { state: { client } });
       } else {
-        alert('Cliente no encontrado');
+        alert('Cliente no encontrado, CREAR CLIENTE');
+        navigate('/clientes/crear-cliente');
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
