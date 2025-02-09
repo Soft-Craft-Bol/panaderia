@@ -183,12 +183,12 @@ const ItemForm = () => {
           </div>
           <div className='input-side'>
             <div className="input-group">
-                <label htmlFor="descripcion">Descripción</label>
-                <Field className="input-card" id="descripcion" name="descripcion" type="text" />
+                <label htmlFor="descripcion">Descripción:</label>
+                <Field className="input-card" id="descripcion" name="descripcion" type="text" placeholder="Ingrese una breve descripción del producto" />                
                 <ErrorMessage name="descripcion" component="div" className="error-message" />
             </div>
             <div className="input-group">
-                <label htmlFor="unidadMedida">Unidad de Medida</label>
+                <label htmlFor="unidadMedida">Unidad de Medida:</label>
                 <Field className="input-card" id="unidadMedida" name="unidadMedida" type="number" disabled />
                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
             </div>
@@ -203,7 +203,7 @@ const ItemForm = () => {
                 <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
             </div>
             {submitError && <div className="error-message">{submitError}</div>}
-            <button type="submit" disabled={isSubmitting}>
+            <button type="submit" disabled={isSubmitting} >
                 {isSubmitting ? 'Guardando...' : 'Añadir nuevo producto / item'}
             </button>
           </div>
