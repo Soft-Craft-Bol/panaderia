@@ -62,7 +62,6 @@ const UserManagement = () => {
     [currentUser]
   );
 
-  // Memoizing column definitions to avoid unnecessary re-renders
   const columns = useMemo(
     () => [
       { header: "ID", accessor: "id" },

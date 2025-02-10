@@ -6,19 +6,15 @@ const Table = ({ columns, data, onRowClick, rowsPerPage = 10 }) => {
   const [rowsPerPageSelection, setRowsPerPageSelection] = useState(rowsPerPage);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' }); // Estado para el orden
 
-  // Calcular datos para la página actual
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPageSelection;
     return data.slice(startIndex, startIndex + rowsPerPageSelection);
   }, [data, currentPage, rowsPerPageSelection]);
 
-  // Calcular el número total de páginas
   const totalPages = useMemo(() => Math.ceil(data.length / rowsPerPageSelection), [data, rowsPerPageSelection]);
 
-  // Comprobar si hay subcolumnas
   const hasSubColumns = columns.some(column => column.columns);
 
-  // Función para manejar el orden
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -27,7 +23,6 @@ const Table = ({ columns, data, onRowClick, rowsPerPage = 10 }) => {
     setSortConfig({ key, direction });
   };
 
-  // Ordenar los datos
   const sortedData = useMemo(() => {
     let sortableData = [...data];
     if (sortConfig.key) {
