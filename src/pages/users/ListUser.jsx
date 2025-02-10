@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react
 import { Button } from "../../components/buttons/Button";
 import Table from "../../components/table/Table";
 import { FaEdit, MdDelete } from "../../hooks/icons";
-import { getUsers, deleteUser} from "../../service/api";
+import { getUsers, deleteUser } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -20,11 +20,15 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await getUsers();
+      console.log(response.data);
       setUsers(response.data);
     };
     fetchUsers();
   }, []);
 
+  const hasRole = (role) => currentUser?.roles.includes(role);
+
+  const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
   const handleDeleteUser = useCallback(async () => {
     if (userToDelete.id === currentUser.id) {
@@ -49,15 +53,13 @@ const UserManagement = () => {
         toast.error("No puedes eliminar tu propio usuario.");
         return;
       }
+      if (!hasAnyRole("ROLE_ADMIN", "DELETE")) {
+        toast.error("No tienes permiso para eliminar usuarios.");
+        return;
+      }
       setUserToDelete(user);
       setDeleteConfirmOpen(true);
     },
-    [currentUser]
-  );
-
-
-  const isAdmin = useMemo(
-    () => currentUser?.roles.includes("Administrador"),
     [currentUser]
   );
 
@@ -77,30 +79,39 @@ const UserManagement = () => {
           </div>
         ),
       },
-      { header: "Nombre", accessor: "name" },
-      { header: "Apellido", accessor: "last_name" },
-      { header: "Teléfono", accessor: "phone" },
+      { header: "Nombre", accessor: "firstName" },
+      { header: "Apellido", accessor: "lastName" },
+      { header: "Teléfono", accessor: "telefono" },
       { header: "Correo Electrónico", accessor: "email" },
-      { header: "Tipo de Usuario", accessor: "roles" },
-      isAdmin && {
+      { 
+        header: "Tipo de Usuario", 
+        accessor: "roles",
+        render: (row) => row.roles.map(role => role.roleEnum).join(", ") 
+      },
+      
+      (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER") || hasRole("UPDATE")) && {
         header: "Acciones",
         render: (row) => (
           <div className="user-management-table-actions">
-            <Link to={`/editUser/${row.id}`} className="user-management-edit-user">
-              <FaEdit />
-            </Link>
-            <Button
-              type="danger"
-              onClick={() => confirmDeleteUser(row)}
-              disabled={currentUser?.id === row.id}
-            >
-              <MdDelete />
-            </Button>
+            {hasAnyRole("ROLE_ADMIN", "UPDATE") && (
+              <Link to={`/editUser/${row.id}`} className="user-management-edit-user">
+                <FaEdit />
+              </Link>
+            )}
+            {hasAnyRole("ROLE_ADMIN", "DELETE") && (
+              <Button
+                type="danger"
+                onClick={() => confirmDeleteUser(row)}
+                disabled={currentUser?.id === row.id}
+              >
+                <MdDelete />
+              </Button>
+            )}
           </div>
         ),
       },
     ].filter(Boolean),
-    [isAdmin, confirmDeleteUser, currentUser]
+    [currentUser, confirmDeleteUser]
   );
 
   return (
@@ -108,27 +119,27 @@ const UserManagement = () => {
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <div className="user-management-header">
         <h2 className="user-management-title">Gestión de Usuarios</h2>
-        {isAdmin && <LinkButton to={`/registerUser`}>Agregar Usuario</LinkButton>}
+        {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && (
+          <LinkButton to={`/registerUser`}>Agregar Usuario</LinkButton>
+        )}
       </div>
 
       <Table columns={columns} data={users} className="user-management-table" />
 
       <Suspense fallback={<div>Cargando modal...</div>}>
         {deleteConfirmOpen && (
-          <Modal
-        isOpen={deleteConfirmOpen}
-        onClose={() => setDeleteConfirmOpen(false)}>
-        <h2>Confirmar Eliminación</h2>
-        <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-        <div className="user-management-table-actions">
-          <Button type="danger" onClick={handleDeleteUser}>
-            Confirmar
-          </Button>
-          <Button type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
-            Cancelar
-          </Button>
-        </div>
-      </Modal>
+          <Modal isOpen={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+            <div className="user-management-table-actions">
+              <Button type="danger" onClick={handleDeleteUser}>
+                Confirmar
+              </Button>
+              <Button type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </Modal>
         )}
       </Suspense>
     </div>
@@ -136,4 +147,3 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
-
