@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import './Sid.css';
 import { IoIosArrowBack, PiChalkboardTeacher, GrAnalytics, FaUser, MdNavigateNext, FaHome,
-   FaUserGraduate, TbLogout, AiOutlineGroup, FaCalendarAlt, GiSlicedBread  } from '../../hooks/icons';
+   FaUserGraduate, TbLogout, AiOutlineGroup, FaCalendarAlt, GiSlicedBread,  
+   MdPlace} from '../../hooks/icons';
 import { useTheme } from '../../hooks/useTheme';
 import { signOut, getUser } from '../../utils/authFunctions';
 import ImagenesApp from '../../assets/ImagesApp';
@@ -91,7 +92,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
             <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
-            <SidebarLink to="/punto-de-venta" icon={<FaCalendarAlt />} text="Punto de venta" />
+            <SidebarLink to="/sucursales" icon={<MdPlace />} text="Punto de venta" />
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduria" />
             <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />

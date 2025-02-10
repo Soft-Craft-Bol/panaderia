@@ -23,6 +23,7 @@ import { GiTeacher } from "react-icons/gi";
 import { FaCamera } from "react-icons/fa";
 import { FaCalendarAlt } from "react-icons/fa";
 import { GiSlicedBread } from "react-icons/gi";
+import { MdPlace } from "react-icons/md";
 
 
 export {
@@ -50,5 +51,6 @@ export {
   GrMoney,
   MdNavigateNext,
   GrAnalytics,
-  PiChalkboardTeacher
+  PiChalkboardTeacher,
+  MdPlace,
 };
