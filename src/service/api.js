@@ -42,9 +42,7 @@ export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
 export const createItem = (data) => api.post('/items', data);
-
-
-
+export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 export const getRoles = () => api.get('/roles');
 export const getUsers = () => api.get('/users');

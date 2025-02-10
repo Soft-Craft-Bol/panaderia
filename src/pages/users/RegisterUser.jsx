@@ -19,6 +19,7 @@ function UserForm() {
 
   const [editingUser, setEditingUser] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const [initialValues, setInitialValues] = useState({
     username: 'gaspar2',
@@ -40,7 +41,6 @@ function UserForm() {
     type === 'success' ? toast.success(message) : toast.error(message);
   }, []);
 
-  // Esquema de validación, optimizado con `useMemo` para evitar recrearlo en cada render
   const validationSchema = useMemo(() => Yup.object({
     nombre: Yup.string().required('Requerido'),
     apellido: Yup.string().required('Requerido'),
@@ -49,10 +49,10 @@ function UserForm() {
     telefono: Yup.string().required('Requerido'),
     password: Yup.string()
       .min(6, 'Mínimo 6 caracteres')
-      .when('editingUser', {
-        is: false,
-        then: Yup.string().required('Requerido'),
-      }),
+      .required('Requerido'),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden')
+      .required('Confirmar contraseña es requerido'),
     roleRequest: Yup.object({
       roleListName: Yup.array().min(1, 'Seleccione al menos un rol').required('Requerido'),
     }),
@@ -189,6 +189,12 @@ function UserForm() {
                     type="password"
                     required={!editingUser}
                   />
+                  <InputText
+  label="Confirmar Contraseña"
+  name="confirmPassword"
+  type="password"
+  required
+/>
                   <InputText label="Correo Electrónico" name="email" required />
                   <div className="roles-container">
                     <label>Roles *</label>

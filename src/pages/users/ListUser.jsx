@@ -2,14 +2,13 @@ import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react
 import { Button } from "../../components/buttons/Button";
 import Table from "../../components/table/Table";
 import { FaEdit, MdDelete } from "../../hooks/icons";
-import { getUsers, deleteUser, getRoles } from "../../api/api";
-import { getUser } from "../login/authFunctions";
+import { getUsers, deleteUser} from "../../service/api";
+import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import { Link } from "react-router-dom";
 import LinkButton from "../../components/buttons/LinkButton";
 import "./ListUser.css";
 
-// Carga perezosa del componente Modal para mejorar el rendimiento
 const Modal = lazy(() => import("../../components/modal/Modal"));
 
 const UserManagement = () => {
@@ -112,7 +111,7 @@ const UserManagement = () => {
         {isAdmin && <LinkButton to={`/registerUser`}>Agregar Usuario</LinkButton>}
       </div>
 
-      <Table columns={columns} className="user-management-table" />
+      <Table columns={columns} data={users} className="user-management-table" />
 
       <Suspense fallback={<div>Cargando modal...</div>}>
         {deleteConfirmOpen && (

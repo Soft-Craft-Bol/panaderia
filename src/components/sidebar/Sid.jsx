@@ -6,6 +6,7 @@ import { IoIosArrowBack, PiChalkboardTeacher, GrAnalytics, FaUser, MdNavigateNex
 import { useTheme } from '../../hooks/useTheme';
 import { signOut, getUser } from '../../utils/authFunctions';
 import ImagenesApp from '../../assets/ImagesApp';
+import { FaUserCheck } from 'react-icons/fa6';
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   
@@ -84,7 +85,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
               isAdmin && (
                 
               )
-            } */}<SidebarLink to="/registerUser" icon={<PiChalkboardTeacher />} text="Usuarios" />
+            } */}<SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
 
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" />
             <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
@@ -92,7 +93,8 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
             <SidebarLink to="/punto-de-venta" icon={<FaCalendarAlt />} text="Punto de venta" />
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduria" />
-            <SidebarLink to="/me-gustas" icon={<FaUserGraduate />} text="Reportes" />
+            <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
+            <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
           </ul>
         </div>
         <div className="bottom-content">

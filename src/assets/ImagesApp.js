@@ -6,7 +6,7 @@ import logo from './img/logo.webp';
 import logotipo from './img/inpased.png'
 import panaderia from './img/panaderia.jpg'
 import defImg from './img/def-img.jpg'
-
+import panadero from './img/panadero.jpg'
 export default {
     "sidebarImg": sidebarImg,
     "inventario": inventario,
@@ -16,4 +16,5 @@ export default {
     "inpased": logotipo,
     "panaderia": panaderia,
     "defImg": defImg,
+    "panadero": panadero
 }
