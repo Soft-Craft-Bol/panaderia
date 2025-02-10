@@ -1,10 +1,18 @@
 import React from "react";
 import './Sucursales.css';
+import { useNavigate } from "react-router-dom";
+
 
 const Sucursales = () => {
+    const navigate = useNavigate();
+    
     return (
         <div className="contenedor-sucursales">
         <h1> Sucursales </h1>
+        <button className="btn-general"
+        onClick={() => navigate("/sucursales/addSucursal")}>
+            (+) Agregar sucursal
+        </button>
         <div className="table">
             <table className="table-header">
                 <thead>

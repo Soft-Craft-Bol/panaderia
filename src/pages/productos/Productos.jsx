@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { fetchItems } from '../../service/api';
+import { fetchItems, deleteItem } from '../../service/api';
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -34,10 +34,17 @@ const Productos = () => {
     setProductoAEliminar(null);
   };
 
-  const confirmarAccion = () => {
+  const confirmarAccion = async () => {
     if (productoAEliminar) {
-      setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
+      try {
+        await deleteItem(productoAEliminar.id);
+        // actualizamos el estado local
+        setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
+      } catch (error) {
+        console.error("Error al eliminar el producto:", error);
+      }
     }
+  
     setShowModal(false);
     setProductoAEliminar(null);
   };
