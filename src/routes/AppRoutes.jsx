@@ -31,6 +31,7 @@ const AppRoutes = () => (
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/registerUser" element={<PrivateRoute><RegisterUser/> </PrivateRoute>} />
+        <Route path="/editUser/:id" element={<PrivateRoute><RegisterUser/></PrivateRoute>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />
         <Route path="/productos" element = {<PrivateRoute> <Productos/> </PrivateRoute>}/>
         <Route path="/impuestos-form" element={<PrivateRoute> <FacturaForm/> </PrivateRoute>}/>

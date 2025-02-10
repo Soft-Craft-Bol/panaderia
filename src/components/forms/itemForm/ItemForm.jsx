@@ -7,6 +7,7 @@ import { FaFile } from 'react-icons/fa';
 import axios from 'axios';
 import { createItem } from '../../../service/api';
 import { useNavigate } from 'react-router-dom';
+import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 
 const validationSchema = Yup.object().shape({
     descripcion: Yup.string().required('Descripción es requerida'),
@@ -90,22 +91,6 @@ const ItemForm = () => {
     }
   };
 
-  const uploadImageToCloudinary = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'riee-consultorio');
-
-    try {
-      const response = await axios.post(
-        'https://api.cloudinary.com/v1_1/dzizafv5s/image/upload',
-        formData
-      );
-      return response.data.secure_url;
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw new Error('Error al subir la imagen');
-    }
-  };
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {

@@ -86,9 +86,9 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
               isAdmin && (
                 
               )
-            } */}<SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
-
+            } */}
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" />
+            <SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
             <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
             <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
