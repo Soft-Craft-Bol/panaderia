@@ -111,7 +111,7 @@ const UserManagement = () => {
         {isAdmin && <LinkButton to={`/registerUser`}>Agregar Usuario</LinkButton>}
       </div>
 
-      <Table columns={columns} className="user-management-table" />
+      <Table columns={columns} data={users} className="user-management-table" />
 
       <Suspense fallback={<div>Cargando modal...</div>}>
         {deleteConfirmOpen && (
