@@ -41,7 +41,6 @@
   padding: 10px;
 }
 
-/* Estilos responsivos */
 @media (max-width: 1024px) {
   .info-cont {
     flex-direction: column;
