@@ -79,15 +79,15 @@ const UserManagement = () => {
           </div>
         ),
       },
+      { 
+        header: "Nombre de usuario", 
+        accessor: "username",
+      },
       { header: "Nombre", accessor: "firstName" },
       { header: "Apellido", accessor: "lastName" },
       { header: "Teléfono", accessor: "telefono" },
       { header: "Correo Electrónico", accessor: "email" },
-      { 
-        header: "Tipo de Usuario", 
-        accessor: "roles",
-        render: (row) => row.roles.map(role => role.roleEnum).join(", ") 
-      },
+     
       
       (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER") || hasRole("UPDATE")) && {
         header: "Acciones",

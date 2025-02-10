@@ -44,6 +44,7 @@ export const fetchItems = () => api.get('/items');
 export const createItem = (data) => api.post('/items', data);
 export const deleteItem = (id) => api.delete(`/items/${id}`);
 export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
+
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 export const getRoles = () => api.get('/roles');
 export const getUsers = () => api.get('/users');

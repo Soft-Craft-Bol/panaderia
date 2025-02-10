@@ -22,15 +22,15 @@ function UserForm() {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const [initialValues, setInitialValues] = useState({
-    username: 'gaspar2',
-    nombre: 'Armando',
-    apellido: 'Gaspar Mamani',
-    password: '1234',
-    telefono: '62982552',
-    email: 'gaspararmaxndo44@gmail.com',
+    username: '',
+    nombre: '',
+    apellido: '',
+    password: '',
+    telefono: '',
+    email: '',
     photo: null,
     roleRequest: {
-      roleListName: ["ADMIN"],
+      roleListName: [""],
     },
   });
 
@@ -118,7 +118,7 @@ function UserForm() {
         notify('Usuario agregado exitosamente.');
       }
       resetForm();
-      navigate('/userManagement');
+      navigate('/users');
     } catch (error) {
       notify('Error al procesar la solicitud.', 'error');
     }
