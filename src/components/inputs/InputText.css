@@ -83,7 +83,7 @@
 
 /* Dark mode styles */
 body.dark .text-input {
-  background-color: var(--sidebar-color);
+  /*background-color: var(--sidebar-color);*/
   border-color: var(--color-text-quaternary);
 }
 
