@@ -7,6 +7,7 @@ import { IoIosArrowBack, PiChalkboardTeacher, GrAnalytics, FaUser, MdNavigateNex
 import { useTheme } from '../../hooks/useTheme';
 import { signOut, getUser } from '../../utils/authFunctions';
 import ImagenesApp from '../../assets/ImagesApp';
+import { FaUserCheck } from 'react-icons/fa6';
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   
@@ -49,7 +50,7 @@ export const SidebarSearch = () => (
 
 const SidebarLogout = () => (
   <li>
-    <Link to="/logout" onClick={signOut}>
+    <Link to="/" onClick={signOut}>
       <i className="icon"><TbLogout /></i>
       <span className="text nav-text">Cerrar sesión</span>
     </Link>
@@ -93,7 +94,8 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
             <SidebarLink to="/sucursales" icon={<MdPlace />} text="Punto de venta" />
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduria" />
-            <SidebarLink to="/me-gustas" icon={<FaUserGraduate />} text="Reportes" />
+            <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
+            <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
           </ul>
         </div>
         <div className="bottom-content">

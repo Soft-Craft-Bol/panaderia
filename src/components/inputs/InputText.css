@@ -1,74 +1,108 @@
 .input-component {
-    margin-bottom: 1.5rem;
-  }
-  
-  .input-component label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color-secundary);
-    font-weight: 600;
-  }
-  
-  .input-component .required {
-    color: var(--color-5);
-    margin-left: 0.25rem;
-  }
-  
-  .input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .text-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
-    background-color: var(--body-color);
-    color: var(--text-color);
-    transition: var(--tran-03);
-  }
-  
-  .text-input:focus {
-    border-color: var(--color-4);
-    outline: none;
-  }
-  
-  .text-input.dark {
-    background-color: var(--color-dark);
-    border: 0.5px solid var(--color-3);
-    color: var(--toggle-color);
-  }
-  
-  .toggle-password-btn {
-    position: absolute;
-    right: 0.75em;
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    color: var(--primary-color);
-    transition: var(--tran-03);
-  }
-  
-  .toggle-password-btn:hover {
-    background: none;
-  }
-  
-  .error-message {
-    color: var(--color-5);
-    font-size: 0.875rem;
-  }
-  
-  
-  body.dark .error-message {
-    color: var(--color-5);
-  }
-  
-  
-  body.dark .toggle-password-btn:hover {
-    color: var(--color-3);
-    background: none;
-  }
-  
+  margin-bottom: 1.5rem;
+}
+
+.input-component label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.input-component .required {
+  margin-left: 0.25rem;
+  color: var(--color-red-parameter);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.text-input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #0000;
+  background-color: #ffff;
+  color: var(--color-text-primary);
+  transition: all 0.3s ease;
+}
+
+.text-input:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 175, 90, 0.2);
+}
+
+.text-input:disabled {
+  background-color: var(--bg-app);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.text-input.error {
+  border-color: var(--color-red-parameter);
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password-btn:hover {
+  background: none;
+  color: var(--color-text-primary);
+}
+
+.toggle-password-btn:focus {
+  outline: none;
+  color: var(--primary-color);
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: var(--color-red-parameter);
+  margin-top: 0.25rem;
+  text-align: start;
+}
+
+/* Dark mode styles */
+body.dark .text-input {
+  background-color: var(--sidebar-color);
+  border-color: var(--color-text-quaternary);
+}
+
+body.dark .text-input:hover {
+  border-color: var(--color-text-secondary);
+}
+
+body.dark .text-input:focus {
+  border-color: var(--primary-color);
+}
+
+body.dark .error-message {
+  color: var(--color-red-parameter);
+}
+
+body.dark .toggle-password-btn {
+  color: var(--color-text-secondary);
+}
+
+body.dark .toggle-password-btn:hover {
+  color: var(--color-text-tertiary);
+}
