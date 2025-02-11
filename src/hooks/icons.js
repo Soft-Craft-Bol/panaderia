@@ -1,4 +1,6 @@
 
+import React, { lazy } from "react";
+
 import { IoIosArrowBack } from "react-icons/io";
 import { FaHome, FaUserGraduate } from "react-icons/fa";
 import { TbLogout } from "react-icons/tb";
@@ -24,6 +26,7 @@ import { FaCamera } from "react-icons/fa";
 import { FaCalendarAlt } from "react-icons/fa";
 import { GiSlicedBread } from "react-icons/gi";
 import { MdPlace } from "react-icons/md";
+
 
 
 export {
