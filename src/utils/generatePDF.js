@@ -4,48 +4,35 @@ import 'jspdf-autotable';
 export const generatePDF = (xmlData) => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlData, "text/xml");
-  
-  
-  // Extract data from XML
+
   const cabecera = xmlDoc.getElementsByTagName('cabecera')[0];
   const detalle = xmlDoc.getElementsByTagName('detalle')[0];
-  
-  // Create PDF document with roll paper size (80mm)
-  const pageWidth = 80 * 2.83465; // 80mm converted to points
+
+  const pageWidth = 80 * 2.83465; 
   const doc = new jsPDF({
     unit: 'pt',
-    format: [pageWidth, 800],
-    margins: {
-      top: 80,
-      bottom: 40,
-      left: 15,
-      right: 15
-    }  
+    format: [pageWidth, 800]
   });
-  
-  // Configuración inicial
-  let yPos = 80; // Aumentado el margen superior
-  const xMargin = 15; // Reducido el margen lateral
-  const lineHeight = 14; // Ajustado el espaciado entre líneas
+
+  let yPos = 80;
+  const xMargin = 15; 
+  const lineHeight = 14; 
   const contentWidth = pageWidth - (2 * xMargin);
-  
-  // Center text helper
+
   const centerText = (text, y) => {
     doc.text(text, pageWidth / 2, y, { align: 'center' });
   };
-  
-  // Add line helper
+
   const addLine = (y) => {
     doc.setLineWidth(0.5);
     doc.line(xMargin, y, pageWidth - xMargin, y);
   };
 
-  // Wrap text helper
   const wrapText = (text, maxWidth) => {
     const words = text.split('');
     let lines = [];
     let currentLine = '';
-    
+
     words.forEach(word => {
       const width = doc.getStringUnitWidth(currentLine + word) * doc.getFontSize();
       if (width > maxWidth) {
@@ -58,8 +45,7 @@ export const generatePDF = (xmlData) => {
     lines.push(currentLine);
     return lines;
   };
-  
-  // Header section
+
   doc.setFontSize(11);
   centerText('FACTURA', yPos);
   yPos += lineHeight;
@@ -78,133 +64,111 @@ export const generatePDF = (xmlData) => {
   yPos += lineHeight;
   centerText(getXMLValue(cabecera, 'municipio'), yPos);
   yPos += lineHeight;
-  
-  // Add separator
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Invoice details
-  doc.text(`NIT: ${getXMLValue(cabecera, 'nitEmisor')}`, xMargin, yPos);
+
+  centerText(`NIT: ${getXMLValue(cabecera, 'nitEmisor')}`, yPos);
   yPos += lineHeight;
-  doc.text(`FACTURA N°: ${getXMLValue(cabecera, 'numeroFactura')}`, xMargin, yPos);
+  centerText(`FACTURA N°: ${getXMLValue(cabecera, 'numeroFactura')}`, yPos);
   yPos += lineHeight;
-  
-  // CÓD. AUTORIZACIÓN with wrap
-  doc.text('CÓD. AUTORIZACIÓN:', xMargin, yPos);
+
+  centerText('CÓD. AUTORIZACIÓN:', yPos);
   yPos += lineHeight;
   
   const cuf = getXMLValue(cabecera, 'cuf');
   const cufLines = wrapText(cuf, contentWidth);
   cufLines.forEach(line => {
-    doc.text(line, xMargin, yPos);
+    centerText(line, yPos);
     yPos += lineHeight;
   });
-  
-  // Add separator
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Customer details
-  doc.text(`NOMBRE/RAZÓN SOCIAL: ${getXMLValue(cabecera, 'nombreRazonSocial')}`, xMargin, yPos);
+
+  centerText(`NOMBRE/RAZÓN SOCIAL: ${getXMLValue(cabecera, 'nombreRazonSocial')}`, yPos);
   yPos += lineHeight;
-  doc.text(`NIT/CI/CEX: ${getXMLValue(cabecera, 'numeroDocumento')}`, xMargin, yPos);
+  centerText(`NIT/CI/CEX: ${getXMLValue(cabecera, 'numeroDocumento')}`, yPos);
   yPos += lineHeight;
-  doc.text(`CÓD. CLIENTE: ${getXMLValue(cabecera, 'codigoCliente')}`, xMargin, yPos);
+  centerText(`CÓD. CLIENTE: ${getXMLValue(cabecera, 'codigoCliente')}`, yPos);
   yPos += lineHeight;
-  doc.text(`FECHA DE EMISIÓN: ${formatDate(getXMLValue(cabecera, 'fechaEmision'))}`, xMargin, yPos);
+  centerText(`FECHA DE EMISIÓN: ${formatDate(getXMLValue(cabecera, 'fechaEmision'))}`, yPos);
   yPos += lineHeight;
-  
-  // Add separator
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Details section
+
   centerText('DETALLE', yPos);
   yPos += lineHeight;
-  
-  // Product details with wrap
+
   const descripcion = getXMLValue(detalle, 'descripcion');
   const descripcionLines = doc.splitTextToSize(descripcion, contentWidth);
   descripcionLines.forEach(line => {
-    doc.text(line, xMargin, yPos);
+    centerText(line, yPos);
     yPos += lineHeight;
   });
-  
-  // Amount line
+
   const cantidad = getXMLValue(detalle, 'cantidad');
   const precioUnitario = getXMLValue(detalle, 'precioUnitario');
   const subTotal = getXMLValue(detalle, 'subTotal');
-  
-  doc.text(`${cantidad} X ${formatCurrency(precioUnitario)}`, xMargin, yPos);
-  doc.text(formatCurrency(subTotal), pageWidth - xMargin, yPos, { align: 'right' });
-  yPos += lineHeight;
-  
-  // Add separator
+
+  centerText(`${cantidad} X ${formatCurrency(precioUnitario)}`, yPos);
+  centerText(formatCurrency(subTotal), yPos + lineHeight);
+  yPos += lineHeight * 2;
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Totals section
+
   const montoTotal = getXMLValue(cabecera, 'montoTotal');
-  
-  doc.text('DESCUENTO Bs', xMargin, yPos);
-  doc.text('0.00', pageWidth - xMargin, yPos, { align: 'right' });
+
+  centerText('DESCUENTO Bs 0.00', yPos);
   yPos += lineHeight;
   
-  doc.text('TOTAL Bs', xMargin, yPos);
-  doc.text(formatCurrency(montoTotal), pageWidth - xMargin, yPos, { align: 'right' });
+  centerText(`TOTAL Bs ${formatCurrency(montoTotal)}`, yPos);
   yPos += lineHeight;
-  
-  doc.text('MONTO GIFT CARD Bs', xMargin, yPos);
-  doc.text('0.00', pageWidth - xMargin, yPos, { align: 'right' });
+
+  centerText('MONTO GIFT CARD Bs 0.00', yPos);
   yPos += lineHeight;
-  
-  doc.text('MONTO A PAGAR Bs', xMargin, yPos);
-  doc.text(formatCurrency(montoTotal), pageWidth - xMargin, yPos, { align: 'right' });
+
+  centerText(`MONTO A PAGAR Bs ${formatCurrency(montoTotal)}`, yPos);
   yPos += lineHeight;
-  
-  // Add separator
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Amount in words
+
   const wordsText = `Son: ${numberToWords(parseFloat(montoTotal))} Bolivianos`;
   const wordsLines = doc.splitTextToSize(wordsText, contentWidth);
   wordsLines.forEach(line => {
-    doc.text(line, xMargin, yPos);
+    centerText(line, yPos);
     yPos += lineHeight;
   });
-  
-  // Add separator
+
   addLine(yPos);
   yPos += lineHeight;
-  
-  // Footer text
+
   doc.setFontSize(8);
-  doc.text('ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS,', xMargin, yPos, { maxWidth: contentWidth });
+  centerText('ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS,', yPos);
   yPos += lineHeight;
-  doc.text('EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE', xMargin, yPos);
+  centerText('EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE', yPos);
   yPos += lineHeight;
-  doc.text('ACUERDO A LEY', xMargin, yPos);
+  centerText('ACUERDO A LEY', yPos);
   yPos += lineHeight * 1.5;
-  
+
   const leyendaLines = doc.splitTextToSize(getXMLValue(cabecera, 'leyenda'), contentWidth);
   leyendaLines.forEach(line => {
-    doc.text(line, xMargin, yPos);
+    centerText(line, yPos);
     yPos += lineHeight;
   });
-  
+
   yPos += lineHeight * 4;
-  
-  // Space for QR code (to be added later)
+
   yPos += 100;
-  
-  // Trim PDF to actual content height
+
   doc.internal.pageSize.height = yPos;
-  
+
   return doc;
 };
 
-// Helper functions remain the same
 const getXMLValue = (element, tagName) => {
   const node = element.getElementsByTagName(tagName)[0];
   return node ? node.textContent : '';
