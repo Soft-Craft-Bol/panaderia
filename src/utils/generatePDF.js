@@ -15,7 +15,7 @@ export const generatePDF = async (xmlData) => {
     format: [pageWidth, 800]
   });
 
-  let yPos = 80;
+  let yPos = 80; // Reducido el margen superior
   const xMargin = 15; 
   const lineHeight = 14; 
   const contentWidth = pageWidth - (2 * xMargin);
@@ -26,7 +26,14 @@ export const generatePDF = async (xmlData) => {
 
   const addLine = (y) => {
     doc.setLineWidth(0.5);
-    doc.line(xMargin, y, pageWidth - xMargin, y);
+    const dashLength = 5; // Longitud de cada segmento de la línea punteada
+    const gapLength = 3;  // Espacio entre segmentos
+    let x = xMargin;
+
+    while (x < pageWidth - xMargin) {
+      doc.line(x, y, x + dashLength, y); // Dibuja un segmento de línea
+      x += dashLength + gapLength;       // Mueve la posición para el siguiente segmento
+    }
   };
 
   const wrapText = (text, maxWidth) => {
@@ -161,8 +168,9 @@ export const generatePDF = async (xmlData) => {
     yPos += lineHeight;
   });
 
-  yPos += lineHeight * 4;
+  yPos += lineHeight * 2; // Reducido el espacio después de la leyenda
 
+  // Generar el código QR
   const qrUrl = `https://pilotosiat.impuestos.gob.bo/consulta/QR?nit=${getXMLValue(cabecera, 'nitEmisor')}&cuf=${getXMLValue(cabecera, 'cuf')}&numero=1&t=1`;
   const qrDataUrl = await QRCode.toDataURL(qrUrl);
   const qrSize = 100;
@@ -170,7 +178,7 @@ export const generatePDF = async (xmlData) => {
   const qrY = yPos;
   doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
 
-  yPos += qrSize + 20;
+  yPos += qrSize + 10; // Reducido el espacio después del QR
 
   doc.internal.pageSize.height = yPos;
 
