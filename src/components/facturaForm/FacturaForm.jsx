@@ -4,6 +4,10 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
 import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api';
+import { generatePDF } from '../../utils/generatePDF';
+
+
+
 
 const FacturaForm = () => {
   const location = useLocation();
@@ -81,7 +85,9 @@ const FacturaForm = () => {
       };
       const response = await emitirFactura(facturaData);
       console.log('Respuesta del servidor:', response.data);
-      alert('Factura emitida con éxito');
+      const doc = generatePDF(response.data.xmlContent);
+      doc.save(`factura-${response.data.cuf}.pdf`);
+      alert('Factura emitida y descargada con éxito');
       resetForm();
     } catch (error) {
       console.error('Error al emitir la factura:', error);
