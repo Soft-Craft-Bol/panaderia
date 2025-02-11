@@ -16,6 +16,7 @@ const ClientForm = lazy(() => import("../components/forms/clientForm/ClientForm"
 const Clientes = lazy(() => import("../pages/clientes/Clientes"));
 const RegisterUser = lazy(() => import("../pages/users/RegisterUser"));
 const UserManagement = lazy(() => import("../pages/users/ListUser"));
+const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 
 
 const AppRoutes = () => (
@@ -30,6 +31,7 @@ const AppRoutes = () => (
         {/* <Route path="/users" element={<PrivateRoute><Usuarios /></PrivateRoute>} /> */}
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
+        <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />
         <Route path="/registerUser" element={<PrivateRoute><RegisterUser/> </PrivateRoute>} />
         <Route path="/editUser/:id" element={<PrivateRoute><RegisterUser/></PrivateRoute>} />
         <Route path="/contaduria" element={<h1>Contaduría</h1>} />

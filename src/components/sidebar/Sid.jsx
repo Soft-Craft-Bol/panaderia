@@ -91,7 +91,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
             <SidebarLink to="/horario" icon={<FaUser/>} text="Horarios" />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
-            <SidebarLink to="/facturacion" icon={<AiOutlineGroup />} text="Facturacion" />
+            <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturacion" />
             <SidebarLink to="/sucursales" icon={<MdPlace />} text="Punto de venta" />
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduria" />
             <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />

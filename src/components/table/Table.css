@@ -13,8 +13,9 @@
   
   .reusable-table th {
     padding: 16px;
-    text-align: left;
+    text-align: center;
     color: var(--text-color);
+    background-color: #c2b9ac;
     font-weight: 600;
     font-size: 14px;
   }
