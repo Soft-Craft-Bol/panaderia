@@ -111,13 +111,15 @@ const FacturaForm = () => {
         ]
       };
       const response = await emitirFactura(facturaData);
+      console.log('Link generado:');
       console.log('Respuesta del servidor:', response.data);
-  
-      // Generar el PDF
-      const doc = await generatePDF(response.data.xmlContent); // Asegúrate de usar `await`
-      doc.save(`factura-${response.data.cuf}.pdf`); // Guardar el PDF
-  
+      
+      const doc = await generatePDF(response.data.xmlContent);
+      doc.save(`factura-${response.data.cuf}.pdf`); 
+      
       alert('Factura emitida y descargada con éxito');
+      console.log('Respuesta del servidor:', response.data);
+      console.log('Link generado:');
       resetForm();
     } catch (error) {
       console.error('Error al emitir la factura:', error);
