@@ -32,6 +32,7 @@ function LoginUser() {
             username: values.username.trim(),
             password: values.password,
           });
+          console.log(result);
       
           if (result?.data?.jwt) {
             const token = result.data.jwt;
@@ -42,6 +43,7 @@ function LoginUser() {
             saveUser({
               username: result.data.username,
               roles: roles, // Guardamos los roles
+              photo: result.data.photo,
             });
       
             navigate('/home');
