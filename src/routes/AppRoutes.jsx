@@ -18,6 +18,7 @@ const RegisterUser = lazy(() => import("../pages/users/RegisterUser"));
 const UserManagement = lazy(() => import("../pages/users/ListUser"));
 const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 const Despachos = lazy(() => import("../pages/despachos/Despachos"));
+const CrearDespacho = lazy(() => import("../components/forms/despachoForm/DespachoForm"))
 
 const AppRoutes = () => (
     <Routes>
@@ -41,6 +42,8 @@ const AppRoutes = () => (
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
         <Route path="/despachos" element = {<PrivateRoute> <Despachos /> </PrivateRoute>}/>
+        <Route path="/despachos/create" element = {<PrivateRoute> <CrearDespacho /> </PrivateRoute>}/>
+
     </Routes>
 );
 
