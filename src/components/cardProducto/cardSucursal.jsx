@@ -5,9 +5,9 @@ import { MdDelete } from "react-icons/md";
 
 const CardSucursal = ({ dataLabels, product, onEliminar }) => {
     return (
-        <div className="cardP">
+        <div className="cardP" style={{width:"400px",height:"580px"}}>
             <h2 title={product.nombre}>{product.nombre}</h2>
-            <img src={product.image} alt={product.nombre} />
+            <img src={product.image} alt={product.nombre} style={{height:"40%"}} />
             <p><strong>{dataLabels.data1}</strong> {product.departamento}</p>
             <p><strong>{dataLabels.data2}</strong> {product.municipio}</p>
             <p><strong>{dataLabels.data3}</strong> {product.direccion}</p>

@@ -1,0 +1,36 @@
+.despachos-contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #efeaea;
+    border-radius: 10px;
+    margin: 30px;
+}
+
+.number-comment {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre inputs */
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    margin-top: 8px;
+}
+
+.form-group > div {
+    width: 40%;
+}
+
+.despacho-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaHome, FaUsers, FaBookMedical, FaToolbox, FaCalendarWeek, FaMoneyCheckAlt, MdPlace } from "../../hooks/icons";
+import { FaHome, FaUsers, FaBookMedical, FaToolbox, FaCalendarWeek, FaMoneyCheckAlt, RiTruckFill } from "../../hooks/icons";
 import ImagesApp from '../../assets/ImagesApp';
 import SidebarItem from '../sidebarItem/SidebarItem';
 import './Sidebar.css';
@@ -12,7 +12,7 @@ const menuItems = [
     { title: 'Contaduría', icon: FaToolbox, route: '/contaduria' },
     { title: 'Caja', icon: FaMoneyCheckAlt, route: '/caja' },
     { title: 'Productos', route: '/productos'},
-    { title: 'Sucursales', icon: MdPlace, route: '/sucursales' },
+    { title: 'Despachos', icon: RiTruckFill, route: '/despachos' },
 ];
 
 const Sidebar = () => {

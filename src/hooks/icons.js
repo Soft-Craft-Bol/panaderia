@@ -26,6 +26,8 @@ import { FaCamera } from "react-icons/fa";
 import { FaCalendarAlt } from "react-icons/fa";
 import { GiSlicedBread } from "react-icons/gi";
 import { MdPlace } from "react-icons/md";
+import { RiTruckFill } from "react-icons/ri";
+
 
 
 
@@ -56,4 +58,5 @@ export {
   GrAnalytics,
   PiChalkboardTeacher,
   MdPlace,
+  RiTruckFill,
 };

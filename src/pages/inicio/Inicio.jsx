@@ -4,6 +4,7 @@ import './Inicio.css'
 import InfoLayer from '../../components/layer/InfoLayer'
 import Chard from '../../components/chard/Chard'
 import ImagesApp from '../../assets/ImagesApp'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 const data = [
   { id: 1, name: 'Pan francés', grade: 1, quantity: '1 unidad', price: 'Bs. 1.50', location: 'La Paz', timeline: 'Febrero 2025' },
@@ -15,6 +16,7 @@ const data = [
 ];
 
 const Inicio = () => {
+  const navigate = useNavigate();
   return (
     <main className='main-cont-inicio'>
     <div className='info-cont'>
@@ -43,6 +45,13 @@ const Inicio = () => {
                 total={2000} 
                 image={ImagesApp.inventario}
             />
+            <div>
+              <button className='btn-general'
+             onClick={() => navigate("/sucursales")}>
+              Ver todas las sucursales
+            </button>
+            </div>
+            
         </div>
         <div className='rigth'>
             <div className='inventario'>
