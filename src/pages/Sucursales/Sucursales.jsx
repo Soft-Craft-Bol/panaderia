@@ -25,7 +25,7 @@ const Sucursales = () => {
         data4: 'Teléfono:',
         data5: 'Empresa:'
     };
-
+    console.log(sucursales)
     return (
         <div>
             <h1>Sucursales</h1>

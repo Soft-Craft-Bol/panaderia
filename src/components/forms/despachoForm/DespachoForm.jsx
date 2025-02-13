@@ -1,20 +1,36 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import InputText from "../../inputs/InputText";
 import "./DespachoForm.css";
+import { fetchItems, getSucursales } from "../../../service/api";
+
 
 const ElementProduct = ({ id, onSelect }) => {
+  const [productosList, setProductosList] = useState([]);
+
+  useEffect(() => {
+      const getProducts = async () => {
+        try {
+          const response = await fetchItems();
+          setProductosList(response.data);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+        }
+      };
+  
+      getProducts();
+    }, []);
   return (
     <div className="element-product">
       <input type="checkbox" onChange={() => onSelect(id)} />
       <select className="despacho-input">
         <option value="" disabled selected>Seleccione un producto</option>
-        <option value="producto1">Producto 1</option>
-        <option value="producto2">Producto 2</option>
-        <option value="producto3">Producto 3</option>
-        <option value="producto4">Producto 4</option>
-        <option value="producto5">Producto 5</option>
+        {productosList.map((product) => (
+          <option key={product.id} value={product.id}>
+            {product.descripcion}
+          </option>
+        ))}
       </select>
       <input type="number" min="1" className="despacho-input" placeholder="Cantidad" />
     </div>
@@ -24,6 +40,20 @@ const ElementProduct = ({ id, onSelect }) => {
 export default function DespachoForm() {
   const [productos, setProductos] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [sucursales, setSucursales] = useState([]);
+  
+  useEffect(() => {
+      const fetchSucursales = async () => {
+          try {
+              const response = await getSucursales();
+              setSucursales(response.data);
+          } catch (error) {
+              console.error('Error fetching sucursales:', error);
+          }
+      };
+
+      fetchSucursales();
+  }, []);
 
   const agregarProducto = () => {
     setProductos([...productos, { id: Date.now() }]);
@@ -43,6 +73,7 @@ export default function DespachoForm() {
   };
 
   return (
+    
     <div className="despachos-contenedor">
       <h1>Datos del despacho:</h1>
       <Formik
@@ -62,8 +93,9 @@ export default function DespachoForm() {
               <label htmlFor="origin">Origen:</label>
               <Field as="select" name="origin" id="origin" className="despacho-input">
                 <option value="" disabled selected>Seleccione un origen</option>
-                <option value="opcion1">Opción 1</option>
-                <option value="opcion2">Opción 2</option>
+                {sucursales.map(sucursal =>
+                <option value={sucursal.id} > {sucursal.nombre} </option>
+                )}
               </Field>
             </div>
             <div>
