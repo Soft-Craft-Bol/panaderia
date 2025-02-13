@@ -65,13 +65,9 @@ const ListClient = () => {
         accessor: "numeroDocumento" 
       },
       { 
-        header: "Complemento", 
-        accessor: "complemento",
-        render: (row) => row.complemento || "-"
-      },
-      { 
         header: "Email", 
-        accessor: "email" 
+        accessor: "email",
+        render: (row) => row.email || "-"
       },
       {
         header: "Acciones",
@@ -106,7 +102,7 @@ const ListClient = () => {
       
       <div className="user-management-header">
         <h2 className="user-management-title">Todos de Clientes</h2>
-        <LinkButton to={`/registerClient`}>Agregar Cliente</LinkButton>
+        <LinkButton to={`/clientes/crear-cliente`}>Agregar Cliente</LinkButton>
       </div>
 
       <Table 
