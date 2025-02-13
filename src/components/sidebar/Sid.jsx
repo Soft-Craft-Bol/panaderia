@@ -2,7 +2,6 @@ import React, { lazy, Suspense, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { signOut, getUser } from "../../utils/authFunctions";
-import ImagenesApp from "../../assets/ImagesApp";
 import "./Sid.css";
 
 // Carga perezosa de los íconos
