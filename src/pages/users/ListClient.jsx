@@ -65,13 +65,9 @@ const ListClient = () => {
         accessor: "numeroDocumento" 
       },
       { 
-        header: "Complemento", 
-        accessor: "complemento",
-        render: (row) => row.complemento || "-"
-      },
-      { 
         header: "Email", 
-        accessor: "email" 
+        accessor: "email",
+        render: (row) => row.email || "-"
       },
       {
         header: "Acciones",

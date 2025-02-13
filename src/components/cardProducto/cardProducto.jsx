@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import ImagesApp from '../../assets/ImagesApp';
+import './cardProducto.css';
+
 
 const CardProducto = ({ product, dataLabels, onEliminar }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
