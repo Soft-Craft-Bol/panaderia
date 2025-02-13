@@ -34,3 +34,17 @@
     border-radius: 5px;
     text-align: center;
 }
+.despacho-productos{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+}
+.despacho-productos-cabecera{
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-bottom: 10px;
+}
