@@ -1,6 +1,7 @@
 import React from 'react'
 import './Clientes.css'
-import ListClient from '../users/ListUser'
+import ListClient from '../users/ListClient'
+import ImagesApp from '../../assets/ImagesApp';
 
 const clients = [
   {
@@ -20,11 +21,12 @@ const Clientes = () => {
         <h1>Clientes</h1>
         <div className='main-cont-client'>
             <div className='left'>
-                <h4>Clientes registrados</h4>
-                <ListClient clients={clients} />
+                <ListClient />
             </div>
             <div className='right'>
-                
+                <img
+                  className='right-img'
+                   src={ImagesApp.pan} alt="" />
             </div>
         </div>            
     </main>

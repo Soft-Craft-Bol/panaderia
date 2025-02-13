@@ -15,6 +15,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const currentUser = useMemo(() => getUser(), []);
 
   useEffect(() => {
@@ -74,7 +75,9 @@ const UserManagement = () => {
             <img
               src={row.photo || "ruta/de/foto/por/defecto.jpg"}
               alt={`${row.name} ${row.last_name}`}
+              className="clickable-photo"
               style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+              onClick={() => setSelectedImage(row.photo || "ruta/de/foto/por/defecto.jpg")}
             />
           </div>
         ),
@@ -142,6 +145,13 @@ const UserManagement = () => {
           </Modal>
         )}
       </Suspense>
+      {selectedImage && (
+        <div className="image-modal" onClick={() => setSelectedImage(null)}>
+          <div className="modal-content">
+            <img src={selectedImage} alt="Imagen Ampliada" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
