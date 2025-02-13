@@ -182,6 +182,8 @@ export const generatePDF = async (xmlData) => {
 
   doc.internal.pageSize.height = yPos;
 
+  console.log('Link generado:', qrDataUrl);
+
   return doc;
 };
 

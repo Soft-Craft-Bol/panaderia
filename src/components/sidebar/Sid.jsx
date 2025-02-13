@@ -12,14 +12,15 @@ const PiChalkboardTeacher = lazy(() => import("react-icons/pi").then(mod => ({ d
 const FaUser = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaUser })));
 const GiSlicedBread = lazy(() => import("react-icons/gi").then(mod => ({ default: mod.GiSlicedBread })));
 const AiOutlineGroup = lazy(() => import("react-icons/ai").then(mod => ({ default: mod.AiOutlineGroup })));
-const MdPlace = lazy(() => import("react-icons/md").then(mod => ({ default: mod.MdPlace })));
 const GrAnalytics = lazy(() => import("react-icons/gr").then(mod => ({ default: mod.GrAnalytics })));
 const FaUserGraduate = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaUserGraduate })));
 const FaUserCheck = lazy(() => import("react-icons/fa6").then(mod => ({ default: mod.FaUserCheck })));
 const TbLogout = lazy(() => import("react-icons/tb").then(mod => ({ default: mod.TbLogout })));
+const RiTruckFill = lazy(() => import("react-icons/ri").then(mod => ({ default: mod.RiTruckFill })));
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   const currentUser = useMemo(() => getUser(), []);
+  //console.log(currentUser)
   return (
     <header className="sidebar-header">
       <div className="text logo">
@@ -69,7 +70,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/horario" icon={<FaUser />} text="Horarios" />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" />
-            <SidebarLink to="/sucursales" icon={<MdPlace />} text="Punto de venta" />
+            <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" />
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduría" />
             <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />

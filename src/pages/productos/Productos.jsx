@@ -10,7 +10,11 @@ const Productos = () => {
   const [showModal, setShowModal] = useState(false);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const navigate = useNavigate();
-
+  const dataLabels={
+    data1:'Unidad de medida:',
+    data2:'Precio unitario:',
+    data3:'Codigo Producto SIN:'
+  };
   useEffect(() => {
     const getProducts = async () => {
       try {
@@ -61,6 +65,7 @@ const Productos = () => {
       <div className="cardsProducto-contenedor">
         {productos.map((product) => (
           <CardProducto
+            dataLabels={dataLabels}
             key={product.id}
             product={product}
             onEliminar={() => handleOpenModal(product)}

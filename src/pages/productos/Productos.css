@@ -1,5 +1,7 @@
 .productos-contenedor{
     flex-direction: column;
+    background-color: white;
+    border-radius: 20px;
 }
 
 .cardsProducto-contenedor{

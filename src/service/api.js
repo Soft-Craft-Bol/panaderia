@@ -36,6 +36,7 @@ export default api;
 export const loginUser = (data) => api.post('/auth/log-in', data);
 export const addUser = (data) => api.post('/auth/sign-up', data);
 export const getAllClient = () => api.get('/clientes'); 
+export const deleteClient = (id) => api.delete(`/clientes/delete/${id}`);
 export const createClient = (data) => api.post('/clientes/create', data);
 export const fetchProductos = () => api.get('/productos-servicios');
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
@@ -50,7 +51,7 @@ export const getRoles = () => api.get('/roles');
 export const getUsers = () => api.get('/users');
 export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const getUserById = (id) => api.get(`/users/${id}`);
-
+export const getSucursales = () => api.get('/sucursales');
 
 export const getAllFacturas = () => api.get('/factura');
 

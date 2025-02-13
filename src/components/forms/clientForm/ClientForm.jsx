@@ -6,6 +6,7 @@ import { FaFile } from 'react-icons/fa';
 import axios from 'axios';
 import { createClient, getDocumentoIdentidad } from '../../../service/api';
 import { useNavigate } from 'react-router-dom';
+import '../itemForm/ItemForm.css';
 
 const validationSchema = Yup.object().shape({
     nombreRazonSocial: Yup.string()
