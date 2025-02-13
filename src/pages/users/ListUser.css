@@ -1,4 +1,4 @@
-.user-management-container {
+/* .user-management-container {
     padding: 15px;
     padding-left: 35px; 
     padding-right: 15px;
@@ -107,4 +107,206 @@
     width: auto;
     height: auto;
     object-fit: contain; 
+  } */
+
+  /* Base container styles */
+.user-management-container {
+  padding: clamp(15px, 2vw, 35px);
+  margin-top: clamp(10px, 2vh, 20px);
+  width: 100%;
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Header styles */
+.user-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(15px, 3vh, 30px);
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.user-management-title {
+  font-size: clamp(20px, 2vw, 24px);
+  color: var(--text-color);
+}
+
+/* Table container */
+.user-management-table {
+  background-color: var(--sidebar-color);
+  padding: clamp(10px, 2vw, 20px);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: var(--tran-03);
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Table styles */
+.user-management-table table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+}
+
+.user-management-table th,
+.user-management-table td {
+  padding: clamp(8px, 1.5vh, 15px) clamp(10px, 1.5vw, 15px);
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.user-management-table th {
+  background-color: var(--primary-color-light);
+  color: var(--text-color);
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.user-management-table td {
+  color: var(--text-color);
+}
+
+.user-management-table tr:hover {
+  background-color: var(--primary-color-light);
+}
+
+/* Action buttons container */
+.user-management-table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Filter styles */
+.user-management-filter {
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Modal styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: min(90vw, 1200px);
+  max-height: 90vh;
+  background-color: var(--sidebar-color);
+  border-radius: 8px;
+  padding: clamp(15px, 2vw, 30px);
+  overflow: auto;
+}
+
+.modal-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  object-fit: contain;
+  max-height: 80vh;
+}
+
+/* Image styles */
+.clickable-photo {
+  width: clamp(40px, 5vw, 50px);
+  height: clamp(40px, 5vw, 50px);
+  object-fit: cover;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.clickable-photo:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1400px) {
+  .user-management-table th,
+  .user-management-table td {
+    max-width: 150px;
   }
+}
+
+@media (max-width: 1200px) {
+  .user-management-container {
+    padding: 15px;
+  }
+  
+  .user-management-table th,
+  .user-management-table td {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 992px) {
+  .user-management-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-management-filter {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management-table {
+    padding: 10px;
+  }
+
+  .user-management-table th,
+  .user-management-table td {
+    padding: 8px;
+    font-size: 14px;
+    max-width: 100px;
+  }
+
+  .clickable-photo {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .user-management-container {
+    padding: 0;
+    margin: 0;
+  }
+
+  .user-management-table {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .user-management-table-actions,
+  .user-management-filter {
+    display: none;
+  }
+}
