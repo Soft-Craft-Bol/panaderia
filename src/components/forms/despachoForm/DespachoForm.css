@@ -48,3 +48,15 @@
     margin-right: 20%;
     margin-bottom: 10px;
 }
+.cuerpo-productos{
+    background-color: white;
+    margin: 20px;
+    width: 90%;
+}
+.element-product {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 15px;
+  }
