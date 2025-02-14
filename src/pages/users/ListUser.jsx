@@ -6,6 +6,7 @@ import { getUsers, deleteUser } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import { Link } from "react-router-dom";
+
 import LinkButton from "../../components/buttons/LinkButton";
 import "./ListUser.css";
 
