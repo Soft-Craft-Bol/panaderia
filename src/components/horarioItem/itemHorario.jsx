@@ -1,48 +1,85 @@
 import { useState } from "react";
 import './itemHorario.css';
 
-const ItemHorario= (props) => {
-    const [checkedDays, setCheckedDays] = useState([false, false, false, false, false, false, false]); // Array para los 7 días de la semana
+const ItemHorario = (props) => {
+    const [checkedDays, setCheckedDays] = useState([false, false, false, false, false, false, false]);
+    const [entrada, setEntrada] = useState('');
+    const [salida, setSalida] = useState('');
+    const [fechaEntrada, setFechaEntrada] = useState(new Date().toISOString().split('T')[0]);
+    const [fechaSalida, setFechaSalida] = useState('');
 
-  const handleCheckboxChange = (index) => {
-    const newCheckedDays = [...checkedDays]; // Copia de los days
-    newCheckedDays[index] = !newCheckedDays[index]; // Invierte el estado del checkbox correspondiente
-    setCheckedDays(newCheckedDays); // Actualiza el estado
-  };
+    const handleCheckboxChange = (index) => {
+        const newCheckedDays = [...checkedDays];
+        newCheckedDays[index] = !newCheckedDays[index];
+        setCheckedDays(newCheckedDays);
+    };
+
+    const generateHourOptions = () => {
+        const hours = [];
+        for (let i = 0; i < 24; i++) {
+            const hour = i.toString().padStart(2, '0') + ":00";
+            hours.push(<option key={hour} value={hour}>{hour}</option>);
+        }
+        return hours;
+    };
+
+    const handleNextDay = () => {
+        const nextDay = new Date(fechaEntrada);
+        nextDay.setDate(nextDay.getDate() + 1);
+        setFechaSalida(nextDay.toISOString().split('T')[0]);
+    };
 
     return (
         <tbody>
             <tr>
                 <td>{props.nombre}</td>
                 <td>
-                    <select>
-                    <option value="" disabled selected>Seleccione horario de ingreso</option>
-                    <option value="1">08:00</option>
-                        <option value="2">09:00</option>
-                        <option value="3">10:00</option>
+                    <input 
+                        type="date" 
+                        value={fechaEntrada} 
+                        onChange={(e) => setFechaEntrada(e.target.value)} 
+                        aria-label="Seleccione fecha de ingreso"
+                    />
+                    <select 
+                        value={entrada} 
+                        onChange={(e) => setEntrada(e.target.value)} 
+                        aria-label="Seleccione horario de ingreso"
+                    >
+                        <option value="" disabled>Seleccione horario de ingreso</option>
+                        {generateHourOptions()}
                     </select>
                 </td>
                 <td>
-                    <select>
-                        <option value="" disabled selected>Seleccione horario de salida</option>
-                        <option value="1">19:00</option>
-                        <option value="2">20:00</option>
-                        <option value="3">21:00</option>
+                    <input 
+                        type="date" 
+                        value={fechaSalida} 
+                        onChange={(e) => setFechaSalida(e.target.value)} 
+                        aria-label="Seleccione fecha de salida"
+                    />
+                    <select 
+                        value={salida} 
+                        onChange={(e) => setSalida(e.target.value)} 
+                        aria-label="Seleccione horario de salida"
+                    >
+                        <option value="" disabled>Seleccione horario de salida</option>
+                        {generateHourOptions()}
                     </select>
+                    <button onClick={handleNextDay} aria-label="Cambiar fecha de salida a mañana">⏭️</button>
                 </td>
                 <td>
-          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => (
-              <label className="checkday-control">
-                <input
-                  type="checkbox"
-                  name="checkbox-layout"
-                  checked={checkedDays[index]}
-                  onChange={() => handleCheckboxChange(index)}
-                />
-                {day}&emsp;
-              </label>
-          ))}
-            </td>
+                    {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => (
+                        <label key={index} className="checkday-control">
+                            <input
+                                type="checkbox"
+                                name={`checkbox-${day}`}
+                                checked={checkedDays[index]}
+                                onChange={() => handleCheckboxChange(index)}
+                                aria-label={`Seleccione ${day}`}
+                            />
+                            {day}&emsp;
+                        </label>
+                    ))}
+                </td>
             </tr>
         </tbody>
     );
