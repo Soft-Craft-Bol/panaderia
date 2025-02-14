@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, lazy } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { Button } from '../../components/buttons/ButtonPrimary';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addUser, updateUser, getUserById } from '../../service/api';
 import { FaCamera } from '../../hooks/icons';
@@ -9,6 +8,7 @@ import { Toaster, toast } from 'sonner';
 import { useTheme } from '../../context/ThemeContext';
 import './RegisterUser.css';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
+import { Button } from '../../components/buttons/Button';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -30,7 +30,7 @@ function UserForm() {
     email: '',
     photo: null,
     roleRequest: {
-      roleListName: [""],
+      roleListName: [],
     },
   });
 
@@ -109,6 +109,8 @@ function UserForm() {
       },
     };
   
+    console.log('Data to be sent:', userData); // Add this line
+  
     try {
       if (editingUser) {
         await updateUser(editingUser.id, userData);
@@ -120,10 +122,10 @@ function UserForm() {
       resetForm();
       navigate('/users');
     } catch (error) {
+      console.error('Error response:', error.response); // Add this line
       notify('Error al procesar la solicitud.', 'error');
     }
   }, [editingUser, navigate, notify]);
-  
 
   const handlePhotoChange = (event, setFieldValue) => {
     const file = event.currentTarget.files[0];
