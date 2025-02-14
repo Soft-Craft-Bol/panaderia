@@ -125,6 +125,9 @@ const UserManagement = () => {
         {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && (
           <LinkButton to={`/registerUser`}>Agregar Usuario</LinkButton>
         )}
+        {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && (
+          <LinkButton to={`/horario`}>Asignar horarios</LinkButton>
+        )}
       </div>
 
       <Table columns={columns} data={users} className="user-management-table" />
