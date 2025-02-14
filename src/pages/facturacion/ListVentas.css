@@ -25,32 +25,31 @@
 }
 
 .estado-emitida {
-  background-color: #4caf50; /* Verde */
+  background-color: #4caf50; 
   color: white;
 }
 
 .estado-anulada {
-  background-color: #f44336; /* Rojo */
+  background-color: #f44336; 
   color: white;
 }
 
 .estado-revertida {
-  background-color: #ff9800; /* Naranja */
+  background-color: #ff9800; 
   color: white;
 }
 
-/* Estilos para los botones */
 .button-danger {
-  background-color: #f44336; /* Rojo */
+  background-color: #f44336; 
   color: white;
 }
 
 .button-warning {
-  background-color: #ff9800; /* Naranja */
+  background-color: #ff9800; 
   color: white;
 }
 
 .button-secondary {
-  background-color: #9e9e9e; /* Gris */
+  background-color: #9e9e9e; 
   color: white;
 }

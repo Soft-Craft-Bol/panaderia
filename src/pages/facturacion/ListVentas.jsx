@@ -84,7 +84,7 @@ const ListVentas = () => {
     () => [
       { header: "ID", accessor: "id" },
       { header: "Código Cliente", accessor: "codigoCliente" },
-      { header: "Cliente", accessor: "usuario" },
+      { header: "Cliente", accessor: "nombreRazonSocial" },
       { header: "Fecha de Emisión", accessor: "fechaEmision" },
       {
         header: "Estado",
@@ -97,14 +97,14 @@ const ListVentas = () => {
       },
       {
         header: "Productos",
-        accessor: "detalleList",
-        render: (factura) => factura.detalleList.map((d) => d.descripcion).join(", "),
+        accessor: "descripcion",
+        render: (factura) => (factura.detalleList || []).map((d) => d.descripcion).join(", "),
       },
       {
         header: "Total",
-        accessor: "detalleList",
+        accessor: "subTotal",
         render: (factura) =>
-          factura.detalleList.reduce((sum, d) => sum + d.subTotal, 0).toFixed(2),
+          (factura.detalleList || []).reduce((sum, d) => sum + d.subTotal, 0).toFixed(2),
       },
       (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER")) && {
         header: "Acciones",
