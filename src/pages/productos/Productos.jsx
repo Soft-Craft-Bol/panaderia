@@ -4,6 +4,7 @@ import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import { fetchItems, deleteItem } from '../../service/api';
+import '../users/ListUser.css';
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);

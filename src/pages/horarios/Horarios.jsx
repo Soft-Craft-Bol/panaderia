@@ -1,24 +1,43 @@
-import React, { useState } from "react";
-import "./Horarios.css";
+import React, { useState, useEffect } from 'react';
+import { getUsers } from '../../service/api';
+import './Horarios.css';
 import ItemHorario from "../../components/horarioItem/itemHorario";
 
 const Horarios = () => {
-    const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
-    const [newPanadero, setNewPanadero] = useState(""); // Estado para el nuevo nombre del panadero
-    const [horarios, setHorarios] = useState([]); // Lista de panaderos
+    const [showModal, setShowModal] = useState(false);
+    const [newPanadero, setNewPanadero] = useState('');
+    const [users, setUsers] = useState([]);
+    const [horarios, setHorarios] = useState([]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await getUsers();
+                const usersWithFullName = response.data.map(user => ({
+                    ...user,
+                    fullName: `${user.firstName} ${user.lastName}`
+                }));
+                setUsers(usersWithFullName);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+    const handleAddPanadero = () => {
+        if (newPanadero.trim() === "") return;
+        setHorarios([...horarios, newPanadero]);
+        handleCloseModal();
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
 
     const handleOpenModal = () => {
         setShowModal(true);
-    };
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setNewPanadero("");
-    };
-
-    const handleAddPanadero = () => {
-        if (newPanadero.trim() === "") return; // No agregar si el campo está vacío
-        setHorarios([...horarios, newPanadero]);
-        handleCloseModal();
     };
 
     return (
@@ -36,22 +55,29 @@ const Horarios = () => {
                         <th>Días con este horario</th>
                     </tr>
                 </thead>
-                    {horarios.map((nombre, index) => (
+                {horarios.map((nombre, index) => (
                         <ItemHorario key={index} nombre={nombre} />
-                    ))}
+                ))}
             </table>
             
             {/* Modal */}
             {showModal && (
                 <div className="modalHorario">
                     <div className="modalHorario-content">
-                        <h2>Ingrese el nombre del panadero</h2>
-                        <input 
-                            type="text" 
+                        <h2>Seleccione el nombre del panadero</h2>
+                        <select 
                             value={newPanadero} 
-                            onChange={(e) => setNewPanadero(e.target.value)} 
-                            placeholder="Ej. Juan Pérez"
-                        />
+                            onChange={(e) => setNewPanadero(e.target.value)}
+                        >
+                            <option value="" disabled>Seleccione un panadero</option>
+                            {users.map(user => (
+                                user.roles.includes('PANADERO') && (
+                                    <option key={user.id} value={user.fullName}>
+                                        {user.fullName}
+                                    </option>
+                                )
+                            ))}
+                        </select>
                         <div className="modalHorario-buttons">
                             <button onClick={handleAddPanadero}>OK</button>
                             <button onClick={handleCloseModal}>Cancelar</button>
