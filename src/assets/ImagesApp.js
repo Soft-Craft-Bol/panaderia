@@ -1,25 +1,26 @@
-import sidebarImg from './img/pan.jpg';
-import inventario from './img/inventario.jpg';
-import maquinas from './img/maquinas.jpg';
-import sucursal from './img/sucursal.jpg';
-import logo from './img/logo.webp';
-import logotipo from './img/inpased.png'
-import panaderia from './img/panaderia.jpg'
-import defImg from './img/def-img.jpg'
-import panadero from './img/panadero.jpg'
-import pan from './img/pan.jpg'
+const loadImage = async (imageName) => {
+  switch (imageName) {
+    case "sidebarImg":
+      return import("./img/pan.jpg");
+    case "inventario":
+      return import("./img/inventario.jpg");
+    case "maquinas":
+      return import("./img/maquinas.jpg");
+    case "sucursal":
+      return import("./img/sucursal.jpg");
+    case "logo":
+      return import("./img/logo.webp");
+    case "inpased":
+      return import("./img/inpased.png");
+    case "panaderia":
+      return import("./img/panaderia.jpg");
+    case "defImg":
+      return import("./img/def-img.jpg");
+    case "panadero":
+      return import("./img/panadero.jpg");
+    default:
+      return import("./img/def-img.jpg"); // Imagen por defecto
+  }
+};
 
-
-
-export default {
-    "sidebarImg": sidebarImg,
-    "inventario": inventario,
-    "maquinas": maquinas,
-    "sucursal": sucursal,
-    "logo": logo,
-    "inpased": logotipo,
-    "panaderia": panaderia,
-    "defImg": defImg,
-    "panadero": panadero,
-    "pan": pan,
-}
+export default loadImage;

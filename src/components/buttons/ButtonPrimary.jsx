@@ -1,7 +1,7 @@
 import React from 'react';
 import './Button.css';
 
-export const Button = ({ variant = 'primary', type = 'button', children, ...props }) => {
+const ButtonPrimary = ({ variant = 'primary', type = 'button', children, ...props }) => {
   const buttonClass = `button button-${variant}`;
   
   return (
@@ -10,4 +10,5 @@ export const Button = ({ variant = 'primary', type = 'button', children, ...prop
     </button>
   );
 }; 
+export default ButtonPrimary;
  
