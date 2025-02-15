@@ -7,6 +7,11 @@ import LinkButton from "../../components/buttons/LinkButton";
 import Modal from "../../components/modal/Modal";
 import "./ListVentas.css";
 import { Button } from "../../components/buttons/Button";
+import { FaCloudDownloadAlt } from "react-icons/fa"; 
+import { generatePDF } from '../../utils/generatePDF';
+
+
+
 
 const ListVentas = () => {
   const [facturas, setFacturas] = useState([]);
@@ -25,6 +30,15 @@ const ListVentas = () => {
   }, []);
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
+
+  const handleDownload = async (factura) => {
+    if (factura) {
+        const doc = await generatePDF(factura.xmlContent);
+        doc.save(`${factura.cuf}.pdf`);
+    } else {
+        console.error("Factura no disponible para descargar.");
+    }
+  };
 
   const handleAnularClick = (factura) => {
     setSelectedFactura(factura);
@@ -111,6 +125,7 @@ const ListVentas = () => {
         header: "Acciones",
         render: (row) => (
           <div className="user-management-table-actions">
+            
             {row.estado === "EMITIDA" && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
               <Button
                 variant="danger"
@@ -127,7 +142,17 @@ const ListVentas = () => {
                 Revertir
               </Button>
             )}
+            <FaCloudDownloadAlt 
+              className="download-icon" 
+              onClick={() => handleDownload(row)}
+              style={{ 
+                cursor: 'pointer', 
+                fontSize: '1.5rem', 
+                marginRight: '10px',
+              }}
+            />
           </div>
+          
         ),
       },
     ].filter(Boolean),
