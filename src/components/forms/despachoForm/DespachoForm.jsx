@@ -5,7 +5,57 @@ import InputText from "../../inputs/InputText";
 import "./DespachoForm.css";
 import { fetchItems, getSucursales, createDespacho } from "../../../service/api";
 
+const ElementProduct = ({ id, onUpdate }) => {
+  const [productosList, setProductosList] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const response = await fetchItems();
+        setProductosList(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    getProducts();
+  }, []);
+
+  return (
+    <div className="element-product">
+      <select
+        className="despacho-input"
+        onChange={(e) => {
+          setSelectedProduct(e.target.value);
+          onUpdate(id, e.target.value, quantity);
+        }}
+      >
+        <option value="" disabled selected>Seleccione un producto</option>
+        {productosList.map((product) => (
+          <option key={product.id} value={product.id}>
+            {product.descripcion}
+          </option>
+        ))}
+      </select>
+      <input
+        type="number"
+        min="1"
+        className="despacho-input"
+        placeholder="Cantidad"
+        value={quantity}
+        onChange={(e) => {
+          setQuantity(e.target.value);
+          onUpdate(id, selectedProduct, e.target.value);
+        }}
+      />
+    </div>
+  );
+};
+
+
 export default function DespachoForm() {
+  const [productos, setProductos] = useState([]);
   const [sucursales, setSucursales] = useState([]);
   const [mensaje, setMensaje] = useState(null); // Para mensajes de éxito/error
 
@@ -32,6 +82,21 @@ export default function DespachoForm() {
     comment: Yup.string().nullable(), // Puede estar vacío
   });
 
+  const agregarProducto = () => {
+    setProductos([...productos, { id: Date.now(), productoId: null, cantidad: 1 }]);
+  };
+  
+  const eliminarProductos = () => {
+    setProductos(productos.filter(p => !selectedIds.has(p.id)));
+    setSelectedIds(new Set());
+  };
+  const actualizarProducto = (id, productoId, cantidad) => {
+    setProductos((prevProductos) =>
+      prevProductos.map((p) => (p.id === id ? { ...p, productoId, cantidad: parseInt(cantidad) } : p))
+    );
+  };
+  
+
   return (
     <div className="despachos-contenedor">
       <h1>Datos del despacho:</h1>
@@ -51,11 +116,15 @@ export default function DespachoForm() {
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           try {
             const despachoData = {
-              sucursalOrigen: { id: parseInt(values.origin) },
-              destino: { id: parseInt(values.destination) },
+              sucursalOrigenId: parseInt(values.origin),
+              destinoId: parseInt(values.destination),
               transporte: values.transportId,
               numeroContacto: parseInt(values.numberPhone),
               observaciones: values.comment,
+              itemIds: productos.map((p) => ({
+                productoId: parseInt(p.productoId),
+                //cantidad: p.cantidad
+              })),
             };
 
             await createDespacho(despachoData);
@@ -99,7 +168,7 @@ export default function DespachoForm() {
               </div>
             </div>
 
-            <InputText label="Fecha actual:" name="date" type="text" readOnly />
+            {/*<InputText label="Fecha actual:" name="date" type="text" readOnly />*/}
             <InputText label="Transporte usado:" name="transportId" type="text" />
             {errors.transportId && touched.transportId && <p className="error">{errors.transportId}</p>}
 
@@ -109,6 +178,19 @@ export default function DespachoForm() {
               
               <InputText label="Comentario:" name="comment" type="text" placeholder="Opcional" />
             </div>
+
+            <div className="despacho-productos">
+            <div className="despacho-productos-cabecera">
+              <button className="btn-edit" type="button" onClick={agregarProducto}>Agregar productos</button>
+              <button className="btn-cancel" type="button" onClick={eliminarProductos} disabled={productos.length === 0}>Eliminar productos</button>
+            </div>
+            <div className="cuerpo-productos">
+              <h3>Productos enviados</h3>
+              {productos.map((p) => (
+                <ElementProduct key={p.id} id={p.id} onUpdate={actualizarProducto} />
+              ))}
+            </div>
+          </div>
 
             <div>
               <button type="submit" className="btn-general">Enviar</button>
