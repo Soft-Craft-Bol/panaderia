@@ -67,33 +67,6 @@ const FacturaForm = () => {
     navigate("/facturacion");
   };
 
-  // const handleSubmit = async (values, { resetForm }) => {
-  //   try {
-  //     const selectedItem = items.find(item => item.descripcion === values.item);
-  //     const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
-  //     const facturaData = {
-  //       idPuntoVenta: selectedPuntoDeVenta.id,
-  //       idCliente: client.id,
-  //       usuario: client.nombreRazonSocial,
-  //       detalle: [
-  //         {
-  //           idProducto: selectedItem.id,
-  //           cantidad: values.cantidad,
-  //           montoDescuento: values.descuento
-  //         }
-  //       ]
-  //     };
-  //     const response = await emitirFactura(facturaData);
-  //     console.log('Respuesta del servidor:', response.data);
-  //     const doc = generatePDF(response.data.xmlContent);
-  //     doc.save(`factura-${response.data.cuf}.pdf`);
-  //     alert('Factura emitida y descargada con éxito');
-  //     resetForm();
-  //   } catch (error) {
-  //     console.error('Error al emitir la factura:', error);
-  //     alert('Error al emitir la factura');
-  //   }
-  // };
   const handleSubmit = async (values, { resetForm }) => {
     try {
       const selectedItem = items.find(item => item.descripcion === values.item);
@@ -121,6 +94,7 @@ const FacturaForm = () => {
       console.log('Respuesta del servidor:', response.data);
       console.log('Link generado:');
       resetForm();
+      navigate('/ventas');
     } catch (error) {
       console.error('Error al emitir la factura:', error);
       alert('Error al emitir la factura');
