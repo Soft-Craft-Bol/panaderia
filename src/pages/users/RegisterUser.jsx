@@ -36,7 +36,6 @@ function UserForm() {
 
   const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA'];
 
-  // Función de notificación para manejar errores y mensajes de éxito de forma centralizada
   const notify = useCallback((message, type = 'success') => {
     type === 'success' ? toast.success(message) : toast.error(message);
   }, []);
@@ -89,13 +88,13 @@ function UserForm() {
 
   const handleSubmit = useCallback(async (values, { resetForm }) => {
     console.log('Formulario enviado con los siguientes datos:', values);
-    
+
     let imageUrl = editingUser?.photo || null;
-  
+
     if (values.photo instanceof File) {
       imageUrl = await uploadImageToCloudinary(values.photo);
     }
-  
+
     const userData = {
       username: values.username,
       nombre: values.nombre,
@@ -108,9 +107,9 @@ function UserForm() {
         roleListName: values.roleRequest.roleListName,
       },
     };
-  
+
     console.log('Data to be sent:', userData); // Add this line
-  
+
     try {
       if (editingUser) {
         await updateUser(editingUser.id, userData);
@@ -129,10 +128,10 @@ function UserForm() {
 
   const handlePhotoChange = (event, setFieldValue) => {
     const file = event.currentTarget.files[0];
-  
+
     if (file) {
       setFieldValue('photo', file);
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
@@ -143,7 +142,7 @@ function UserForm() {
       setFieldValue('photo', null);
     }
   };
-  
+
 
   return (
     <div className={`user-form-container ${theme}`}>
@@ -192,11 +191,11 @@ function UserForm() {
                     required={!editingUser}
                   />
                   <InputText
-  label="Confirmar Contraseña"
-  name="confirmPassword"
-  type="password"
-  required
-/>
+                    label="Confirmar Contraseña"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                  />
                   <InputText label="Correo Electrónico" name="email" required />
                   <div className="roles-container">
                     <label>Roles *</label>
