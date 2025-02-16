@@ -137,10 +137,9 @@ export default function DespachoForm() {
               transporte: values.transportId,
               numeroContacto: parseInt(values.numberPhone),
               observaciones: values.comment,
-              itemIds: productos.map((p) => ({
-                productoId: parseInt(p.productoId),
-                //cantidad: p.cantidad
-              })),
+              itemIds: productos
+              .filter((p) => p.productoId)  // Filtra productos sin productoId
+              .map((p) => parseInt(p.productoId))   // Solo pasa el productoId
             };
 
             await createDespacho(despachoData);
