@@ -57,4 +57,4 @@ export const getAllFacturas = () => api.get('/factura');
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
 
-
+export const createDespacho = (data) => api.post('/despachos', data);
