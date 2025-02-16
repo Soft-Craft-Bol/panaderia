@@ -5,7 +5,7 @@ import InputText from "../../inputs/InputText";
 import "./DespachoForm.css";
 import { fetchItems, getSucursales, createDespacho } from "../../../service/api";
 
-const ElementProduct = ({ id, onUpdate }) => {
+const ElementProduct = ({ id, onUpdate, onSelect }) => {
   const [productosList, setProductosList] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -24,6 +24,7 @@ const ElementProduct = ({ id, onUpdate }) => {
 
   return (
     <div className="element-product">
+      <input type="checkbox" onChange={() => onSelect(id)}  />
       <select
         className="despacho-input"
         onChange={(e) => {
@@ -58,6 +59,7 @@ export default function DespachoForm() {
   const [productos, setProductos] = useState([]);
   const [sucursales, setSucursales] = useState([]);
   const [mensaje, setMensaje] = useState(null); // Para mensajes de éxito/error
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   useEffect(() => {
     const fetchSucursales = async () => {
@@ -90,6 +92,20 @@ export default function DespachoForm() {
     setProductos(productos.filter(p => !selectedIds.has(p.id)));
     setSelectedIds(new Set());
   };
+
+  const toggleSeleccion = (id) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);  // Si ya está seleccionado, lo eliminamos.
+      } else {
+        newSet.add(id);  // Si no está seleccionado, lo añadimos.
+      }
+      return newSet;
+    });
+  };
+  
+
   const actualizarProducto = (id, productoId, cantidad) => {
     setProductos((prevProductos) =>
       prevProductos.map((p) => (p.id === id ? { ...p, productoId, cantidad: parseInt(cantidad) } : p))
@@ -187,7 +203,7 @@ export default function DespachoForm() {
             <div className="cuerpo-productos">
               <h3>Productos enviados</h3>
               {productos.map((p) => (
-                <ElementProduct key={p.id} id={p.id} onUpdate={actualizarProducto} />
+                <ElementProduct key={p.id} id={p.id} onUpdate={actualizarProducto} onSelect={toggleSeleccion} />
               ))}
             </div>
           </div>
