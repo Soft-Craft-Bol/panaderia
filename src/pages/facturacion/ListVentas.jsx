@@ -175,10 +175,10 @@ const ListVentas = () => {
           <h2>Confirmar {actionType === "anular" ? "Anulación" : "Reversión"}</h2>
           <p>¿Estás seguro de que deseas {actionType === "anular" ? "anular" : "revertir"} esta factura?</p>
           <div className="user-management-table-actions">
-            <Button variant={actionType === "anular" ? "danger" : "warning"} onClick={confirmAction}>
+            <Button className="btn-edit" variant={actionType === "anular" ? "danger" : "warning"} onClick={confirmAction}>
               Confirmar
             </Button>
-            <Button variant="secondary" onClick={() => setModalOpen(false)}>
+            <Button className="btn-cancel" variant="secondary" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
           </div>
