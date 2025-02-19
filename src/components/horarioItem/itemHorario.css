@@ -7,11 +7,9 @@
   }
 
   select {
-    /* Reset */
     border: 0;
     outline: 0;
     font: inherit;
-    /* Personalize */
     width: 90%;
     padding: 8px;
     background: black no-repeat right 0.8em center / 1.4em, #fff;
@@ -22,6 +20,8 @@
   }
  .item-horario button{
   margin-left: 1%;
+  height: 1.5rem;
+
  }
  .item-horario button:hover{
   background-color: #28a745;
@@ -29,4 +29,8 @@
  }  
  .item-horario td{
   align-items: top;
+ }
+ .item-horario select{
+  margin-bottom: 1rem;
+  margin-top: 1rem;
  }
