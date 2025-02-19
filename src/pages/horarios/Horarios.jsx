@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUsers } from '../../service/api';
 import './Horarios.css';
 import ItemHorario from "../../components/horarioItem/itemHorario";
+import TablaHorarios from '../../components/tablaHorarios/TablaHorarios';
 
 const Horarios = () => {
     const [showModal, setShowModal] = useState(false);
@@ -59,6 +60,7 @@ const Horarios = () => {
                         <ItemHorario key={index} nombre={nombre} />
                 ))}
             </table>
+            <TablaHorarios></TablaHorarios>
             {showModal && (
                 <div className="modalHorario">
                     <div className="modalHorario-content">

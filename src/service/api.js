@@ -58,3 +58,6 @@ export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
 
 export const createDespacho = (data) => api.post('/despachos', data);
+
+export const createHoario = (data) => api.post('/horarios', data);
+export const getHorario = () => api.get('/horarios');
