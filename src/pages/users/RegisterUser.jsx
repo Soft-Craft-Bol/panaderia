@@ -74,7 +74,7 @@ function UserForm() {
           email: response.data.email || '',
           photo: response.data.photo || null,
           roleRequest: {
-            roleListName: response.data.roleRequest?.roleListName || [],
+            roleListName: response.data.roles || [],
           },
         });
         console.log(response)
