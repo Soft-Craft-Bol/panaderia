@@ -5,7 +5,6 @@ import { lazy } from "react";
 
 const Inicio = lazy(() => import("../pages/inicio/Inicio"));
 const Sucursales = lazy(() => import("../pages/Sucursales/Sucursales"));
-const Usuarios = lazy(() => import("../pages/usuarios/usuarios"));
 const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
 const Horarios = lazy(() => import("../pages/horarios/Horarios"));
 const Productos = lazy(() => import("../pages/productos/Productos"));
@@ -29,7 +28,6 @@ const AppRoutes = () => (
         <Route path="/sucursales" element={<PrivateRoute><Sucursales /></PrivateRoute>} />
         <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
         <Route path="/sucursales/addSucursal" element = {<PrivateRoute> <AddSucursal> </AddSucursal></PrivateRoute>} />
-        {/* <Route path="/users" element={<PrivateRoute><Usuarios /></PrivateRoute>} /> */}
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />

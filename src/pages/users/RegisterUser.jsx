@@ -67,17 +67,17 @@ function UserForm() {
         setEditingUser(response.data);
         setInitialValues({
           username: response.data.username || '',
-          nombre: response.data.nombre || '',
-          apellido: response.data.apellido || '',
+          nombre: response.data.firstName || '',
+          apellido: response.data.lastName || '',
           password: '',
           telefono: response.data.telefono || '',
           email: response.data.email || '',
           photo: response.data.photo || null,
           roleRequest: {
-            roleListName: response.data.roleRequest?.roleListName || [],
+            roleListName: response.data.roles || [],
           },
         });
-
+        console.log(response)
         if (response.data.photo) setPhotoPreview(response.data.photo);
       } catch (error) {
         notify('Error al obtener los datos del usuario.', 'error');
@@ -109,7 +109,7 @@ function UserForm() {
       },
     };
   
-    console.log('Data to be sent:', userData); // Add this line
+    console.log('Data to be sent:', userData);
   
     try {
       if (editingUser) {
@@ -122,7 +122,7 @@ function UserForm() {
       resetForm();
       navigate('/users');
     } catch (error) {
-      console.error('Error response:', error.response); // Add this line
+      console.error('Error response:', error.response);
       notify('Error al procesar la solicitud.', 'error');
     }
   }, [editingUser, navigate, notify]);
