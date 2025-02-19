@@ -59,8 +59,6 @@ const Horarios = () => {
                         <ItemHorario key={index} nombre={nombre} />
                 ))}
             </table>
-            
-            {/* Modal */}
             {showModal && (
                 <div className="modalHorario">
                     <div className="modalHorario-content">

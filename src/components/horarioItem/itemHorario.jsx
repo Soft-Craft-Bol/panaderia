@@ -30,7 +30,7 @@ const ItemHorario = (props) => {
     };
 
     return (
-        <tbody>
+        <tbody className="item-horario">
             <tr>
                 <td>{props.nombre}</td>
                 <td>
@@ -56,6 +56,7 @@ const ItemHorario = (props) => {
                         onChange={(e) => setFechaSalida(e.target.value)} 
                         aria-label="Seleccione fecha de salida"
                     />
+                    <button onClick={handleNextDay} aria-label="Cambiar fecha de salida a mañana">⏭️</button>
                     <select 
                         value={salida} 
                         onChange={(e) => setSalida(e.target.value)} 
@@ -64,7 +65,6 @@ const ItemHorario = (props) => {
                         <option value="" disabled>Seleccione horario de salida</option>
                         {generateHourOptions()}
                     </select>
-                    <button onClick={handleNextDay} aria-label="Cambiar fecha de salida a mañana">⏭️</button>
                 </td>
                 <td>
                     {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => (
