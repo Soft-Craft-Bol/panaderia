@@ -128,7 +128,8 @@
   }
   
   .pagination-button:hover {
-    background-color: var(--color-primary-hover);
+    color: var(--color-primary-hover);
+    background-color: white;
   }
   
   .pagination-button:disabled {

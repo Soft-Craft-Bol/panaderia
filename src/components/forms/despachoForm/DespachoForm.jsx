@@ -176,7 +176,7 @@ export default function DespachoForm() {
                     </option>
                   ))}
                 </Field>
-                {errors.origin && touched.origin && <p className="error">{errors.origin}</p>}
+                {errors.origin && touched.origin && <p className="error-message">{errors.origin}</p>}
               </div>
 
               <div>
@@ -189,16 +189,14 @@ export default function DespachoForm() {
                     </option>
                   ))}
                 </Field>
-                {errors.destination && touched.destination && <p className="error">{errors.destination}</p>}
+                {errors.destination && touched.destination && <p className="error-message">{errors.destination}</p>}
               </div>
             </div>
 
             <InputText label="Transporte usado:" name="transportId" type="text" />
-            {errors.transportId && touched.transportId && <p className="error">{errors.transportId}</p>}
 
             <div className="form-group">
               <InputText label="Número de emergencia:" name="numberPhone" type="text" placeholder="Ej. 123456789" />
-              {errors.numberPhone && touched.numberPhone && <p className="error">{errors.numberPhone}</p>}
 
               <InputText label="Comentario:" name="comment" type="text" placeholder="Opcional" />
             </div>
