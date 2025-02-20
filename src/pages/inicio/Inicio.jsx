@@ -8,6 +8,13 @@ const Chard = lazy(() => import('../../components/chard/Chard'));
 const ItemChard = lazy(() => import('../../components/chard/ItemChard'));
 import { useNavigate } from "react-router";
 
+const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
+const FaMapPin = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaMapPin })));
+const FaHouseUser = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaHouseUser })));
+const FaSellsy = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaSellsy })));
+const FaPersonBooth = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaPersonBooth })));
+const FaBreadSlice = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaBreadSlice })));
+
 const useImageLoader = (imageName) => {
   const [image, setImage] = useState(null);
 
@@ -18,9 +25,9 @@ const useImageLoader = (imageName) => {
   return image;
 };
 
-const MemoizedTopCard = memo(({ title, quantity, porcentaje }) => (
+const MemoizedTopCard = memo(({ title, quantity, porcentaje,Icon }) => (
   <Suspense fallback={<p>Cargando {title}...</p>}>
-    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} />
+    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} Icon={Icon}/>
   </Suspense>
 ));
 
@@ -29,7 +36,12 @@ const Inicio = () => {
   const [stats, setStats] = useState({
     numeroSucursales: 0,
     inventario: 0,
-    facturasEmitidasHoy: 0
+    facturasEmitidasHoy: 0,
+    numeroPuntosVenta: 0,
+    numeroUsuarios: 0,
+    totalVentasHoy: 0.0,
+    clientesRegistrados: 0,
+    totalPanaderos: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -66,10 +78,11 @@ const Inicio = () => {
   return (
     <main className='main-cont-inicio'>
       <div className='info-cont'>
-        <MemoizedTopCard title="Ingresos" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Egresos" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Costo Prod" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Otros" quantity="1500" porcentaje="10%" />
+        <MemoizedTopCard title="Pts de Venta" quantity={stats.numeroPuntosVenta} Icon={FaMapPin} />
+        <MemoizedTopCard title="Ingresos" quantity={stats.totalVentasHoy} porcentaje="Bs."  Icon={FaSellsy}/>
+        <MemoizedTopCard title="Nro Usuarios"   quantity={stats.numeroUsuarios} Icon={FaHouseUser}/>
+        <MemoizedTopCard title="Clientes" quantity={stats.clientesRegistrados} Icon={FaPersonBooth}/>
+        <MemoizedTopCard title="Nro Panaderos" quantity={stats.totalPanaderos} Icon={FaBreadSlice}/>
       </div>
       <section className='tot-cont'>
         <div className='left'>

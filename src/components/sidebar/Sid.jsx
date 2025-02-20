@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { signOut, getUser } from "../../utils/authFunctions";
 import "./Sid.css";
-
 // Carga perezosa de los íconos
 const IoIosArrowBack = lazy(() => import("react-icons/io").then(mod => ({ default: mod.IoIosArrowBack })));
 const MdNavigateNext = lazy(() => import("react-icons/md").then(mod => ({ default: mod.MdNavigateNext })));
@@ -17,6 +16,7 @@ const FaUserGraduate = lazy(() => import("react-icons/fa").then(mod => ({ defaul
 const FaUserCheck = lazy(() => import("react-icons/fa6").then(mod => ({ default: mod.FaUserCheck })));
 const TbLogout = lazy(() => import("react-icons/tb").then(mod => ({ default: mod.TbLogout })));
 const RiTruckFill = lazy(() => import("react-icons/ri").then(mod => ({ default: mod.RiTruckFill })));
+const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   const currentUser = useMemo(() => getUser(), []);
@@ -73,6 +73,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduría" />
             <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
+            <SidebarLink to="/horario" icon={<FaCalendarWeek />} text="Horarios" />
           </ul>
         </div>
         <div className="bottom-content">
