@@ -85,7 +85,7 @@ const Inicio = () => {
             {!loading && maquinasImg && (
               <InfoLayer 
                 title="Inventario" 
-                description="Inventario de maquinas" 
+                description="Producto a ofrecer" 
                 total={stats.inventario} 
                 image={maquinasImg} 
               />
