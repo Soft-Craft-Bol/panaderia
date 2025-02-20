@@ -64,3 +64,5 @@ export const getHorario = () => api.get('/horarios');
 
 export const getItemsLimited = () => api.get('/items/limited');
 export const getClientLimited = () => api.get('/clientes/limited');
+
+export const getStats = () => api.get('/stats');
