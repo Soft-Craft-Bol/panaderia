@@ -23,11 +23,6 @@ const Clientes = () => {
             <div className='left'>
                 <ListClient />
             </div>
-            <div className='right'>
-                <img
-                  className='right-img'
-                   src={ImagesApp.pan} alt="" />
-            </div>
         </div>            
     </main>
   )

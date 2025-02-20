@@ -61,3 +61,6 @@ export const createDespacho = (data) => api.post('/despachos', data);
 
 export const createHoario = (data) => api.post('/horarios', data);
 export const getHorario = () => api.get('/horarios');
+
+export const getItemsLimited = () => api.get('/items/limited');
+export const getClientLimited = () => api.get('/clientes/limited');
