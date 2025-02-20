@@ -90,7 +90,7 @@ const FacturaForm = () => {
       const doc = await generatePDF(response.data.xmlContent);
       doc.save(`factura-${response.data.cuf}.pdf`); 
       
-      alert('Factura emitida y descargada con éxito');
+      //alert('Factura emitida y descargada con éxito');
       console.log('Respuesta del servidor:', response.data);
       console.log('Link generado:');
       resetForm();
