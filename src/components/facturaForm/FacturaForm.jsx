@@ -1,6 +1,273 @@
+// import React, { useState, useEffect } from 'react';
+// import { useLocation, useNavigate } from 'react-router-dom';
+// import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
+// import * as Yup from 'yup';
+// import './FacturaForm.css';
+// import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida } from '../../service/api';
+// import { generatePDF } from '../../utils/generatePDF';
+
+// const FacturaForm = () => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const { flag } = location.state;
+
+//   const client = location.state?.client || {
+//     nombreRazonSocial: "sin usuario",
+//     email: "...",
+//     numeroDocumento: "0000000000 CB"
+//   };
+
+//   const [items, setItems] = useState([]);
+//   const [vendors, setVendors] = useState([]);
+//   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
+//   const [unidadMedida, setUnidadMedida] = useState([]);
+
+//   useEffect(() => {
+//     const getItems = async () => {
+//       try {
+//         const response = await fetchItems();
+//         setItems(response.data);
+//       } catch (error) {
+//         console.error('Error fetching items:', error);
+//       }
+//     };
+
+//     const getVendors = async () => {
+//       try {
+//         const response = await getUserVendor();
+//         setVendors(response.data);
+//       } catch (error) {
+//         console.error('Error fetching vendors:', error);
+//       }
+//     };
+
+//     const getPuntosDeVenta = async () => {
+//       try {
+//         const response = await fetchPuntosDeVenta();
+//         setPuntosDeVenta(response.data);
+//       } catch (error) {
+//         console.error('Error fetching puntos de venta:', error);
+//       }
+//     };
+
+//     const getUnidadMedidas = async () => {
+//       try {
+//         const response = await getUnidadMedida();
+//         setUnidadMedida(response.data);
+//       } catch (error) {
+//         console.error('Error fetching unidad de medida:', error);
+//       }
+//     };
+
+//     getUnidadMedidas();
+//     getVendors();
+//     getItems();
+//     getPuntosDeVenta();
+//   }, []);
+
+//   const initialValues = {
+//     puntoDeVenta: '',
+//     vendedor: '',
+//     items: [
+//       {
+//         item: '',
+//         cantidad: '',
+//         unidadMedida: '',
+//         precioUnitario: '',
+//         descuento: 0
+//       }
+//     ]
+//   };
+
+//   const validationSchema = Yup.object({
+//     puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
+//     vendedor: Yup.string().required('Seleccione un vendedor'),
+//     items: Yup.array().of(
+//       Yup.object().shape({
+//         item: Yup.string().required('Seleccione un item'),
+//         cantidad: Yup.number().required('Ingrese la cantidad').positive('Debe ser un número positivo'),
+//         unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
+//         precioUnitario: Yup.number().required('Ingrese el precio unitario').positive('Debe ser un número positivo'),
+//         descuento: Yup.number().min(0, 'Debe ser un número positivo o cero')
+//       })
+//     )
+//   });
+
+//   const handleBack = () => {
+//     navigate("/facturacion");
+//   };
+
+//   const handleVentaSinFactura = () => {
+//     console.log('Venta sin factura');
+//   };
+
+//   const handleSubmit = async (values, { resetForm }) => {
+//     try {
+//       const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
+//       const facturaData = {
+//         idPuntoVenta: selectedPuntoDeVenta.id,
+//         idCliente: client.id,
+//         usuario: client.nombreRazonSocial,
+//         detalle: values.items.map(item => {
+//           const selectedItem = items.find(i => i.descripcion === item.item);
+//           return {
+//             idProducto: selectedItem.id,
+//             cantidad: item.cantidad,
+//             montoDescuento: item.descuento
+//           };
+//         })
+//       };
+//       const response = await emitirFactura(facturaData);
+//       const doc = await generatePDF(response.data.xmlContent);
+//       doc.save(`factura-${response.data.cuf}.pdf`);
+
+//       alert('Factura emitida y descargada con éxito');
+//       resetForm();
+//       navigate('/ventas');
+//     } catch (error) {
+//       console.error('Error al emitir la factura:', error);
+//       alert('Error al emitir la factura');
+//     }
+//   };
+
+//   return (
+//     <main className="factura-container">
+//       <h1>Formulario de venta</h1>
+//       <h2>Datos del Cliente</h2>
+//       <div className="form-group">
+//         <label>Razón Social:</label>
+//         <input type="text" value={client.nombreRazonSocial || ''} readOnly />
+//       </div>
+//       <div className="form-group">
+//         <label>Correo:</label>
+//         <input type="email" value={client.email || ''} readOnly />
+//       </div>
+//       <div className="form-group">
+//         <label>NIT/CI:</label>
+//         <input type="text" value={client.numeroDocumento || ''} readOnly />
+//       </div>
+
+//       <h2>Detalles corporativos</h2>
+//       <Formik
+//         initialValues={initialValues}
+//         validationSchema={validationSchema}
+//         onSubmit={handleSubmit}
+//       >
+//         {({ resetForm, setFieldValue, values }) => (
+//           <Form>
+//             <div className="form-group">
+//               <label>Punto de Venta:</label>
+//               <Field as="select" name="puntoDeVenta">
+//                 <option value="">Seleccione un punto de venta</option>
+//                 {puntosDeVenta.map(punto => (
+//                   <option key={punto.id} value={punto.nombre}>
+//                     {punto.nombre}
+//                   </option>
+//                 ))}
+//               </Field>
+//               <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
+//             </div>
+//             <div className="form-group">
+//               <label>Vendedor:</label>
+//               <Field as="select" name="vendedor">
+//                 <option value="">Persona a cargo de la venta</option>
+//                 {vendors.map(vendor => {
+//                   const vendorFullName = `${vendor.firstName} ${vendor.lastName}`;
+//                   return (
+//                     <option key={vendor.id} value={vendorFullName}>
+//                       {vendorFullName}
+//                     </option>
+//                   );
+//                 })}
+//               </Field>
+//               <ErrorMessage name="vendedor" component="div" className="error-message" />
+//             </div>
+//             <h2>Detalle de la Transacción</h2>
+//             <FieldArray name="items">
+//               {({ push, remove }) => (
+//                 <>
+//                   {values.items.map((item, index) => (
+//                     <div key={index} className="form-row">
+//                       <div className="form-group item-field">
+//                         <label>Item/Descripción:</label>
+//                         <Field as="select" name={`items[${index}].item`} onChange={(e) => {
+//                           const selectedItem = items.find(i => i.descripcion === e.target.value);
+//                           setFieldValue(`items[${index}].item`, e.target.value);
+//                           setFieldValue(`items[${index}].precioUnitario`, selectedItem ? selectedItem.precioUnitario : '');
+//                         }}>
+//                           <option value="">Seleccione un item</option>
+//                           {items.map(i => (
+//                             <option key={i.id} value={i.descripcion}>
+//                               {i.descripcion}
+//                             </option>
+//                           ))}
+//                         </Field>
+//                         <ErrorMessage name={`items[${index}].item`} component="div" className="error-message" />
+//                       </div>
+//                       <div className="form-group cantidad-field">
+//                         <label>Cantidad:</label>
+//                         <Field type="number" name={`items[${index}].cantidad`} />
+//                         <ErrorMessage name={`items[${index}].cantidad`} component="div" className="error-message" />
+//                       </div>
+//                       <div className="form-group precio-field">
+//                         <label>Precio Unitario (Bs):</label>
+//                         <Field type="number" name={`items[${index}].precioUnitario`} readOnly />
+//                         <ErrorMessage name={`items[${index}].precioUnitario`} component="div" className="error-message" />
+//                       </div>
+//                       <div className="form-group descuento-field">
+//                         <label>Descuento (Bs):</label>
+//                         <Field type="number" name={`items[${index}].descuento`} />
+//                         <ErrorMessage name={`items[${index}].descuento`} component="div" className="error-message" />
+//                       </div>
+//                       {index > 0 && (
+//                         <button type="button" onClick={() => remove(index)}>
+//                           Eliminar
+//                         </button>
+//                       )}
+//                     </div>
+//                   ))}
+//                   <button type="button" onClick={() => push({ item: '', cantidad: '', unidadMedida: '', precioUnitario: '', descuento: 0 })}>
+//                     + Añadir ítem
+//                   </button>
+//                 </>
+//               )}
+//             </FieldArray>
+//             <div className="form-buttons">
+//               <button
+//                 type="submit"
+//                 disabled={!flag}
+//                 className={flag ? 'btn-enabled' : 'btn-disabled'}
+//               >
+//                 Emitir Factura
+//               </button>
+//               <button className="btn-clear" type="button" onClick={resetForm}>
+//                 Limpiar Datos
+//               </button>
+//             </div>
+//           </Form>
+//         )}
+//       </Formik>
+//       <div className="bot-btns">
+//         <button
+//           className={`btn-no-fact ${flag ? 'btn-disabled' : 'btn-enabled'}`}
+//           onClick={handleVentaSinFactura}
+//           disabled={flag}
+//         >
+//           Registrar venta sin Factura
+//         </button>
+//         <button className="btn-back" onClick={handleBack}>
+//           Generar factura con un NIT diferente
+//         </button>
+//       </div>
+//     </main>
+//   );
+// };
+
+// export default FacturaForm;
+// FacturaForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
 import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida } from '../../service/api';
@@ -11,83 +278,79 @@ const FacturaForm = () => {
   const navigate = useNavigate();
   const { flag } = location.state;
 
-  console.log('Flag value:', flag);
-
   const client = location.state?.client || {
     nombreRazonSocial: "sin usuario",
     email: "...",
-    numeroDocumento: "0000000000 CB"
+    numeroDocumento: "0000000000 CB",
+    id: null
   };
 
   const [items, setItems] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
   const [unidadMedida, setUnidadMedida] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const getItems = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await fetchItems();
-        setItems(response.data);
-        console.log('Items:', response.data);
+        const [itemsRes, vendorsRes, puntosRes, unidadesRes] = await Promise.all([
+          fetchItems(),
+          getUserVendor(),
+          fetchPuntosDeVenta(),
+          getUnidadMedida()
+        ]);
+
+        setItems(itemsRes.data);
+        setVendors(vendorsRes.data);
+        setPuntosDeVenta(puntosRes.data);
+        setUnidadMedida(unidadesRes.data);
       } catch (error) {
-        console.error('Error fetching items:', error);
+        console.error('Error fetching data:', error);
+        setError('Error al cargar los datos necesarios');
+      } finally {
+        setLoading(false);
       }
     };
 
-    const getVendors = async () => {
-      try {
-        const response = await getUserVendor();
-        setVendors(response.data);
-        console.log('vendedores:', response.data);
-      } catch (error) {
-        console.error('Error fetching vendors:', error);
-      }
-    };
-
-    const getPuntosDeVenta = async () => {
-      try {
-        const response = await fetchPuntosDeVenta();
-        setPuntosDeVenta(response.data);
-        console.log('Puntos de venta:', response.data);
-      } catch (error) {
-        console.error('Error fetching puntos de venta:', error);
-      }
-    };
-
-    const getUnidadMedidas = async () => {
-      try {
-        const response = await getUnidadMedida();
-        setUnidadMedida(response.data);
-        console.log('Unidad de medida:', response.data);
-      } catch (error) {
-        console.error('Error fetching unidad de medida:', error);
-      }
-    };
-
-    getUnidadMedidas();
-    getVendors();
-    getItems();
-    getPuntosDeVenta();
+    fetchData();
   }, []);
 
   const initialValues = {
-    item: '',
-    cantidad: '',
-    unidadMedida: '',
-    precioUnitario: '',
-    descuento: 0,
-    puntoDeVenta: ''
+    puntoDeVenta: '',
+    vendedor: '',
+    metodoPago: 'EFECTIVO',
+    items: [
+      {
+        item: '',
+        cantidad: '',
+        unidadMedida: '',
+        precioUnitario: '',
+        descuento: 0
+      }
+    ]
   };
 
   const validationSchema = Yup.object({
-    item: Yup.string().required('Seleccione un item'),
-    cantidad: Yup.number().required('Ingrese la cantidad').positive('Debe ser un número positivo'),
-    unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
-    precioUnitario: Yup.number().required('Ingrese el precio unitario').positive('Debe ser un número positivo'),
-    descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
     puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
-    vendedor: Yup.string().required('Seleccione un vendedor')
+    vendedor: Yup.string().required('Seleccione un vendedor'),
+    metodoPago: Yup.string().required('Método de pago es requerido'),
+    items: Yup.array().of(
+      Yup.object().shape({
+        item: Yup.string().required('Seleccione un item'),
+        cantidad: Yup.number()
+          .required('Ingrese la cantidad')
+          .positive('Debe ser un número positivo'),
+        unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
+        precioUnitario: Yup.number()
+          .required('Ingrese el precio unitario')
+          .positive('Debe ser un número positivo'),
+        descuento: Yup.number()
+          .min(0, 'Debe ser un número positivo o cero')
+      })
+    )
   });
 
   const handleBack = () => {
@@ -95,144 +358,247 @@ const FacturaForm = () => {
   };
 
   const handleVentaSinFactura = () => {
+    // Implementar lógica para venta sin factura
     console.log('Venta sin factura');
   };
 
-  const handleSubmit = async (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
-      const selectedItem = items.find(item => item.descripcion === values.item);
       const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
+      const selectedVendor = vendors.find(v => `${v.firstName} ${v.lastName}` === values.vendedor);
+
+      if (!selectedPuntoDeVenta || !selectedVendor) {
+        throw new Error('Punto de venta o vendedor no encontrado');
+      }
+
       const facturaData = {
         idPuntoVenta: selectedPuntoDeVenta.id,
         idCliente: client.id,
+        tipoComprobante: "FACTURA",
+        metodoPago: values.metodoPago,
+        user_id: selectedVendor.id,
         usuario: client.nombreRazonSocial,
-        detalle: [
-          {
-            idProducto: selectedItem.id,
-            cantidad: values.cantidad,
-            montoDescuento: values.descuento
+        detalle: values.items.map(item => {
+          const selectedItem = items.find(i => i.descripcion === item.item);
+          if (!selectedItem) {
+            throw new Error(`Item no encontrado: ${item.item}`);
           }
-        ]
+          return {
+            idProducto: selectedItem.id,
+            cantidad: Number(item.cantidad),
+            montoDescuento: Number(item.descuento || 0)
+          };
+        })
       };
+
+      console.log('Enviando datos de factura:', facturaData);
+      
       const response = await emitirFactura(facturaData);
-      console.log('Link generado:');
-      console.log('Respuesta del servidor:', response.data);
+      console.log('Respuesta de emisión:', response);
 
-      const doc = await generatePDF(response.data.xmlContent);
-      doc.save(`factura-${response.data.cuf}.pdf`);
+      try {
+        const doc = await generatePDF(response.data.xmlContent);
+        doc.save(`factura-${response.data.cuf}.pdf`);
+        console.log('PDF generado exitosamente');
+      } catch (pdfError) {
+        console.error('Error al generar PDF:', pdfError);
+        alert('Factura emitida pero hubo un error al generar el PDF');
+      }
 
-      alert('Factura emitida y descargada con éxito');
-      console.log('Respuesta del servidor:', response.data);
-      console.log('Link generado:');
+      alert('Factura emitida con éxito');
       resetForm();
       navigate('/ventas');
     } catch (error) {
       console.error('Error al emitir la factura:', error);
-      alert('Error al emitir la factura');
+      alert(`Error al emitir la factura: ${error.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (loading) return <div className="loading">Cargando...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <main className="factura-container">
       <h1>Formulario de venta</h1>
-      <h2>Datos del Cliente</h2>
-      <div className="form-group">
-        <label>Razón Social:</label>
-        <input type="text" value={client.nombreRazonSocial || ''} readOnly />
-      </div>
-      <div className="form-group">
-        <label>Correo:</label>
-        <input type="email" value={client.email || ''} readOnly />
-      </div>
-      <div className="form-group">
-        <label>NIT/CI:</label>
-        <input type="text" value={client.numeroDocumento || ''} readOnly />
-      </div>
+      
+      <section className="client-info">
+        <h2>Datos del Cliente</h2>
+        <div className="form-group">
+          <label>Razón Social:</label>
+          <input type="text" value={client.nombreRazonSocial || ''} readOnly />
+        </div>
+        <div className="form-group">
+          <label>Correo:</label>
+          <input type="email" value={client.email || ''} readOnly />
+        </div>
+        <div className="form-group">
+          <label>NIT/CI:</label>
+          <input type="text" value={client.numeroDocumento || ''} readOnly />
+        </div>
+      </section>
 
-      <h2>Detalles corporativos</h2>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ resetForm, setFieldValue }) => (
-          <Form>
-            <div className="form-group">
-              <label>Punto de Venta:</label>
-              <Field as="select" name="puntoDeVenta">
-                <option value="">Seleccione un punto de venta</option>
-                {puntosDeVenta.map(punto => (
-                  <option key={punto.id} value={punto.nombre}>
-                    {punto.nombre}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
-            </div>
-            <div className="form-group">
-              <label>Vendedor:</label>
-              <Field as="select" name="vendedor">
-                <option value="">Persona a cargo de la venta</option>
-                {vendors.map(vendor => {
-                  const vendorFullName = `${vendor.firstName} ${vendor.lastName}`;
-                  return (
-                    <option key={vendor.id} value={vendorFullName}>
-                      {vendorFullName}
-                    </option>
-                  );
-                })}
-              </Field>
-              <ErrorMessage name="vendedor" component="div" className="error-message" />
-            </div>
-            <h2>Detalle de la Transacción</h2>
-            <div className="form-row">
-              <div className="form-group item-field">
-                <label>Item/Descripción:</label>
-                <Field as="select" name="item" onChange={(e) => {
-                  const selectedItem = items.find(item => item.descripcion === e.target.value);
-                  setFieldValue('item', e.target.value);
-                  setFieldValue('precioUnitario', selectedItem ? selectedItem.precioUnitario : '');
-                }}>
-                  <option value="">Seleccione un item</option>
-                  {items.map(item => (
-                    <option key={item.id} value={item.descripcion}>
-                      {item.descripcion}
+      <section className="corporate-details">
+        <h2>Detalles corporativos</h2>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ resetForm, setFieldValue, values, isSubmitting }) => (
+            <Form>
+              <div className="form-group">
+                <label>Punto de Venta:</label>
+                <Field as="select" name="puntoDeVenta">
+                  <option value="">Seleccione un punto de venta</option>
+                  {puntosDeVenta.map(punto => (
+                    <option key={punto.id} value={punto.nombre}>
+                      {punto.nombre}
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="item" component="div" className="error-message" />
+                <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
               </div>
-              <div className="form-group cantidad-field">
-                <label>Cantidad:</label>
-                <Field type="number" name="cantidad" />
-                <ErrorMessage name="cantidad" component="div" className="error-message" />
+
+              <div className="form-group">
+                <label>Vendedor:</label>
+                <Field as="select" name="vendedor">
+                  <option value="">Persona a cargo de la venta</option>
+                  {vendors.map(vendor => {
+                    const vendorFullName = `${vendor.firstName} ${vendor.lastName}`;
+                    return (
+                      <option key={vendor.id} value={vendorFullName}>
+                        {vendorFullName}
+                      </option>
+                    );
+                  })}
+                </Field>
+                <ErrorMessage name="vendedor" component="div" className="error-message" />
               </div>
-              <div className="form-group precio-field">
-                <label>Precio Unitario (Bs):</label>
-                <Field type="number" name="precioUnitario" readOnly />
-                <ErrorMessage name="precioUnitario" component="div" className="error-message" />
+
+              <div className="form-group">
+                <label>Método de Pago:</label>
+                <Field as="select" name="metodoPago">
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="BANCA MOVIL">Billetera Movil</option>
+                </Field>
+                <ErrorMessage name="metodoPago" component="div" className="error-message" />
               </div>
-              <div className="form-group descuento-field">
-                <label>Descnto(Bs):</label>
-                <Field type="number" name="descuento" />
-                <ErrorMessage name="descuento" component="div" className="error-message" />
+
+              <section className="transaction-details">
+                <h2>Detalle de la Transacción</h2>
+                <FieldArray name="items">
+                  {({ push, remove }) => (
+                    <div className="items-container">
+                      {values.items.map((item, index) => (
+                        <div key={index} className="form-row">
+                          <div className="form-group item-field">
+                            <label>Item/Descripción:</label>
+                            <Field 
+                              as="select" 
+                              name={`items[${index}].item`}
+                              onChange={(e) => {
+                                const selectedItem = items.find(i => i.descripcion === e.target.value);
+                                setFieldValue(`items[${index}].item`, e.target.value);
+                                setFieldValue(
+                                  `items[${index}].precioUnitario`,
+                                  selectedItem ? selectedItem.precioUnitario : ''
+                                );
+                              }}
+                            >
+                              <option value="">Seleccione un item</option>
+                              {items.map(i => (
+                                <option key={i.id} value={i.descripcion}>
+                                  {i.descripcion}
+                                </option>
+                              ))}
+                            </Field>
+                            <ErrorMessage name={`items[${index}].item`} component="div" className="error-message" />
+                          </div>
+
+                          <div className="form-group cantidad-field">
+                            <label>Cantidad:</label>
+                            <Field type="number" name={`items[${index}].cantidad`} />
+                            <ErrorMessage name={`items[${index}].cantidad`} component="div" className="error-message" />
+                          </div>
+
+                          <div className="form-group unidad-field">
+                            <label>Unidad de Medida:</label>
+                            <Field as="select" name={`items[${index}].unidadMedida`}>
+                              <option value="">Seleccione unidad</option>
+                              {unidadMedida.map(unidad => (
+                                <option key={unidad.id} value={unidad.codigo}>
+                                  {unidad.descripcion}
+                                </option>
+                              ))}
+                            </Field>
+                            <ErrorMessage name={`items[${index}].unidadMedida`} component="div" className="error-message" />
+                          </div>
+
+                          <div className="form-group precio-field">
+                            <label>Precio Unitario (Bs):</label>
+                            <Field type="number" name={`items[${index}].precioUnitario`} readOnly />
+                            <ErrorMessage name={`items[${index}].precioUnitario`} component="div" className="error-message" />
+                          </div>
+
+                          <div className="form-group descuento-field">
+                            <label>Descuento (Bs):</label>
+                            <Field type="number" name={`items[${index}].descuento`} />
+                            <ErrorMessage name={`items[${index}].descuento`} component="div" className="error-message" />
+                          </div>
+
+                          {index > 0 && (
+                            <button 
+                              type="button" 
+                              className="remove-item-btn"
+                              onClick={() => remove(index)}
+                            >
+                              Eliminar
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="add-item-btn"
+                        onClick={() => push({
+                          item: '',
+                          cantidad: '',
+                          unidadMedida: '',
+                          precioUnitario: '',
+                          descuento: 0
+                        })}
+                      >
+                        + Añadir ítem
+                      </button>
+                    </div>
+                  )}
+                </FieldArray>
+              </section>
+
+              <div className="form-buttons">
+                <button
+                  type="submit"
+                  disabled={!flag || isSubmitting}
+                  className={flag ? 'btn-enabled' : 'btn-disabled'}
+                >
+                  {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
+                </button>
+                <button 
+                  className="btn-clear" 
+                  type="button" 
+                  onClick={resetForm}
+                  disabled={isSubmitting}
+                >
+                  Limpiar Datos
+                </button>
               </div>
-            </div>
-            <div className="form-buttons">
-              <button
-                type="submit"
-                disabled={!flag}
-                className={flag ? 'btn-enabled' : 'btn-disabled'}
-              >
-                Emitir Factura
-              </button>
-              <button className="btn-clear" type="button" onClick={resetForm}>
-                Limpiar Datos
-              </button>
-            </div>
-          </Form>
-        )}
-      </Formik>
+            </Form>
+          )}
+        </Formik>
+      </section>
+
       <div className="bot-btns">
         <button
           className={`btn-no-fact ${flag ? 'btn-disabled' : 'btn-enabled'}`}
@@ -241,7 +607,10 @@ const FacturaForm = () => {
         >
           Registrar venta sin Factura
         </button>
-        <button className="btn-back" onClick={handleBack}>
+        <button 
+          className="btn-back" 
+          onClick={handleBack}
+        >
           Generar factura con un NIT diferente
         </button>
       </div>
