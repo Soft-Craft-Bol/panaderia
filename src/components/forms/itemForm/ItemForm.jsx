@@ -1,11 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import ImagesApp from '../../../assets/ImagesApp';
+import loadImage from '../../../assets/ImagesApp';
+
 import './ItemForm.css';
 import { FaFile } from 'react-icons/fa';
 import axios from 'axios';
-import { createItem } from '../../../service/api';
+import { createItem, unidadesMedida } from '../../../service/api';
 import { useNavigate } from 'react-router-dom';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 
@@ -22,12 +24,34 @@ const ItemForm = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [submitError, setSubmitError] = useState(null);
+    const [unidades, setUnidades] = useState([]);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+      const fetchUnidades = async () => {
+          try {
+              const response = await unidadesMedida();
+              setUnidades(response.data);
+          } catch (error) {
+              console.error('Error fetching unidades de medida', error);
+          }
+      };
+
+      fetchUnidades();
+  }, []);
+
+  useEffect(() => {
+    const loadDefaultImage = async () => {
+      const defaultImage = await loadImage('defImg');
+      setPreviewUrl(defaultImage.default);
+    };
+    loadDefaultImage();
+  }, []);
+
   const initialValues = {
     descripcion: '',
-    unidadMedida: 71,
+    unidadMedida: '',
     precioUnitario: '',
     codigoProductoSin: 234109
 };
@@ -138,7 +162,8 @@ const ItemForm = () => {
           <div className='img-card'>
             <h3>Imagen del Producto</h3>
             <img
-              src={previewUrl || ImagesApp.defImg}
+              //src={previewUrl || loadImage.defImg}
+              src={previewUrl}
               alt="Producto"
               style={{
                 height: '80%',
@@ -174,11 +199,18 @@ const ItemForm = () => {
             </div>
             <div className="input-group">
                 <label htmlFor="unidadMedida">Unidad de Medida:</label>
-                <Field className="input-card" id="unidadMedida" name="unidadMedida" type="number" disabled />
+                <Field as="select" name="unidadMedida">
+                  <option value="">Seleccione una unidad</option>
+                  {unidades.map((unidad) => (
+                      <option key={unidad.id} value={unidad.codigoClasificador}>
+                          {unidad.descripcion}
+                      </option>
+                  ))}
+                  </Field>
                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
             </div>
             <div className="input-group">
-                <label htmlFor="precioUnitario">Precio Unitario</label>
+                <label htmlFor="precioUnitario">Precio Unitario (Bs.)</label>
                 <Field className="input-card" id="precioUnitario" name="precioUnitario" type="number" />
                 <ErrorMessage name="precioUnitario" component="div" className="error-message" />
             </div>
