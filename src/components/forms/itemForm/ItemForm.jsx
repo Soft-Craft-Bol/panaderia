@@ -58,6 +58,7 @@ const ItemForm = () => {
     codigoProductoSin: 234109,
     imagen: "",
     cantidad: 0,
+    codigo: "",
   });
 
   useEffect(() => {
@@ -72,6 +73,7 @@ const ItemForm = () => {
             codigoProductoSin: response.data.codigoProductoSin || 234109,
             cantidad: response.data.cantidad || 0,
             imagen: response.data.imagen || "",
+            codigo: response.data.codigo,
           });
           setPreviewUrl(response.data.imagen);
         } catch (error) {
@@ -158,8 +160,9 @@ const ItemForm = () => {
         cantidad: Number(values.cantidad),
         codigoProductoSin: values.codigoProductoSin,
         imagen: imageUrl,
+        codigo: id ? values.codigo : undefined,
       };
-      console.log(data)
+      
       if (id) {
         await updateItem(id, data);
         alert("Producto actualizado exitosamente");
@@ -252,7 +255,7 @@ const ItemForm = () => {
             </div>
             <div className="input-group">
                 <label htmlFor="cantidad">Cantidad:</label>
-                <Field className="input-card" id="codigoProductoSin" name="cantidad" type="number" />
+                <Field className="input-card" id="cantidad" name="cantidad" type="number" />
                 <ErrorMessage name="cantidad" component="div" className="error-message" />
             </div>
             {submitError && <div className="error-message">{submitError}</div>}
