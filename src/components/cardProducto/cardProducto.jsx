@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaShoppingCart } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../buttons/Button';
 
-
-const CardProducto = ({ product, dataLabels, onEliminar, onEdit }) => {
+const CardProducto = ({ product, dataLabels, onEliminar, onEdit, tipoUsuario = 'interno', onReservar }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -36,16 +36,33 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit }) => {
           </div>
         </div>
       )}
-      <p><strong>{dataLabels.data1}</strong> {product.unidadMedida}</p>
+      <p><strong>{dataLabels.data1}</strong> {product.cantidad}</p>
       <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
-      <p><strong>{dataLabels.data3}</strong> {product.codigoProductoSin}</p>
+      {tipoUsuario === 'interno' && (
+        <>
+          <p><strong>{dataLabels.data3}</strong> {product.cantidad}</p>
+          <p><strong>Stock:</strong> {product.stock}</p>
+        </>
+      )}
       <div className="cardFooter">
-        <button className="btn-edit" onClick={handleEdit}>
-          <FaEdit /> Editar
-        </button>
-        <button className="btn-cancel" onClick={onEliminar} style={{ width: "45%" }}>
-          <MdDelete /> Eliminar
-        </button>
+        {tipoUsuario === 'interno' ? (
+          <>
+            <button className="btn-edit" onClick={handleEdit}>
+              <FaEdit /> Editar
+            </button>
+            <button className="btn-cancel" onClick={onEliminar} style={{ width: "45%" }}>
+              <MdDelete /> Eliminar
+            </button>
+          </>
+        ) : (
+          <Button
+                        variant="primary"
+                        type="submit"
+                        style={{ marginTop: '20px', alignSelf: 'center' }}
+                      >
+                       <FaShoppingCart /> Agregar al carrito
+                      </Button>
+        )}
       </div>
     </div>
   );
