@@ -1,7 +1,6 @@
 import React, { useState, useRef,useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import ImagesApp from '../../../assets/ImagesApp';
 import loadImage from '../../../assets/ImagesApp';
 import './ItemForm.css';
 import { FaFile } from 'react-icons/fa';

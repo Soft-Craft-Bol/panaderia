@@ -1,7 +1,7 @@
 import React, { useState, useRef,useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import ImagesApp from '../../../assets/ImagesApp';
+import loadImage from '../../../assets/ImagesApp';
 import { FaFile } from 'react-icons/fa';
 import axios from 'axios';
 import { createClient, getDocumentoIdentidad } from '../../../service/api';
@@ -29,6 +29,7 @@ const ClientForm = () => {
     const [submitError, setSubmitError] = useState(null);
     const [documentosIdentidad, setDocumentosIdentidad] = useState([]);
     const navigate = useNavigate();
+    const [imageUrl, setImageUrl] = useState(null);
 
     useEffect(() => {
         const fetchDocumentosIdentidad = async () => {
@@ -42,6 +43,23 @@ const ClientForm = () => {
 
         fetchDocumentosIdentidad();
     }, []);
+
+    useEffect(() => {
+        const fetchImage = async () => {
+        try {
+            const image = await loadImage('panadero');
+            setImageUrl(image.default);
+        } catch (error) {
+            console.error('Error loading image', error);
+        }
+        };
+
+        fetchImage();
+    }, []);
+
+    if (!imageUrl) {
+        return <div>Cargando...</div>;
+    }
 
     const initialValues = {
         nombreRazonSocial: '',
@@ -94,7 +112,7 @@ const ClientForm = () => {
                     <div className='img-card'>
                         <h3>Registro del cliente</h3>
                         <img
-                            src={ImagesApp.panadero}
+                            src={imageUrl}
                             alt="Cliente"
                             style={{
                                 height: '100%',
