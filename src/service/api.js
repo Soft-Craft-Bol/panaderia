@@ -7,7 +7,7 @@ const api = axios.create({
     baseURL: baseURL,
     responseType: 'json',
     withCredentials: true, 
-    timeout: 10000,
+    timeout: 60000,
   });
 
 /* api.interceptors.request.use((config) => {
@@ -39,11 +39,14 @@ export const getAllClient = () => api.get('/clientes');
 export const deleteClient = (id) => api.delete(`/clientes/delete/${id}`);
 export const createClient = (data) => api.post('/clientes/create', data);
 export const fetchProductos = () => api.get('/productos-servicios');
-export const emitirFactura = (data) => api.post('/factura/emitir', data);
+
 export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
+export const getItemID = (id) => api.get(`/items/${id}`);
 export const createItem = (data) => api.post('/items', data);
 export const deleteItem = (id) => api.delete(`/items/${id}`);
+export const updateItem = (id, data) => api.put(`/items/${id}`, data);
+
 export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
 
 export const deleteUser = (id) => api.delete(`/users/${id}`);
@@ -54,8 +57,12 @@ export const getUserById = (id) => api.get(`/users/${id}`);
 export const getSucursales = () => api.get('/sucursales');
 
 export const getAllFacturas = () => api.get('/factura');
+export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
+//emitir sin factura 
+
+export const emitirSinFactura = (data) => api.post('/ventas', data);
 
 export const createDespacho = (data) => api.post('/despachos', data);
 

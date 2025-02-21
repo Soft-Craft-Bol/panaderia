@@ -4,20 +4,13 @@ import { getAllFacturas, anularFactura, revertirAnulacionFactura } from "../../s
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
-import Modal from "../../components/modal/Modal";
 import "./ListVentas.css";
 import { Button } from "../../components/buttons/Button";
-import { FaCloudDownloadAlt } from "react-icons/fa"; 
+import { FaCloudDownloadAlt } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
-
-
-
 
 const ListVentas = () => {
   const [facturas, setFacturas] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedFactura, setSelectedFactura] = useState(null);
-  const [actionType, setActionType] = useState(null);
   const currentUser = useMemo(() => getUser(), []);
 
   useEffect(() => {
@@ -40,58 +33,39 @@ const ListVentas = () => {
     }
   };
 
-  const handleAnularClick = (factura) => {
-    setSelectedFactura(factura);
-    setActionType("anular");
-    setModalOpen(true);
-  };
-
-  const handleRevertirClick = (factura) => {
-    setSelectedFactura(factura);
-    setActionType("revertir");
-    setModalOpen(true);
-  };
-
-  const confirmAction = async () => {
-    if (!selectedFactura) return;
-
+  const handleAnularFactura = async (factura) => {
     try {
-      if (actionType === "anular") {
-        const requestData = {
-          idPuntoVenta: 1,
-          cuf: selectedFactura.cuf,
-          codigoMotivo: 1,
-        };
-        await anularFactura(requestData);
-        toast.success("Factura anulada exitosamente");
-      } else if (actionType === "revertir") {
-        const requestData = {
-          idPuntoVenta: 1,
-          cuf: selectedFactura.cuf,
-        };
-        await revertirAnulacionFactura(requestData);
-        toast.success("Anulación revertida exitosamente");
-      }
-
-      // Actualizar el estado de la factura en la lista
+      const requestData = {
+        idPuntoVenta: 2,
+        cuf: factura.cuf,
+        codigoMotivo: 1,
+      };
+      await anularFactura(requestData);
+      toast.success("Factura anulada exitosamente");
       setFacturas((prevFacturas) =>
-        prevFacturas.map((f) =>
-          f.id === selectedFactura.id
-            ? {
-                ...f,
-                estado: actionType === "anular" ? "ANULADA" : "REVERTIDA",
-              }
-            : f
-        )
+        prevFacturas.map((f) => f.id === factura.id ? { ...f, estado: "ANULADA" } : f)
       );
     } catch (error) {
-      console.error(`Error al ${actionType} factura:`, error);
-      toast.error(`Error al ${actionType} la factura`);
+      console.error("Error al anular factura:", error);
+      toast.error("Error al anular la factura");
     }
+  };
 
-    setModalOpen(false);
-    setSelectedFactura(null);
-    setActionType(null);
+  const handleRevertirFactura = async (factura) => {
+    try {
+      const requestData = {
+        idPuntoVenta: 2,
+        cuf: factura.cuf,
+      };
+      await revertirAnulacionFactura(requestData);
+      toast.success("Anulación revertida exitosamente");
+      setFacturas((prevFacturas) =>
+        prevFacturas.map((f) => f.id === factura.id ? { ...f, estado: "REVERTIDA" } : f)
+      );
+    } catch (error) {
+      console.error("Error al revertir la anulación:", error);
+      toast.error("Error al revertir la anulación");
+    }
   };
 
   const columns = useMemo(
@@ -125,11 +99,10 @@ const ListVentas = () => {
         header: "Acciones",
         render: (row) => (
           <div className="user-management-table-actions">
-            
             {row.estado === "EMITIDA" && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
               <Button
                 variant="danger"
-                onClick={() => handleAnularClick(row)}
+                onClick={() => handleAnularFactura(row)}
               >
                 Anular
               </Button>
@@ -137,7 +110,7 @@ const ListVentas = () => {
             {row.estado === "ANULADA" && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
               <Button
                 variant="warning"
-                onClick={() => handleRevertirClick(row)}
+                onClick={() => handleRevertirFactura(row)}
               >
                 Revertir
               </Button>
@@ -152,7 +125,6 @@ const ListVentas = () => {
               }}
             />
           </div>
-          
         ),
       },
     ].filter(Boolean),
