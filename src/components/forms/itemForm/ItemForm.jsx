@@ -15,7 +15,9 @@ const validationSchema = Yup.object().shape({
         .required('Precio Unitario es requerido')
         .positive('El precio debe ser positivo'),
     unidadMedida: Yup.number(),
-    codigoProductoSin: Yup.number()
+    codigoProductoSin: Yup.number(),
+    cantidad: Yup.number()
+    .positive('Cantidad debe ser positiva'),
 });
 
 
@@ -55,6 +57,7 @@ const ItemForm = () => {
     precioUnitario: "",
     codigoProductoSin: 234109,
     imagen: "",
+    cantidad: 0,
   });
 
   useEffect(() => {
@@ -67,6 +70,7 @@ const ItemForm = () => {
             unidadMedida: response.data.unidadMedida || "",
             precioUnitario: response.data.precioUnitario || "",
             codigoProductoSin: response.data.codigoProductoSin || 234109,
+            cantidad: response.data.cantidad || 0,
             imagen: response.data.imagen || "",
           });
           setPreviewUrl(response.data.imagen);
@@ -151,10 +155,11 @@ const ItemForm = () => {
         descripcion: values.descripcion,
         unidadMedida: values.unidadMedida,
         precioUnitario: Number(values.precioUnitario),
+        cantidad: Number(values.cantidad),
         codigoProductoSin: values.codigoProductoSin,
         imagen: imageUrl,
       };
-  
+      console.log(data)
       if (id) {
         await updateItem(id, data);
         alert("Producto actualizado exitosamente");
@@ -225,7 +230,7 @@ const ItemForm = () => {
             </div>
             <div className="input-group">
                 <label htmlFor="unidadMedida">Unidad de Medida:</label>
-                <Field as="select" name="unidadMedida">
+                <Field as="select" name="unidadMedida" className="selector-options">
                   <option value="">Seleccione una unidad</option>
                   {unidades.map((unidad) => (
                       <option key={unidad.id} value={unidad.codigoClasificador}>
@@ -244,6 +249,11 @@ const ItemForm = () => {
                 <label htmlFor="codigoProductoSin">Código Producto SIN</label>
                 <Field className="input-card" id="codigoProductoSin" name="codigoProductoSin" type="number" disabled />
                 <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
+            </div>
+            <div className="input-group">
+                <label htmlFor="cantidad">Cantidad:</label>
+                <Field className="input-card" id="codigoProductoSin" name="cantidad" type="number" />
+                <ErrorMessage name="cantidad" component="div" className="error-message" />
             </div>
             {submitError && <div className="error-message">{submitError}</div>}
             <button type="submit" disabled={isSubmitting}>
