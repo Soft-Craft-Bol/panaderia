@@ -139,10 +139,10 @@ const UserManagement = () => {
             <h2>Confirmar Eliminación</h2>
             <p>¿Estás seguro de que deseas eliminar este usuario?</p>
             <div className="user-management-table-actions">
-              <Button type="danger" onClick={handleDeleteUser}>
+              <Button className="btn-edit" type="danger" onClick={handleDeleteUser}>
                 Confirmar
               </Button>
-              <Button type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+              <Button className="btn-cancel" type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
                 Cancelar
               </Button>
             </div>

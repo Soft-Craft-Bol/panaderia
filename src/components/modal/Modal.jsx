@@ -7,8 +7,8 @@ const Modal = memo(({ isOpen, onClose, children, theme = 'light' }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`modal-overlay ${theme}`}>
-      <div className={`modal-content ${theme}`}>
+    <div className={`modal-overlay ${theme}`} onClick={onClose}>
+      <div className={`modal-content ${theme}`} onClick={(e) => e.stopPropagation()}>
         <Button 
           variant="secondary" 
           theme={theme} 

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { signOut, getUser } from "../../utils/authFunctions";
 import "./Sid.css";
-
 // Carga perezosa de los íconos
 const IoIosArrowBack = lazy(() => import("react-icons/io").then(mod => ({ default: mod.IoIosArrowBack })));
 const MdNavigateNext = lazy(() => import("react-icons/md").then(mod => ({ default: mod.MdNavigateNext })));
@@ -17,15 +16,16 @@ const FaUserGraduate = lazy(() => import("react-icons/fa").then(mod => ({ defaul
 const FaUserCheck = lazy(() => import("react-icons/fa6").then(mod => ({ default: mod.FaUserCheck })));
 const TbLogout = lazy(() => import("react-icons/tb").then(mod => ({ default: mod.TbLogout })));
 const RiTruckFill = lazy(() => import("react-icons/ri").then(mod => ({ default: mod.RiTruckFill })));
+const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   const currentUser = useMemo(() => getUser(), []);
   //console.log(currentUser)
   return (
     <header className="sidebar-header">
-      <div className="text logo">
+      <div className="text logo" style={{objectFit: "cover", minHeight:"60px", minWidth:"60px"}}>
         <img className='logo-perfil' src={currentUser.photo} alt="Perfil" />
-        <span className="name">{currentUser?.roles.includes('Administrador') ? 'Administrador' : 'Usuario'}</span>
+        <span className="name">{currentUser?.roles.includes('ROLE_ADMIN') ? 'Administrador' : 'Usuario'}</span>
         <span className="profe">{currentUser?.username || 'Usuario'}</span>
       </div>
       <Suspense fallback={<span>...</span>}>
@@ -70,9 +70,10 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" />
             <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" />
-            <SidebarLink to="/contaduria" icon={<GrAnalytics />} text="Contaduría" />
+            <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" />
             <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
+            <SidebarLink to="/horario" icon={<FaCalendarWeek />} text="Horarios" />
           </ul>
         </div>
         <div className="bottom-content">

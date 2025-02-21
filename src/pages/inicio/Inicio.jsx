@@ -1,18 +1,19 @@
 import React, { Suspense, useEffect, useState, lazy, memo } from 'react';
 import './Inicio.css';
 import loadImage from "../../assets/ImagesApp"; 
-
+import { getItemsLimited, getStats } from '../../service/api';
 const TopCard = lazy(() => import('../../components/topCard/TopCard'));
 const InfoLayer = lazy(() => import('../../components/layer/InfoLayer'));
 const Chard = lazy(() => import('../../components/chard/Chard'));
+const ItemChard = lazy(() => import('../../components/chard/ItemChard'));
+import { useNavigate } from "react-router";
 
-const data = [
-  { id: 1, name: 'Pan francés', grade: 1, quantity: '1 unidad', price: 'Bs. 1.50', location: 'La Paz', timeline: 'Febrero 2025' },
-  { id: 2, name: 'Celiaquía (pan sin gluten)', grade: 2, quantity: '1 unidad', price: 'Bs. 8.00', location: 'Santa Cruz', timeline: 'Febrero 2025' },
-  { id: 3, name: 'Empanada de carne', grade: 3, quantity: '1 unidad', price: 'Bs. 6.00', location: 'Cochabamba', timeline: 'Febrero 2025' },
-  { id: 4, name: 'Torta de chocolate', grade: 4, quantity: '1 pieza (aprox. 500g)', price: 'Bs. 30.00', location: 'Sucre', timeline: 'Enero 2025' },
-  { id: 5, name: 'Bollos con queso', grade: 5, quantity: '1 unidad', price: 'Bs. 3.50', location: 'Oruro', timeline: 'Febrero 2025' },
-];
+const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
+const FaMapPin = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaMapPin })));
+const FaHouseUser = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaHouseUser })));
+const FaSellsy = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaSellsy })));
+const FaPersonBooth = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaPersonBooth })));
+const FaBreadSlice = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaBreadSlice })));
 
 const useImageLoader = (imageName) => {
   const [image, setImage] = useState(null);
@@ -24,45 +25,112 @@ const useImageLoader = (imageName) => {
   return image;
 };
 
-const MemoizedTopCard = memo(({ title, quantity, porcentaje }) => (
+const MemoizedTopCard = memo(({ title, quantity, porcentaje,Icon }) => (
   <Suspense fallback={<p>Cargando {title}...</p>}>
-    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} />
+    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} Icon={Icon}/>
   </Suspense>
 ));
 
 const Inicio = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    numeroSucursales: 0,
+    inventario: 0,
+    facturasEmitidasHoy: 0,
+    numeroPuntosVenta: 0,
+    numeroUsuarios: 0,
+    totalVentasHoy: 0.0,
+    clientesRegistrados: 0,
+    totalPanaderos: 0
+  });
+  const [loading, setLoading] = useState(true);
+
   const sucursalImg = useImageLoader("sucursal");
   const maquinasImg = useImageLoader("maquinas");
   const inventarioImg = useImageLoader("inventario");
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await getStats();
+        console.log('response:', response);
+        if (response && response.data) {
+          setStats(response.data);
+        } else {
+          console.error('sin datos');
+        }
+      } catch (error) {
+        console.error('error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const handleNavigate = (isInventario) => {
+    return () => {
+      navigate(isInventario ? "/productos" : "/clientes");
+    };
+  };
+
   return (
     <main className='main-cont-inicio'>
       <div className='info-cont'>
-        <MemoizedTopCard title="Ingresos" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Egresos" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Costo Prod" quantity="1500" porcentaje="10%" />
-        <MemoizedTopCard title="Otros" quantity="1500" porcentaje="10%" />
+        <MemoizedTopCard title="Pts de Venta" quantity={stats.numeroPuntosVenta} Icon={FaMapPin} />
+        <MemoizedTopCard title="Ingresos" quantity={stats.totalVentasHoy} porcentaje="Bs."  Icon={FaSellsy}/>
+        <MemoizedTopCard title="Nro Usuarios"   quantity={stats.numeroUsuarios} Icon={FaHouseUser}/>
+        <MemoizedTopCard title="Clientes" quantity={stats.clientesRegistrados} Icon={FaPersonBooth}/>
+        <MemoizedTopCard title="Nro Panaderos" quantity={stats.totalPanaderos} Icon={FaBreadSlice}/>
       </div>
       <section className='tot-cont'>
         <div className='left'>
           <Suspense fallback={<p>Cargando imagen...</p>}>
-            {sucursalImg && <InfoLayer title="Sucursales" description="Total de sucursales" total={5} image={sucursalImg} />}
-            {maquinasImg && <InfoLayer title="Inventario" description="Inventario de maquinas" total={10} image={maquinasImg} />}
-            {inventarioImg && <InfoLayer title="Productos" description="Productos vendidos hoy" total={2000} image={inventarioImg} />}
+            {!loading && sucursalImg && (
+              <InfoLayer 
+                title="Sucursales" 
+                description="Total de sucursales" 
+                total={stats.numeroSucursales} 
+                image={sucursalImg} 
+              />
+            )}
+            {!loading && maquinasImg && (
+              <InfoLayer 
+                title="Inventario" 
+                description="Producto a ofrecer" 
+                total={stats.inventario} 
+                image={maquinasImg} 
+              />
+            )}
+            {!loading && inventarioImg && (
+              <InfoLayer 
+                title="Productos" 
+                description="Productos vendidos hoy" 
+                total={stats.facturasEmitidasHoy} 
+                image={inventarioImg} 
+              />
+            )}
           </Suspense>
         </div>
         <div className='rigth'>
           <div className='inventario'>
             <h3>Inventario</h3>
             <Suspense fallback={<p>Cargando gráfico...</p>}>
-              <Chard data={data} />
+              <ItemChard />
             </Suspense>
+            <p className='see-more' onClick={handleNavigate(true)}>
+              Ver más...
+            </p>
           </div>
           <div className='ventas'>
-            <h3>Ventas de hoy</h3>
+            <h3>Clientes</h3>
             <Suspense fallback={<p>Cargando gráfico...</p>}>
-              <Chard data={data} />
+              <Chard />
             </Suspense>
+            <p className='see-more' onClick={handleNavigate(false)}>
+              Ver más...
+            </p>
           </div>
         </div>
       </section>

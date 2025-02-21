@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './Chard.css';
-import { getClientLimited } from '../../service/api';
+import { getItemsLimited } from '../../service/api';
 
-const Chard = () => {
+const ItemChard = () => {
   const [data, setData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getClientLimited();
+        const response = await getItemsLimited();
         if (Array.isArray(response.data)) {
           setData(response.data);
         } else {
@@ -20,30 +21,29 @@ const Chard = () => {
 
     fetchData();
   }, []);
+
   return (
     <div className="table-container">
       <table className="custom-table">
         <thead>
           <tr>
             <th>Id</th>
-            <th>Nombre/Razón Social</th>
-            <th>Código Tipo Documento Identidad</th>
-            <th>Número Documento</th>
-            <th>Complemento</th>
-            <th>Código Cliente</th>
-            <th>Email</th>
+            <th>Descripción</th>
+            <th>Unidad de Medida</th>
+            <th>Precio Unitario</th>
+            <th>Código Producto SIN</th>
+            {/* <th>Imagen</th> */}
           </tr>
         </thead>
         <tbody>
           {Array.isArray(data) && data.map((item, index) => (
             <tr key={index}>
               <td>{item.id}</td>
-              <td>{item.nombreRazonSocial}</td>
-              <td>{item.codigoTipoDocumentoIdentidad}</td>
-              <td>{item.numeroDocumento}</td>
-              <td>{item.complemento}</td>
-              <td>{item.codigoCliente}</td>
-              <td>{item.email}</td>
+              <td>{item.descripcion}</td>
+              <td>{item.unidadMedida}</td>
+              <td>{item.precioUnitario}</td>
+              <td>{item.codigoProductoSin}</td>
+              {/* <td><img src={item.imagen} alt={item.descripcion} width="50" /></td> */}
             </tr>
           ))}
         </tbody>
@@ -52,4 +52,4 @@ const Chard = () => {
   );
 };
 
-export default Chard;
+export default ItemChard;

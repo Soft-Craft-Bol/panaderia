@@ -1,11 +1,9 @@
 @import '../../../src/index.css';
 .info-cont {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+  gap: 3%;
   justify-content: center;
   border-radius: 10px;
-  padding-top: 5px;
   padding-bottom: 5px;
 }
 
@@ -40,7 +38,13 @@
   border-radius: 10px;
   padding: 10px;
 }
-
+.see-more{
+  text-decoration: underline;
+}
+.see-more:hover{
+  cursor: pointer;
+}
+/* 
 @media (max-width: 1024px) {
   .info-cont {
     flex-direction: column;
@@ -76,4 +80,7 @@
   .tot-cont .rigth .ventas, .inventario {
     padding: 5px;
   }
+} */
+.main-cont-inicio p{
+  margin: 0 0 0 0;
 }

@@ -60,3 +60,19 @@ export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-a
 //emitir sin factura 
 
 export const emitirSinFactura = (data) => api.post('/ventas', data);
+
+export const createDespacho = (data) => api.post('/despachos', data);
+
+export const createHoario = (data) => api.post('/horarios', data);
+export const getHorario = () => api.get('/horarios');
+
+export const getItemsLimited = () => api.get('/items/limited');
+export const getClientLimited = () => api.get('/clientes/limited');
+//Estadisticas
+export const getStats = () => api.get('/stats');
+//vendedor
+export const getUserVendor = () => api.get('/users/vendedores');
+//parametros
+export const getTipoMoneda = () => api.get('/parametros/tipo-moneda');
+export const unidadesMedida = () => api.get('/parametros/unidades-medida');
+export const getUnidadMedida = () => api.get('/parametros/unidades-medida');

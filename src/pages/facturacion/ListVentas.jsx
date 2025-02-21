@@ -136,11 +136,26 @@ const ListVentas = () => {
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <div className="user-management-header">
         <h2 className="user-management-title">Gestión de ventas</h2>
-        {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && (
+        {/* {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && ( */}
           <LinkButton to={`/facturacion`}>Vender nuevo producto</LinkButton>
-        )}
+        {/* )} */}
       </div>
       <Table columns={columns} data={facturas} className="user-management-table" />
+
+      <Suspense fallback={<div>Cargando modal...</div>}>
+        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+          <h2>Confirmar {actionType === "anular" ? "Anulación" : "Reversión"}</h2>
+          <p>¿Estás seguro de que deseas {actionType === "anular" ? "anular" : "revertir"} esta factura?</p>
+          <div className="user-management-table-actions">
+            <Button className="btn-edit" variant={actionType === "anular" ? "danger" : "warning"} onClick={confirmAction}>
+              Confirmar
+            </Button>
+            <Button className="btn-cancel" variant="secondary" onClick={() => setModalOpen(false)}>
+              Cancelar
+            </Button>
+          </div>
+        </Modal>
+      </Suspense>
     </div>
   );
 };

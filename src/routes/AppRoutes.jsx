@@ -5,7 +5,6 @@ import { lazy } from "react";
 
 const Inicio = lazy(() => import("../pages/inicio/Inicio"));
 const Sucursales = lazy(() => import("../pages/Sucursales/Sucursales"));
-const Usuarios = lazy(() => import("../pages/usuarios/usuarios"));
 const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
 const Horarios = lazy(() => import("../pages/horarios/Horarios"));
 const Productos = lazy(() => import("../pages/productos/Productos"));
@@ -19,7 +18,7 @@ const UserManagement = lazy(() => import("../pages/users/ListUser"));
 const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 const Despachos = lazy(() => import("../pages/despachos/Despachos"));
 const CrearDespacho = lazy(() => import("../components/forms/despachoForm/DespachoForm"))
-
+const Gastos = lazy(() => import("../pages/gastos/Gastos"));
 const AppRoutes = () => (
     <Routes>
         {/* Rutas públicas */}
@@ -29,13 +28,12 @@ const AppRoutes = () => (
         <Route path="/sucursales" element={<PrivateRoute><Sucursales /></PrivateRoute>} />
         <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
         <Route path="/sucursales/addSucursal" element = {<PrivateRoute> <AddSucursal> </AddSucursal></PrivateRoute>} />
-        {/* <Route path="/users" element={<PrivateRoute><Usuarios /></PrivateRoute>} /> */}
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />
         <Route path="/registerUser" element={<PrivateRoute><RegisterUser/> </PrivateRoute>} />
         <Route path="/editUser/:id" element={<PrivateRoute><RegisterUser/></PrivateRoute>} />
-        <Route path="/contaduria" element={<h1>Contaduría</h1>} />
+        <Route path="/gastos" element={<PrivateRoute><Gastos/></PrivateRoute>} />
         <Route path="/productos" element = {<PrivateRoute> <Productos/> </PrivateRoute>}/>
         <Route path="/impuestos-form" element={<PrivateRoute> <FacturaForm/> </PrivateRoute>}/>
         <Route path="/productos/addProduct" element = {<PrivateRoute> <AddProduct /> </PrivateRoute>}/>
