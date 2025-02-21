@@ -3,13 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida } from '../../service/api';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida, emitirSinFactura} from '../../service/api';
+import { getUser } from '../../utils/authFunctions';
 import { generatePDF } from '../../utils/generatePDF';
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { flag } = location.state;
+//
+  const currentUser = getUser();
+  console.log('Usuario actual:', currentUser);
 
   const client = location.state?.client || {
     nombreRazonSocial: "sin usuario",
