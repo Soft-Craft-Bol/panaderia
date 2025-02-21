@@ -3,17 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida, emitirSinFactura} from '../../service/api';
-import { getUser } from '../../utils/authFunctions';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api';
 import { generatePDF } from '../../utils/generatePDF';
+import { getUser } from '../../utils/authFunctions';
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { flag } = location.state;
-//
   const currentUser = getUser();
-  console.log('Usuario actual:', currentUser);
 
   const client = location.state?.client || {
     nombreRazonSocial: "sin usuario",
@@ -23,9 +21,7 @@ const FacturaForm = () => {
   };
 
   const [items, setItems] = useState([]);
-  const [vendors, setVendors] = useState([]);
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
-  const [unidadMedida, setUnidadMedida] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -33,17 +29,13 @@ const FacturaForm = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [itemsRes, vendorsRes, puntosRes, unidadesRes] = await Promise.all([
+        const [itemsRes, puntosRes] = await Promise.all([
           fetchItems(),
-          getUserVendor(),
-          fetchPuntosDeVenta(),
-          getUnidadMedida()
+          fetchPuntosDeVenta()
         ]);
 
         setItems(itemsRes.data);
-        setVendors(vendorsRes.data);
         setPuntosDeVenta(puntosRes.data);
-        setUnidadMedida(unidadesRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Error al cargar los datos necesarios');
@@ -57,13 +49,11 @@ const FacturaForm = () => {
 
   const initialValues = {
     puntoDeVenta: '',
-    vendedor: '',
-    metodoPago: 'EFECTIVO',
+    metodoPago: 'EFECTIVO', // Solo EFECTIVO
     items: [
       {
         item: '',
         cantidad: '',
-        unidadMedida: '',
         precioUnitario: '',
         descuento: 0
       }
@@ -72,7 +62,6 @@ const FacturaForm = () => {
 
   const validationSchema = Yup.object({
     puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
-    vendedor: Yup.string().required('Seleccione un vendedor'),
     metodoPago: Yup.string().required('Método de pago es requerido'),
     items: Yup.array().of(
       Yup.object().shape({
@@ -80,7 +69,6 @@ const FacturaForm = () => {
         cantidad: Yup.number()
           .required('Ingrese la cantidad')
           .positive('Debe ser un número positivo'),
-        unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
         precioUnitario: Yup.number()
           .required('Ingrese el precio unitario')
           .positive('Debe ser un número positivo'),
@@ -95,17 +83,15 @@ const FacturaForm = () => {
   };
 
   const handleVentaSinFactura = () => {
-    // Implementar lógica para venta sin factura
     console.log('Venta sin factura');
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
       const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
-      const selectedVendor = vendors.find(v => `${v.firstName} ${v.lastName}` === values.vendedor);
 
-      if (!selectedPuntoDeVenta || !selectedVendor) {
-        throw new Error('Punto de venta o vendedor no encontrado');
+      if (!selectedPuntoDeVenta) {
+        throw new Error('Punto de venta no encontrado');
       }
 
       const facturaData = {
@@ -113,7 +99,7 @@ const FacturaForm = () => {
         idCliente: client.id,
         tipoComprobante: "FACTURA",
         metodoPago: values.metodoPago,
-        user_id: selectedVendor.id,
+        username: currentUser.username, // Usamos el username del currentUser
         usuario: client.nombreRazonSocial,
         detalle: values.items.map(item => {
           const selectedItem = items.find(i => i.descripcion === item.item);
@@ -127,7 +113,6 @@ const FacturaForm = () => {
           };
         })
       };
-
       console.log('Enviando datos de factura:', facturaData);
       
       const response = await emitirFactura(facturaData);
@@ -199,26 +184,9 @@ const FacturaForm = () => {
               </div>
 
               <div className="form-group">
-                <label>Vendedor:</label>
-                <Field as="select" name="vendedor">
-                  <option value="">Persona a cargo de la venta</option>
-                  {vendors.map(vendor => {
-                    const vendorFullName = `${vendor.firstName} ${vendor.lastName}`;
-                    return (
-                      <option key={vendor.id} value={vendorFullName}>
-                        {vendorFullName}
-                      </option>
-                    );
-                  })}
-                </Field>
-                <ErrorMessage name="vendedor" component="div" className="error-message" />
-              </div>
-
-              <div className="form-group">
                 <label>Método de Pago:</label>
                 <Field as="select" name="metodoPago">
                   <option value="EFECTIVO">Efectivo</option>
-                  <option value="BANCA MOVIL">Billetera Movil</option>
                 </Field>
                 <ErrorMessage name="metodoPago" component="div" className="error-message" />
               </div>
@@ -260,19 +228,6 @@ const FacturaForm = () => {
                             <ErrorMessage name={`items[${index}].cantidad`} component="div" className="error-message" />
                           </div>
 
-                          <div className="form-group unidad-field">
-                            <label>Unidad de Medida:</label>
-                            <Field as="select" name={`items[${index}].unidadMedida`}>
-                              <option value="">Seleccione unidad</option>
-                              {unidadMedida.map(unidad => (
-                                <option key={unidad.id} value={unidad.codigo}>
-                                  {unidad.descripcion}
-                                </option>
-                              ))}
-                            </Field>
-                            <ErrorMessage name={`items[${index}].unidadMedida`} component="div" className="error-message" />
-                          </div>
-
                           <div className="form-group precio-field">
                             <label>Precio Unitario (Bs):</label>
                             <Field type="number" name={`items[${index}].precioUnitario`} readOnly />
@@ -302,7 +257,6 @@ const FacturaForm = () => {
                         onClick={() => push({
                           item: '',
                           cantidad: '',
-                          unidadMedida: '',
                           precioUnitario: '',
                           descuento: 0
                         })}
