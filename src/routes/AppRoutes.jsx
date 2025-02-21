@@ -18,7 +18,7 @@ const UserManagement = lazy(() => import("../pages/users/ListUser"));
 const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 const Despachos = lazy(() => import("../pages/despachos/Despachos"));
 const CrearDespacho = lazy(() => import("../components/forms/despachoForm/DespachoForm"))
-
+const Gastos = lazy(() => import("../pages/gastos/Gastos"));
 const AppRoutes = () => (
     <Routes>
         {/* Rutas públicas */}
@@ -33,7 +33,7 @@ const AppRoutes = () => (
         <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />
         <Route path="/registerUser" element={<PrivateRoute><RegisterUser/> </PrivateRoute>} />
         <Route path="/editUser/:id" element={<PrivateRoute><RegisterUser/></PrivateRoute>} />
-        <Route path="/contaduria" element={<h1>Contaduría</h1>} />
+        <Route path="/gastos" element={<PrivateRoute><Gastos/></PrivateRoute>} />
         <Route path="/productos" element = {<PrivateRoute> <Productos/> </PrivateRoute>}/>
         <Route path="/impuestos-form" element={<PrivateRoute> <FacturaForm/> </PrivateRoute>}/>
         <Route path="/productos/addProduct" element = {<PrivateRoute> <AddProduct /> </PrivateRoute>}/>

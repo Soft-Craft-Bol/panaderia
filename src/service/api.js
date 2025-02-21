@@ -66,3 +66,5 @@ export const getItemsLimited = () => api.get('/items/limited');
 export const getClientLimited = () => api.get('/clientes/limited');
 
 export const getStats = () => api.get('/stats');
+
+export const unidadesMedida = () => api.get('/parametros/unidades-medida');
