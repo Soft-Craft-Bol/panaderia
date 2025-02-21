@@ -35,3 +35,10 @@
 .card-body{
   height: 70%;
 }
+.link-fact{
+  font-size: large;
+  text-decoration: underline;
+}
+.link-fact:hover{
+  cursor: pointer;
+}

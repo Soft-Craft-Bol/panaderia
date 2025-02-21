@@ -3,24 +3,23 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida } from '../../service/api';
 import { generatePDF } from '../../utils/generatePDF';
-
-
-
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const client = location.state?.client || {
-    nombreRazonSocial: "Torricos SRL",
-    email: "gfredo@softcraft.bo",
-    numeroDocumento: "14382800019 CB"
+    nombreRazonSocial: "sin usuario",
+    email: "...",
+    numeroDocumento: "0000000000 CB"
   };
 
   const [items, setItems] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
+  const [unidadMedida, setUnidadMedida] = useState([]);
 
   useEffect(() => {
     const getItems = async () => {
@@ -31,16 +30,36 @@ const FacturaForm = () => {
         console.error('Error fetching items:', error);
       }
     };
-
+    
+    const getVendors = async () => {
+      try{
+        const response = await getUserVendor();
+        setVendors(response.data);
+        console.log('vendedores:', response.data);
+      }catch(error){
+        console.error('Error fetching vendors:', error);
+      }
+    };
     const getPuntosDeVenta = async () => {
       try {
         const response = await fetchPuntosDeVenta();
         setPuntosDeVenta(response.data);
+        console.log('Puntos de venta:', response.data);
       } catch (error) {
         console.error('Error fetching puntos de venta:', error);
       }
     };
-
+    const getUnidadMedidas = async () => {
+      try {
+        const response = await getUnidadMedida();
+        setUnidadMedida(response.data);
+        console.log('Unidad de medida:', response.data);
+      }catch(error){
+        console.error('Error fetching unidad de medida:', error);
+      }
+    };
+    getUnidadMedidas();
+    getVendors();
     getItems();
     getPuntosDeVenta();
   }, []);
@@ -50,7 +69,7 @@ const FacturaForm = () => {
     cantidad: '',
     unidadMedida: '',
     precioUnitario: '',
-    descuento: '',
+    descuento: 0,
     puntoDeVenta: ''
   };
 
@@ -60,7 +79,8 @@ const FacturaForm = () => {
     unidadMedida: Yup.string().required('Ingrese la unidad de medida'),
     precioUnitario: Yup.number().required('Ingrese el precio unitario').positive('Debe ser un número positivo'),
     descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
-    puntoDeVenta: Yup.string().required('Seleccione un punto de venta')
+    puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
+    vendedor: Yup.string().required('Seleccione un vendedor')
   });
 
   const handleBack = () => {
@@ -117,7 +137,7 @@ const FacturaForm = () => {
         <input type="text" value={client.numeroDocumento || ''} readOnly />
       </div>
 
-      <h2>Punto de Venta</h2>
+      <h2>Detalles corporativos</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -137,7 +157,21 @@ const FacturaForm = () => {
               </Field>
               <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
             </div>
-
+            <div className="form-group">
+              <label>Vendedor:</label>
+              <Field as="select" name="puntoDeVenta">
+                <option value="">Persona a cargo de la venta</option>
+                {vendors.map(vendor => {
+                  const vendorFullName = `${vendor.firstName} ${vendor.lastName}`;
+                  return (
+                    <option key={vendor.id} value={vendorFullName}>
+                      {vendorFullName}
+                    </option>
+                  );
+                })}
+              </Field>
+              <ErrorMessage name="vendedor" component="div" className="error-message" />
+            </div>
             <h2>Detalle de la Transacción</h2>
             <div className="form-group">
               <label>Item/Descripción:</label>
@@ -163,8 +197,17 @@ const FacturaForm = () => {
                 <ErrorMessage name="cantidad" component="div" className="error-message" />
               </div>
               <div className="form-group">
-                <label>Unidad de Medida:</label>
-                <Field type="text" name="unidadMedida" readOnly />
+                <label>Unidad Medida:</label>
+                <Field as="select" name="puntoDeVenta">
+                  <option value="">Seleccione unidad medida:</option>
+                  {unidadMedida.map(unidad => {
+                    return (
+                      <option key={unidad.codigoClasificador} value={unidad.descripcion}>
+                        {unidad.descripcion}
+                      </option>
+                    );
+                  })}
+                </Field>
                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
               </div>
             </div>

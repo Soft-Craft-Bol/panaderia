@@ -39,6 +39,10 @@ const Facturacion = () => {
             onChange={handleInputChange}
           />
           <button className='btn-general' onClick={handleButtonClick}>Continuar a la facturacion</button>
+          <p
+            className='link-fact'
+            onClick={() => navigate('/impuestos-form')}
+          >Venta sin facturación</p>
         </div>
       </div>
     </main>

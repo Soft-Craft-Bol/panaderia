@@ -164,9 +164,9 @@ const ListVentas = () => {
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <div className="user-management-header">
         <h2 className="user-management-title">Gestión de ventas</h2>
-        {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && (
+        {/* {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && ( */}
           <LinkButton to={`/facturacion`}>Vender nuevo producto</LinkButton>
-        )}
+        {/* )} */}
       </div>
       <Table columns={columns} data={facturas} className="user-management-table" />
 
