@@ -70,6 +70,7 @@ const Productos = () => {
             key={product.id}
             product={product}
             onEliminar={() => handleOpenModal(product)}
+            onEdit={`/editProduct/${product.id}`}
           />
         ))}
       </div>

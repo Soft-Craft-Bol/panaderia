@@ -3,10 +3,12 @@ import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
+import { useNavigate } from 'react-router-dom';
 
 
-const CardProducto = ({ product, dataLabels, onEliminar }) => {
+const CardProducto = ({ product, dataLabels, onEliminar, onEdit }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpenModal = () => {
     setIsImageExpanded(true);
@@ -14,6 +16,10 @@ const CardProducto = ({ product, dataLabels, onEliminar }) => {
 
   const handleCloseModal = () => {
     setIsImageExpanded(false);
+  };
+
+  const handleEdit = () => {
+    navigate(onEdit); // <-- Redirige a la ruta con el ID del producto
   };
 
   return (
@@ -34,7 +40,7 @@ const CardProducto = ({ product, dataLabels, onEliminar }) => {
       <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
       <p><strong>{dataLabels.data3}</strong> {product.codigoProductoSin}</p>
       <div className="cardFooter">
-        <button className="btn-edit">
+        <button className="btn-edit" onClick={handleEdit}>
           <FaEdit /> Editar
         </button>
         <button className="btn-cancel" onClick={onEliminar} style={{ width: "45%" }}>
