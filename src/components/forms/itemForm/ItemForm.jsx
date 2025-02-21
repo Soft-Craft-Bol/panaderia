@@ -29,7 +29,7 @@ const ItemForm = () => {
     descripcion: '',
     unidadMedida: 71,
     precioUnitario: '',
-    codigoProductoSin: 234109
+    codigoProductoSin: 234109,
 };
 
   const resizeImage = (file) => {
