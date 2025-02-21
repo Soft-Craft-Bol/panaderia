@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
 import { fetchItems, emitirFactura, fetchPuntosDeVenta, getUserVendor, getUnidadMedida } from '../../service/api';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta, emitirSinFactura } from '../../service/api'; // Importar la nueva función
 import { generatePDF } from '../../utils/generatePDF';
 
 const FacturaForm = () => {
@@ -124,11 +125,40 @@ const FacturaForm = () => {
       alert('Factura emitida y descargada con éxito');
       console.log('Respuesta del servidor:', response.data);
       console.log('Link generado:');
+      doc.save(`factura-${response.data.cuf}.pdf`); 
+      
       resetForm();
       navigate('/ventas');
     } catch (error) {
       console.error('Error al emitir la factura:', error);
       alert('Error al emitir la factura');
+    }
+  };
+
+  const handleEmitirSinFactura = async (values) => {
+    try {
+      const selectedItem = items.find(item => item.descripcion === values.item);
+      const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
+      const ventaData = {
+        idPuntoVenta: selectedPuntoDeVenta.id,
+        idCliente: client.id,
+        usuario: client.nombreRazonSocial,
+        detalle: [
+          {
+            idProducto: selectedItem.id,
+            cantidad: values.cantidad,
+            montoDescuento: values.descuento
+          }
+        ],
+        tipoComprobante: 'SIN_COMPROBANTE' // Indicar que no se emitirá factura
+      };
+      const response = await emitirSinFactura(ventaData); // Llamar al endpoint de venta sin factura
+      console.log('Venta registrada sin factura:', response.data);
+      alert('Venta registrada sin factura');
+      navigate('/ventas');
+    } catch (error) {
+      console.error('Error al registrar la venta sin factura:', error);
+      alert('Error al registrar la venta sin factura');
     }
   };
 
@@ -155,7 +185,7 @@ const FacturaForm = () => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ resetForm, setFieldValue }) => (
+        {({ resetForm, setFieldValue, values }) => (
           <Form>
             <div className="form-group">
               <label>Punto de Venta:</label>
@@ -229,6 +259,9 @@ const FacturaForm = () => {
               <button className="btn-clear" type="button" onClick={resetForm}>
                 Limpiar Datos
               </button>
+              <button type="submit">Emitir Factura</button>
+              <button type="button" onClick={() => handleEmitirSinFactura(values)}>Emitir sin factura</button>
+              <button type="button" onClick={resetForm}>Borrar</button>
             </div>
           </Form>
         )}
