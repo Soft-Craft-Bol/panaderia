@@ -142,7 +142,7 @@ const ListVentas = () => {
       </div>
       <Table columns={columns} data={facturas} className="user-management-table" />
 
-      <Suspense fallback={<div>Cargando modal...</div>}>
+      {/* <Suspense fallback={<div>Cargando modal...</div>}>
         <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
           <h2>Confirmar {actionType === "anular" ? "Anulación" : "Reversión"}</h2>
           <p>¿Estás seguro de que deseas {actionType === "anular" ? "anular" : "revertir"} esta factura?</p>
@@ -155,7 +155,7 @@ const ListVentas = () => {
             </Button>
           </div>
         </Modal>
-      </Suspense>
+      </Suspense> */}
     </div>
   );
 };
