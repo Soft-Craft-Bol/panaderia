@@ -34,7 +34,7 @@ function UserForm() {
     },
   });
 
-  const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA'];
+  const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA','VENDEDOR'];
 
   // Función de notificación para manejar errores y mensajes de éxito de forma centralizada
   const notify = useCallback((message, type = 'success') => {
