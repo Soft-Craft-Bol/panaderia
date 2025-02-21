@@ -64,7 +64,11 @@ export const getHorario = () => api.get('/horarios');
 
 export const getItemsLimited = () => api.get('/items/limited');
 export const getClientLimited = () => api.get('/clientes/limited');
-
+//Estadisticas
 export const getStats = () => api.get('/stats');
-
+//vendedor
+export const getUserVendor = () => api.get('/users/vendedores');
+//parametros
+export const getTipoMoneda = () => api.get('/parametros/tipo-moneda');
 export const unidadesMedida = () => api.get('/parametros/unidades-medida');
+export const getUnidadMedida = () => api.get('/parametros/unidades-medida');
