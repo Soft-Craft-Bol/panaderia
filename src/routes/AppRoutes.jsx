@@ -19,6 +19,7 @@ const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 const Despachos = lazy(() => import("../pages/despachos/Despachos"));
 const CrearDespacho = lazy(() => import("../components/forms/despachoForm/DespachoForm"))
 const Gastos = lazy(() => import("../pages/gastos/Gastos"));
+const ItemForm = lazy(() => import("../components/forms/itemForm/ItemForm"));
 const AppRoutes = () => (
     <Routes>
         {/* Rutas públicas */}
@@ -36,7 +37,8 @@ const AppRoutes = () => (
         <Route path="/gastos" element={<PrivateRoute><Gastos/></PrivateRoute>} />
         <Route path="/productos" element = {<PrivateRoute> <Productos/> </PrivateRoute>}/>
         <Route path="/impuestos-form" element={<PrivateRoute> <FacturaForm/> </PrivateRoute>}/>
-        <Route path="/productos/addProduct" element = {<PrivateRoute> <AddProduct /> </PrivateRoute>}/>
+        <Route path="/addProduct" element = {<PrivateRoute> <ItemForm /> </PrivateRoute>}/>
+        <Route path="/editProduct/:id" element = {<PrivateRoute>  <ItemForm/> </PrivateRoute>} />
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
         <Route path="/despachos" element = {<PrivateRoute> <Despachos /> </PrivateRoute>}/>

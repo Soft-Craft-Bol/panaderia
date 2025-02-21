@@ -59,7 +59,7 @@ const Productos = () => {
       <h1>Productos en stock</h1>
       <button 
         className="btn-general"
-        onClick={() => navigate("/productos/addProduct")}
+        onClick={() => navigate("/addProduct")}
       >
         (+) &emsp; Agregar nuevo
       </button>

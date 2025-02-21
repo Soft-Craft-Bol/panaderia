@@ -44,6 +44,8 @@ export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
 export const createItem = (data) => api.post('/items', data);
 export const deleteItem = (id) => api.delete(`/items/${id}`);
+export const updateItem = (id, data) => api.put(`/items/${id}`, data);
+
 export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
 
 export const deleteUser = (id) => api.delete(`/users/${id}`);
