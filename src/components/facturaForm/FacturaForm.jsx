@@ -49,7 +49,7 @@ const FacturaForm = () => {
 
   const initialValues = {
     puntoDeVenta: '',
-    metodoPago: 'EFECTIVO', // Solo EFECTIVO
+    metodoPago: 'EFECTIVO',
     items: [
       {
         item: '',
@@ -99,7 +99,7 @@ const FacturaForm = () => {
         idCliente: client.id,
         tipoComprobante: "FACTURA",
         metodoPago: values.metodoPago,
-        username: currentUser.username, // Usamos el username del currentUser
+        username: currentUser.username,
         usuario: client.nombreRazonSocial,
         detalle: values.items.map(item => {
           const selectedItem = items.find(i => i.descripcion === item.item);
@@ -136,6 +136,18 @@ const FacturaForm = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Función para calcular el subtotal de un ítem
+  const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
+    return (cantidad * precioUnitario) - descuento;
+  };
+
+  // Función para calcular el subtotal general
+  const calcularSubtotalGeneral = (items) => {
+    return items.reduce((total, item) => {
+      return total + calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento);
+    }, 0);
   };
 
   if (loading) return <div className="loading">Cargando...</div>;
@@ -240,6 +252,20 @@ const FacturaForm = () => {
                             <ErrorMessage name={`items[${index}].descuento`} component="div" className="error-message" />
                           </div>
 
+                          {/* Subtotal por ítem */}
+                          <div className="form-group subtotal-field">
+                            <label>Subtotal (Bs):</label>
+                            <input
+                              type="text"
+                              value={calcularSubtotalItem(
+                                item.cantidad,
+                                item.precioUnitario,
+                                item.descuento
+                              ).toFixed(2)}
+                              readOnly
+                            />
+                          </div>
+
                           {index > 0 && (
                             <button 
                               type="button" 
@@ -266,6 +292,16 @@ const FacturaForm = () => {
                     </div>
                   )}
                 </FieldArray>
+
+                {/* Subtotal general */}
+                <div className="subtotal-general">
+                  <label>Subtotal General (Bs):</label>
+                  <input
+                    type="text"
+                    value={calcularSubtotalGeneral(values.items).toFixed(2)}
+                    readOnly
+                  />
+                </div>
               </section>
 
               <div className="form-buttons">
@@ -309,4 +345,4 @@ const FacturaForm = () => {
   );
 };
 
-export default FacturaForm;
+export default FacturaForm;       
