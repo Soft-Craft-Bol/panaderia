@@ -17,7 +17,7 @@ const Facturacion = () => {
       const clients = response.data;
       const client = clients.find(client => client.numeroDocumento.toString() === nit);
       if (client) {
-        navigate('/impuestos-form', { state: { client } });
+        navigate('/impuestos-form', { state: { client, flag: true } });
       } else {
         alert('Cliente no encontrado, CREAR CLIENTE');
         navigate('/clientes/crear-cliente');
@@ -41,7 +41,7 @@ const Facturacion = () => {
           <button className='btn-general' onClick={handleButtonClick}>Continuar a la facturacion</button>
           <p
             className='link-fact'
-            onClick={() => navigate('/impuestos-form')}
+            onClick={() => navigate('/impuestos-form', { state: { client: null, flag: false }})}
           >Venta sin facturación</p>
         </div>
       </div>

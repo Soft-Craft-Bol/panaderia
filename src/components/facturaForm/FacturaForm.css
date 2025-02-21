@@ -13,22 +13,9 @@
   margin-bottom: 20px;
   font-size: 1.5em;
   color: #333;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid var(--primary-color);
   padding-bottom: 5px;
   text-align: left;
-}
-
-.factura-content {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.cliente-venta, .detalle-transaccion {
-  flex: 1;
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
 }
 
 .form-group {
@@ -44,7 +31,8 @@
   color: #555;
 }
 
-.factura-container input, .factura-container select {
+.factura-container input,
+.factura-container select {
   padding: 10px;
   width: 100%;
   border: 1px solid #ccc;
@@ -54,29 +42,52 @@
   transition: all 0.3s ease;
 }
 
-.factura-container input:focus, .factura-container select:focus {
+.factura-container input:focus,
+.factura-container select:focus {
   border-color: #007bff;
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
   outline: none;
 }
 
-.row {
+.form-row {
   display: flex;
-  justify-content: space-between;
   gap: 10px;
+  align-items: flex-start;
 }
 
-.row .form-group {
+.form-row .form-group {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row .item-field {
+  flex: 1.8;
+}
+
+.form-row .cantidad-field,
+.form-row .descuento-field
+{
+  flex: 0.6;
+}
+.form-row .precio-field
+ {
+  flex: 1;
+}
+.form-row label {
+  white-space: nowrap;
+  font-size: 0.9rem; 
 }
 
 .form-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  margin-bottom: 2%;
 }
 
-.form-buttons button, .btn-back {
+.form-buttons button,
+.btn-back {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -94,16 +105,7 @@
   background-color: #0056b3;
 }
 
-.form-buttons button[type='button'] {
-  background-color: #dc3545;
-  color: white;
-}
-
-.form-buttons button[type='button']:hover {
-  background-color: #b02a37;
-}
-
-.btn-back{
+.btn-back {
   background-color: var(--secondary-color);
   color: white;
 }
@@ -112,4 +114,46 @@
   color: #dc3545;
   font-size: 0.9em;
   margin-top: 5px;
+  width: 100%;
 }
+
+.btn-clear {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-no-fact {
+  background-color: coral;
+  color: white;
+  border-radius: 6px;
+}
+
+.btn-enabled {
+  opacity: 1;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bot-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 2%;
+}
+
+/* @media (max-width: 768px) {
+  .form-row {
+    flex-direction: column; 
+  }
+
+  .form-row .form-group {
+    width: 100%; 
+  }
+
+  .form-row label {
+    white-space: normal;
+  }
+} */
