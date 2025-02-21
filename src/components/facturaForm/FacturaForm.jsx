@@ -29,6 +29,7 @@ const FacturaForm = () => {
       try {
         const response = await fetchItems();
         setItems(response.data);
+        console.log('Items:', response.data);
       } catch (error) {
         console.error('Error fetching items:', error);
       }
