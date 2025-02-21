@@ -59,7 +59,7 @@ const Productos = () => {
       <h1>Productos en stock</h1>
       <button 
         className="btn-general"
-        onClick={() => navigate("/productos/addProduct")}
+        onClick={() => navigate("/addProduct")}
       >
         (+) &emsp; Agregar nuevo
       </button>
@@ -70,6 +70,7 @@ const Productos = () => {
             key={product.id}
             product={product}
             onEliminar={() => handleOpenModal(product)}
+            onEdit={`/editProduct/${product.id}`}
           />
         ))}
       </div>

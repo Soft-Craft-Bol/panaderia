@@ -1,14 +1,11 @@
 import React, { useState, useRef,useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import ImagesApp from '../../../assets/ImagesApp';
 import loadImage from '../../../assets/ImagesApp';
-
 import './ItemForm.css';
 import { FaFile } from 'react-icons/fa';
-import axios from 'axios';
-import { createItem, unidadesMedida } from '../../../service/api';
-import { useNavigate } from 'react-router-dom';
+import { createItem, unidadesMedida, getItemID, updateItem } from '../../../service/api';
+import { useNavigate, useParams } from 'react-router-dom';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 
 const validationSchema = Yup.object().shape({
@@ -17,8 +14,11 @@ const validationSchema = Yup.object().shape({
         .required('Precio Unitario es requerido')
         .positive('El precio debe ser positivo'),
     unidadMedida: Yup.number(),
-    codigoProductoSin: Yup.number()
+    codigoProductoSin: Yup.number(),
+    cantidad: Yup.number()
+    .positive('Cantidad debe ser positiva'),
 });
+
 
 const ItemForm = () => {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -49,12 +49,39 @@ const ItemForm = () => {
     loadDefaultImage();
   }, []);
 
-  const initialValues = {
-    descripcion: '',
-    unidadMedida: '',
-    precioUnitario: '',
+  const { id } = useParams();
+  const [initialValues, setInitialValues] = useState({
+    descripcion: "",
+    unidadMedida: "",
+    precioUnitario: "",
     codigoProductoSin: 234109,
-};
+    imagen: "",
+    cantidad: 0,
+    codigo: "",
+  });
+
+  useEffect(() => {
+    if (id) {
+      const fetchProduct = async () => {
+        try {
+          const response = await getItemID(id);
+          setInitialValues({
+            descripcion: response.data.descripcion || "",
+            unidadMedida: response.data.unidadMedida || "",
+            precioUnitario: response.data.precioUnitario || "",
+            codigoProductoSin: response.data.codigoProductoSin || 234109,
+            cantidad: response.data.cantidad || 0,
+            imagen: response.data.imagen || "",
+            codigo: response.data.codigo,
+          });
+          setPreviewUrl(response.data.imagen);
+        } catch (error) {
+          console.error("Error cargando el producto:", error);
+        }
+      };
+      fetchProduct();
+    }
+  }, [id]);
 
   const resizeImage = (file) => {
     return new Promise((resolve, reject) => {
@@ -119,29 +146,34 @@ const ItemForm = () => {
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       setSubmitError(null);
-      let imageUrl = ImagesApp.defImg;
-
+      let imageUrl = previewUrl;
+  
       if (selectedFile) {
         imageUrl = await uploadImageToCloudinary(selectedFile);
       }
-
+  
       const data = {
         descripcion: values.descripcion,
         unidadMedida: values.unidadMedida,
         precioUnitario: Number(values.precioUnitario),
+        cantidad: Number(values.cantidad),
         codigoProductoSin: values.codigoProductoSin,
         imagen: imageUrl,
+        codigo: id ? values.codigo : undefined,
       };
       
-      const response = await createItem(data);
-      console.log('Form submitted:', response);
-      alert('ITEM registrado exitosamente');
-      setSelectedFile(null);
-      setPreviewUrl(null);
-      navigate('/productos');
+      if (id) {
+        await updateItem(id, data);
+        alert("Producto actualizado exitosamente");
+      } else {
+        await createItem(data);
+        alert("ITEM registrado exitosamente");
+      }
+  
+      navigate("/productos");
     } catch (error) {
-      console.error('Error submitting form:', error);
-      setSubmitError('Error al registrar el producto. Por favor, intente nuevamente.');
+      console.error("Error al guardar el producto:", error);
+      setSubmitError("Error al registrar o actualizar el producto. Intente nuevamente.");
     } finally {
       setSubmitting(false);
     }
@@ -153,10 +185,11 @@ const ItemForm = () => {
 
   return (
     <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
+    enableReinitialize
+    initialValues={initialValues}
+    validationSchema={validationSchema}
+    onSubmit={handleSubmit}
+  >
       {({ isSubmitting, errors, touched }) => (
         <Form className='cont-new-pat'>
           <div className='img-card'>
@@ -199,7 +232,7 @@ const ItemForm = () => {
             </div>
             <div className="input-group">
                 <label htmlFor="unidadMedida">Unidad de Medida:</label>
-                <Field as="select" name="unidadMedida">
+                <Field as="select" name="unidadMedida" className="selector-options">
                   <option value="">Seleccione una unidad</option>
                   {unidades.map((unidad) => (
                       <option key={unidad.id} value={unidad.codigoClasificador}>
@@ -219,9 +252,14 @@ const ItemForm = () => {
                 <Field className="input-card" id="codigoProductoSin" name="codigoProductoSin" type="number" disabled />
                 <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
             </div>
+            <div className="input-group">
+                <label htmlFor="cantidad">Cantidad:</label>
+                <Field className="input-card" id="cantidad" name="cantidad" type="number" />
+                <ErrorMessage name="cantidad" component="div" className="error-message" />
+            </div>
             {submitError && <div className="error-message">{submitError}</div>}
-            <button type="submit" disabled={isSubmitting} >
-                {isSubmitting ? 'Guardando...' : 'Añadir nuevo producto / item'}
+            <button type="submit" disabled={isSubmitting}>
+              {id ? "Actualizar producto" : "Añadir nuevo producto / item"}
             </button>
           </div>
         </Form>
