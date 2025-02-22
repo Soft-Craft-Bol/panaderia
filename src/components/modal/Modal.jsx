@@ -2,7 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./Modal.css";
 
-const Modal = ({ children, onClose }) => {
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null; // No renderizar el modal si isOpen es false
+
   const handleOverlayClick = (e) => {
     // Detecta clics fuera del contenedor del modal
     if (e.target.classList.contains("modal-overlay")) {
@@ -24,6 +26,7 @@ const Modal = ({ children, onClose }) => {
 };
 
 Modal.propTypes = {
+  isOpen: PropTypes.bool.isRequired, // Nueva prop para controlar la visibilidad
   children: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
 };
