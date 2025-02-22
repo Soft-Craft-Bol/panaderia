@@ -1,0 +1,165 @@
+import React, { useState } from "react";
+import { Formik, Form, useField } from "formik";
+import axios from "axios";
+import * as Yup from "yup";
+import "./ReservaFormulario.css";
+import { reservarProducto } from "../../service/api";
+import { Button } from "../../components/buttons/Button";
+import InputText from "../../components/inputs/InputText";
+import SelectPrimary from "../../components/selected/SelectPrimary";
+import { reservaSchema } from "../../schemas/reservaSchema";
+import uploadImageToCloudinary from "../../utils/uploadImageToCloudinary ";
+
+const ReservaFormulario = ({ carrito, onReservaExitosa }) => {
+  const [paso, setPaso] = useState(1);
+  const [comprobante, setComprobante] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const totalCarrito = carrito.reduce((acc, item) => {
+    const precio = item.precioUnitario || 0;
+    const cant = item.cantidad || 1;
+    return acc + precio * cant;
+  }, 0);
+
+  const siguientePaso = () => setPaso(paso + 1);
+  const anteriorPaso = () => setPaso(paso - 1);
+
+  const handleSubmit = async (values) => {
+    setIsLoading(true);
+
+    try {
+      let comprobanteUrl = "";
+      if (values.metodoPago === "TRANSFERENCIA" || values.metodoPago === "QR") {
+        if (!comprobante) {
+          alert("Debes subir un comprobante para este método de pago.");
+          return;
+        }
+        comprobanteUrl = await uploadImageToCloudinary(comprobante);
+      }
+
+      const reservaRequest = {
+        idPuntoVenta: 1,
+        idCliente: 13,
+        items: carrito.map((item) => ({
+          idItem: item.id,
+          cantidad: item.cantidad,
+        })),
+        anticipo: parseFloat(values.anticipo),
+        saldoPendiente: totalCarrito - parseFloat(values.anticipo),
+        metodoPago: values.metodoPago,
+        comprobante: comprobanteUrl,
+        observaciones: values.observaciones,
+      };
+
+      const response = await reservarProducto(reservaRequest);
+      onReservaExitosa(response.data);
+      alert("Reserva creada exitosamente"); // Mostrar alerta de éxito
+    } catch (error) {
+      console.error("Error al crear la reserva:", error);
+      alert("Hubo un error al crear la reserva. Inténtalo de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Formik
+      initialValues={{
+        metodoPago: "",
+        anticipo: "",
+        observaciones: "",
+      }}
+      validationSchema={reservaSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ values, setFieldValue, isValid }) => (
+        <Form className="reserva-formulario">
+          <h2>Reserva de Productos</h2>
+
+          {paso === 1 && (
+            <div className="paso">
+              <h3>Selecciona el método de pago</h3>
+              <SelectPrimary
+                label="Método de Pago"
+                name="metodoPago"
+                value={values.metodoPago}
+                onChange={(e) => setFieldValue("metodoPago", e.target.value)}
+                required
+              >
+                <option value="">Selecciona un método de pago</option>
+                <option value="TARJETA">Tarjeta de Crédito/Débito</option>
+                <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                <option value="QR">Pago QR</option>
+              </SelectPrimary>
+
+              <h3>Ingresa el monto del anticipo</h3>
+              <InputText
+                label="Anticipo"
+                name="anticipo"
+                type="number"
+                value={values.anticipo}
+                onChange={(e) => setFieldValue("anticipo", e.target.value)}
+                required
+              />
+
+              <p>
+                <strong>Total del carrito:</strong> Bs {totalCarrito.toFixed(2)}
+              </p>
+              <p>
+                <strong>Saldo pendiente:</strong> Bs{" "}
+                {(totalCarrito - parseFloat(values.anticipo || 0)).toFixed(2)}
+              </p>
+
+              <Button variant="primary" onClick={siguientePaso}>
+                Siguiente
+              </Button>
+            </div>
+          )}
+
+          {paso === 2 && (values.metodoPago === "TRANSFERENCIA" || values.metodoPago === "QR") && (
+            <div className="paso">
+              <h3>Sube tu comprobante de pago</h3>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setComprobante(e.target.files[0])}
+                required
+              />
+              <Button variant="secondary" onClick={anteriorPaso}>
+                Anterior
+              </Button>
+              <Button variant="primary" onClick={siguientePaso}>
+                Siguiente
+              </Button>
+            </div>
+          )}
+
+          {paso === 3 && (
+            <div className="paso">
+              <h3>Confirma tu reserva</h3>
+              <InputText
+                label="Observaciones"
+                name="observaciones"
+                type="text"
+                value={values.observaciones}
+                onChange={(e) => setFieldValue("observaciones", e.target.value)}
+              />
+              <Button variant="secondary" onClick={anteriorPaso}>
+                Anterior
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={isLoading || !isValid} 
+              >
+                {isLoading ? "Enviando..." : "Confirmar Reserva"}
+              </Button>
+            </div>
+          )}
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
+export default ReservaFormulario;
