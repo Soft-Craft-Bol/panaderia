@@ -337,7 +337,7 @@ body.dark .home .text {
   
   .main-content {
     flex-grow: 1;
-    margin: 1% 0 0 0;
+    margin: 5% 0 0 0;
     padding: 20px 20px 20px 35px;
     transition: margin-left 0.3s ease;
   }
@@ -345,7 +345,7 @@ body.dark .home .text {
 
   @media (max-width: 1370px) {
     .main-content{
-        margin: 0 0 0 0;
+        margin: 5% 0 0 0;
         
     }
   }
