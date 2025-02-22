@@ -7,7 +7,7 @@ export const generatePDF = async (xmlData) => {
   const xmlDoc = parser.parseFromString(xmlData, "text/xml");
 
   const cabecera = xmlDoc.getElementsByTagName('cabecera')[0];
-  const detalle = xmlDoc.getElementsByTagName('detalle')[0];
+  const detalles = xmlDoc.getElementsByTagName('detalle');
 
   const pageWidth = 80 * 2.83465; 
   const doc = new jsPDF({
@@ -15,24 +15,23 @@ export const generatePDF = async (xmlData) => {
     format: [pageWidth, 800]
   });
 
-  let yPos = 80; // Reducido el margen superior
+  let yPos = 80; 
   const xMargin = 15; 
   const lineHeight = 14; 
   const contentWidth = pageWidth - (2 * xMargin);
-
   const centerText = (text, y) => {
     doc.text(text, pageWidth / 2, y, { align: 'center' });
   };
 
   const addLine = (y) => {
     doc.setLineWidth(0.5);
-    const dashLength = 5; // Longitud de cada segmento de la línea punteada
-    const gapLength = 3;  // Espacio entre segmentos
+    const dashLength = 5; 
+    const gapLength = 3;  
     let x = xMargin;
 
     while (x < pageWidth - xMargin) {
-      doc.line(x, y, x + dashLength, y); // Dibuja un segmento de línea
-      x += dashLength + gapLength;       // Mueve la posición para el siguiente segmento
+      doc.line(x, y, x + dashLength, y); 
+      x += dashLength + gapLength;       
     }
   };
 
@@ -90,10 +89,8 @@ export const generatePDF = async (xmlData) => {
     centerText(line, yPos);
     yPos += lineHeight;
   });
-
   addLine(yPos);
   yPos += lineHeight;
-
   centerText(`NOMBRE/RAZÓN SOCIAL: ${getXMLValue(cabecera, 'nombreRazonSocial')}`, yPos);
   yPos += lineHeight;
   centerText(`NIT/CI/CEX: ${getXMLValue(cabecera, 'numeroDocumento')}`, yPos);
@@ -102,30 +99,28 @@ export const generatePDF = async (xmlData) => {
   yPos += lineHeight;
   centerText(`FECHA DE EMISIÓN: ${formatDate(getXMLValue(cabecera, 'fechaEmision'))}`, yPos);
   yPos += lineHeight;
-
   addLine(yPos);
   yPos += lineHeight;
-
   centerText('DETALLE', yPos);
   yPos += lineHeight;
-
-  const descripcion = getXMLValue(detalle, 'descripcion');
-  const descripcionLines = doc.splitTextToSize(descripcion, contentWidth);
-  descripcionLines.forEach(line => {
-    centerText(line, yPos);
+  for (let i = 0; i < detalles.length; i++) {
+    const detalle = detalles[i];
+    const descripcion = getXMLValue(detalle, 'descripcion');
+    const descripcionLines = doc.splitTextToSize(descripcion, contentWidth);
+    descripcionLines.forEach(line => {
+      centerText(line, yPos);
+      yPos += lineHeight;
+    });
+    const cantidad = getXMLValue(detalle, 'cantidad');
+    const precioUnitario = getXMLValue(detalle, 'precioUnitario');
+    const subTotal = getXMLValue(detalle, 'subTotal');
+    const subTotalBs = `${subTotal} Bs`;
+    centerText(`${cantidad} x ${formatCurrency(precioUnitario)}`, yPos);
+    centerText(formatCurrency(subTotalBs), yPos + lineHeight);
+    yPos += lineHeight * 2;
+    addLine(yPos);
     yPos += lineHeight;
-  });
-
-  const cantidad = getXMLValue(detalle, 'cantidad');
-  const precioUnitario = getXMLValue(detalle, 'precioUnitario');
-  const subTotal = getXMLValue(detalle, 'subTotal');
-
-  centerText(`${cantidad} X ${formatCurrency(precioUnitario)}`, yPos);
-  centerText(formatCurrency(subTotal), yPos + lineHeight);
-  yPos += lineHeight * 2;
-
-  addLine(yPos);
-  yPos += lineHeight;
+  }
 
   const montoTotal = getXMLValue(cabecera, 'montoTotal');
 
@@ -168,9 +163,7 @@ export const generatePDF = async (xmlData) => {
     yPos += lineHeight;
   });
 
-  yPos += lineHeight * 2; // Reducido el espacio después de la leyenda
-
-  // Generar el código QR
+  yPos += lineHeight * 2;
   const qrUrl = `https://pilotosiat.impuestos.gob.bo/consulta/QR?nit=${getXMLValue(cabecera, 'nitEmisor')}&cuf=${getXMLValue(cabecera, 'cuf')}&numero=1&t=1`;
   const qrDataUrl = await QRCode.toDataURL(qrUrl);
   const qrSize = 100;
