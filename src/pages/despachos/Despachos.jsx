@@ -1,44 +1,90 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Table from "../../components/table/Table"
+import Table from "../../components/table/Table";
+import { getDespachos } from "../../service/api";
+import Modal from "../../components/modal/Modal"; 
 
 const Despachos = () => {
-        const navigate = useNavigate();
-        const staticData = [
-        { id: 1, sucursalOrigen: 'Central', destino: 'Villa Armonia', fechaEnvio: '2024-02-12' },
-        { id: 2, sucursalOrigen: 'Villa Armonia', destino: 'Central', fechaEnvio: '2024-02-10' },
-        { id: 3, sucursalOrigen: 'Central', destino: 'Villa Armonia', fechaEnvio: '2024-02-08' },
-      ];
-      
-      const columns = [
-        { header: 'ID', accessor: 'id' },
-        { header: 'Sucursal Origen', accessor: 'sucursalOrigen' },
-        { header: 'Destino', accessor: 'destino' },
-        { header: 'Fecha de Envío', accessor: 'fechaEnvio' },
-        { 
-          header: 'Ver productos', 
-          accessor: 'verProductos',
-          render: (row) => (
-            <button className="btn-edit" onClick={() => handleVerProductos(row)}>Ver</button>
-          )
-        }
-      ];
+  const navigate = useNavigate();
+  const [despachos, setDespachos] = useState([]); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDespachoItems, setSelectedDespachoItems] = useState([]);
+  useEffect(() => {
+    const fetchDespachos = async () => {
+      try {
+        const response = await getDespachos();
+        setDespachos(response.data); 
+      } catch (error) {
+        console.error("Error fetching despachos:", error);
+      }
+    };
 
-    const handleVerProductos = (row) => {
-        alert(`Mostrando productos del despacho ID: ${row.id}`);
-      };
-    
-    return(
-        <div>
-            <h1>Despachos realizados</h1>
-            <button className='btn-general'
-            onClick={() => navigate("/despachos/create")}>
-            Registrar un nuevo despacho
-             </button>
-             <div className="tabla-despachos" style={{marginTop:"15px"}}>
-             <Table columns={columns} data={staticData} />
-             </div>
-        </div>
-    )
-}
+    fetchDespachos();
+  }, []);
+  const mappedData = despachos.map((despacho) => ({
+    id: despacho.id,
+    sucursalOrigen: despacho.sucursalOrigen.nombre, 
+    destino: despacho.sucursalDestino.nombre, 
+    fechaEnvio: despacho.fechaEnvio,
+  }));
+
+  const columns = [
+    { header: 'ID', accessor: 'id' },
+    { header: 'Sucursal Origen', accessor: 'sucursalOrigen' },
+    { header: 'Destino', accessor: 'destino' },
+    { header: 'Fecha de Envío', accessor: 'fechaEnvio' },
+    { 
+      header: 'Ver productos', 
+      accessor: 'verProductos',
+      render: (row) => (
+        <button className="btn-edit" onClick={() => handleVerProductos(row)}>Ver</button>
+      )
+    }
+  ];
+
+  const handleVerProductos = (row) => {
+    const selectedDespacho = despachos.find(despacho => despacho.id === row.id);
+    if (selectedDespacho) {
+      setSelectedDespachoItems(selectedDespacho.despachoItems);
+      setIsModalOpen(true); 
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  return (
+    <div>
+      <h1>Despachos realizados</h1>
+      <button className='btn-general' onClick={() => navigate("/despachos/create")}>
+        Registrar un nuevo despacho
+      </button>
+      <div className="tabla-despachos" style={{ marginTop: "15px" }}>
+        <Table columns={columns} data={mappedData} /> 
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <h2>Ítems enviados</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedDespachoItems.map((item) => (
+              <tr key={item.id}>
+                <td>{item.item.descripcion}</td>
+                <td>{item.cantidad}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Modal>
+    </div>
+  );
+};
+
 export default Despachos;

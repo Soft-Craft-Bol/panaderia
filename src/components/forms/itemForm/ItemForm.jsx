@@ -211,7 +211,7 @@ const ItemForm = () => {
                             <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
                         </div>
                         <div className="input-group">
-                            <label htmlFor="cantidad">Cantidad:</label>
+                            <label htmlFor="cantidad">Cantidad Inicial:</label>
                             <Field className="input-card" id="cantidad" name="cantidad" type="number" />
                             <ErrorMessage name="cantidad" component="div" className="error-message" />
                         </div>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, FieldArray } from "formik";
 import * as Yup from "yup";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import InputText from "../../inputs/InputText";
 import "./DespachoForm.css";
 import { fetchItems, getSucursales, createDespacho } from "../../../service/api";
-import { toast } from "sonner"; // Importar Sonner
+import { toast } from "sonner";
 
-const ElementProduct = ({ id, onUpdate, onSelect }) => {
+const ElementProduct = ({ index, onUpdate, onRemove, isDefault }) => {
   const [productosList, setProductosList] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -25,15 +26,15 @@ const ElementProduct = ({ id, onUpdate, onSelect }) => {
 
   return (
     <div className="element-product">
-      <input type="checkbox" onChange={() => onSelect(id)} />
       <select
         className="despacho-input"
+        value={selectedProduct}
         onChange={(e) => {
           setSelectedProduct(e.target.value);
-          onUpdate(id, e.target.value, quantity);
+          onUpdate(index, e.target.value, quantity);
         }}
       >
-        <option value="" disabled selected>Seleccione un producto</option>
+        <option value="" disabled>Seleccione un producto</option>
         {productosList.map((product) => (
           <option key={product.id} value={product.id}>
             {product.descripcion}
@@ -48,18 +49,22 @@ const ElementProduct = ({ id, onUpdate, onSelect }) => {
         value={quantity}
         onChange={(e) => {
           setQuantity(e.target.value);
-          onUpdate(id, selectedProduct, e.target.value);
+          onUpdate(index, selectedProduct, e.target.value);
         }}
       />
+      {!isDefault && ( 
+        <button type="button" className="remove-item-btn" onClick={() => onRemove(index)}>
+          Eliminar
+        </button>
+      )}
     </div>
   );
 };
 
 export default function DespachoForm() {
-  const [productos, setProductos] = useState([]);
   const [sucursales, setSucursales] = useState([]);
   const [mensaje, setMensaje] = useState(null);
-  const [selectedIds, setSelectedIds] = useState(new Set());
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchSucursales = async () => {
@@ -70,6 +75,7 @@ export default function DespachoForm() {
         console.error("Error fetching sucursales:", error);
       }
     };
+
     fetchSucursales();
   }, []);
 
@@ -85,35 +91,8 @@ export default function DespachoForm() {
     comment: Yup.string().nullable(),
   });
 
-  const agregarProducto = () => {
-    setProductos([...productos, { id: Date.now(), productoId: null, cantidad: 1 }]);
-  };
-
-  const eliminarProductos = () => {
-    setProductos(productos.filter(p => !selectedIds.has(p.id)));
-    setSelectedIds(new Set());
-  };
-
-  const toggleSeleccion = (id) => {
-    setSelectedIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
-  const actualizarProducto = (id, productoId, cantidad) => {
-    setProductos((prevProductos) =>
-      prevProductos.map((p) => (p.id === id ? { ...p, productoId, cantidad: parseInt(cantidad) } : p))
-    );
-  };
-
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    if (productos.length === 0) {
+    if (values.items.length === 0) {
       setMensaje({ texto: "Debe agregar al menos un producto en el despacho", tipo: "error" });
       setSubmitting(false);
       return;
@@ -121,25 +100,38 @@ export default function DespachoForm() {
 
     try {
       const despachoData = {
-        sucursalOrigenId: parseInt(values.origin),
-        destinoId: parseInt(values.destination),
+        sucursalOrigen: {
+          id: parseInt(values.origin),
+        },
+        sucursalDestino: {
+          id: parseInt(values.destination),
+        },
         transporte: values.transportId,
         numeroContacto: parseInt(values.numberPhone),
         observaciones: values.comment,
-        itemIds: productos
-          .filter((p) => p.productoId)
-          .map((p) => parseInt(p.productoId))
+        despachoItems: values.items.map(item => ({
+          item: {
+            id: parseInt(item.productoId),
+          },
+          cantidad: parseInt(item.cantidad),
+        })),
       };
 
       await createDespacho(despachoData);
+      
+      toast.success("Despacho creado con éxito!"); 
 
-      toast.success("Despacho creado con éxito!"); // Notificación de éxito
+      alert("Despacho creado con éxito");
+
+      navigate("/despachos");
 
       resetForm();
       setMensaje({ texto: "Despacho creado con éxito!", tipo: "success" });
     } catch (error) {
       console.error("Error al enviar despacho:", error);
       setMensaje({ texto: "Error al crear el despacho", tipo: "error" });
+
+      alert("Error al crear el despacho");
     }
 
     setSubmitting(false);
@@ -159,11 +151,12 @@ export default function DespachoForm() {
           transportId: "",
           numberPhone: "",
           comment: "",
+          items: [{ productoId: "", cantidad: 1 }] 
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched }) => (
+        {({ errors, touched, values, setFieldValue }) => (
           <Form style={{ width: "80%" }}>
             <div className="form-group">
               <div>
@@ -193,24 +186,42 @@ export default function DespachoForm() {
               </div>
             </div>
 
-            <InputText label="Transporte usado:" name="transportId" type="text" />
+            <InputText label="Transporte:" name="transportId" type="text" />
 
             <div className="form-group">
-              <InputText label="Número de emergencia:" name="numberPhone" type="text" placeholder="Ej. 123456789" />
+              <InputText label="Numero de contacto del transporte:" name="numberPhone" type="text" placeholder="Ej. 123456789" />
 
-              <InputText label="Comentario:" name="comment" type="text" placeholder="Opcional" />
+              <InputText label="Comentarios:" name="comment" type="text" placeholder="Opcional" />
             </div>
 
             <div className="despacho-productos">
-              <div className="despacho-productos-cabecera">
-                <button className="btn-edit" type="button" onClick={agregarProducto}>Agregar productos</button>
-                <button className="btn-cancel" type="button" onClick={eliminarProductos} disabled={productos.length === 0}>Eliminar productos</button>
-              </div>
               <div className="cuerpo-productos">
-                <h3>Productos enviados</h3>
-                {productos.map((p) => (
-                  <ElementProduct key={p.id} id={p.id} onUpdate={actualizarProducto} onSelect={toggleSeleccion} />
-                ))}
+                <h3>Productos a enviar:</h3>
+                <FieldArray name="items">
+                  {({ push, remove }) => (
+                    <>
+                      {values.items.map((item, index) => (
+                        <ElementProduct
+                          key={index}
+                          index={index}
+                          onUpdate={(index, productoId, cantidad) => {
+                            setFieldValue(`items[${index}].productoId`, productoId);
+                            setFieldValue(`items[${index}].cantidad`, cantidad);
+                          }}
+                          onRemove={remove}
+                          isDefault={index === 0} 
+                        />
+                      ))}
+                      <button
+                        type="button"
+                        className="add-item-btn"
+                        onClick={() => push({ productoId: "", cantidad: 1 })}
+                      >
+                        + Añadir ítem
+                      </button>
+                    </>
+                  )}
+                </FieldArray>
               </div>
             </div>
 
