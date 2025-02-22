@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import loadImage from '../../../assets/ImagesApp';
 import './ItemForm.css';
 import { FaFile } from 'react-icons/fa';
-import { createItem, unidadesMedida, getItemID, updateItem } from '../../../service/api';
+import { createItem, unidadesMedida, getItemID, updateItem, getProductoServicio } from '../../../service/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 
@@ -25,14 +25,30 @@ const ItemForm = () => {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [submitError, setSubmitError] = useState(null);
     const [unidades, setUnidades] = useState([]);
+    const [codigoProductoSin, setCodigoProductoSin] = useState([]);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+      const fetchProductoServicio = async () => {
+        try {
+          const response = await getProductoServicio();
+          setCodigoProductoSin(response.data);
+          console.log(response.data);
+        } catch (error) {
+          console.error('Error fetching producto servicio', error);
+        }
+      }
+        fetchProductoServicio();
+      },[]);
+    
 
     useEffect(() => {
       const fetchUnidades = async () => {
           try {
               const response = await unidadesMedida();
               setUnidades(response.data);
+              console.log(response.data); 
           } catch (error) {
               console.error('Error fetching unidades de medida', error);
           }
@@ -239,7 +255,7 @@ const ItemForm = () => {
                           {unidad.descripcion}
                       </option>
                   ))}
-                  </Field>
+                </Field>
                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
             </div>
             <div className="input-group">
@@ -249,7 +265,14 @@ const ItemForm = () => {
             </div>
             <div className="input-group">
                 <label htmlFor="codigoProductoSin">Código Producto SIN</label>
-                <Field className="input-card" id="codigoProductoSin" name="codigoProductoSin" type="number" disabled />
+                <Field as="select" name="codigoProductoSin" className="selector-options">
+                  <option value="">Seleccione codigo producto SIN</option>
+                  {codigoProductoSin.map((codProd) => (
+                      <option key={codProd.codigoProducto} value={codProd.descripcionProducto}>
+                          {codProd.descripcionProducto}
+                      </option>
+                  ))}
+                </Field>
                 <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
             </div>
             <div className="input-group">
