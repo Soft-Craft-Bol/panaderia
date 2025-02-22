@@ -41,7 +41,6 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, tipoUsuario = '
       {tipoUsuario === 'interno' && (
         <>
           <p><strong>{dataLabels.data3}</strong> {product.cantidad}</p>
-          <p><strong>Stock:</strong> {product.stock}</p>
         </>
       )}
       <div className="cardFooter">
@@ -56,12 +55,13 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, tipoUsuario = '
           </>
         ) : (
           <Button
-                        variant="primary"
-                        type="submit"
-                        style={{ marginTop: '20px', alignSelf: 'center' }}
-                      >
-                       <FaShoppingCart /> Agregar al carrito
-                      </Button>
+            variant="primary"
+            type="button" 
+            style={{ marginTop: '20px', alignSelf: 'center' }}
+            onClick={onReservar} 
+          >
+            <FaShoppingCart /> Agregar al carrito
+          </Button>
         )}
       </div>
     </div>

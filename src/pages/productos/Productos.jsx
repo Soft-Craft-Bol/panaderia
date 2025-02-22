@@ -12,7 +12,7 @@ const Productos = () => {
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const navigate = useNavigate();
   const dataLabels={
-    data1:'Unidad de medida:',
+    data1:'Cantidad unidades:',
     data2:'Precio unitario:',
     data3:'Codigo Producto SIN:'
   };
