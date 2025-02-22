@@ -1,26 +1,31 @@
-import React, { memo } from 'react';
-import { Button } from '../buttons/Button';
-import { IoCloseSharp } from '../../hooks/icons';
-import './Modal.css';
+import React from "react";
+import PropTypes from "prop-types";
+import "./Modal.css";
 
-const Modal = memo(({ isOpen, onClose, children, theme = 'light' }) => {
-  if (!isOpen) return null;
+const Modal = ({ children, onClose }) => {
+  const handleOverlayClick = (e) => {
+    // Detecta clics fuera del contenedor del modal
+    if (e.target.classList.contains("modal-overlay")) {
+      onClose();
+    }
+  };
 
   return (
-    <div className={`modal-overlay ${theme}`} onClick={onClose}>
-      <div className={`modal-content ${theme}`} onClick={(e) => e.stopPropagation()}>
-        <Button 
-          variant="secondary" 
-          theme={theme} 
-          onClick={onClose} 
-          className="close-btn"
-        > 
-          <IoCloseSharp/>
-        </Button>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-container">
+        {/* Botón para cerrar el modal */}
+        <button className="modal-close" onClick={onClose}>
+          &times;
+        </button>
         {children}
       </div>
     </div>
   );
-});
+};
+
+Modal.propTypes = {
+  children: PropTypes.node.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 export default Modal;
