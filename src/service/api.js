@@ -65,8 +65,12 @@ export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-a
 export const emitirSinFactura = (data) => api.post('/ventas', data);
 
 export const reservarProducto = (data) => api.post('/reserva', data);
-export const createDespacho = (data) => api.post('/despachos', data);
 
+//Despachos
+export const createDespacho = (data) => api.post('/despachos', data);
+export const getDespachos = () => api.get('/despachos');
+
+//otrps
 export const createHoario = (data) => api.post('/horarios', data);
 export const getHorario = () => api.get('/horarios');
 
