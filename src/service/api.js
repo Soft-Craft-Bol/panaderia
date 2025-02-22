@@ -57,6 +57,7 @@ export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const getUserById = (id) => api.get(`/users/${id}`);
 
 export const getSucursales = () => api.get('/sucursales');
+export const createSucursal = (data) => api.post('/sucursales',data);
 
 export const getAllFacturas = () => api.get('/factura');
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
