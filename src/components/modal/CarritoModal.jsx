@@ -1,61 +1,45 @@
 import React from "react";
-import PropTypes from "prop-types";
-import "./Modal.css";
+import { FaTrash } from "react-icons/fa";
+import { useCarrito } from "../../context/CarritoContext";
+import "./Carrito.css";
 
-const CarritoModal = ({ carrito, onClose, onActualizarCantidad, onEliminarProducto }) => {
+const Carrito = ({ onClose }) => {
+  const { carrito, eliminarDelCarrito } = useCarrito();
+
   const calcularTotal = () => {
-    return carrito.reduce((total, item) => total + item.cantidad * item.producto.precioUnitario, 0);
+    return carrito.reduce((total, item) => total + item.precio * item.cantidad, 0).toFixed(2);
   };
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target.classList.contains("modal-overlay") && onClose()}>
-      <div className="modal-container">
-        <button className="modal-close" onClick={onClose}>
-          &times;
-        </button>
-        <h2>Carrito de Compras</h2>
-        {carrito.length === 0 ? (
-          <p>No hay productos en el carrito.</p>
-        ) : (
-          <>
-            <div className="carrito-items">
-              {carrito.map((item, index) => (
-                <div key={index} className="carrito-item">
-                  <img src={item.producto.imagen} alt={item.producto.descripcion} />
-                  <div className="carrito-item-info">
-                    <h3>{item.producto.descripcion}</h3>
-                    <p>Precio unitario: {item.producto.precioUnitario} Bs</p>
-                    <div className="carrito-item-cantidad">
-                      <button onClick={() => onActualizarCantidad(index, item.cantidad - 1)} disabled={item.cantidad <= 1}>
-                        -
-                      </button>
-                      <span>{item.cantidad}</span>
-                      <button onClick={() => onActualizarCantidad(index, item.cantidad + 1)} disabled={item.cantidad >= item.producto.stock}>
-                        +
-                      </button>
-                    </div>
-                    <p>Total: {item.cantidad * item.producto.precioUnitario} Bs</p>
-                    <button onClick={() => onEliminarProducto(index)}>Eliminar</button>
-                  </div>
+    <div className="carrito-lista">
+      <button className="carrito-cerrar" onClick={onClose}>Cerrar</button>
+
+      {carrito.length === 0 ? (
+        <p className="carrito-vacio">Tu carrito está vacío</p>
+      ) : (
+        <>
+          <div className="carrito-items">
+            {carrito.map((item) => (
+              <div key={item.id} className="carrito-item">
+                <img src={item.imagen} alt={item.nombre} className="carrito-imagen" />
+                <div className="carrito-info">
+                  <p className="carrito-nombre">{item.nombre}</p>
+                  <p className="carrito-precio">Bs {item.precio.toFixed(2)} x {item.cantidad}</p>
                 </div>
-              ))}
-            </div>
-            <div className="carrito-total">
-              <h3>Total a pagar: {calcularTotal()} Bs</h3>
-              <button onClick={onClose}>Cerrar</button>
-            </div>
-          </>
-        )}
-      </div>
+                <button className="carrito-eliminar" onClick={() => eliminarDelCarrito(item.id)}>
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="carrito-total">
+            <p>Total: Bs {calcularTotal()}</p>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-CarritoModal.propTypes = {
-  carrito: PropTypes.array.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onActualizarCantidad: PropTypes.func.isRequired,
-  onEliminarProducto: PropTypes.func.isRequired,
-};
-
-export default CarritoModal;
+export default Carrito;

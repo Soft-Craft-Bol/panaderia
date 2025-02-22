@@ -1,42 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import './Productos.css';
-import CardProducto from '../../components/cardProducto/cardProducto';
-import { fetchItems } from '../../service/api';
-import FormularioReserva from "../pedidos/PedidosForm";
+import { useCarrito } from "../../context/CarritoContext";
+import { fetchItems } from "../../service/api";
+import CardProducto from "../../components/cardProducto/cardProducto";
+import Modal from "../../components/modal/Modal";
+import "./Productos.css";
 
 const ProductosExternos = () => {
   const [productos, setProductos] = useState([]);
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const navigate = useNavigate();
+  const [cantidad, setCantidad] = useState(1);
+  const { agregarAlCarrito } = useCarrito();
+
   const dataLabels = {
-    data1: 'Cantidad:',
-    data2: 'Precio unitario:',
+    data1: "Cantidad unidades:",
+    data2: "Precio unitario:",
   };
 
   useEffect(() => {
     const getProducts = async () => {
       try {
         const response = await fetchItems();
-        console.log(response.data);
         setProductos(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
       }
     };
-
     getProducts();
   }, []);
 
-  const handleReservar = (product) => {
-    setSelectedProduct(product); 
-    setShowForm(true); 
+  const handleAbrirModal = (product) => {
+    setSelectedProduct(product);
+    setShowModal(true);
   };
 
-  const handleCloseForm = () => {
-    setShowForm(false); 
+  const handleCerrarModal = () => {
+    setShowModal(false);
     setSelectedProduct(null);
+    setCantidad(1);
+  };
+
+  const handleAgregarAlCarrito = () => {
+    if (selectedProduct) {
+      agregarAlCarrito({ ...selectedProduct, cantidad });
+      handleCerrarModal();
+    }
   };
 
   return (
@@ -45,20 +53,28 @@ const ProductosExternos = () => {
       <div className="cardsProducto-contenedor">
         {productos.map((product) => (
           <CardProducto
-            dataLabels={dataLabels}
             key={product.id}
             product={product}
+            dataLabels={dataLabels} 
             tipoUsuario="externo"
-            onReservar={() => handleReservar(product)} 
+            onReservar={() => handleAbrirModal(product)}
           />
         ))}
       </div>
 
-      {showForm && selectedProduct && (
-        <FormularioReserva
-          producto={selectedProduct}
-          onClose={handleCloseForm}
-        />
+      {showModal && selectedProduct && (
+        <Modal isOpen={showModal} onClose={handleCerrarModal}>
+          <h2>{selectedProduct.nombre}</h2>
+          <p>Precio: Bs {selectedProduct.precio ? selectedProduct.precio.toFixed(2) : "0.00"}</p>
+          <label>Cantidad:</label>
+          <input
+            type="number"
+            value={cantidad}
+            min="1"
+            onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+          />
+          <button onClick={handleAgregarAlCarrito}>Agregar al carrito</button>
+        </Modal>
       )}
     </div>
   );
