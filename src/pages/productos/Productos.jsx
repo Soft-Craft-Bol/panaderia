@@ -5,11 +5,17 @@ import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import { fetchItems, deleteItem } from '../../service/api';
 import '../users/ListUser.css';
+import { addCantidadItem } from "../../service/api";
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cantidad, setCantidad] = useState(1);
+
+
   const navigate = useNavigate();
   const dataLabels={
     data1:'Cantidad unidades:',
@@ -33,6 +39,11 @@ const Productos = () => {
     setProductoAEliminar(product);
     setShowModal(true);
   };
+  const handleOpenModalAdd = (product) => {
+    setSelectedProduct(product);
+    setCantidad(1);
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -54,6 +65,19 @@ const Productos = () => {
     setProductoAEliminar(null);
   };
 
+  const handleConfirm = async () => {
+    if (selectedProduct && cantidad > 0) {
+      try {
+        await addCantidadItem(selectedProduct.id, cantidad);
+        alert('Cantidad añadida correctamente');
+      } catch (error) {
+        console.error('Error al agregar cantidad:', error);
+      }
+    }
+    setIsModalOpen(false);
+  };
+
+
   return (
     <div className="productos-contenedor">
       <h1>Productos en stock</h1>
@@ -71,14 +95,30 @@ const Productos = () => {
             product={product}
             onEliminar={() => handleOpenModal(product)}
             onEdit={`/editProduct/${product.id}`}
+            onAdd={() => handleOpenModalAdd(product)}
           />
         ))}
+        {isModalOpen && (
+          <div className="modalCant">
+            <div className="modalCant-content">
+              <h2>Agregar Cantidad</h2>
+            <input
+              type="number"
+              value={cantidad}
+              onChange={(e) => setCantidad(Number(e.target.value))}
+              min="1"
+            />
+            <button onClick={handleConfirm}>Confirmar</button>
+            <button onClick={() => setIsModalOpen(false)}>Cancelar</button>
+            </div>
+            
+          </div>)}
       </div>
       <ModalConfirm 
         showModal={showModal}
         handleCloseModal={handleCloseModal}
         confirmarAccion={confirmarAccion}
-      />
+      /> 
     </div>
   );
 };

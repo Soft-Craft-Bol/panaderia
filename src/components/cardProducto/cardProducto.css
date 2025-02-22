@@ -30,3 +30,14 @@
   display: flex;
   padding: 5px 0;
 }
+
+.cabecera-card{
+  display: flex;
+  justify-content: space-between;
+}
+.cabecera-card button{
+  border-radius: 15px; 
+  border: solid var(--primary-color);
+  background-color: white;
+  color: var(--primary-color);
+}
