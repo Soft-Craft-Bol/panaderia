@@ -40,7 +40,7 @@ const AppRoutes = () => (
         <Route path="/addProduct" element = {<PrivateRoute> <ItemForm /> </PrivateRoute>}/>
         <Route path="/editProduct/:id" element = {<PrivateRoute>  <ItemForm/> </PrivateRoute>} />
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
-        <Route path="/editClient/" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
+        <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
         <Route path="/despachos" element = {<PrivateRoute> <Despachos /> </PrivateRoute>}/>
         <Route path="/despachos/create" element = {<PrivateRoute> <CrearDespacho /> </PrivateRoute>}/>

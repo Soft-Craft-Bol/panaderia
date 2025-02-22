@@ -46,6 +46,7 @@ export const getItemID = (id) => api.get(`/items/${id}`);
 export const createItem = (data) => api.post('/items', data);
 export const deleteItem = (id) => api.delete(`/items/${id}`);
 export const updateItem = (id, data) => api.put(`/items/${id}`, data);
+export const addCantidadItem = (id,data) => api.put(`/items/${id}/add/${data}`);
 
 export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
 
@@ -81,3 +82,5 @@ export const getUserVendor = () => api.get('/users/vendedores');
 export const getTipoMoneda = () => api.get('/parametros/tipo-moneda');
 export const unidadesMedida = () => api.get('/parametros/unidades-medida');
 export const getUnidadMedida = () => api.get('/parametros/unidades-medida');
+
+export const getProductoServicio = () => api.get('/productos-servicios');
