@@ -84,3 +84,9 @@ export const unidadesMedida = () => api.get('/parametros/unidades-medida');
 export const getUnidadMedida = () => api.get('/parametros/unidades-medida');
 
 export const getProductoServicio = () => api.get('/productos-servicios');
+
+export const createRole = (data) => apiUsers.post("/auth/roles", data);
+export const deleteRole = (id) => apiUsers.delete(`/auth/roles/${id}`); 
+export const updateRole = (id, data) => apiUsers.put(`/auth/roles/${id}`, data); 
+export const assignRoleToUser = (userId, roleId) =>apiUsers.put(`/auth/assign-role/${userId}`, { roleId });
+export const getPermissions = () => apiUsers.get('/auth/roles/permisos');

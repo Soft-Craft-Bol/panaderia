@@ -6,6 +6,7 @@ import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import { fetchItems, deleteItem } from '../../service/api';
 import '../users/ListUser.css';
 import { addCantidadItem } from "../../service/api";
+import LinkButton from "../../components/buttons/LinkButton";
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -81,6 +82,7 @@ const Productos = () => {
   return (
     <div className="productos-contenedor">
       <h1>Productos en stock</h1>
+      <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
       <button 
         className="btn-general"
         onClick={() => navigate("/addProduct")}
