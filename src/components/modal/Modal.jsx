@@ -26,7 +26,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 Modal.propTypes = {
-  isOpen: PropTypes.bool.isRequired, // Nueva prop para controlar la visibilidad
+  isOpen: PropTypes.bool.isRequired, 
   children: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
 };
