@@ -82,3 +82,5 @@ export const getUserVendor = () => api.get('/users/vendedores');
 export const getTipoMoneda = () => api.get('/parametros/tipo-moneda');
 export const unidadesMedida = () => api.get('/parametros/unidades-medida');
 export const getUnidadMedida = () => api.get('/parametros/unidades-medida');
+
+export const getProductoServicio = () => api.get('/productos-servicios');
