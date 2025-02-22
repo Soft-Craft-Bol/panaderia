@@ -6,7 +6,7 @@
   /* 🖼️ Fondos */
   --bg-app: #e0e0e0; /* Alternativa: #f5f5f5 */
   --bg-component-white: #ffffff;
-  --sidebar-color: #f8efeb;
+  --sidebar-color: #f8f7f6;
 
   /* 🎨 Colores de texto */
   --color-text-primary: #000000;
@@ -71,6 +71,10 @@ button {
 }
 
 button:hover {
+  opacity: 0.9;
+}
+
+button:hover:not(.btn-disabled) {
   opacity: 0.9;
 }
 

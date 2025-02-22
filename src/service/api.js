@@ -61,8 +61,10 @@ export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
 //emitir sin factura 
-
 export const emitirSinFactura = (data) => api.post('/ventas', data);
+//asd
+
+export const reservarProducto = (data) => api.post('/reserva', data);
 
 export const createDespacho = (data) => api.post('/despachos', data);
 

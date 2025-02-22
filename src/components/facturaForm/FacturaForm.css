@@ -96,12 +96,15 @@
   transition: background 0.3s ease;
 }
 
-.form-buttons button[type='submit'] {
+.form-buttons 
+.btn-emitir{
   background-color: #007bff;
   color: white;
 }
 
-.form-buttons button[type='submit']:hover {
+.form-buttons 
+.btn-emitir:hover
+{
   background-color: #0056b3;
 }
 
@@ -135,6 +138,11 @@
 .btn-disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+.btn-disabled:hover {
+  cursor: not-allowed;
+  opacity: 1 !important;
+  display: inline-block;
 }
 
 .bot-btns {

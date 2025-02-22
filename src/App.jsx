@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 import './App.css'
+import Navbar from "./components/sidebar/Navbar";
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
     <AuthProvider>
     <ThemeProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Navbar />
           <Suspense fallback={<LoadingComponent />}>
             <AppRoutes />
           </Suspense>
@@ -22,5 +24,4 @@ function App() {
   </AuthProvider>
   );
 }
-
 export default App;
