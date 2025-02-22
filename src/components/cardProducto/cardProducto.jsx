@@ -4,6 +4,7 @@ import { MdDelete } from 'react-icons/md';
 import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
+import { IoMdAddCircleOutline } from '../../hooks/icons';
 
 
 const CardProducto = ({ product, dataLabels, onEliminar, onEdit }) => {
@@ -24,7 +25,8 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit }) => {
 
   return (
     <div className="cardP">
-      <h2 title={product.descripcion}>{product.descripcion}</h2>
+      <h2 title={product.descripcion} >{product.descripcion} <IoMdAddCircleOutline /></h2>
+      
       <img src={product.imagen} alt={product.descripcion} onClick={handleOpenModal} />
       {isImageExpanded && (
         <div className="image-modal" onClick={handleCloseModal}>

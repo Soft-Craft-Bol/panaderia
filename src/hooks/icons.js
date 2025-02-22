@@ -27,7 +27,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { GiSlicedBread } from "react-icons/gi";
 import { MdPlace } from "react-icons/md";
 import { RiTruckFill } from "react-icons/ri";
-
+import { IoMdAddCircleOutline } from "react-icons/io";
 
 
 
@@ -59,4 +59,5 @@ export {
   PiChalkboardTeacher,
   MdPlace,
   RiTruckFill,
+  IoMdAddCircleOutline,
 };
