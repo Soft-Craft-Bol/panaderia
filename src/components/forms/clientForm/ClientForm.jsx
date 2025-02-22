@@ -2,8 +2,6 @@ import React, { useState, useRef,useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import loadImage from '../../../assets/ImagesApp';
-import { FaFile } from 'react-icons/fa';
-import axios from 'axios';
 import { createClient, getDocumentoIdentidad } from '../../../service/api';
 import { useNavigate } from 'react-router-dom';
 import '../itemForm/ItemForm.css';

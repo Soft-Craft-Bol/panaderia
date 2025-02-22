@@ -5,8 +5,9 @@ import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
+import { addCantidadItem } from '../../service/api';
 
-const CardProducto = ({ product, dataLabels, onEliminar, onEdit, tipoUsuario = 'interno', onReservar }) => {
+const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -19,12 +20,34 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, tipoUsuario = '
   };
 
   const handleEdit = () => {
-    navigate(onEdit); // <-- Redirige a la ruta con el ID del producto
+    navigate(onEdit);
   };
 
+  const sumarCantidad = async () => {
+    try {
+      const nuevaCantidad = product.cantidad + 1;
+      await addCantidadItem(product.id, { cantidad: nuevaCantidad });
+      alert("Cantidad actualizada exitosamente");
+    } catch (error) {
+      console.error("Error al actualizar cantidad:", error);
+      alert("Hubo un error al actualizar la cantidad.");
+    }
+  };
+
+  const handleCardClick = () => {
+    if (onAdd) onAdd(product);
+  };
+
+  
   return (
     <div className="cardP">
-      <h2 title={product.descripcion}>{product.descripcion}</h2>
+      <div className="cabecera-card">
+        <h2 title={product.descripcion}>{product.descripcion}</h2>
+        <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
+          <strong>+ </strong>
+        </button>
+      </div>
+      
       <img src={product.imagen} alt={product.descripcion} onClick={handleOpenModal} />
       {isImageExpanded && (
         <div className="image-modal" onClick={handleCloseModal}>
