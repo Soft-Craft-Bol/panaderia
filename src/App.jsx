@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 import './App.css'
 import Navbar from "./components/sidebar/Navbar";
+import { CarritoProvider } from "./context/CarritoContext";
 
 
 function App() {
@@ -14,12 +15,14 @@ function App() {
   return (
     <AuthProvider>
     <ThemeProvider>
+    <CarritoProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Navbar />
           <Suspense fallback={<LoadingComponent />}>
             <AppRoutes />
           </Suspense>
         </BrowserRouter>
+        </CarritoProvider>
     </ThemeProvider>
   </AuthProvider>
   );
