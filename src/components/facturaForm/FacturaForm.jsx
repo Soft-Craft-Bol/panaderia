@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import './FacturaForm.css';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta } from '../../service/api';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta, emitirSinFactura } from '../../service/api';
 import { generatePDF } from '../../utils/generatePDF';
 import { getUser } from '../../utils/authFunctions';
 
@@ -12,13 +12,14 @@ const FacturaForm = () => {
   const navigate = useNavigate();
   const { flag } = location.state;
   const currentUser = getUser();
-
-  const client = location.state?.client || {
-    nombreRazonSocial: "sin usuario",
-    email: "...",
-    numeroDocumento: "0000000000 CB",
-    id: null
-  };
+  const [client, setClient] = useState(
+    location.state?.client || {
+      nombreRazonSocial: "S/N",
+      email: "...",
+      numeroDocumento: "0000000000 CB",
+      id: null
+    }
+  );
 
   const [items, setItems] = useState([]);
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
@@ -82,8 +83,44 @@ const FacturaForm = () => {
     navigate("/facturacion");
   };
 
-  const handleVentaSinFactura = () => {
-    console.log('Venta sin factura');
+  const handleVentaSinFactura = async (values) => {
+    try {
+      const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
+
+      if (!selectedPuntoDeVenta) {
+        throw new Error('Punto de venta no encontrado');
+      }
+
+      const ventaSinFacturaData = {
+        cliente: client.nombreRazonSocial || "S/N",
+        idPuntoVenta: selectedPuntoDeVenta.id,
+        tipoComprobante: "RECIBO",
+        username: currentUser.username,
+        metodoPago: values.metodoPago,
+        detalle: values.items.map(item => {
+          const selectedItem = items.find(i => i.descripcion === item.item);
+          if (!selectedItem) {
+            throw new Error(`Item no encontrado: ${item.item}`);
+          }
+          return {
+            idProducto: selectedItem.id,
+            cantidad: Number(item.cantidad),
+            montoDescuento: Number(item.descuento || 0)
+          };
+        })
+      };
+
+      console.log('Enviando datos de venta sin factura:', ventaSinFacturaData);
+
+      const response = await emitirSinFactura(ventaSinFacturaData);
+      console.log('Respuesta de emisión sin factura:', response);
+
+      alert('Venta sin factura registrada con éxito');
+      navigate('/ventas');
+    } catch (error) {
+      console.error('Error al registrar la venta sin factura:', error);
+      alert(`Error al registrar la venta sin factura: ${error.message}`);
+    }
   };
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
@@ -114,7 +151,7 @@ const FacturaForm = () => {
         })
       };
       console.log('Enviando datos de factura:', facturaData);
-      
+
       const response = await emitirFactura(facturaData);
       console.log('Respuesta de emisión:', response);
 
@@ -138,12 +175,9 @@ const FacturaForm = () => {
     }
   };
 
-  // Función para calcular el subtotal de un ítem
   const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
     return (cantidad * precioUnitario) - descuento;
   };
-
-  // Función para calcular el subtotal general
   const calcularSubtotalGeneral = (items) => {
     return items.reduce((total, item) => {
       return total + calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento);
@@ -156,12 +190,21 @@ const FacturaForm = () => {
   return (
     <main className="factura-container">
       <h1>Formulario de venta</h1>
-      
+
       <section className="client-info">
         <h2>Datos del Cliente</h2>
         <div className="form-group">
           <label>Razón Social:</label>
-          <input type="text" value={client.nombreRazonSocial || ''} readOnly />
+          <input
+            type="text"
+            value={client.nombreRazonSocial || ''}
+            readOnly={flag}
+            onChange={(e) => {
+              if (!flag) {
+                setClient({ ...client, nombreRazonSocial: e.target.value });
+              }
+            }}
+          />
         </div>
         <div className="form-group">
           <label>Correo:</label>
@@ -212,8 +255,8 @@ const FacturaForm = () => {
                         <div key={index} className="form-row">
                           <div className="form-group item-field">
                             <label>Item/Descripción:</label>
-                            <Field 
-                              as="select" 
+                            <Field
+                              as="select"
                               name={`items[${index}].item`}
                               onChange={(e) => {
                                 const selectedItem = items.find(i => i.descripcion === e.target.value);
@@ -251,8 +294,6 @@ const FacturaForm = () => {
                             <Field type="number" name={`items[${index}].descuento`} />
                             <ErrorMessage name={`items[${index}].descuento`} component="div" className="error-message" />
                           </div>
-
-                          {/* Subtotal por ítem */}
                           <div className="form-group subtotal-field">
                             <label>Subtotal (Bs):</label>
                             <input
@@ -267,8 +308,8 @@ const FacturaForm = () => {
                           </div>
 
                           {index > 0 && (
-                            <button 
-                              type="button" 
+                            <button
+                              type="button"
                               className="remove-item-btn"
                               onClick={() => remove(index)}
                             >
@@ -292,8 +333,6 @@ const FacturaForm = () => {
                     </div>
                   )}
                 </FieldArray>
-
-                {/* Subtotal general */}
                 <div className="subtotal-general">
                   <label>Subtotal General (Bs):</label>
                   <input
@@ -308,13 +347,21 @@ const FacturaForm = () => {
                 <button
                   type="submit"
                   disabled={!flag || isSubmitting}
-                  className={flag ? 'btn-enabled' : 'btn-disabled'}
+                  className={`btn-emitir ${flag ? 'btn-enabled' : 'btn-disabled'}`}
                 >
                   {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
                 </button>
-                <button 
-                  className="btn-clear" 
-                  type="button" 
+                <button
+                  type="button"
+                  className={`btn-no-fact ${flag ? 'btn-disabled' : 'btn-enabled'}`}
+                  onClick={() => handleVentaSinFactura(values)}
+                  disabled={flag}
+                >
+                  Registrar venta sin Factura
+                </button>
+                <button
+                  className="btn-clear"
+                  type="button"
                   onClick={resetForm}
                   disabled={isSubmitting}
                 >
@@ -328,14 +375,7 @@ const FacturaForm = () => {
 
       <div className="bot-btns">
         <button
-          className={`btn-no-fact ${flag ? 'btn-disabled' : 'btn-enabled'}`}
-          onClick={handleVentaSinFactura}
-          disabled={flag}
-        >
-          Registrar venta sin Factura
-        </button>
-        <button 
-          className="btn-back" 
+          className="btn-back"
           onClick={handleBack}
         >
           Generar factura con un NIT diferente
@@ -345,4 +385,4 @@ const FacturaForm = () => {
   );
 };
 
-export default FacturaForm;       
+export default FacturaForm;
