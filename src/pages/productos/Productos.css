@@ -70,3 +70,41 @@
     background: #dc3545;
     color: white;
   }
+
+  .cantidad-input {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 200px;
+    margin-bottom: 12px;
+    transition: border 0.3s ease;
+  }
+  
+  .cantidad-input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  /* Estilo para el botón de agregar al carrito */
+  .agregar-carrito-btn {
+    background-color: #28a745;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .agregar-carrito-btn:hover {
+    background-color: #218838;
+  }
+  
+  .agregar-carrito-btn:focus {
+    outline: none;
+  }

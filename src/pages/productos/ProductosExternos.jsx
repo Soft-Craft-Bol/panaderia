@@ -55,7 +55,7 @@ const ProductosExternos = () => {
           <CardProducto
             key={product.id}
             product={product}
-            dataLabels={dataLabels} 
+            dataLabels={dataLabels}
             tipoUsuario="externo"
             onReservar={() => handleAbrirModal(product)}
           />
@@ -64,18 +64,25 @@ const ProductosExternos = () => {
 
       {showModal && selectedProduct && (
         <Modal isOpen={showModal} onClose={handleCerrarModal}>
-          <h2>{selectedProduct.nombre}</h2>
-          <p>Precio: Bs {selectedProduct.precio ? selectedProduct.precio.toFixed(2) : "0.00"}</p>
-          <label>Cantidad:</label>
+          <h2>{selectedProduct.descripcion}</h2>
+          <p>Precio: Bs {selectedProduct.precioUnitario ? selectedProduct.precioUnitario.toFixed(2) : "0.00"}</p>
+
+          <label htmlFor="cantidad">Cantidad:</label>
           <input
+            id="cantidad"
+            className="cantidad-input"
             type="number"
             value={cantidad}
             min="1"
             onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
           />
-          <button onClick={handleAgregarAlCarrito}>Agregar al carrito</button>
+
+          <button className="agregar-carrito-btn" onClick={handleAgregarAlCarrito}>
+            Agregar al carrito
+          </button>
         </Modal>
       )}
+
     </div>
   );
 };

@@ -125,7 +125,7 @@
 }
 
 body.dark .sidebar header .toggle {
-    /*color: var(--text-color);*/
+    color: var(--text-color);
 }
 
 .sidebar.close .toggle {
