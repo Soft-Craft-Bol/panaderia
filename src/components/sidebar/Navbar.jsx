@@ -51,7 +51,7 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
                 />
                 <span>{currentUser.full_name}</span>
               </div>
-            </div>
+            </div>{/*/navbar-right*/}
           </>
         ) : (
           <div className="navbar-right">
