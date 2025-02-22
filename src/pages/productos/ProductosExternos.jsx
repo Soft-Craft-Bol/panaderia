@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import { fetchItems } from '../../service/api';
+import FormularioReserva from "../pedidos/PedidosForm";
 
 const ProductosExternos = () => {
   const [productos, setProductos] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const navigate = useNavigate();
   const dataLabels = {
     data1: 'Cantidad:',
@@ -27,7 +30,13 @@ const ProductosExternos = () => {
   }, []);
 
   const handleReservar = (product) => {
-    alert(`Reservaste el producto: ${product.descripcion}`);
+    setSelectedProduct(product); 
+    setShowForm(true); 
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false); 
+    setSelectedProduct(null);
   };
 
   return (
@@ -40,10 +49,17 @@ const ProductosExternos = () => {
             key={product.id}
             product={product}
             tipoUsuario="externo"
-            onReservar={() => handleReservar(product)}
+            onReservar={() => handleReservar(product)} 
           />
         ))}
       </div>
+
+      {showForm && selectedProduct && (
+        <FormularioReserva
+          producto={selectedProduct}
+          onClose={handleCloseForm}
+        />
+      )}
     </div>
   );
 };
