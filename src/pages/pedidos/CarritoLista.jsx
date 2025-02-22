@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useCarrito } from "../../context/CarritoContext";
-import "./CarritoLista.css"; // Archivo CSS para los estilos
+import "./CarritoLista.css";
+import ReservaFormulario from "./ReservaFormulario";
 
 const CarritoLista = () => {
   const { carrito, eliminarDelCarrito } = useCarrito();
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   // Cálculo de subTotal
   const subTotal = carrito.reduce((acc, item) => {
@@ -12,15 +14,12 @@ const CarritoLista = () => {
     return acc + precio * cant;
   }, 0);
 
-  // Aquí puedes incluir impuestos, envío, descuentos, etc. si lo deseas.
-  // Por simplicidad, asumimos el total es igual al subTotal.
   const total = subTotal;
 
   return (
     <div className="carrito-contenedor">
       <h2 className="carrito-titulo">CARRO DE COMPRAS</h2>
 
-      {/* Tabla de productos */}
       <table className="carrito-tabla">
         <thead>
           <tr>
@@ -67,9 +66,21 @@ const CarritoLista = () => {
           <p>
             <strong>Total:</strong> Bs {total.toFixed(2)}
           </p>
-          <button className="btn-general">PAGAR</button>
+          <button className="btn-general" onClick={() => setMostrarFormulario(true)}>
+            PAGAR
+          </button>
         </div>
       </div>
+
+      {mostrarFormulario && (
+        <ReservaFormulario
+          carrito={carrito}
+          onReservaExitosa={() => {
+            setMostrarFormulario(false);
+            alert("Reserva creada exitosamente");
+          }}
+        />
+      )}
     </div>
   );
 };

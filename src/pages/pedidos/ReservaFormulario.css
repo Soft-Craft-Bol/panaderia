@@ -1,0 +1,27 @@
+.reserva-formulario {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.paso {
+  margin-bottom: 20px;
+}
+
+.paso h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.paso p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.paso button {
+  margin-right: 10px;
+}
