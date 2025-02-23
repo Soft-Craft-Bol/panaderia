@@ -110,8 +110,10 @@ const Productos = () => {
               onChange={(e) => setCantidad(Number(e.target.value))}
               min="1"
             />
-            <button onClick={handleConfirm}>Confirmar</button>
-            <button onClick={() => setIsModalOpen(false)}>Cancelar</button>
+            <div className="botones-footer">
+              <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
+              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>              
+            </div>
             </div>
             
           </div>)}

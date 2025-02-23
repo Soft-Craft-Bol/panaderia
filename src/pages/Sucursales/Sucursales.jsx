@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getSucursales } from '../../service/api';
 import CardSucursal from '../../components/cardProducto/cardSucursal';
+import './Sucursales.css';
 
 const Sucursales = () => {
     const [sucursales, setSucursales] = useState([]);
@@ -35,7 +36,7 @@ const Sucursales = () => {
                         key={sucursal.id} 
                         dataLabels={dataLabels} 
                         product={sucursal} 
-                        onEliminar={() => console.log(`Eliminar sucursal ${sucursal.id}`)} 
+                        onEliminar={() => console.log(`Eliminar sucursal ${sucursal.id}`)}
                     />
                 ))}
             </div>
