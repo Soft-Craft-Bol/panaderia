@@ -9,6 +9,7 @@ import { Button } from "../../components/buttons/Button";
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
 import useFacturas from "../../hooks/useFacturas";
+import SearchAndFilters from "../../components/search/SearchAndFilters";
 
 
 
@@ -57,6 +58,8 @@ const ListVentas = () => {
   const currentUser = useMemo(() => getUser(), []);
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({});
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
@@ -115,6 +118,28 @@ const ListVentas = () => {
       setIsRevirtiendo(false);
     }
   };
+  const filteredData = useMemo(() => {
+    return facturas.filter((venta) => {
+      const matchesSearch = Object.values(venta).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      const matchesFilters = Object.keys(filters).every((key) => {
+        if (!filters[key]) return true; 
+        return String(venta[key]).toLowerCase().includes(filters[key].toLowerCase());
+      });
+
+      return matchesSearch && matchesFilters;
+    });
+  }, [facturas, searchTerm, filters]);
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleFilter = (newFilters) => {
+    setFilters(newFilters);
+  };
 
   const columns = useMemo(() => [
     { header: "ID", accessor: "idVenta" },
@@ -124,17 +149,18 @@ const ListVentas = () => {
       header: "Fecha de Emisión",
       accessor: "fechaEmision",
       render: (venta) => {
-        const fecha = new Date(venta.fechaEmision); 
+        const fecha = new Date(venta.fechaEmision);
         return new Intl.DateTimeFormat("es-ES", {
           year: "numeric",
           month: "2-digit",
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
-          hour12: false, 
+          hour12: false,
         }).format(fecha)
-          .replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2})/, "$3/$2/$1 $4:$5"); 
-      }},
+          .replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2})/, "$3/$2/$1 $4:$5");
+      },
+    },
     {
       header: "Estado",
       accessor: "estado",
@@ -143,6 +169,7 @@ const ListVentas = () => {
           {venta.estado}
         </span>
       ),
+      filterOptions: ["EMITIDA", "ANULADA", "REVERTIDA"], // Selector para esta columna
     },
     {
       header: "Productos",
@@ -171,6 +198,7 @@ const ListVentas = () => {
     },
   ], [handleAnularFactura, handleRevertirFactura, handleDownload, hasAnyRole, isAnulando, isRevirtiendo]);
 
+
   if (loading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar las facturas</div>;
 
@@ -181,7 +209,12 @@ const ListVentas = () => {
         <h2 className="user-management-title">Gestión de ventas</h2>
         <LinkButton to={`/facturacion`}>Vender nuevo producto</LinkButton>
       </div>
-      <Table columns={columns} data={facturas} className="user-management-table" />
+      <SearchAndFilters
+        columns={columns}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+      />
+      <Table columns={columns} data={filteredData} className="user-management-table" />
     </div>
   );
 };
