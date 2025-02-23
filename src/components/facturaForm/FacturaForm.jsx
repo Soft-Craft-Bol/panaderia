@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { toast } from 'sonner';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta, emitirSinFactura, getCufd } from '../../service/api';
-import { generatePDF } from '../../utils/generatePDF';
-import { getUser } from '../../utils/authFunctions';
-import './FacturaForm.css';
-import InputText from '../inputs/InputText';
-import { Button } from '../buttons/Button';
-import SelectPrimary from '../selected/SelectPrimary';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Formik, Form, FieldArray, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { toast } from "sonner";
+import {
+  fetchItems,
+  emitirFactura,
+  fetchPuntosDeVenta,
+  emitirSinFactura,
+  getCufd,
+} from "../../service/api";
+import { generatePDF } from "../../utils/generatePDF";
+import { getUser } from "../../utils/authFunctions";
+import "./FacturaForm.css";
+import InputFacturacion from "../inputs/InputFacturacion";
+import { Button } from "../buttons/Button";
+import SelectPrimary from "../selected/SelectPrimary";
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = getUser();
-
-  // Verificar si location.state existe y tiene la propiedad flag
   const flag = location.state?.flag || false;
-
-  // Estado inicial del cliente
   const [client, setClient] = useState(
     location.state?.client || {
       nombreRazonSocial: "S/N",
@@ -34,18 +36,20 @@ const FacturaForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [itemsRes, puntosRes] = await Promise.all([fetchItems(), fetchPuntosDeVenta()]);
+        const [itemsRes, puntosRes] = await Promise.all([
+          fetchItems(),
+          fetchPuntosDeVenta(),
+        ]);
+        console.log("jajaj", itemsRes.data);
         setItems(itemsRes.data);
         setPuntosDeVenta(puntosRes.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Error al cargar los datos necesarios');
-        toast.error('Error al cargar los datos necesarios');
+        setError("Error al cargar los datos necesarios");
+        toast.error("Error al cargar los datos necesarios");
       } finally {
         setLoading(false);
       }
@@ -54,62 +58,63 @@ const FacturaForm = () => {
     fetchData();
   }, []);
 
-  // Valores iniciales del formulario
   const initialValues = {
-    puntoDeVenta: '',
-    metodoPago: 'EFECTIVO',
+    puntoDeVenta: "",
+    metodoPago: "EFECTIVO",
     items: [
       {
-        item: '',
-        cantidad: '',
-        precioUnitario: '',
+        item: "",
+        cantidad: "",
+        precioUnitario: "",
         descuento: 0,
       },
     ],
   };
 
-  // Esquema de validación
   const validationSchema = Yup.object({
-    puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
-    metodoPago: Yup.string().required('Método de pago es requerido'),
+    puntoDeVenta: Yup.string().required("Seleccione un punto de venta"),
+    metodoPago: Yup.string().required("Método de pago es requerido"),
     items: Yup.array().of(
       Yup.object().shape({
-        item: Yup.string().required('Seleccione un item'),
+        item: Yup.string().required("Seleccione un item"),
         cantidad: Yup.number()
-          .required('Ingrese la cantidad')
-          .positive('Debe ser un número positivo'),
+          .required("Ingrese la cantidad")
+          .positive("Debe ser un número positivo"),
         precioUnitario: Yup.number()
-          .required('Ingrese el precio unitario')
-          .positive('Debe ser un número positivo'),
-        descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
+          .required("Ingrese el precio unitario")
+          .positive("Debe ser un número positivo"),
+        descuento: Yup.number().min(0, "Debe ser un número positivo o cero"),
       })
     ),
   });
 
-  // Función para calcular subtotales
   const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
     return cantidad * precioUnitario - descuento;
   };
 
   const calcularSubtotalGeneral = (items) => {
     return items.reduce((total, item) => {
-      return total + calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento);
+      return (
+        total +
+        calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento)
+      );
     }, 0);
   };
 
-  // Manejar el envío del formulario
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
-      const selectedPuntoDeVenta = puntosDeVenta.find((punto) => punto.nombre === values.puntoDeVenta);
+      const selectedPuntoDeVenta = puntosDeVenta.find(
+        (punto) => punto.nombre === values.puntoDeVenta
+      );
 
       if (!selectedPuntoDeVenta) {
-        throw new Error('Punto de venta no encontrado');
+        throw new Error("Punto de venta no encontrado");
       }
 
       const facturaData = {
         idPuntoVenta: selectedPuntoDeVenta.id,
         idCliente: client.id,
-        tipoComprobante: 'FACTURA',
+        tipoComprobante: "FACTURA",
         metodoPago: values.metodoPago,
         username: currentUser.username,
         usuario: client.nombreRazonSocial,
@@ -130,10 +135,10 @@ const FacturaForm = () => {
       try {
         response = await emitirFactura(facturaData);
       } catch (error) {
-        if (error.response && error.response.data.message.includes('CUFD')) {
-          toast.info('Solicitando CUFD...');
+        if (error.response && error.response.data.message.includes("CUFD")) {
+          toast.info("Solicitando CUFD...");
           await getCufd(selectedPuntoDeVenta.id);
-          toast.success('CUFD obtenido correctamente');
+          toast.success("CUFD obtenido correctamente");
           response = await emitirFactura(facturaData);
         } else {
           throw error;
@@ -142,30 +147,30 @@ const FacturaForm = () => {
 
       const doc = await generatePDF(response.data.xmlContent);
       doc.save(`factura-${response.data.cuf}.pdf`);
-      toast.success('Factura emitida y PDF generado con éxito');
+      toast.success("Factura emitida y PDF generado con éxito");
       resetForm();
-      navigate('/ventas');
+      navigate("/ventas");
     } catch (error) {
-      console.error('Error al emitir la factura:', error);
       toast.error(`Error al emitir la factura: ${error.message}`);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Manejar venta sin factura
   const handleVentaSinFactura = async (values) => {
     try {
-      const selectedPuntoDeVenta = puntosDeVenta.find((punto) => punto.nombre === values.puntoDeVenta);
+      const selectedPuntoDeVenta = puntosDeVenta.find(
+        (punto) => punto.nombre === values.puntoDeVenta
+      );
 
       if (!selectedPuntoDeVenta) {
-        throw new Error('Punto de venta no encontrado');
+        throw new Error("Punto de venta no encontrado");
       }
 
       const ventaSinFacturaData = {
-        cliente: client.nombreRazonSocial || 'S/N',
+        cliente: client.nombreRazonSocial || "S/N",
         idPuntoVenta: selectedPuntoDeVenta.id,
-        tipoComprobante: 'RECIBO',
+        tipoComprobante: "RECIBO",
         username: currentUser.username,
         metodoPago: values.metodoPago,
         detalle: values.items.map((item) => {
@@ -182,10 +187,10 @@ const FacturaForm = () => {
       };
 
       await emitirSinFactura(ventaSinFacturaData);
-      toast.success('Venta sin factura registrada con éxito');
-      navigate('/ventas');
+      toast.success("Venta sin factura registrada con éxito");
+      navigate("/ventas");
     } catch (error) {
-      console.error('Error al registrar la venta sin factura:', error);
+      console.error("Error al registrar la venta sin factura:", error);
       toast.error(`Error al registrar la venta sin factura: ${error.message}`);
     }
   };
@@ -199,9 +204,9 @@ const FacturaForm = () => {
 
       <section className="client-info">
         <h2>Datos del Cliente</h2>
-        <InputText
+        <InputFacturacion
           label="Razón Social"
-          value={client.nombreRazonSocial || ''}
+          value={client.nombreRazonSocial || ""}
           readOnly={flag}
           onChange={(e) => {
             if (!flag) {
@@ -209,8 +214,16 @@ const FacturaForm = () => {
             }
           }}
         />
-        <InputText label="Correo" value={client.email || ''} readOnly />
-        <InputText label="NIT/CI" value={client.numeroDocumento || ''} readOnly />
+        <InputFacturacion
+          label="Correo"
+          value={client.email || ""}
+          readOnly
+        />
+        <InputFacturacion
+          label="NIT/CI"
+          value={client.numeroDocumento || ""}
+          readOnly
+        />
       </section>
 
       <section className="corporate-details">
@@ -218,18 +231,18 @@ const FacturaForm = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
+          onSubmit={handleSubmit}>
           {({ values, isSubmitting }) => (
             <Form>
               <SelectPrimary
                 label="Punto de Venta"
                 name="puntoDeVenta"
-                required
-              >
+                required>
                 <option value="">Seleccione un punto de venta</option>
                 {puntosDeVenta.map((punto) => (
-                  <option key={punto.id} value={punto.nombre}>
+                  <option
+                    key={punto.id}
+                    value={punto.nombre}>
                     {punto.nombre}
                   </option>
                 ))}
@@ -238,8 +251,7 @@ const FacturaForm = () => {
               <SelectPrimary
                 label="Método de Pago"
                 name="metodoPago"
-                required
-              >
+                required>
                 <option value="EFECTIVO">Efectivo</option>
               </SelectPrimary>
 
@@ -247,35 +259,38 @@ const FacturaForm = () => {
                 {({ push, remove }) => (
                   <div className="items-container">
                     {values.items.map((item, index) => (
-                      <div key={index} className="form-row">
+                      <div
+                        key={index}
+                        className="form-row">
                         <SelectPrimary
                           label="Item/Descripción"
                           name={`items[${index}].item`}
-                          required
-                        >
+                          required>
                           <option value="">Seleccione un item</option>
                           {items.map((i) => (
-                            <option key={i.id} value={i.descripcion}>
+                            <option
+                              key={i.id}
+                              value={i.descripcion}>
                               {i.descripcion}
                             </option>
                           ))}
                         </SelectPrimary>
 
-                        <InputText
+                        <InputFacturacion
                           label="Cantidad"
                           name={`items[${index}].cantidad`}
                           type="number"
                           required
                         />
 
-                        <InputText
+                        <InputFacturacion
                           label="Precio Unitario (Bs)"
                           name={`items[${index}].precioUnitario`}
                           type="number"
                           readOnly
                         />
 
-                        <InputText
+                        <InputFacturacion
                           label="Descuento (Bs)"
                           name={`items[${index}].descuento`}
                           type="number"
@@ -298,8 +313,7 @@ const FacturaForm = () => {
                           <Button
                             variant="danger"
                             type="button"
-                            onClick={() => remove(index)}
-                          >
+                            onClick={() => remove(index)}>
                             Eliminar
                           </Button>
                         )}
@@ -310,13 +324,12 @@ const FacturaForm = () => {
                       type="button"
                       onClick={() =>
                         push({
-                          item: '',
-                          cantidad: '',
-                          precioUnitario: '',
+                          item: "",
+                          cantidad: "",
+                          precioUnitario: "",
                           descuento: 0,
                         })
-                      }
-                    >
+                      }>
                       + Añadir ítem
                     </Button>
                   </div>
@@ -336,24 +349,21 @@ const FacturaForm = () => {
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={!flag || isSubmitting}
-                >
-                  {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
+                  disabled={!flag || isSubmitting}>
+                  {isSubmitting ? "Emitiendo..." : "Emitir Factura"}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => handleVentaSinFactura(values)}
-                  disabled={flag}
-                >
+                  disabled={flag}>
                   Registrar venta sin Factura
                 </Button>
                 <Button
                   type="button"
                   variant="danger"
                   onClick={() => resetForm()}
-                  disabled={isSubmitting}
-                >
+                  disabled={isSubmitting}>
                   Limpiar Datos
                 </Button>
               </div>
@@ -363,7 +373,9 @@ const FacturaForm = () => {
       </section>
 
       <div className="bot-btns">
-        <Button variant="link" onClick={() => navigate('/facturacion')}>
+        <Button
+          variant="link"
+          onClick={() => navigate("/facturacion")}>
           Generar factura con un NIT diferente
         </Button>
       </div>
