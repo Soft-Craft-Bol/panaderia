@@ -11,6 +11,7 @@ import loadImage from '../../assets/ImagesApp';
 const Button = lazy(() => import('../../components/buttons/ButtonPrimary'));
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
+
 const initialValues = {
   username: '',
   password: '',
@@ -33,13 +34,7 @@ const useImageLoader = (imageName) => {
 
 const MemoizedInputText = memo(({ name, placeholder, label, type = "text" }) => (
   <Suspense fallback={<div>Cargando campo...</div>}>
-    <InputText
-      name={name}
-      placeholder={placeholder}
-      label={label}
-      type={type}
-      formik={true} // Habilitar Formik
-    />
+    <InputText name={name} placeholder={placeholder} label={label} type={type} />
   </Suspense>
 ));
 
@@ -103,28 +98,14 @@ const LoginUser = () => {
         >
           {({ isSubmitting }) => (
             <Form style={{ flexDirection: "column" }}>
-              <MemoizedInputText
-                name="username"
-                placeholder="Introduzca su nombre de usuario"
-                label="Nombre de usuario"
-              />
-              <MemoizedInputText
-                name="password"
-                type="password"
-                placeholder="Introduzca su contraseña"
-                label="Contraseña"
-              />
+              <MemoizedInputText name="username" placeholder="Introduzca su nombre de usuario" label="Nombre de usuario" />
+              <MemoizedInputText name="password" type="password" placeholder="Introduzca su contraseña" label="Contraseña" />
 
               <div>
                 {loginError && <span className="error-message">{loginError}</span>}
                 <Link to="/reset">¿Olvidaste la contraseña?</Link>
                 <Suspense fallback={<div>Cargando botón...</div>}>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={isSubmitting}
-                    className="btn-general"
-                  >
+                  <Button type="submit" variant="primary" disabled={isSubmitting} className="btn-general" formik = {true}>
                     {isSubmitting ? 'Ingresando...' : 'Ingresar'}
                   </Button>
                 </Suspense>

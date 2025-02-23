@@ -44,7 +44,6 @@ const FacturaForm = () => {
           fetchItems(),
           fetchPuntosDeVenta(),
         ]);
-        console.log("jajaj", itemsRes.data);
         setItems(itemsRes.data);
         setPuntosDeVenta(puntosRes.data);
       } catch (error) {
@@ -67,6 +66,7 @@ const FacturaForm = () => {
         cantidad: "",
         precioUnitario: "",
         descuento: 0,
+        cantidadDisponible: 0,
       },
     ],
   };
@@ -79,17 +79,21 @@ const FacturaForm = () => {
         item: Yup.string().required("Seleccione un item"),
         cantidad: Yup.number()
           .required("Ingrese la cantidad")
-          .positive("Debe ser un número positivo"),
+          .positive("Debe ser un número positivo")
+          .max(Yup.ref("cantidadDisponible")),
         precioUnitario: Yup.number()
           .required("Ingrese el precio unitario")
           .positive("Debe ser un número positivo"),
         descuento: Yup.number().min(0, "Debe ser un número positivo o cero"),
+        cantidadDisponible: Yup.number(),
       })
     ),
   });
 
   const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
-    return cantidad * precioUnitario - descuento;
+    if (!cantidad || !precioUnitario) return 0;
+    const descuentoValido = descuento || 0;
+    return cantidad * precioUnitario - descuentoValido;
   };
 
   const calcularSubtotalGeneral = (items) => {
@@ -232,7 +236,7 @@ const FacturaForm = () => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}>
-          {({ values, isSubmitting }) => (
+          {({ values, setFieldValue, isSubmitting }) => (
             <Form>
               <SelectPrimary
                 label="Punto de Venta"
@@ -258,67 +262,99 @@ const FacturaForm = () => {
               <FieldArray name="items">
                 {({ push, remove }) => (
                   <div className="items-container">
-                    {values.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="form-row">
-                        <SelectPrimary
-                          label="Item/Descripción"
-                          name={`items[${index}].item`}
-                          required>
-                          <option value="">Seleccione un item</option>
-                          {items.map((i) => (
-                            <option
-                              key={i.id}
-                              value={i.descripcion}>
-                              {i.descripcion}
-                            </option>
-                          ))}
-                        </SelectPrimary>
+                    {values.items.map((item, index) => {
+                      const selectedItem = items.find(
+                        (i) => i.descripcion === item.item
+                      );
 
-                        <InputFacturacion
-                          label="Cantidad"
-                          name={`items[${index}].cantidad`}
-                          type="number"
-                          required
-                        />
+                      return (
+                        <div className="ds" key={index}>
+                        <div  className="form-row">
+                          {/* Inputs y selects */}
+                          <SelectPrimary
+                            label="Item/Descripción"
+                            name={`items[${index}].item`}
+                            required
+                            onChange={(e) => {
+                              const selectedItem = items.find((i) => i.descripcion === e.target.value);
+                              if (selectedItem) {
+                                setFieldValue(`items[${index}].item`, e.target.value);
+                                setFieldValue(`items[${index}].precioUnitario`, selectedItem.precioUnitario);
+                                setFieldValue(`items[${index}].cantidadDisponible`, selectedItem.cantidad);
+                              }
+                            }}
+                          >
+                            <option value="">Seleccione un item</option>
+                            {items.map((i) => (
+                              <option key={i.id} value={i.descripcion}>
+                                {i.descripcion}
+                              </option>
+                            ))}
+                          </SelectPrimary>
 
-                        <InputFacturacion
-                          label="Precio Unitario (Bs)"
-                          name={`items[${index}].precioUnitario`}
-                          type="number"
-                          readOnly
-                        />
-
-                        <InputFacturacion
-                          label="Descuento (Bs)"
-                          name={`items[${index}].descuento`}
-                          type="number"
-                        />
-
-                        <div className="subtotal-field">
-                          <label>Subtotal (Bs):</label>
-                          <input
-                            type="text"
-                            value={calcularSubtotalItem(
-                              item.cantidad,
-                              item.precioUnitario,
-                              item.descuento
-                            ).toFixed(2)}
-                            readOnly
+                          <InputFacturacion
+                            label="Cantidad"
+                            name={`items[${index}].cantidad`}
+                            type="number"
+                            required
+                            onChange={(e) => {
+                              setFieldValue(`items[${index}].cantidad`, e.target.value);
+                            }}
                           />
-                        </div>
 
-                        {index > 0 && (
-                          <Button
-                            variant="danger"
-                            type="button"
-                            onClick={() => remove(index)}>
-                            Eliminar
-                          </Button>
-                        )}
-                      </div>
-                    ))}
+                          <InputFacturacion
+                            label="Precio Unitario (Bs)"
+                            name={`items[${index}].precioUnitario`}
+                            type="number"
+                            required
+                            readOnly
+                            value={item.precioUnitario || "0.00"}
+                          />
+
+                          <InputFacturacion
+                            label="Descuento (Bs)"
+                            name={`items[${index}].descuento`}
+                            type="number"
+                            onChange={(e) => {
+                              setFieldValue(`items[${index}].descuento`, e.target.value);
+                            }}
+                          />
+
+                          {/* Subtotales y botones */}
+                          <div className="subtotal-field">
+                            <label>Subtotal (Bs):</label>
+                            <input
+                              type="text"
+                              value={calcularSubtotalItem(
+                                item.cantidad,
+                                item.precioUnitario,
+                                item.descuento
+                              ).toFixed(2)}
+                              readOnly
+                            />
+                          </div>
+
+                          {index > 0 && (
+                            <Button
+                              variant="danger"
+                              type="button"
+                              onClick={() => remove(index)}
+                            >
+                              Eliminar
+                            </Button>
+                          )}
+                        </div>
+                        <div className="cantidad-disponible">
+                            <label>Cantidad Disponible:</label>
+                            <span>
+                              {item.cantidadDisponible === 0
+                                ? "Agotado"
+                                : item.cantidadDisponible}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                     <Button
                       variant="secondary"
                       type="button"
@@ -328,6 +364,7 @@ const FacturaForm = () => {
                           cantidad: "",
                           precioUnitario: "",
                           descuento: 0,
+                          cantidadDisponible: 0,
                         })
                       }>
                       + Añadir ítem

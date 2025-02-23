@@ -165,3 +165,27 @@
     white-space: normal;
   }
 } */
+
+.ds{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cantidad-disponible {
+  width: 100%; 
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 15px; 
+  font-size: 1em; 
+  color: #555; 
+}
+
+.cantidad-disponible label {
+  font-weight: bold; 
+  margin-right: 5px; 
+}
+.cantidad-disponible span {
+  color: #c71515;
+  font-size: 1.5em;
+}
