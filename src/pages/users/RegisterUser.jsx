@@ -211,51 +211,44 @@ function UserForm() {
             </Button>
 
             <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
-              <h3>Seleccionar Roles</h3>
-              <div className="roles-container">
-                {roles.map((role) => {
-                  const isSelected = values.roleRequest.roleListName.includes(role);
-                  return (
-                    <div
-                      key={role}
-                      className={`role-checkbox ${isSelected ? "selected" : ""}`}
-                      onClick={() => {
-                        const { roleListName } = values.roleRequest;
-                        const newRoles = isSelected
-                          ? roleListName.filter((r) => r !== role) // Desmarcar
-                          : [...roleListName, role]; // Marcar
-                        setFieldValue("roleRequest.roleListName", newRoles);
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        id={role}
-                        name="roleRequest.roleListName"
-                        value={role}
-                        checked={isSelected}
-                        onChange={(e) => {
-                          const { checked, value } = e.target;
-                          setFieldValue(
-                            "roleRequest.roleListName",
-                            checked
-                              ? [...values.roleRequest.roleListName, value]
-                              : values.roleRequest.roleListName.filter((r) => r !== value)
-                          );
-                        }}
-                      />
-                      <label htmlFor={role}>{role}</label>
-                    </div>
-                  );
-                })}
-              </div>
-              <Button
-                variant="primary"
-                type="button"
-                onClick={() => setIsRoleModalOpen(false)}
-                style={{ marginTop: "20px" }}
-              >
-                Cerrar
-              </Button>
+                <h3>Seleccionar Roles</h3>
+                <div className="roles-container">
+                    {roles.map((role) => {
+                        const isSelected = values.roleRequest.roleListName.includes(role);
+                        return (
+                            <div
+                                key={role}
+                                className={`role-checkbox ${isSelected ? "selected" : ""}`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    id={role}
+                                    name="roleRequest.roleListName"
+                                    value={role}
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                        const { checked, value } = e.target;
+                                        setFieldValue(
+                                            "roleRequest.roleListName",
+                                            checked
+                                                ? [...values.roleRequest.roleListName, value]
+                                                : values.roleRequest.roleListName.filter((r) => r !== value)
+                                        );
+                                    }}
+                                />
+                                <label htmlFor={role}>{role}</label>
+                            </div>
+                        );
+                    })}
+                </div>
+                <Button
+                    variant="primary"
+                    type="button"
+                    onClick={() => setIsRoleModalOpen(false)}
+                    style={{ marginTop: "20px" }}
+                >
+                    Cerrar
+                </Button>
             </Modal>
           </Form>
         )}
