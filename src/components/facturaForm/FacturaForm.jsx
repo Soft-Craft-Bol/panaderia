@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
+import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import './FacturaForm.css';
-import { fetchItems, emitirFactura, fetchPuntosDeVenta, emitirSinFactura } from '../../service/api';
+import { toast } from 'sonner';
+import { fetchItems, emitirFactura, fetchPuntosDeVenta, emitirSinFactura, getCufd } from '../../service/api';
 import { generatePDF } from '../../utils/generatePDF';
 import { getUser } from '../../utils/authFunctions';
+import './FacturaForm.css';
+import InputText from '../inputs/InputText';
+import { Button } from '../buttons/Button';
+import SelectPrimary from '../selected/SelectPrimary';
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { flag } = location.state;
   const currentUser = getUser();
+
+  // Verificar si location.state existe y tiene la propiedad flag
+  const flag = location.state?.flag || false;
+
+  // Estado inicial del cliente
   const [client, setClient] = useState(
     location.state?.client || {
       nombreRazonSocial: "S/N",
       email: "...",
       numeroDocumento: "0000000000 CB",
-      id: null
+      id: null,
     }
   );
 
@@ -26,20 +34,18 @@ const FacturaForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [itemsRes, puntosRes] = await Promise.all([
-          fetchItems(),
-          fetchPuntosDeVenta()
-        ]);
-
+        const [itemsRes, puntosRes] = await Promise.all([fetchItems(), fetchPuntosDeVenta()]);
         setItems(itemsRes.data);
         setPuntosDeVenta(puntosRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Error al cargar los datos necesarios');
+        toast.error('Error al cargar los datos necesarios');
       } finally {
         setLoading(false);
       }
@@ -48,6 +54,7 @@ const FacturaForm = () => {
     fetchData();
   }, []);
 
+  // Valores iniciales del formulario
   const initialValues = {
     puntoDeVenta: '',
     metodoPago: 'EFECTIVO',
@@ -56,11 +63,12 @@ const FacturaForm = () => {
         item: '',
         cantidad: '',
         precioUnitario: '',
-        descuento: 0
-      }
-    ]
+        descuento: 0,
+      },
+    ],
   };
 
+  // Esquema de validación
   const validationSchema = Yup.object({
     puntoDeVenta: Yup.string().required('Seleccione un punto de venta'),
     metodoPago: Yup.string().required('Método de pago es requerido'),
@@ -73,59 +81,26 @@ const FacturaForm = () => {
         precioUnitario: Yup.number()
           .required('Ingrese el precio unitario')
           .positive('Debe ser un número positivo'),
-        descuento: Yup.number()
-          .min(0, 'Debe ser un número positivo o cero')
+        descuento: Yup.number().min(0, 'Debe ser un número positivo o cero'),
       })
-    )
+    ),
   });
 
-  const handleBack = () => {
-    navigate("/facturacion");
+  // Función para calcular subtotales
+  const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
+    return cantidad * precioUnitario - descuento;
   };
 
-  const handleVentaSinFactura = async (values) => {
-    try {
-      const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
-
-      if (!selectedPuntoDeVenta) {
-        throw new Error('Punto de venta no encontrado');
-      }
-
-      const ventaSinFacturaData = {
-        cliente: client.nombreRazonSocial || "S/N",
-        idPuntoVenta: selectedPuntoDeVenta.id,
-        tipoComprobante: "RECIBO",
-        username: currentUser.username,
-        metodoPago: values.metodoPago,
-        detalle: values.items.map(item => {
-          const selectedItem = items.find(i => i.descripcion === item.item);
-          if (!selectedItem) {
-            throw new Error(`Item no encontrado: ${item.item}`);
-          }
-          return {
-            idProducto: selectedItem.id,
-            cantidad: Number(item.cantidad),
-            montoDescuento: Number(item.descuento || 0)
-          };
-        })
-      };
-
-      console.log('Enviando datos de venta sin factura:', ventaSinFacturaData);
-
-      const response = await emitirSinFactura(ventaSinFacturaData);
-      console.log('Respuesta de emisión sin factura:', response);
-
-      alert('Venta sin factura registrada con éxito');
-      navigate('/ventas');
-    } catch (error) {
-      console.error('Error al registrar la venta sin factura:', error);
-      alert(`Error al registrar la venta sin factura: ${error.message}`);
-    }
+  const calcularSubtotalGeneral = (items) => {
+    return items.reduce((total, item) => {
+      return total + calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento);
+    }, 0);
   };
 
+  // Manejar el envío del formulario
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
-      const selectedPuntoDeVenta = puntosDeVenta.find(punto => punto.nombre === values.puntoDeVenta);
+      const selectedPuntoDeVenta = puntosDeVenta.find((punto) => punto.nombre === values.puntoDeVenta);
 
       if (!selectedPuntoDeVenta) {
         throw new Error('Punto de venta no encontrado');
@@ -134,54 +109,85 @@ const FacturaForm = () => {
       const facturaData = {
         idPuntoVenta: selectedPuntoDeVenta.id,
         idCliente: client.id,
-        tipoComprobante: "FACTURA",
+        tipoComprobante: 'FACTURA',
         metodoPago: values.metodoPago,
         username: currentUser.username,
         usuario: client.nombreRazonSocial,
-        detalle: values.items.map(item => {
-          const selectedItem = items.find(i => i.descripcion === item.item);
+        detalle: values.items.map((item) => {
+          const selectedItem = items.find((i) => i.descripcion === item.item);
           if (!selectedItem) {
             throw new Error(`Item no encontrado: ${item.item}`);
           }
           return {
             idProducto: selectedItem.id,
             cantidad: Number(item.cantidad),
-            montoDescuento: Number(item.descuento || 0)
+            montoDescuento: Number(item.descuento || 0),
           };
-        })
+        }),
       };
-      console.log('Enviando datos de factura:', facturaData);
 
-      const response = await emitirFactura(facturaData);
-      console.log('Respuesta de emisión:', response);
-
+      let response;
       try {
-        const doc = await generatePDF(response.data.xmlContent);
-        doc.save(`factura-${response.data.cuf}.pdf`);
-        console.log('PDF generado exitosamente');
-      } catch (pdfError) {
-        console.error('Error al generar PDF:', pdfError);
-        alert('Factura emitida pero hubo un error al generar el PDF');
+        response = await emitirFactura(facturaData);
+      } catch (error) {
+        if (error.response && error.response.data.message.includes('CUFD')) {
+          toast.info('Solicitando CUFD...');
+          await getCufd(selectedPuntoDeVenta.id);
+          toast.success('CUFD obtenido correctamente');
+          response = await emitirFactura(facturaData);
+        } else {
+          throw error;
+        }
       }
 
-      alert('Factura emitida con éxito');
+      const doc = await generatePDF(response.data.xmlContent);
+      doc.save(`factura-${response.data.cuf}.pdf`);
+      toast.success('Factura emitida y PDF generado con éxito');
       resetForm();
       navigate('/ventas');
     } catch (error) {
       console.error('Error al emitir la factura:', error);
-      alert(`Error al emitir la factura: ${error.message}`);
+      toast.error(`Error al emitir la factura: ${error.message}`);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
-    return (cantidad * precioUnitario) - descuento;
-  };
-  const calcularSubtotalGeneral = (items) => {
-    return items.reduce((total, item) => {
-      return total + calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento);
-    }, 0);
+  // Manejar venta sin factura
+  const handleVentaSinFactura = async (values) => {
+    try {
+      const selectedPuntoDeVenta = puntosDeVenta.find((punto) => punto.nombre === values.puntoDeVenta);
+
+      if (!selectedPuntoDeVenta) {
+        throw new Error('Punto de venta no encontrado');
+      }
+
+      const ventaSinFacturaData = {
+        cliente: client.nombreRazonSocial || 'S/N',
+        idPuntoVenta: selectedPuntoDeVenta.id,
+        tipoComprobante: 'RECIBO',
+        username: currentUser.username,
+        metodoPago: values.metodoPago,
+        detalle: values.items.map((item) => {
+          const selectedItem = items.find((i) => i.descripcion === item.item);
+          if (!selectedItem) {
+            throw new Error(`Item no encontrado: ${item.item}`);
+          }
+          return {
+            idProducto: selectedItem.id,
+            cantidad: Number(item.cantidad),
+            montoDescuento: Number(item.descuento || 0),
+          };
+        }),
+      };
+
+      await emitirSinFactura(ventaSinFacturaData);
+      toast.success('Venta sin factura registrada con éxito');
+      navigate('/ventas');
+    } catch (error) {
+      console.error('Error al registrar la venta sin factura:', error);
+      toast.error(`Error al registrar la venta sin factura: ${error.message}`);
+    }
   };
 
   if (loading) return <div className="loading">Cargando...</div>;
@@ -193,27 +199,18 @@ const FacturaForm = () => {
 
       <section className="client-info">
         <h2>Datos del Cliente</h2>
-        <div className="form-group">
-          <label>Razón Social:</label>
-          <input
-            type="text"
-            value={client.nombreRazonSocial || ''}
-            readOnly={flag}
-            onChange={(e) => {
-              if (!flag) {
-                setClient({ ...client, nombreRazonSocial: e.target.value });
-              }
-            }}
-          />
-        </div>
-        <div className="form-group">
-          <label>Correo:</label>
-          <input type="email" value={client.email || ''} readOnly />
-        </div>
-        <div className="form-group">
-          <label>NIT/CI:</label>
-          <input type="text" value={client.numeroDocumento || ''} readOnly />
-        </div>
+        <InputText
+          label="Razón Social"
+          value={client.nombreRazonSocial || ''}
+          readOnly={flag}
+          onChange={(e) => {
+            if (!flag) {
+              setClient({ ...client, nombreRazonSocial: e.target.value });
+            }
+          }}
+        />
+        <InputText label="Correo" value={client.email || ''} readOnly />
+        <InputText label="NIT/CI" value={client.numeroDocumento || ''} readOnly />
       </section>
 
       <section className="corporate-details">
@@ -223,150 +220,142 @@ const FacturaForm = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ resetForm, setFieldValue, values, isSubmitting }) => (
+          {({ values, isSubmitting }) => (
             <Form>
-              <div className="form-group">
-                <label>Punto de Venta:</label>
-                <Field as="select" name="puntoDeVenta">
-                  <option value="">Seleccione un punto de venta</option>
-                  {puntosDeVenta.map(punto => (
-                    <option key={punto.id} value={punto.nombre}>
-                      {punto.nombre}
-                    </option>
-                  ))}
-                </Field>
-                <ErrorMessage name="puntoDeVenta" component="div" className="error-message" />
-              </div>
+              <SelectPrimary
+                label="Punto de Venta"
+                name="puntoDeVenta"
+                required
+              >
+                <option value="">Seleccione un punto de venta</option>
+                {puntosDeVenta.map((punto) => (
+                  <option key={punto.id} value={punto.nombre}>
+                    {punto.nombre}
+                  </option>
+                ))}
+              </SelectPrimary>
 
-              <div className="form-group">
-                <label>Método de Pago:</label>
-                <Field as="select" name="metodoPago">
-                  <option value="EFECTIVO">Efectivo</option>
-                </Field>
-                <ErrorMessage name="metodoPago" component="div" className="error-message" />
-              </div>
+              <SelectPrimary
+                label="Método de Pago"
+                name="metodoPago"
+                required
+              >
+                <option value="EFECTIVO">Efectivo</option>
+              </SelectPrimary>
 
-              <section className="transaction-details">
-                <h2>Detalle de la Transacción</h2>
-                <FieldArray name="items">
-                  {({ push, remove }) => (
-                    <div className="items-container">
-                      {values.items.map((item, index) => (
-                        <div key={index} className="form-row">
-                          <div className="form-group item-field">
-                            <label>Item/Descripción:</label>
-                            <Field
-                              as="select"
-                              name={`items[${index}].item`}
-                              onChange={(e) => {
-                                const selectedItem = items.find(i => i.descripcion === e.target.value);
-                                setFieldValue(`items[${index}].item`, e.target.value);
-                                setFieldValue(
-                                  `items[${index}].precioUnitario`,
-                                  selectedItem ? selectedItem.precioUnitario : ''
-                                );
-                              }}
-                            >
-                              <option value="">Seleccione un item</option>
-                              {items.map(i => (
-                                <option key={i.id} value={i.descripcion}>
-                                  {i.descripcion}
-                                </option>
-                              ))}
-                            </Field>
-                            <ErrorMessage name={`items[${index}].item`} component="div" className="error-message" />
-                          </div>
+              <FieldArray name="items">
+                {({ push, remove }) => (
+                  <div className="items-container">
+                    {values.items.map((item, index) => (
+                      <div key={index} className="form-row">
+                        <SelectPrimary
+                          label="Item/Descripción"
+                          name={`items[${index}].item`}
+                          required
+                        >
+                          <option value="">Seleccione un item</option>
+                          {items.map((i) => (
+                            <option key={i.id} value={i.descripcion}>
+                              {i.descripcion}
+                            </option>
+                          ))}
+                        </SelectPrimary>
 
-                          <div className="form-group cantidad-field">
-                            <label>Cantidad:</label>
-                            <Field type="number" name={`items[${index}].cantidad`} />
-                            <ErrorMessage name={`items[${index}].cantidad`} component="div" className="error-message" />
-                          </div>
+                        <InputText
+                          label="Cantidad"
+                          name={`items[${index}].cantidad`}
+                          type="number"
+                          required
+                        />
 
-                          <div className="form-group precio-field">
-                            <label>Precio Unitario (Bs):</label>
-                            <Field type="number" name={`items[${index}].precioUnitario`} readOnly />
-                            <ErrorMessage name={`items[${index}].precioUnitario`} component="div" className="error-message" />
-                          </div>
+                        <InputText
+                          label="Precio Unitario (Bs)"
+                          name={`items[${index}].precioUnitario`}
+                          type="number"
+                          readOnly
+                        />
 
-                          <div className="form-group descuento-field">
-                            <label>Descuento (Bs):</label>
-                            <Field type="number" name={`items[${index}].descuento`} />
-                            <ErrorMessage name={`items[${index}].descuento`} component="div" className="error-message" />
-                          </div>
-                          <div className="form-group subtotal-field">
-                            <label>Subtotal (Bs):</label>
-                            <input
-                              type="text"
-                              value={calcularSubtotalItem(
-                                item.cantidad,
-                                item.precioUnitario,
-                                item.descuento
-                              ).toFixed(2)}
-                              readOnly
-                            />
-                          </div>
+                        <InputText
+                          label="Descuento (Bs)"
+                          name={`items[${index}].descuento`}
+                          type="number"
+                        />
 
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              className="remove-item-btn"
-                              onClick={() => remove(index)}
-                            >
-                              Eliminar
-                            </button>
-                          )}
+                        <div className="subtotal-field">
+                          <label>Subtotal (Bs):</label>
+                          <input
+                            type="text"
+                            value={calcularSubtotalItem(
+                              item.cantidad,
+                              item.precioUnitario,
+                              item.descuento
+                            ).toFixed(2)}
+                            readOnly
+                          />
                         </div>
-                      ))}
-                      <button
-                        type="button"
-                        className="add-item-btn"
-                        onClick={() => push({
+
+                        {index > 0 && (
+                          <Button
+                            variant="danger"
+                            type="button"
+                            onClick={() => remove(index)}
+                          >
+                            Eliminar
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={() =>
+                        push({
                           item: '',
                           cantidad: '',
                           precioUnitario: '',
-                          descuento: 0
-                        })}
-                      >
-                        + Añadir ítem
-                      </button>
-                    </div>
-                  )}
-                </FieldArray>
-                <div className="subtotal-general">
-                  <label>Subtotal General (Bs):</label>
-                  <input
-                    type="text"
-                    value={calcularSubtotalGeneral(values.items).toFixed(2)}
-                    readOnly
-                  />
-                </div>
-              </section>
+                          descuento: 0,
+                        })
+                      }
+                    >
+                      + Añadir ítem
+                    </Button>
+                  </div>
+                )}
+              </FieldArray>
+
+              <div className="subtotal-general">
+                <label>Subtotal General (Bs):</label>
+                <input
+                  type="text"
+                  value={calcularSubtotalGeneral(values.items).toFixed(2)}
+                  readOnly
+                />
+              </div>
 
               <div className="form-buttons">
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
                   disabled={!flag || isSubmitting}
-                  className={`btn-emitir ${flag ? 'btn-enabled' : 'btn-disabled'}`}
                 >
                   {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className={`btn-no-fact ${flag ? 'btn-disabled' : 'btn-enabled'}`}
+                  variant="secondary"
                   onClick={() => handleVentaSinFactura(values)}
                   disabled={flag}
                 >
                   Registrar venta sin Factura
-                </button>
-                <button
-                  className="btn-clear"
+                </Button>
+                <Button
                   type="button"
-                  onClick={resetForm}
+                  variant="danger"
+                  onClick={() => resetForm()}
                   disabled={isSubmitting}
                 >
                   Limpiar Datos
-                </button>
+                </Button>
               </div>
             </Form>
           )}
@@ -374,12 +363,9 @@ const FacturaForm = () => {
       </section>
 
       <div className="bot-btns">
-        <button
-          className="btn-back"
-          onClick={handleBack}
-        >
+        <Button variant="link" onClick={() => navigate('/facturacion')}>
           Generar factura con un NIT diferente
-        </button>
+        </Button>
       </div>
     </main>
   );
