@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useField } from "formik";
 import "./InputText.css";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function InputText({ label, required, type = "text", ...props }) {
-  const [field, meta] = useField(props);
+function InputText({ label, required, type = "text", formik, ...props }) {
+  const [field, meta] = formik ? useField(props) : [{}, {}];
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => {
@@ -22,7 +22,7 @@ function InputText({ label, required, type = "text", ...props }) {
           className="text-input"
           {...field}
           {...props}
-          type={showPassword ? "text" : type} 
+          type={showPassword ? "text" : type}
         />
         {type === "password" && (
           <button

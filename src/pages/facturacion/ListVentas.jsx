@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useMemo } from "react";
 import Table from "../../components/table/Table";
-import { getAllFacturas, anularFactura, revertirAnulacionFactura } from "../../service/api";
+import { anularFactura, revertirAnulacionFactura } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
@@ -8,154 +8,180 @@ import "./ListVentas.css";
 import { Button } from "../../components/buttons/Button";
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
+import useFacturas from "../../hooks/useFacturas";
+
+
+
+const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, isAnulando, isRevirtiendo }) => {
+  const estado = venta.cuf ? venta.estado : venta.estado;
+
+  return (
+    <div className="user-management-table-actions">
+      {venta.cuf && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
+        <>
+          {estado === "EMITIDA" && (
+            <Button
+              variant="danger"
+              onClick={() => onAnular(venta)}
+              disabled={isAnulando}
+            >
+              {isAnulando ? "Anulando..." : "Anular"}
+            </Button>
+          )}
+          {estado === "ANULADA" && (
+            <Button
+              variant="warning"
+              onClick={() => onRevertir(venta)}
+              disabled={isRevirtiendo}
+            >
+              {isRevirtiendo ? "Revirtiendo..." : "Revertir"}
+            </Button>
+          )}
+          <FaCloudDownloadAlt
+            className="download-icon"
+            onClick={() => onDownload(venta)}
+            style={{
+              cursor: 'pointer',
+              fontSize: '1.5rem',
+              marginRight: '10px',
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
+};
 
 const ListVentas = () => {
-  const [facturas, setFacturas] = useState([]);
+  const { facturas, setFacturas, loading, error } = useFacturas();
   const currentUser = useMemo(() => getUser(), []);
-
-  useEffect(() => {
-    const fetchFacturas = async () => {
-      const response = await getAllFacturas();
-      console.log(response.data);
-      setFacturas(response.data);
-    };
-    fetchFacturas();
-  }, []);
+  const [isAnulando, setIsAnulando] = useState(false);
+  const [isRevirtiendo, setIsRevirtiendo] = useState(false);
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
   const handleDownload = async (factura) => {
     if (factura) {
-        const doc = await generatePDF(factura.xmlContent);
-        doc.save(`${factura.cuf}.pdf`);
+      const doc = await generatePDF(factura.xmlContent);
+      doc.save(`${factura.cuf}.pdf`);
     } else {
-        console.error("Factura no disponible para descargar.");
+      console.error("Factura no disponible para descargar.");
     }
   };
 
-  const handleAnularFactura = async (factura) => {
+  const handleAnularFactura = async (venta) => {
+    setIsAnulando(true);
     try {
       const requestData = {
         idPuntoVenta: 2,
-        cuf: factura.cuf,
+        cuf: venta.cuf,
         codigoMotivo: 1,
       };
-      await anularFactura(requestData);
+      const response = await anularFactura(requestData);
       toast.success("Factura anulada exitosamente");
-      setFacturas((prevFacturas) =>
-        prevFacturas.map((f) => f.id === factura.id ? { ...f, estado: "ANULADA" } : f)
-      );
+
+      setFacturas((prevFacturas) => {
+        const updatedFacturas = prevFacturas.map((f) =>
+          f.idVenta === venta.idVenta ? { ...f, estado: "ANULADA" } : f
+        );
+        return updatedFacturas;
+      });
     } catch (error) {
-      console.error("Error al anular factura:", error);
       toast.error("Error al anular la factura");
+    } finally {
+      setIsAnulando(false);
     }
   };
 
-  const handleRevertirFactura = async (factura) => {
+  const handleRevertirFactura = async (venta) => {
+    setIsRevirtiendo(true);
     try {
       const requestData = {
         idPuntoVenta: 2,
-        cuf: factura.cuf,
+        cuf: venta.cuf,
       };
-      await revertirAnulacionFactura(requestData);
+      const response = await revertirAnulacionFactura(requestData);
       toast.success("Anulación revertida exitosamente");
-      setFacturas((prevFacturas) =>
-        prevFacturas.map((f) => f.id === factura.id ? { ...f, estado: "REVERTIDA" } : f)
-      );
+
+      setFacturas((prevFacturas) => {
+        const updatedFacturas = prevFacturas.map((f) =>
+          f.idVenta === venta.idVenta ? { ...f, estado: "REVERTIDA" } : f
+        );
+        return updatedFacturas;
+      });
     } catch (error) {
-      console.error("Error al revertir la anulación:", error);
       toast.error("Error al revertir la anulación");
+    } finally {
+      setIsRevirtiendo(false);
     }
   };
 
-  const columns = useMemo(
-    () => [
-      { header: "ID", accessor: "id" },
-      { header: "Código Cliente", accessor: "codigoCliente" },
-      { header: "Cliente", accessor: "nombreRazonSocial" },
-      { header: "Fecha de Emisión", accessor: "fechaEmision" },
-      {
-        header: "Estado",
-        accessor: "estado",
-        render: (factura) => (
-          <span className={`estado-badge estado-${factura.estado.toLowerCase()}`}>
-            {factura.estado}
-          </span>
-        ),
-      },
-      {
-        header: "Productos",
-        accessor: "descripcion",
-        render: (factura) => (factura.detalles || []).map((d) => d.descripcion).join(", "),
-      },
-      {
-        header: "Total",
-        accessor: "subTotal",
-        render: (factura) =>
-          (factura.detalles || []).reduce((sum, d) => sum + d.subTotal, 0).toFixed(2),
-      },
-      
-      (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER")) && {
-        header: "Acciones",
-        render: (row) => (
-          <div className="user-management-table-actions">
-            {row.estado === "EMITIDA" && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
-              <Button
-                variant="danger"
-                onClick={() => handleAnularFactura(row)}
-              >
-                Anular
-              </Button>
-            )}
-            {row.estado === "ANULADA" && hasAnyRole("ROLE_ADMIN", "ROLE_MAESTRO") && (
-              <Button
-                variant="warning"
-                onClick={() => handleRevertirFactura(row)}
-              >
-                Revertir
-              </Button>
-            )}
-            <FaCloudDownloadAlt 
-              className="download-icon" 
-              onClick={() => handleDownload(row)}
-              style={{ 
-                cursor: 'pointer', 
-                fontSize: '1.5rem', 
-                marginRight: '10px',
-              }}
-            />
-          </div>
-        ),
-      },
-    ].filter(Boolean),
-    [facturas, currentUser]
-  );
+  const columns = useMemo(() => [
+    { header: "ID", accessor: "idVenta" },
+    { header: "Código Cliente", accessor: "codigoCliente" },
+    { header: "Cliente", accessor: "nombreRazonSocial" },
+    {
+      header: "Fecha de Emisión",
+      accessor: "fechaEmision",
+      render: (venta) => {
+        const fecha = new Date(venta.fechaEmision); 
+        return new Intl.DateTimeFormat("es-ES", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false, 
+        }).format(fecha)
+          .replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2})/, "$3/$2/$1 $4:$5"); 
+      }},
+    {
+      header: "Estado",
+      accessor: "estado",
+      render: (venta) => (
+        <span className={`estado-badge estado-${venta.estado.toLowerCase()}`}>
+          {venta.estado}
+        </span>
+      ),
+    },
+    {
+      header: "Productos",
+      accessor: "detalles",
+      render: (venta) => (venta.detalles || []).map((d) => d.descripcion).join(", "),
+    },
+    {
+      header: "Total",
+      accessor: "detalles",
+      render: (venta) =>
+        (venta.detalles || []).reduce((sum, d) => sum + d.subTotal, 0).toFixed(2),
+    },
+    {
+      header: "Acciones",
+      render: (venta) => (
+        <AccionesVenta
+          venta={venta}
+          onAnular={handleAnularFactura}
+          onRevertir={handleRevertirFactura}
+          onDownload={handleDownload}
+          hasAnyRole={hasAnyRole}
+          isAnulando={isAnulando}
+          isRevirtiendo={isRevirtiendo}
+        />
+      ),
+    },
+  ], [handleAnularFactura, handleRevertirFactura, handleDownload, hasAnyRole, isAnulando, isRevirtiendo]);
+
+  if (loading) return <div>Cargando...</div>;
+  if (error) return <div>Error al cargar las facturas</div>;
 
   return (
     <div className="user-management-container">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <div className="user-management-header">
         <h2 className="user-management-title">Gestión de ventas</h2>
-        {/* {hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA") && ( */}
-          <LinkButton to={`/facturacion`}>Vender nuevo producto</LinkButton>
-        {/* )} */}
+        <LinkButton to={`/facturacion`}>Vender nuevo producto</LinkButton>
       </div>
       <Table columns={columns} data={facturas} className="user-management-table" />
-
-      {/* <Suspense fallback={<div>Cargando modal...</div>}>
-        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-          <h2>Confirmar {actionType === "anular" ? "Anulación" : "Reversión"}</h2>
-          <p>¿Estás seguro de que deseas {actionType === "anular" ? "anular" : "revertir"} esta factura?</p>
-          <div className="user-management-table-actions">
-            <Button className="btn-edit" variant={actionType === "anular" ? "danger" : "warning"} onClick={confirmAction}>
-              Confirmar
-            </Button>
-            <Button className="btn-cancel" variant="secondary" onClick={() => setModalOpen(false)}>
-              Cancelar
-            </Button>
-          </div>
-        </Modal>
-      </Suspense> */}
     </div>
   );
 };

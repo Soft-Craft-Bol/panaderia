@@ -30,15 +30,12 @@ const Table = ({ columns, data, onRowClick, rowsPerPage = 10 }) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
 
-        // Verificar si los valores son números o cadenas
         const aIsNumber = !isNaN(aValue);
         const bIsNumber = !isNaN(bValue);
 
         if (aIsNumber && bIsNumber) {
-          // Comparar numéricamente
           return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
         } else {
-          // Comparar alfabéticamente
           if (aValue < bValue) {
             return sortConfig.direction === 'asc' ? -1 : 1;
           }
@@ -52,17 +49,15 @@ const Table = ({ columns, data, onRowClick, rowsPerPage = 10 }) => {
     return sortableData;
   }, [data, sortConfig]);
 
-  // Manejar cambios de página
   const handlePageChange = (newPage) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
 
-  // Manejar cambio en la cantidad de filas por página
   const handleRowsPerPageChange = (event) => {
     setRowsPerPageSelection(Number(event.target.value));
-    setCurrentPage(1); // Reiniciar a la primera página
+    setCurrentPage(1); 
   };
 
   return (
@@ -77,7 +72,6 @@ const Table = ({ columns, data, onRowClick, rowsPerPage = 10 }) => {
                 onClick={() => handleSort(column.accessor)}
               >
                 {column.header}
-                {/* Mostrar icono de orden */}
                 {sortConfig.key === column.accessor && (
                   <span>
                     {sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}
