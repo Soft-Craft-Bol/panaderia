@@ -5,6 +5,7 @@ import loadImage from '../../assets/ImagesApp';
 import { FaFile } from "react-icons/fa";
 import * as Yup from "yup";
 import './Sucursales.css';
+import '../../components/forms/itemForm/ItemForm.css';
 import { toast } from 'sonner';
 import uploadImageToCloudinary from "../../utils/uploadImageToCloudinary ";
 import { createSucursal } from "../../service/api";
@@ -77,9 +78,9 @@ const AddSucursal = () => {
     };
 
     return (
-        <div className="addSucursal-contenedor">
+        <div style={{marginTop:"15px"}}>
             <h1>Datos de la sucursal</h1>
-            <Formik
+            <Formik 
                 initialValues={{
                     nombre: "",
                     departamento: "",
@@ -93,7 +94,7 @@ const AddSucursal = () => {
                 onSubmit={handleSubmit}
             >
                 {({ isSubmitting }) => (
-                    <Form style={{ width: "80%" }}>
+                    <Form className='cont-new-pat'>
                         <div className="img-card">
                             <img
                                 src={previewUrl}
@@ -111,16 +112,20 @@ const AddSucursal = () => {
                                 <FaFile /> &emsp; Subir Imagen
                             </button>
                         </div>
-                        <InputText label="Nombre de la sucursal:" name="nombre" type="text" />
+                        <div className='input-side'>
+                            <InputText label="Nombre de la sucursal:" name="nombre" type="text" />
                         <InputText label="Departamento donde se ubica:" name="departamento" type="text" />
                         <InputText label="Municipio:" name="municipio" type="text" />
                         <InputText label="Dirección de la sucursal:" name="direccion" type="text" />
                         <InputText label="Teléfono de la sucursal:" name="telefono" type="integer" />
-                        <div>
+                         <div>
                             <button type="submit" className="btn-general" disabled={isSubmitting}>
                                 {isSubmitting ? "Añadiendo..." : "Añadir Sucursal"}
                             </button>
                         </div>
+                        </div>
+                        
+                       
                     </Form>
                 )}
             </Formik>
