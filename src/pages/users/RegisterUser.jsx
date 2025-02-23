@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, lazy } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,11 +7,70 @@ import { FaCamera } from '../../hooks/icons';
 import { Toaster, toast } from 'sonner';
 import { useTheme } from '../../context/ThemeContext';
 import './RegisterUser.css';
-import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import { Button } from '../../components/buttons/Button';
 import Modal from '../../components/modal/Modal';
+import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
+
+// Componente memoizado para InputText
+const MemoizedInputText = React.memo(({ label, name, type = "text", required }) => (
+  <Suspense fallback={<div>Cargando campo...</div>}>
+    <InputText label={label} name={name} type={type} required={required} formik={true} />
+  </Suspense>
+));
+
+// Componente para el modal de selección de roles
+const RoleSelectionModal = React.memo(({ isOpen, onClose, roles, selectedRoles, setFieldValue }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <h3>Seleccionar Roles</h3>
+      <div className="roles-container">
+        {roles.map((role) => {
+          const isSelected = selectedRoles.includes(role);
+          return (
+            <div
+              key={role}
+              className={`role-checkbox ${isSelected ? "selected" : ""}`}
+              onClick={() => {
+                const newRoles = isSelected
+                  ? selectedRoles.filter((r) => r !== role) // Desmarcar
+                  : [...selectedRoles, role]; // Marcar
+                setFieldValue("roleRequest.roleListName", newRoles);
+              }}
+            >
+              <input
+                type="checkbox"
+                id={role}
+                name="roleRequest.roleListName"
+                value={role}
+                checked={isSelected}
+                onChange={(e) => {
+                  const { checked, value } = e.target;
+                  setFieldValue(
+                    "roleRequest.roleListName",
+                    checked
+                      ? [...selectedRoles, value]
+                      : selectedRoles.filter((r) => r !== value)
+                  );
+                }}
+              />
+              <label htmlFor={role}>{role}</label>
+            </div>
+          );
+        })}
+      </div>
+      <Button
+        variant="primary"
+        type="button"
+        onClick={onClose}
+        style={{ marginTop: "20px" }}
+      >
+        Cerrar
+      </Button>
+    </Modal>
+  );
+});
 
 function UserForm() {
   const navigate = useNavigate();
@@ -21,6 +80,8 @@ function UserForm() {
   const [editingUser, setEditingUser] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+
+  const roles = useMemo(() => ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'], []);
 
   const [initialValues, setInitialValues] = useState({
     username: '',
@@ -34,8 +95,6 @@ function UserForm() {
       roleListName: [],
     },
   });
-
-  const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'];
 
   const notify = useCallback((message, type = 'success') => {
     type === 'success' ? toast.success(message) : toast.error(message);
@@ -121,7 +180,7 @@ function UserForm() {
     }
   }, [editingUser, navigate, notify]);
 
-  const handlePhotoChange = (event, setFieldValue) => {
+  const handlePhotoChange = useCallback((event, setFieldValue) => {
     const file = event.currentTarget.files[0];
 
     if (file) {
@@ -136,7 +195,7 @@ function UserForm() {
       setPhotoPreview(null);
       setFieldValue('photo', null);
     }
-  };
+  }, []);
 
   return (
     <div className={`user-form-container ${theme}`}>
@@ -172,25 +231,25 @@ function UserForm() {
               </div>
               <div className="form-columns">
                 <div className="form-column">
-                  <InputText label="Nombre" name="nombre" required />
-                  <InputText label="Apellido" name="apellido" required />
-                  <InputText label="Usuario" name="username" required />
-                  <InputText label="Teléfono" name="telefono" required />
+                  <MemoizedInputText label="Nombre" name="nombre" required />
+                  <MemoizedInputText label="Apellido" name="apellido" required />
+                  <MemoizedInputText label="Usuario" name="username" required />
+                  <MemoizedInputText label="Teléfono" name="telefono" required />
                 </div>
                 <div className="form-column">
-                  <InputText
+                  <MemoizedInputText
                     label="Contraseña"
                     name="password"
                     type="password"
                     required={!editingUser}
                   />
-                  <InputText
+                  <MemoizedInputText
                     label="Confirmar Contraseña"
                     name="confirmPassword"
                     type="password"
                     required
                   />
-                  <InputText label="Correo Electrónico" name="email" required />
+                  <MemoizedInputText label="Correo Electrónico" name="email" required />
                   <Button
                     variant="primary"
                     type="button"
@@ -210,53 +269,13 @@ function UserForm() {
               {editingUser ? 'Actualizar' : 'Registrar'}
             </Button>
 
-            <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
-              <h3>Seleccionar Roles</h3>
-              <div className="roles-container">
-                {roles.map((role) => {
-                  const isSelected = values.roleRequest.roleListName.includes(role);
-                  return (
-                    <div
-                      key={role}
-                      className={`role-checkbox ${isSelected ? "selected" : ""}`}
-                      onClick={() => {
-                        const { roleListName } = values.roleRequest;
-                        const newRoles = isSelected
-                          ? roleListName.filter((r) => r !== role) // Desmarcar
-                          : [...roleListName, role]; // Marcar
-                        setFieldValue("roleRequest.roleListName", newRoles);
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        id={role}
-                        name="roleRequest.roleListName"
-                        value={role}
-                        checked={isSelected}
-                        onChange={(e) => {
-                          const { checked, value } = e.target;
-                          setFieldValue(
-                            "roleRequest.roleListName",
-                            checked
-                              ? [...values.roleRequest.roleListName, value]
-                              : values.roleRequest.roleListName.filter((r) => r !== value)
-                          );
-                        }}
-                      />
-                      <label htmlFor={role}>{role}</label>
-                    </div>
-                  );
-                })}
-              </div>
-              <Button
-                variant="primary"
-                type="button"
-                onClick={() => setIsRoleModalOpen(false)}
-                style={{ marginTop: "20px" }}
-              >
-                Cerrar
-              </Button>
-            </Modal>
+            <RoleSelectionModal
+              isOpen={isRoleModalOpen}
+              onClose={() => setIsRoleModalOpen(false)}
+              roles={roles}
+              selectedRoles={values.roleRequest.roleListName}
+              setFieldValue={setFieldValue}
+            />
           </Form>
         )}
       </Formik>
@@ -264,4 +283,4 @@ function UserForm() {
   );
 }
 
-export default UserForm;
+export default React.memo(UserForm);
