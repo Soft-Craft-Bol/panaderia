@@ -23,7 +23,13 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       const response = await getUsers();
       console.log(response.data);
-      setUsers(response.data);
+      const newResponse = response.data;
+      const filtrado = newResponse.filter((theUser) => {
+        if(theUser.username != currentUser.username){
+          return theUser;
+        }
+      })
+      setUsers(filtrado);
     };
     fetchUsers();
   }, []);
@@ -31,12 +37,8 @@ const UserManagement = () => {
   const hasRole = (role) => currentUser?.roles.includes(role);
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
-
+  console.log(currentUser);
   const handleDeleteUser = useCallback(async () => {
-    if (userToDelete.id === currentUser.id) {
-      toast.error("No puedes eliminar tu propio usuario.");
-      return;
-    }
     try {
       await deleteUser(userToDelete.id);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
