@@ -9,6 +9,7 @@ import { useTheme } from '../../context/ThemeContext';
 import './RegisterUser.css';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import { Button } from '../../components/buttons/Button';
+import Modal from '../../components/modal/Modal';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -34,7 +35,7 @@ function UserForm() {
     },
   });
 
-  const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA','VENDEDOR'];
+  const roles = ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'];
 
   const notify = useCallback((message, type = 'success') => {
     type === 'success' ? toast.success(message) : toast.error(message);
@@ -58,7 +59,6 @@ function UserForm() {
     photo: Yup.mixed().nullable(),
   }), []);
 
-  // Obtener usuario en caso de edición
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -76,7 +76,6 @@ function UserForm() {
             roleListName: response.data.roles || [],
           },
         });
-        console.log(response)
         if (response.data.photo) setPhotoPreview(response.data.photo);
       } catch (error) {
         notify('Error al obtener los datos del usuario.', 'error');
@@ -87,8 +86,6 @@ function UserForm() {
   }, [id, notify]);
 
   const handleSubmit = useCallback(async (values, { resetForm }) => {
-    console.log('Formulario enviado con los siguientes datos:', values);
-
     let imageUrl = editingUser?.photo || null;
 
     if (values.photo instanceof File) {
@@ -107,9 +104,7 @@ function UserForm() {
         roleListName: values.roleRequest.roleListName,
       },
     };
-  
-    console.log('Data to be sent:', userData);
-  
+
     try {
       if (editingUser) {
         await updateUser(editingUser.id, userData);
@@ -142,7 +137,6 @@ function UserForm() {
       setFieldValue('photo', null);
     }
   };
-
 
   return (
     <div className={`user-form-container ${theme}`}>
@@ -197,30 +191,14 @@ function UserForm() {
                     required
                   />
                   <InputText label="Correo Electrónico" name="email" required />
-                  <div className="roles-container">
-                    <label>Roles *</label>
-                    {roles.map((role) => (
-                      <div key={role} className="role-checkbox">
-                        <input
-                          type="checkbox"
-                          id={role}
-                          name="roleRequest.roleListName"
-                          value={role}
-                          checked={values.roleRequest.roleListName.includes(role)}
-                          onChange={(e) => {
-                            const { checked, value } = e.target;
-                            setFieldValue(
-                              'roleRequest.roleListName',
-                              checked
-                                ? [...values.roleRequest.roleListName, value]
-                                : values.roleRequest.roleListName.filter((r) => r !== value)
-                            );
-                          }}
-                        />
-                        <label htmlFor={role}>{role}</label>
-                      </div>
-                    ))}
-                  </div>
+                  <Button
+                    variant="primary"
+                    type="button"
+                    onClick={() => setIsRoleModalOpen(true)}
+                    style={{ marginTop: '10px' }}
+                  >
+                    Seleccionar Roles
+                  </Button>
                 </div>
               </div>
             </div>
@@ -231,6 +209,54 @@ function UserForm() {
             >
               {editingUser ? 'Actualizar' : 'Registrar'}
             </Button>
+
+            <Modal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)}>
+              <h3>Seleccionar Roles</h3>
+              <div className="roles-container">
+                {roles.map((role) => {
+                  const isSelected = values.roleRequest.roleListName.includes(role);
+                  return (
+                    <div
+                      key={role}
+                      className={`role-checkbox ${isSelected ? "selected" : ""}`}
+                      onClick={() => {
+                        const { roleListName } = values.roleRequest;
+                        const newRoles = isSelected
+                          ? roleListName.filter((r) => r !== role) // Desmarcar
+                          : [...roleListName, role]; // Marcar
+                        setFieldValue("roleRequest.roleListName", newRoles);
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        id={role}
+                        name="roleRequest.roleListName"
+                        value={role}
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const { checked, value } = e.target;
+                          setFieldValue(
+                            "roleRequest.roleListName",
+                            checked
+                              ? [...values.roleRequest.roleListName, value]
+                              : values.roleRequest.roleListName.filter((r) => r !== value)
+                          );
+                        }}
+                      />
+                      <label htmlFor={role}>{role}</label>
+                    </div>
+                  );
+                })}
+              </div>
+              <Button
+                variant="primary"
+                type="button"
+                onClick={() => setIsRoleModalOpen(false)}
+                style={{ marginTop: "20px" }}
+              >
+                Cerrar
+              </Button>
+            </Modal>
           </Form>
         )}
       </Formik>

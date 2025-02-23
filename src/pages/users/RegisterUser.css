@@ -71,5 +71,54 @@
   input[type="file"] {
     display: none;
   }
-  
- 
+
+
+.roles-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.role-checkbox {
+  display: flex;
+  align-items: center;
+  background-color: #eeb751; 
+  border-radius: 10px; 
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.role-checkbox input[type="checkbox"] {
+  display: none; 
+}
+
+.role-checkbox label {
+  margin-left: 8px;
+  cursor: pointer;
+  user-select: none; 
+}
+
+.role-checkbox input[type="checkbox"]:checked + label {
+  color: #f8f6f6; 
+}
+
+.role-checkbox input[type="checkbox"]:checked ~ .role-checkbox {
+  background-color: #db812d;
+}
+
+.role-checkbox input[type="checkbox"]:checked ~ .role-checkbox {
+  background-color: #256ebb;
+  color: #fff; 
+}
+
+.role-checkbox:hover {
+  background-color: #e0e0e0; 
+  transform: scale(1.05);
+}
+
+.role-checkbox.selected {
+  background-color: #94770e;
+  color: #fff; 
+}
