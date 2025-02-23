@@ -22,7 +22,6 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await getUsers();
-      console.log(response.data);
       const newResponse = response.data;
       const filtrado = newResponse.filter((theUser) => {
         if(theUser.username != currentUser.username){
@@ -37,7 +36,6 @@ const UserManagement = () => {
   const hasRole = (role) => currentUser?.roles.includes(role);
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
-  console.log(currentUser);
   const handleDeleteUser = useCallback(async () => {
     try {
       await deleteUser(userToDelete.id);

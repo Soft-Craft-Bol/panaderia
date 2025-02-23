@@ -64,6 +64,7 @@ function UserForm() {
       try {
         const response = await getUserById(id);
         setEditingUser(response.data);
+        console.log(response.data);
         setInitialValues({
           username: response.data.username || '',
           nombre: response.data.firstName || '',
@@ -107,6 +108,7 @@ function UserForm() {
 
     try {
       if (editingUser) {
+        console.log(userData);
         await updateUser(editingUser.id, userData);
         notify('Usuario actualizado exitosamente.');
       } else {
