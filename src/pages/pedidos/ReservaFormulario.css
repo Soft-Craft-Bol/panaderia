@@ -25,3 +25,22 @@
 .paso button {
   margin-right: 10px;
 }
+
+.qr-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.qr-container img {
+  width: 30em; 
+  height: 30em; 
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px; 
+  background-color: #fff; 
+}
+
+.qr-container p {
+  margin: 10px 0;
+  font-size: 16px;
+}
