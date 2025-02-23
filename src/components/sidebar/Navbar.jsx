@@ -22,10 +22,6 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
         {currentUser ? (
           <>
             <div className="navbar-left">
-              <div className="search-container">
-                <FaSearch className="icon-search" />
-                <input type="text" placeholder="Buscar..." />
-              </div>
             </div>
 
             <div className="navbar-right">
