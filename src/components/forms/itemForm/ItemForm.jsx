@@ -8,6 +8,17 @@ import { createItem, unidadesMedida, getItemID, updateItem, getProductoServicio 
 import { useNavigate, useParams } from 'react-router-dom';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 import { handleFileChange } from '../../../utils/handleFileChange';
+import Swal from 'sweetalert2';
+
+const alerta = (titulo, mensaje, tipo =  "success") =>{
+    Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: tipo, 
+      timer: 2500,
+      showConfirmButton: false,
+    });
+  }
 
 const validationSchema = Yup.object().shape({
     descripcion: Yup.string().required('Descripción es requerida'),
@@ -116,10 +127,10 @@ const ItemForm = () => {
 
             if (id) {
                 await updateItem(id, data);
-                alert("Producto actualizado exitosamente");
+                alerta("Producto actualizado exitosamente!", "Guardando...");
             } else {
                 await createItem(data);
-                alert("ITEM registrado exitosamente");
+                alerta("¡Nuevo producto!","Registrando...");
             }
 
             navigate("/productos");

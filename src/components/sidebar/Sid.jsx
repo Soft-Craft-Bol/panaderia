@@ -20,11 +20,11 @@ const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ defaul
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   const currentUser = useMemo(() => getUser(), []);
-  //console.log(currentUser)
   return (
     <header className="sidebar-header">
-      <div className="text logo" style={{objectFit: "cover", minHeight:"60px", minWidth:"60px"}}>
-        <img className='logo-perfil' src={currentUser.photo} alt="Perfil" />
+      <div className="text logo">
+        <img className='logo-perfil' src={currentUser.photo} alt="Perfil"
+        style={{minHeight:"70px", minWidth:"70px"}} />
         <span className="name">{currentUser?.roles.includes('ROLE_ADMIN') ? 'Administrador' : 'Usuario'}</span>
         <span className="profe">{currentUser?.username || 'Usuario'}</span>
       </div>
