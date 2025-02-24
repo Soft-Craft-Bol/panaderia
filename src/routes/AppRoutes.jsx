@@ -26,6 +26,7 @@ const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
 
 const ClientForm = lazy(() => import("../components/forms/clientForm/ClientForm"));
 const Clientes = lazy(() => import("../pages/clientes/Clientes"));
+const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
 
 const AppRoutes = () => (
     <Routes>
@@ -60,6 +61,8 @@ const AppRoutes = () => (
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
+
+        <Route path="/inpasep" element = {<LandingPage />}/>
     </Routes>
 );
 

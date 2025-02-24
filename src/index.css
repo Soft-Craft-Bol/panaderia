@@ -23,9 +23,20 @@
 
   /* 🔘 Iconos */
   --color-icon: #0d0b80;
+
+  --main-color1: #FFAF5A;
+
+  --secondary-color1: #2c4755;
+  --section-padding1: 60px;
+  --section-background1: #f6f6f6;
+  --main-duration1: 0.5s;
+  --color-gray1: #777;
+  --white-bg1: #fff;
+  --gray-special-text: #6b6d6e;
+  --tertiary-color1: #f5deb3;
 }
 
-/* 🖥️ Media query para modo claro */
+/* kakaka🖥️ Media query para modo claro */
 @media (prefers-color-scheme: light) {
   :root {
     --bg-app: #ffffff;
@@ -39,7 +50,14 @@
 *::after {
   box-sizing: border-box;
 }
-
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
 body {
   color: var(--color-text-primary);
   background: var(--bg-app);

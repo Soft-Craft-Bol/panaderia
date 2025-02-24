@@ -23,23 +23,6 @@
     cursor: pointer;
   }
   
-  .search-container {
-    display: flex;
-    align-items: center;
-    margin-left: 15px;
-    background-color: #f1f1f1;
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin-left: 115%;
-  
-  }
-  
-  .search-container input {
-    border: none;
-    background: none;
-    outline: none;
-    margin-left: 5px;
-  }
   
   .navbar-right {
     display: flex;
