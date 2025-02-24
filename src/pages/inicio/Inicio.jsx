@@ -6,6 +6,8 @@ const TopCard = lazy(() => import('../../components/topCard/TopCard'));
 const InfoLayer = lazy(() => import('../../components/layer/InfoLayer'));
 const Chard = lazy(() => import('../../components/chard/Chard'));
 const ItemChard = lazy(() => import('../../components/chard/ItemChard'));
+import { createChart, LineSeries } from 'lightweight-charts';
+import ChartComponent from '../../components/grafico/Grafico';
 import { useNavigate } from "react-router";
 
 const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
@@ -31,7 +33,7 @@ const MemoizedTopCard = memo(({ title, quantity, porcentaje,Icon }) => (
   </Suspense>
 ));
 
-const Inicio = () => {
+const Inicio = (props) => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     numeroSucursales: 0,
@@ -68,6 +70,19 @@ const Inicio = () => {
 
     fetchStats();
   }, []);
+
+  const initialData = [
+    { time: '2018-12-22', value: 32.51 },
+    { time: '2018-12-23', value: 31.11 },
+    { time: '2018-12-24', value: 27.02 },
+    { time: '2018-12-25', value: 27.32 },
+    { time: '2018-12-26', value: 25.17 },
+    { time: '2018-12-27', value: 28.89 },
+    { time: '2018-12-28', value: 25.46 },
+    { time: '2018-12-29', value: 23.92 },
+    { time: '2018-12-30', value: 22.68 },
+    { time: '2018-12-31', value: 22.67 },
+  ];
 
   const handleNavigate = (isInventario) => {
     return () => {
@@ -114,6 +129,10 @@ const Inicio = () => {
           </Suspense>
         </div>
         <div className='rigth'>
+          <div className='inventario'>
+            <h3>Gráficos</h3>
+            <ChartComponent data={initialData} />
+          </div>
           <div className='inventario'>
             <h3>Inventario</h3>
             <Suspense fallback={<p>Cargando gráfico...</p>}>
