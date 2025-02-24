@@ -16,6 +16,8 @@ import "./FacturaForm.css";
 import InputFacturacion from "../inputs/InputFacturacion";
 import { Button } from "../buttons/Button";
 import SelectPrimary from "../selected/SelectPrimary";
+import Modal from "../modal/Modal";
+import { generateReciboPDF } from "../../utils/generateReciboPDF";
 
 const FacturaForm = () => {
   const location = useLocation();
@@ -35,6 +37,8 @@ const FacturaForm = () => {
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ventaResult, setVentaResult] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -166,11 +170,11 @@ const FacturaForm = () => {
       const selectedPuntoDeVenta = puntosDeVenta.find(
         (punto) => punto.nombre === values.puntoDeVenta
       );
-
+  
       if (!selectedPuntoDeVenta) {
         throw new Error("Punto de venta no encontrado");
       }
-
+  
       const ventaSinFacturaData = {
         cliente: client.nombreRazonSocial || "S/N",
         idPuntoVenta: selectedPuntoDeVenta.id,
@@ -189,13 +193,14 @@ const FacturaForm = () => {
           };
         }),
       };
-
-      await emitirSinFactura(ventaSinFacturaData);
-      toast.success("Venta sin factura registrada con éxito");
-      navigate("/ventas");
+  
+      const response = await emitirSinFactura(ventaSinFacturaData);
+      setVentaResult({ success: true, message: "Venta sin factura registrada con éxito", data: response.data });
+      setIsModalOpen(true);
     } catch (error) {
       console.error("Error al registrar la venta sin factura:", error);
-      toast.error(`Error al registrar la venta sin factura: ${error.message}`);
+      setVentaResult({ success: false, message: `Error al registrar la venta sin factura: ${error.message}` });
+      setIsModalOpen(true);
     }
   };
 
@@ -383,19 +388,24 @@ const FacturaForm = () => {
               </div>
 
               <div className="form-buttons">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={!flag || isSubmitting}>
-                  {isSubmitting ? "Emitiendo..." : "Emitir Factura"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => handleVentaSinFactura(values)}
-                  disabled={flag}>
-                  Registrar venta sin Factura
-                </Button>
+                {flag && (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}>
+                    {isSubmitting ? "Emitiendo factura..." : "Emitir Factura"}
+                  </Button>
+                )}
+                {!flag && (
+                  <Button
+                    className="btn-venta-sin-factura"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => handleVentaSinFactura(values)}
+                    disabled={isSubmitting}>
+                    Registrar venta sin Factura
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="danger"
@@ -416,6 +426,38 @@ const FacturaForm = () => {
           Generar factura con un NIT diferente
         </Button>
       </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {ventaResult?.success ? (
+          <div>
+            <h2>¡Venta registrada con éxito!</h2>
+            <p>{ventaResult.message}</p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={() => navigate("/ventas")}>
+                Continuar
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  generateReciboPDF(ventaResult.data); 
+                  console.log(ventaResult.data);
+                  setIsModalOpen(false); 
+                  navigate("/ventas");
+                }}
+              >
+                Imprimir Recibo
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <h2>Error al registrar la venta</h2>
+            <p>{ventaResult?.message}</p>
+            <Button variant="danger" onClick={() => setIsModalOpen(false)}>
+              Cerrar
+            </Button>
+          </div>
+        )}
+      </Modal>
     </main>
   );
 };
