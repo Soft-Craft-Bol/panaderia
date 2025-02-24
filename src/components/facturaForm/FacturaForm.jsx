@@ -170,11 +170,11 @@ const FacturaForm = () => {
       const selectedPuntoDeVenta = puntosDeVenta.find(
         (punto) => punto.nombre === values.puntoDeVenta
       );
-
+  
       if (!selectedPuntoDeVenta) {
         throw new Error("Punto de venta no encontrado");
       }
-
+  
       const ventaSinFacturaData = {
         cliente: client.nombreRazonSocial || "S/N",
         idPuntoVenta: selectedPuntoDeVenta.id,
@@ -193,16 +193,19 @@ const FacturaForm = () => {
           };
         }),
       };
-
+  
       const response = await emitirSinFactura(ventaSinFacturaData);
-      setVentaResult({ success: true, message: "Venta sin factura registrada con éxito" });
+      setVentaResult({ success: true, message: "Venta sin factura registrada con éxito", data: response.data });
       setIsModalOpen(true); 
+      generateReciboPDF(response.data);
+      navigate("/ventas");
     } catch (error) {
       console.error("Error al registrar la venta sin factura:", error);
       setVentaResult({ success: false, message: `Error al registrar la venta sin factura: ${error.message}` });
       setIsModalOpen(true); 
     }
   };
+
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -387,19 +390,24 @@ const FacturaForm = () => {
               </div>
 
               <div className="form-buttons">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={!flag || isSubmitting}>
-                  {isSubmitting ? "Emitiendo..." : "Emitir Factura"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => handleVentaSinFactura(values)}
-                  disabled={flag}>
-                  Registrar venta sin Factura
-                </Button>
+                {flag && (
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}>
+                    {isSubmitting ? "Emitiendo factura..." : "Emitir Factura"}
+                  </Button>
+                )}
+                {!flag && (
+                  <Button
+                    className="btn-venta-sin-factura"
+                    type="button"
+                    variant="secondary"
+                    onClick={() => handleVentaSinFactura(values)}
+                    disabled={isSubmitting}>
+                    Registrar venta sin Factura
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="danger"
@@ -429,7 +437,10 @@ const FacturaForm = () => {
               <Button variant="primary" onClick={() => navigate("/ventas")}>
                 Continuar
               </Button>
-              <Button variant="secondary" onClick={() => { /* Lógica para imprimir recibo */ }}>
+              <Button
+                variant="secondary"
+                onClick={() => generateReciboPDF(ventaResult.data)}
+              >
                 Imprimir Recibo
               </Button>
             </div>

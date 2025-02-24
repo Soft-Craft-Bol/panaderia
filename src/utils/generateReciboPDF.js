@@ -1,32 +1,95 @@
 import { jsPDF } from "jspdf";
+import 'jspdf-autotable';
+
 export const generateReciboPDF = (ventaData) => {
-  const doc = new jsPDF();
+  const pageWidth = 80 * 2.83465; 
+  const doc = new jsPDF({
+    unit: 'pt',
+    format: [pageWidth, 800] 
+  });
+
+  let yPos = 80; 
+  const xMargin = 15;
+  const lineHeight = 14;
+  const contentWidth = pageWidth - (2 * xMargin);
+
+  const centerText = (text, y) => {
+    doc.text(text, pageWidth / 2, y, { align: 'center' });
+  };
+
+  const addLine = (y) => {
+    doc.setLineWidth(0.5);
+    const dashLength = 5; 
+    const gapLength = 3;  
+    let x = xMargin;
+
+    while (x < pageWidth - xMargin) {
+      doc.line(x, y, x + dashLength, y); 
+      x += dashLength + gapLength;       
+    }
+  };
+
+
   doc.setFontSize(18);
-  doc.text("Recibo de Venta", 10, 20);
+  centerText('RECIBO DE VENTA', yPos);
+  yPos += lineHeight;
+
   doc.setFontSize(12);
-  doc.text(`Empresa: ${ventaData.puntoVenta.sucursal.empresa.razonSocial}`, 10, 30);
-  doc.text(`Sucursal: ${ventaData.puntoVenta.sucursal.nombre}`, 10, 40);
-  doc.text(`Dirección: ${ventaData.puntoVenta.sucursal.direccion}`, 10, 50);
-  doc.text(`Teléfono: ${ventaData.puntoVenta.sucursal.telefono}`, 10, 60);
-  doc.text(`Cliente: ${ventaData.cliente}`, 10, 70);
-  doc.text(`Fecha: ${new Date(ventaData.fecha).toLocaleDateString()}`, 10, 80);
-  doc.text(`Vendedor: ${ventaData.vendedor.firstName} ${ventaData.vendedor.lastName}`, 10, 90);
+  centerText(ventaData.puntoVenta.sucursal.empresa.razonSocial, yPos);
+  yPos += lineHeight;
+  centerText(`Sucursal: ${ventaData.puntoVenta.sucursal.nombre}`, yPos);
+  yPos += lineHeight;
+  centerText(`Dirección: ${ventaData.puntoVenta.sucursal.direccion}`, yPos);
+  yPos += lineHeight;
+  centerText(`Teléfono: ${ventaData.puntoVenta.sucursal.telefono}`, yPos);
+  yPos += lineHeight;
+
+  addLine(yPos);
+  yPos += lineHeight;
+
+  doc.setFontSize(12);
+  centerText(`Cliente: ${ventaData.cliente}`, yPos);
+  yPos += lineHeight;
+  centerText(`Fecha: ${new Date(ventaData.fecha).toLocaleDateString()}`, yPos);
+  yPos += lineHeight;
+
+  centerText(`Vendedor: ${ventaData.vendedor.firstName} ${ventaData.vendedor.lastName}`, yPos);
+  yPos += lineHeight;
+
+  addLine(yPos);
+  yPos += lineHeight;
 
   doc.setFontSize(14);
-  doc.text("Detalles de la Venta", 10, 100);
-
-  let yPosition = 110; 
+  centerText('DETALLE DE LA VENTA', yPos);
+  yPos += lineHeight;
 
   ventaData.detalles.forEach((detalle, index) => {
     doc.setFontSize(12);
-    doc.text(`Producto: ${detalle.descripcionProducto}`, 10, yPosition);
-    doc.text(`Cantidad: ${detalle.cantidad}`, 100, yPosition);
-    doc.text(`Precio Unitario: ${(detalle.monto / detalle.cantidad).toFixed(2)} Bs`, 140, yPosition);
-    doc.text(`Descuento: ${detalle.montoDescuento.toFixed(2)} Bs`, 180, yPosition);
-    yPosition += 10;
+    centerText(`Producto: ${detalle.descripcionProducto}`, yPos);
+    yPos += lineHeight;
+    centerText(`Cantidad: ${detalle.cantidad}`, yPos);
+    yPos += lineHeight;
+    centerText(`Precio Unitario: ${(detalle.monto / detalle.cantidad).toFixed(2)} Bs`, yPos);
+    yPos += lineHeight;
+    centerText(`Descuento: ${detalle.montoDescuento.toFixed(2)} Bs`, yPos);
+    yPos += lineHeight;
+
+    addLine(yPos);
+    yPos += lineHeight;
   });
+
   doc.setFontSize(14);
-  doc.text(`Total: ${ventaData.monto.toFixed(2)} Bs`, 10, yPosition + 10);
+  centerText(`TOTAL: ${ventaData.monto.toFixed(2)} Bs`, yPos);
+  yPos += lineHeight;
+
+  addLine(yPos);
+  yPos += lineHeight;
+
+  doc.setFontSize(10);
+  centerText('Gracias por su compra', yPos);
+  yPos += lineHeight;
+  centerText('Vuelva pronto', yPos);
+
   const fileName = `recibo_${ventaData.id}.pdf`;
   doc.save(fileName);
 };
