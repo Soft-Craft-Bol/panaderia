@@ -10,6 +10,7 @@ import './RegisterUser.css';
 import { Button } from '../../components/buttons/Button';
 import Modal from '../../components/modal/Modal';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
+import Swal from "sweetalert2";
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -19,6 +20,16 @@ const MemoizedInputText = React.memo(({ label, name, type = "text", required }) 
     <InputText label={label} name={name} type={type} required={required} formik={true} />
   </Suspense>
 ));
+
+const alerta = (titulo, mensaje, tipo =  "success") =>{
+  Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: tipo, 
+    timer: 2500,
+    showConfirmButton: false,
+  });
+}
 
 // Componente para el modal de selección de roles
 const RoleSelectionModal = React.memo(({ isOpen, onClose, roles, selectedRoles, setFieldValue }) => {
@@ -169,16 +180,16 @@ function UserForm() {
       if (editingUser) {
         console.log(userData);
         await updateUser(editingUser.id, userData);
-        notify('Usuario actualizado exitosamente.');
+        alerta("¡Usuario actualizado!", "Guardando datos ...", )
       } else {
         await addUser(userData);
-        notify('Usuario agregado exitosamente.');
+        alerta('Usuario agregado exitosamente', "Bienvenido");
       }
       resetForm();
       navigate('/users');
     } catch (error) {
       console.error('Error response:', error.response);
-      notify('Error al procesar la solicitud.', 'error');
+      alerta('Error al procesar la solicitud', error, 'error');
     }
   }, [editingUser, navigate, notify]);
 

@@ -42,8 +42,7 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
                 <img
                   src={currentUser.photo || "ruta/de/foto/por/defecto.jpg"}
                   alt="Profile"
-                  style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-                  
+                  style={{ width: "40px", height: "40px", borderRadius: "50%",objectFit:"cover", marginLeft:"10px" }}
                 />
                 <span>{currentUser.full_name}</span>
               </div>
