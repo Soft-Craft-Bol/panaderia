@@ -3,6 +3,7 @@ import { useCarrito } from "../../context/CarritoContext";
 import { fetchItems } from "../../service/api";
 import CardProducto from "../../components/cardProducto/cardProducto";
 import Modal from "../../components/modal/Modal";
+import { Toaster, toast } from "sonner";
 import "./Productos.css";
 
 const ProductosExternos = () => {
@@ -44,12 +45,14 @@ const ProductosExternos = () => {
     if (selectedProduct) {
       agregarAlCarrito({ ...selectedProduct, cantidad });
       handleCerrarModal();
+      toast.success("Producto agregado al carrito");
     }
   };
 
   return (
     <div className="productos-contenedor">
       <h1>Productos disponibles</h1>
+      <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <div className="cardsProducto-contenedor">
         {productos.map((product) => (
           <CardProducto

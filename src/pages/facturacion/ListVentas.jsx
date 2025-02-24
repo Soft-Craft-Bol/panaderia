@@ -91,6 +91,7 @@ const ListVentas = () => {
       });
     } catch (error) {
       toast.error("Error al anular la factura");
+      console.error("Error al anular la factura:", error);
     } finally {
       setIsAnulando(false);
     }
@@ -114,6 +115,7 @@ const ListVentas = () => {
       });
     } catch (error) {
       toast.error("Error al revertir la anulación");
+      console.error("Error al revertir la anulación:", error);
     } finally {
       setIsRevirtiendo(false);
     }

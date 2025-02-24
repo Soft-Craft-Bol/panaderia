@@ -6,6 +6,7 @@ import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import { fetchItems, deleteItem } from '../../service/api';
 import '../users/ListUser.css';
 import { addCantidadItem } from "../../service/api";
+import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
 
 const Productos = () => {
@@ -23,16 +24,16 @@ const Productos = () => {
     data2:'Precio unitario:',
     data3:'Codigo Producto SIN:'
   };
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const response = await fetchItems();
-        setProductos(response.data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-    };
 
+  const getProducts = async () => {
+    try {
+      const response = await fetchItems();
+      setProductos(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+  useEffect(() => {
     getProducts();
   }, []);
 
@@ -55,10 +56,11 @@ const Productos = () => {
     if (productoAEliminar) {
       try {
         await deleteItem(productoAEliminar.id);
-        // actualizamos el estado local
         setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
+        toast.success("Producto eliminado correctamente");
       } catch (error) {
         console.error("Error al eliminar el producto:", error);
+        toast.error("Error al eliminar el producto");
       }
     }
   
@@ -70,9 +72,11 @@ const Productos = () => {
     if (selectedProduct && cantidad > 0) {
       try {
         await addCantidadItem(selectedProduct.id, cantidad);
-        alert('Cantidad añadida correctamente');
+        getProducts();
+        toast.success("Cantidad agregada correctamente");
       } catch (error) {
         console.error('Error al agregar cantidad:', error);
+        toast.error('Error al agregar cantidad');
       }
     }
     setIsModalOpen(false);
@@ -81,6 +85,7 @@ const Productos = () => {
 
   return (
     <div className="productos-contenedor">
+    <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
       <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
       <button 
