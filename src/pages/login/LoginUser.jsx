@@ -105,7 +105,7 @@ const LoginUser = () => {
                 {loginError && <span className="error-message">{loginError}</span>}
                 <Link to="/reset">¿Olvidaste la contraseña?</Link>
                 <Suspense fallback={<div>Cargando botón...</div>}>
-                  <Button type="submit" variant="primary" disabled={isSubmitting} className="btn-general">
+                  <Button type="submit" variant="primary" disabled={isSubmitting} className="btn-general" formik = {true}>
                     {isSubmitting ? 'Ingresando...' : 'Ingresar'}
                   </Button>
                 </Suspense>

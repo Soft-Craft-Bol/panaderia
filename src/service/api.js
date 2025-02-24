@@ -59,7 +59,7 @@ export const getUserById = (id) => api.get(`/users/${id}`);
 export const getSucursales = () => api.get('/sucursales');
 export const createSucursal = (data) => api.post('/sucursales',data);
 
-export const getAllFacturas = () => api.get('/factura');
+export const getAllFacturas = () => api.get('/ventas/hoy');
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
@@ -85,3 +85,5 @@ export const unidadesMedida = () => api.get('/parametros/unidades-medida');
 export const getUnidadMedida = () => api.get('/parametros/unidades-medida');
 export const getDocumentoIdentidad = () => api.get('/parametros/documentos-identidad');
 
+//Cufd 
+export const getCufd = (idPuntoVenta) => api.post(`/codigos/obtener-cufd/${idPuntoVenta}`);
