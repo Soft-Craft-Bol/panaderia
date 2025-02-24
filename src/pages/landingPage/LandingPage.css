@@ -141,6 +141,12 @@
     align-items: center;
     justify-content: center;
   }
+  .landing img{
+    width: 75%;
+    height: 100%;
+    object-fit: cover;
+
+  }
   .features {
     padding-top: var(--section-padding1);
     padding-bottom: var(--section-padding1);
@@ -288,10 +294,12 @@
     background-color: white;
   }
   .about .about-content {
-    margin-top: 100px;
+    margin-top: 10  px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 3vh;
     justify-content: space-between;
+    align-items: start;
   }
   @media (max-width: 991px) {
     .about .about-content {
@@ -327,12 +335,11 @@
     content: "";
     position: absolute;
     width: 120px;
-    height: 300px;
+    height: 200px;
     border-left: 80px solid var(--secondary-color);
     border-bottom: 80px solid var(--secondary-color);
     z-index: -1;
     right: -100px;
-    
   }
   @media (max-width: 991px) {
     .about .about-content .image::before,
@@ -373,3 +380,34 @@
     font-weight: bold;
     color: var(--main-color1);
   }
+  /* map */
+  /* .about-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .image {
+    flex: 1;
+  }
+  
+  .map-container {
+    flex: 2;
+    display: flex;
+    gap: 20px;
+  } */
+            
+  #map1, #map2 {
+    height: 400px;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+/* estulos mapa */
+.map-cont{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+ }
