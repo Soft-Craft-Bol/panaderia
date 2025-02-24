@@ -196,13 +196,11 @@ const FacturaForm = () => {
   
       const response = await emitirSinFactura(ventaSinFacturaData);
       setVentaResult({ success: true, message: "Venta sin factura registrada con éxito", data: response.data });
-      setIsModalOpen(true); 
-      generateReciboPDF(response.data);
-      navigate("/ventas");
+      setIsModalOpen(true);
     } catch (error) {
       console.error("Error al registrar la venta sin factura:", error);
       setVentaResult({ success: false, message: `Error al registrar la venta sin factura: ${error.message}` });
-      setIsModalOpen(true); 
+      setIsModalOpen(true);
     }
   };
 
@@ -439,7 +437,12 @@ const FacturaForm = () => {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => generateReciboPDF(ventaResult.data)}
+                onClick={() => {
+                  generateReciboPDF(ventaResult.data); 
+                  console.log(ventaResult.data);
+                  setIsModalOpen(false); 
+                  navigate("/ventas");
+                }}
               >
                 Imprimir Recibo
               </Button>
