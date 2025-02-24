@@ -16,6 +16,8 @@ import "./FacturaForm.css";
 import InputFacturacion from "../inputs/InputFacturacion";
 import { Button } from "../buttons/Button";
 import SelectPrimary from "../selected/SelectPrimary";
+import Modal from "../modal/Modal";
+import { generateReciboPDF } from "../../utils/generateReciboPDF";
 
 const FacturaForm = () => {
   const location = useLocation();
@@ -35,6 +37,8 @@ const FacturaForm = () => {
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ventaResult, setVentaResult] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,15 +194,15 @@ const FacturaForm = () => {
         }),
       };
 
-      await emitirSinFactura(ventaSinFacturaData);
-      toast.success("Venta sin factura registrada con éxito");
-      navigate("/ventas");
+      const response = await emitirSinFactura(ventaSinFacturaData);
+      setVentaResult({ success: true, message: "Venta sin factura registrada con éxito" });
+      setIsModalOpen(true); 
     } catch (error) {
       console.error("Error al registrar la venta sin factura:", error);
-      toast.error(`Error al registrar la venta sin factura: ${error.message}`);
+      setVentaResult({ success: false, message: `Error al registrar la venta sin factura: ${error.message}` });
+      setIsModalOpen(true); 
     }
   };
-
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -416,6 +420,30 @@ const FacturaForm = () => {
           Generar factura con un NIT diferente
         </Button>
       </div>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {ventaResult?.success ? (
+          <div>
+            <h2>¡Venta registrada con éxito!</h2>
+            <p>{ventaResult.message}</p>
+            <div className="modal-buttons">
+              <Button variant="primary" onClick={() => navigate("/ventas")}>
+                Continuar
+              </Button>
+              <Button variant="secondary" onClick={() => { /* Lógica para imprimir recibo */ }}>
+                Imprimir Recibo
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <h2>Error al registrar la venta</h2>
+            <p>{ventaResult?.message}</p>
+            <Button variant="danger" onClick={() => setIsModalOpen(false)}>
+              Cerrar
+            </Button>
+          </div>
+        )}
+      </Modal>
     </main>
   );
 };
