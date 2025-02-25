@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useCarrito } from "../../context/CarritoContext";
 import Carrito from "../modal/CarritoModal";
 import "./Navbar.css";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ sidebarOpen, toggleSidebar }) => {
   const { theme, toggleTheme } = useTheme();
@@ -15,10 +16,13 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
   const toggleCarrito = () => {
     setMostrarCarrito(!mostrarCarrito);
   };
-
+/* COmanetario */
   return (
     <>
       <nav className="navbar">
+      <div className="logo">Logo</div>
+      <Link to="/inpasep" className="navbar-logo">Home</Link>
+      <Link to="/" className="navbar-logo">Login</Link>
         {currentUser ? (
           <>
             <div className="navbar-left">
