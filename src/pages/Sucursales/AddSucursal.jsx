@@ -11,6 +11,7 @@ import uploadImageToCloudinary from "../../utils/uploadImageToCloudinary ";
 import { createSucursal } from "../../service/api";
 import { useNavigate } from "react-router-dom";
 
+
 const AddSucursal = () => {
     const fileInputRef = useRef(null);
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -94,7 +95,7 @@ const AddSucursal = () => {
                 onSubmit={handleSubmit}
             >
                 {({ isSubmitting }) => (
-                    <Form className='cont-new-pat'>
+                    <Form className='cont-new-pat cont-add-sucursal'>
                         <div className="img-card">
                             <img
                                 src={previewUrl}
@@ -119,7 +120,9 @@ const AddSucursal = () => {
                         <InputText label="Dirección de la sucursal:" name="direccion" type="text" />
                         <InputText label="Teléfono de la sucursal:" name="telefono" type="integer" />
                          <div>
-                            <button type="submit" className="btn-general" disabled={isSubmitting}>
+                            <button type="submit" className="btn-general" disabled={isSubmitting}
+                                    onClick={() => navigate("/sucursales")}
+                            >
                                 {isSubmitting ? "Añadiendo..." : "Añadir Sucursal"}
                             </button>
                         </div>
