@@ -1,46 +1,58 @@
 .cardP {
-    position: relative;
-    padding: 1rem;
-    width: 290px;
-    max-width: 50%;
-    height: 450px;
-    box-shadow: -1px 15px 30px -12px rgb(32, 32, 32);
-    border-radius: 0.9rem;
-    border: 4px solid var(--primary-color);
-    line-height: 0.9;
-    text-align: start;
-  }
-.cardP h2{
-  height: 10%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  position: relative;
+  padding: 1rem;
+  width: 290px;
+  max-width: 50%;
+  min-height: 500px;
+  box-shadow: -1px 15px 30px -12px rgb(32, 32, 32);
+  border-radius: 0.9rem;
+  border: 4px solid var(--primary-color);
+  line-height: 0.9;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
 }
 
-.cardP img{
-  height: 50%;
+.cardP h2 {
+  height: 40px; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+  margin: 0;
+  padding: 5px 0; 
+  font-size: 1.2rem; 
+  line-height: 1.2; 
+}
+
+.cardP img {
+  height: 200px; 
   width: 100%;
   border-radius: 10px;
   margin-bottom: 5px;
   margin-top: 10px;
   object-fit: cover;
 }
-.cardFooter{
+
+.cardFooter {
   justify-content: space-between;
   display: flex;
   padding: 5px 0;
+  margin-top: auto; 
 }
 
-.cabecera-card{
+.cabecera-card {
   display: flex;
   justify-content: space-between;
+  align-items: center; 
 }
-.cabecera-card button{
-  border-radius: 15px; 
+
+.cabecera-card button {
+  border-radius: 15px;
   border: solid var(--primary-color);
   background-color: white;
   color: var(--primary-color);
 }
+
 .cardP p {
   margin: 5px 0;
 }

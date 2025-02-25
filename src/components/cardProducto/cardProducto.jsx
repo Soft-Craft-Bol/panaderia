@@ -6,7 +6,7 @@ import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
 
-const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar }) => {
+const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar, descripcionProducto }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -25,8 +25,10 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
   const handleCardClick = () => {
     if (onAdd) onAdd(product);
   };
+
   const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
   const sucursalesDisponibles = product.sucursales.map(sucursal => `${sucursal.nombre}(${sucursal.cantidad})`).join(', ');
+
   return (
     <div className="cardP">
       <div className="cabecera-card">
@@ -51,7 +53,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
       <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
       {tipoUsuario === 'interno' && (
         <>
-          <p><strong>{dataLabels.data3}</strong> {product.codigoProductoSin}</p>
+          <p><strong>{dataLabels.data3}</strong> {descripcionProducto}</p>
           <p><strong>Cant. Sucursales:</strong> {sucursalesDisponibles}</p>
         </>
       )}
