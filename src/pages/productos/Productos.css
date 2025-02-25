@@ -13,7 +13,6 @@
 }
 
 .form__input {
-    /*width: clamp(120px, 50vw, 420px);*/
     height: 2.5rem;
     padding: 0 1.25rem;
     border: 1px solid black;
@@ -79,8 +78,6 @@
     border-color: #007bff;
     outline: none;
   }
-  
-  /* Estilo para el botón de agregar al carrito */
   .agregar-carrito-btn {
     background-color: #28a745;
     color: white;

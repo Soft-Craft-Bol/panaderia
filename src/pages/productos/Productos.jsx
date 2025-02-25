@@ -15,7 +15,7 @@ const Productos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sucursales, setSucursales] = useState([]);
-  const [cantidades, setCantidades] = useState({}); // Estado para almacenar las cantidades por sucursal
+  const [cantidades, setCantidades] = useState({}); 
 
   const navigate = useNavigate();
   const dataLabels = {
@@ -57,7 +57,7 @@ const Productos = () => {
     setIsModalOpen(true);
     const initialCantidades = {};
     sucursales.forEach((sucursal) => {
-      initialCantidades[sucursal.id] = '';
+      initialCantidades[sucursal.id] = ""; 
     });
     setCantidades(initialCantidades);
   };
@@ -88,7 +88,7 @@ const Productos = () => {
       try {
         for (const sucursalId in cantidades) {
           const cantidad = cantidades[sucursalId];
-          if (cantidad > 0) {
+          if (cantidad !== "" && cantidad > 0) { 
             const sucursal = sucursales.find((s) => s.id === Number(sucursalId));
             const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
 
@@ -107,6 +107,17 @@ const Productos = () => {
       }
     }
     setIsModalOpen(false);
+  };
+  const handleKeyDown = (e) => {
+    if (
+      !/[0-9]/.test(e.key) &&
+      e.key !== "Backspace" &&
+      e.key !== "Delete" &&
+      e.key !== "ArrowLeft" &&
+      e.key !== "ArrowRight"
+    ) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -143,12 +154,13 @@ const Productos = () => {
                     <input
                       type="number"
                       min="0"
-                      placeholder="Cantidad"
-                      value={cantidades[sucursal.id] || 0}
+                      placeholder="Ingrese la cantidad"
+                      value={cantidades[sucursal.id] || ""} 
                       onChange={(e) => setCantidades((prev) => ({
                         ...prev,
-                        [sucursal.id]: Number(e.target.value),
+                        [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value), 
                       }))}
+                      onKeyDown={handleKeyDown} 
                     />
                     <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
                   </div>
