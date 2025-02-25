@@ -26,8 +26,13 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
     if (onAdd) onAdd(product);
   };
 
-  const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
-  const sucursalesDisponibles = product.sucursales.map(sucursal => `${sucursal.nombre}(${sucursal.cantidad})`).join(', ');
+  const cantidadTotal = Array.isArray(product.sucursales)
+    ? product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0)
+    : 0;
+
+  const sucursalesDisponibles = Array.isArray(product.sucursales)
+    ? product.sucursales.map(sucursal => `<span class="math-inline">\{sucursal\.nombre\}\(</span>{sucursal.cantidad})`).join(', ')
+    : '';
 
   return (
     <div className="cardP">
