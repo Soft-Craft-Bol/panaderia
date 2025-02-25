@@ -5,7 +5,6 @@ import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
-import { addCantidadItem } from '../../service/api';
 
 const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
@@ -23,22 +22,12 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
     navigate(onEdit);
   };
 
-  const sumarCantidad = async () => {
-    try {
-      const nuevaCantidad = product.cantidad + 1;
-      await addCantidadItem(product.id, { cantidad: nuevaCantidad });
-      alert("Cantidad actualizada exitosamente");
-    } catch (error) {
-      console.error("Error al actualizar cantidad:", error);
-      alert("Hubo un error al actualizar la cantidad.");
-    }
-  };
-
   const handleCardClick = () => {
     if (onAdd) onAdd(product);
   };
 
-  
+  const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
+
   return (
     <div className="cardP">
       <div className="cabecera-card">
@@ -47,7 +36,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
           <strong>+ </strong>
         </button>
       </div>
-      
+
       <img src={product.imagen} alt={product.descripcion} onClick={handleOpenModal} />
       {isImageExpanded && (
         <div className="image-modal" onClick={handleCloseModal}>
@@ -59,11 +48,16 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
           </div>
         </div>
       )}
-      <p><strong>{dataLabels.data1}</strong> {product.cantidad}</p>
+      <p><strong>{dataLabels.data1}</strong> {cantidadTotal}</p>
       <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
       {tipoUsuario === 'interno' && (
         <>
-          <p><strong>{dataLabels.data3}</strong> {product.cantidad}</p>
+          <p><strong>{dataLabels.data3}</strong> {product.codigoProductoSin}</p>
+          {product.sucursales.map((sucursal) => (
+            <p key={sucursal.id}>
+              <strong>{sucursal.nombre}:</strong> {sucursal.cantidad} unidades
+            </p>
+          ))}
         </>
       )}
       <div className="cardFooter">
@@ -79,9 +73,9 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
         ) : (
           <Button
             variant="primary"
-            type="button" 
+            type="button"
             style={{ marginTop: '20px', alignSelf: 'center' }}
-            onClick={onReservar} 
+            onClick={onReservar}
           >
             <FaShoppingCart /> Agregar al carrito
           </Button>

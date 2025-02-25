@@ -88,5 +88,7 @@ export const getDocumentoIdentidad = () => api.get('/parametros/documentos-ident
 //Cufd 
 export const getCufd = (idPuntoVenta) => api.post(`/codigos/obtener-cufd/${idPuntoVenta}`);
 //STOCKS
-export const addItemToSucursal = (sucursalId, itemId, cantidad) => 
-  api.post(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}?cantidad=${cantidad}`);
+export const addItemToSucursal = (sucursalId, itemId, cantidad) => api.post(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}?cantidad=${cantidad}`);
+
+export const getStockWithSucursal = () => api.get('/sucursal-items/items-with-sucursales');
+export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);

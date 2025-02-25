@@ -1,11 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { fetchItems, deleteItem } from '../../service/api';
+import { getStockWithSucursal, deleteItem } from '../../service/api';
 import '../users/ListUser.css';
-import { addCantidadItem } from "../../service/api";
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
 
@@ -17,22 +16,22 @@ const Productos = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cantidad, setCantidad] = useState(1);
 
-
   const navigate = useNavigate();
-  const dataLabels={
-    data1:'Cantidad unidades:',
-    data2:'Precio unitario:',
-    data3:'Codigo Producto SIN:'
+  const dataLabels = {
+    data1: 'Cantidad unidades:',
+    data2: 'Precio unitario:',
+    data3: 'Código Producto SIN:'
   };
 
   const getProducts = async () => {
     try {
-      const response = await fetchItems();
+      const response = await getStockWithSucursal();
       setProductos(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
   };
+
   useEffect(() => {
     getProducts();
   }, []);
@@ -41,6 +40,7 @@ const Productos = () => {
     setProductoAEliminar(product);
     setShowModal(true);
   };
+
   const handleOpenModalAdd = (product) => {
     setSelectedProduct(product);
     setCantidad(1);
@@ -63,7 +63,7 @@ const Productos = () => {
         toast.error("Error al eliminar el producto");
       }
     }
-  
+
     setShowModal(false);
     setProductoAEliminar(null);
   };
@@ -82,13 +82,12 @@ const Productos = () => {
     setIsModalOpen(false);
   };
 
-
   return (
     <div className="productos-contenedor">
-    <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
+      <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
       <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
-      <button 
+      <button
         className="btn-general"
         onClick={() => navigate("/addProduct")}
       >
@@ -109,27 +108,27 @@ const Productos = () => {
           <div className="modalCant">
             <div className="modalCant-content">
               <h2>Agregar Cantidad</h2>
-            <input
-              type="number"
-              value={cantidad}
-              onChange={(e) => setCantidad(Number(e.target.value))}
-              min="1"
-            />
-            <div className="botones-footer">
-              <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
-              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>              
+              <input
+                type="number"
+                value={cantidad}
+                onChange={(e) => setCantidad(Number(e.target.value))}
+                min="1"
+              />
+              <div className="botones-footer">
+                <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
+                <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              </div>
             </div>
-            </div>
-            
-          </div>)}
+          </div>
+        )}
       </div>
-      <ModalConfirm 
+      <ModalConfirm
         showModal={showModal}
         handleCloseModal={handleCloseModal}
         confirmarAccion={confirmarAccion}
-      /> 
+      />
     </div>
   );
 };
 
-export default Productos;
+export default Productos; 

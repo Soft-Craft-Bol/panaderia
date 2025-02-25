@@ -41,3 +41,10 @@
   background-color: white;
   color: var(--primary-color);
 }
+.cardP p {
+  margin: 5px 0;
+}
+
+.cardP strong {
+  font-weight: bold;
+}
