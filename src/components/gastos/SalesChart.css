@@ -1,0 +1,60 @@
+.gastos-contenedor{
+    display: flex;
+    flex-direction: column;
+}
+.gastos-contenedor h1{
+    margin-top: 20px;
+}
+.sales-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sales-table {
+    width: 35%;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sales-table h2 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  th {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .sales-chart {
+    width: 65%;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sales-chart h2 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
