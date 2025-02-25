@@ -6,3 +6,9 @@
     justify-content: center;
     flex-direction: column;
 }
+.sucursales-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
