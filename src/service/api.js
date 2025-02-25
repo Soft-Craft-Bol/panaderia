@@ -55,7 +55,7 @@ export const getRoles = () => api.get('/roles');
 export const getUsers = () => api.get('/users');
 export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const getUserById = (id) => api.get(`/users/${id}`);
-
+//sucursales
 export const getSucursales = () => api.get('/sucursales');
 export const createSucursal = (data) => api.post('/sucursales',data);
 
@@ -87,3 +87,6 @@ export const getDocumentoIdentidad = () => api.get('/parametros/documentos-ident
 
 //Cufd 
 export const getCufd = (idPuntoVenta) => api.post(`/codigos/obtener-cufd/${idPuntoVenta}`);
+//STOCKS
+export const addItemToSucursal = (sucursalId, itemId, cantidad) => 
+  api.post(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}?cantidad=${cantidad}`);

@@ -4,21 +4,22 @@ import * as Yup from 'yup';
 import loadImage from '../../../assets/ImagesApp';
 import './ItemForm.css';
 import { FaFile } from 'react-icons/fa';
-import { createItem, unidadesMedida, getItemID, updateItem, getProductoServicio } from '../../../service/api';
+import { createItem, unidadesMedida, getItemID, updateItem, getProductoServicio, getSucursales, addItemToSucursal } from '../../../service/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 import { handleFileChange } from '../../../utils/handleFileChange';
 import Swal from 'sweetalert2';
+import Modal from '../../modal/Modal';
 
-const alerta = (titulo, mensaje, tipo =  "success") =>{
+const alerta = (titulo, mensaje, tipo = "success") => {
     Swal.fire({
-      title: titulo,
-      text: mensaje,
-      icon: tipo, 
-      timer: 2500,
-      showConfirmButton: false,
+        title: titulo,
+        text: mensaje,
+        icon: tipo,
+        timer: 2500,
+        showConfirmButton: false,
     });
-  }
+};
 
 const validationSchema = Yup.object().shape({
     descripcion: Yup.string().required('Descripción es requerida'),
@@ -27,8 +28,6 @@ const validationSchema = Yup.object().shape({
         .positive('El precio debe ser positivo'),
     unidadMedida: Yup.number(),
     codigoProductoSin: Yup.number().required('Código Producto SIN es requerido'),
-    cantidad: Yup.number()
-        .positive('Cantidad debe ser positiva'),
 });
 
 const ItemForm = () => {
@@ -37,6 +36,10 @@ const ItemForm = () => {
     const [submitError, setSubmitError] = useState(null);
     const [unidades, setUnidades] = useState([]);
     const [codigoProductoSin, setCodigoProductoSin] = useState([]);
+    const [sucursales, setSucursales] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [itemCreated, setItemCreated] = useState(null);
+    const [cantidades, setCantidades] = useState({}); // Estado para almacenar las cantidades por sucursal
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -62,6 +65,18 @@ const ItemForm = () => {
             }
         };
         fetchUnidades();
+    }, []);
+
+    useEffect(() => {
+        const fetchSucursales = async () => {
+            try {
+                const response = await getSucursales();
+                setSucursales(response.data);
+            } catch (error) {
+                console.error('Error fetching sucursales', error);
+            }
+        };
+        fetchSucursales();
     }, []);
 
     useEffect(() => {
@@ -119,21 +134,24 @@ const ItemForm = () => {
                 descripcion: values.descripcion,
                 unidadMedida: values.unidadMedida,
                 precioUnitario: Number(values.precioUnitario),
-                cantidad: Number(values.cantidad),
-                codigoProductoSin: Number(values.codigoProductoSin), // Asegúrate de que sea un número
+                cantidad: 0,
+                codigoProductoSin: Number(values.codigoProductoSin),
                 imagen: imageUrl,
                 codigo: id ? values.codigo : undefined,
             };
 
+            let response;
             if (id) {
-                await updateItem(id, data);
+                response = await updateItem(id, data);
                 alerta("Producto actualizado exitosamente!", "Guardando...");
             } else {
-                await createItem(data);
-                alerta("¡Nuevo producto!","Registrando...");
+                response = await createItem(data);
+                alerta("¡Nuevo producto!", "Registrando...");
             }
 
-            navigate("/productos");
+            setItemCreated(response.data);
+            setIsModalOpen(true); // Abrir el modal después de crear/actualizar el ítem
+
         } catch (error) {
             console.error("Error al guardar el producto:", error);
             setSubmitError("Error al registrar o actualizar el producto. Intente nuevamente.");
@@ -146,94 +164,140 @@ const ItemForm = () => {
         fileInputRef.current.click();
     };
 
+    const handleCantidadChange = (sucursalId, cantidad) => {
+        setCantidades((prevCantidades) => ({
+            ...prevCantidades,
+            [sucursalId]: cantidad,
+        }));
+    };
+
+    const handleEstablecerCantidades = async () => {
+        try {
+            for (const sucursalId in cantidades) {
+                if (cantidades[sucursalId] > 0) {
+                    await addItemToSucursal(sucursalId, itemCreated.id, cantidades[sucursalId]);
+                }
+            }
+            alerta("Cantidades establecidas exitosamente!", "Guardando...");
+            setIsModalOpen(false); 
+            navigate("/productos");
+        } catch (error) {
+            console.error("Error estableciendo cantidades:", error);
+            alerta("Error", "No se pudieron establecer las cantidades", "error");
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        navigate("/productos"); // Redirigir a la página de productos después de cerrar el modal
+    };
+
     return (
-        <Formik
-            enableReinitialize
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-        >
-            {({ isSubmitting, errors, touched }) => (
-                <Form className='cont-new-pat'>
-                    <div className='img-card'>
-                        <h3>Imagen del Producto</h3>
-                        <img
-                            src={previewUrl}
-                            alt="Producto"
-                            style={{
-                                height: '80%',
-                                width: '80%',
-                                objectFit: 'cover',
-                                objectPosition: 'center',
-                                borderRadius: '30px',
-                            }}
-                        />
-                        <div>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={(event) => handleFileChange(event, setSelectedFile, setPreviewUrl)} // Usa la función handleFileChange
+        <>
+            <Formik
+                enableReinitialize
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+            >
+                {({ isSubmitting, errors, touched }) => (
+                    <Form className='cont-new-pat'>
+                        <div className='img-card'>
+                            <h3>Imagen del Producto</h3>
+                            <img
+                                src={previewUrl}
+                                alt="Producto"
+                                style={{
+                                    height: '80%',
+                                    width: '80%',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '30px',
+                                }}
                             />
-                            <button
-                                type="button"
-                                onClick={handleFileButtonClick}
-                                disabled={isSubmitting}
-                            >
-                                <FaFile />
-                                <p>Subir Imagen</p>
+                            <div>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    onChange={(event) => handleFileChange(event, setSelectedFile, setPreviewUrl)}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleFileButtonClick}
+                                    disabled={isSubmitting}
+                                >
+                                    <FaFile />
+                                    <p>Subir Imagen</p>
+                                </button>
+                            </div>
+                        </div>
+                        <div className='input-side'>
+                            <div className="input-group">
+                                <label htmlFor="descripcion">Descripción:</label>
+                                <Field className="input-card" id="descripcion" name="descripcion" type="text" placeholder="Ingrese una breve descripción del producto" />
+                                <ErrorMessage name="descripcion" component="div" className="error-message" />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="unidadMedida">Unidad de Medida:</label>
+                                <Field as="select" name="unidadMedida" className="selector-options">
+                                    <option value="">Seleccione una unidad</option>
+                                    {unidades.map((unidad) => (
+                                        <option key={unidad.id} value={unidad.codigoClasificador}>
+                                            {unidad.descripcion}
+                                        </option>
+                                    ))}
+                                </Field>
+                                <ErrorMessage name="unidadMedida" component="div" className="error-message" />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="precioUnitario">Precio Unitario (Bs.)</label>
+                                <Field className="input-card" id="precioUnitario" name="precioUnitario" type="number" />
+                                <ErrorMessage name="precioUnitario" component="div" className="error-message" />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="codigoProductoSin">Código Producto SIN</label>
+                                <Field as="select" name="codigoProductoSin" className="selector-options">
+                                    <option value="">Seleccione codigo producto SIN</option>
+                                    {codigoProductoSin.map((codProd) => (
+                                        <option key={codProd.codigoProducto} value={codProd.codigoProducto}>
+                                            {codProd.descripcionProducto}
+                                        </option>
+                                    ))}
+                                </Field>
+                                <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
+                            </div>
+                            {submitError && <div className="error-message">{submitError}</div>}
+                            <button type="submit" disabled={isSubmitting}>
+                                {id ? "Actualizar producto" : "Añadir nuevo producto / item"}
                             </button>
                         </div>
+                    </Form>
+                )}
+            </Formik>
+
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+                <h2>Establecer cantidades iniciales en sucursales</h2>
+                {sucursales.map((sucursal) => (
+                    <div key={sucursal.id} className="sucursal-item">
+                        <label>{sucursal.nombre}</label>
+                        <input
+                            type="number"
+                            min="0"
+                            placeholder="Cantidad"
+                            value={cantidades[sucursal.id] || ""}
+                            onChange={(e) => handleCantidadChange(sucursal.id, e.target.value)}
+                        />
                     </div>
-                    <div className='input-side'>
-                        <div className="input-group">
-                            <label htmlFor="descripcion">Descripción:</label>
-                            <Field className="input-card" id="descripcion" name="descripcion" type="text" placeholder="Ingrese una breve descripción del producto" />
-                            <ErrorMessage name="descripcion" component="div" className="error-message" />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="unidadMedida">Unidad de Medida:</label>
-                            <Field as="select" name="unidadMedida" className="selector-options">
-                                <option value="">Seleccione una unidad</option>
-                                {unidades.map((unidad) => (
-                                    <option key={unidad.id} value={unidad.codigoClasificador}>
-                                        {unidad.descripcion}
-                                    </option>
-                                ))}
-                            </Field>
-                            <ErrorMessage name="unidadMedida" component="div" className="error-message" />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="precioUnitario">Precio Unitario (Bs.)</label>
-                            <Field className="input-card" id="precioUnitario" name="precioUnitario" type="number" />
-                            <ErrorMessage name="precioUnitario" component="div" className="error-message" />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="codigoProductoSin">Código Producto SIN</label>
-                            <Field as="select" name="codigoProductoSin" className="selector-options">
-                                <option value="">Seleccione codigo producto SIN</option>
-                                {codigoProductoSin.map((codProd) => (
-                                    <option key={codProd.codigoProducto} value={codProd.codigoProducto}>
-                                        {codProd.descripcionProducto}
-                                    </option>
-                                ))}
-                            </Field>
-                            <ErrorMessage name="codigoProductoSin" component="div" className="error-message" />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="cantidad">Cantidad Inicial:</label>
-                            <Field className="input-card" id="cantidad" name="cantidad" type="number" />
-                            <ErrorMessage name="cantidad" component="div" className="error-message" />
-                        </div>
-                        {submitError && <div className="error-message">{submitError}</div>}
-                        <button type="submit" disabled={isSubmitting}>
-                            {id ? "Actualizar producto" : "Añadir nuevo producto / item"}
-                        </button>
-                    </div>
-                </Form>
-            )}
-        </Formik>
+                ))}
+                <div className='modal-btn'>
+                    <button onClick={handleEstablecerCantidades}>Establecer cantidades</button>
+                    <button onClick={handleCloseModal}>Cerrar</button>
+                </div>
+                
+            </Modal>
+        </>
     );
 };
 
