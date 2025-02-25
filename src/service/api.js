@@ -92,3 +92,5 @@ export const addItemToSucursal = (sucursalId, itemId, cantidad) => api.post(`/su
 
 export const getStockWithSucursal = () => api.get('/sucursal-items/items-with-sucursales');
 export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);
+export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
+export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucursal/${sucursalId}`);

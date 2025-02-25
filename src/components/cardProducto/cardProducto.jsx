@@ -25,9 +25,8 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
   const handleCardClick = () => {
     if (onAdd) onAdd(product);
   };
-
   const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
-
+  const sucursalesDisponibles = product.sucursales.map(sucursal => `${sucursal.nombre}(${sucursal.cantidad})`).join(', ');
   return (
     <div className="cardP">
       <div className="cabecera-card">
@@ -53,11 +52,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
       {tipoUsuario === 'interno' && (
         <>
           <p><strong>{dataLabels.data3}</strong> {product.codigoProductoSin}</p>
-          {product.sucursales.map((sucursal) => (
-            <p key={sucursal.id}>
-              <strong>{sucursal.nombre}:</strong> {sucursal.cantidad} unidades
-            </p>
-          ))}
+          <p><strong>Cant. Sucursales:</strong> {sucursalesDisponibles}</p>
         </>
       )}
       <div className="cardFooter">

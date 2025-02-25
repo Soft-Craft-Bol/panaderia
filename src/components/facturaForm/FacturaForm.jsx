@@ -4,11 +4,11 @@ import { Formik, Form, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import {
-  fetchItems,
-  emitirFactura,
   fetchPuntosDeVenta,
+  emitirFactura,
   emitirSinFactura,
   getCufd,
+  getStockBySucursal,
 } from "../../service/api";
 import { generatePDF } from "../../utils/generatePDF";
 import { getUser } from "../../utils/authFunctions";
@@ -44,11 +44,7 @@ const FacturaForm = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [itemsRes, puntosRes] = await Promise.all([
-          fetchItems(),
-          fetchPuntosDeVenta(),
-        ]);
-        setItems(itemsRes.data);
+        const puntosRes = await fetchPuntosDeVenta();
         setPuntosDeVenta(puntosRes.data);
       } catch (error) {
         setError("Error al cargar los datos necesarios");
@@ -204,6 +200,21 @@ const FacturaForm = () => {
     }
   };
 
+  const handlePuntoDeVentaChange = async (puntoDeVentaNombre) => {
+    const selectedPuntoDeVenta = puntosDeVenta.find(
+      (punto) => punto.nombre === puntoDeVentaNombre
+    );
+
+    if (selectedPuntoDeVenta) {
+      try {
+        const response = await getStockBySucursal(selectedPuntoDeVenta.sucursal.id);
+        setItems(response.data.items);
+      } catch (error) {
+        toast.error("Error al cargar los items de la sucursal");
+      }
+    }
+  };
+
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -246,7 +257,12 @@ const FacturaForm = () => {
               <SelectPrimary
                 label="Punto de Venta"
                 name="puntoDeVenta"
-                required>
+                required
+                onChange={(e) => {
+                  setFieldValue("puntoDeVenta", e.target.value);
+                  handlePuntoDeVentaChange(e.target.value);
+                }}
+              >
                 <option value="">Seleccione un punto de venta</option>
                 {puntosDeVenta.map((punto) => (
                   <option
