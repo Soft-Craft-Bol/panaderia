@@ -58,6 +58,7 @@ export const getUserById = (id) => api.get(`/users/${id}`);
 //sucursales
 export const getSucursales = () => api.get('/sucursales');
 export const createSucursal = (data) => api.post('/sucursales',data);
+export const deleteSucursal = (id) => api.delete(`/sucursales/${id}`);
 
 export const getAllFacturas = () => api.get('/ventas/hoy');
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
