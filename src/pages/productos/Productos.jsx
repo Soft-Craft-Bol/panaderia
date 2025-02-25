@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { getStockWithSucursal, deleteItem } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal } from '../../service/api';
 import '../users/ListUser.css';
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
@@ -14,7 +14,8 @@ const Productos = () => {
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cantidad, setCantidad] = useState(1);
+  const [sucursales, setSucursales] = useState([]);
+  const [cantidades, setCantidades] = useState({}); // Estado para almacenar las cantidades por sucursal
 
   const navigate = useNavigate();
   const dataLabels = {
@@ -32,8 +33,18 @@ const Productos = () => {
     }
   };
 
+  const fetchSucursales = async () => {
+    try {
+      const response = await getSucursales();
+      setSucursales(response.data);
+    } catch (error) {
+      console.error('Error fetching sucursales:', error);
+    }
+  };
+
   useEffect(() => {
     getProducts();
+    fetchSucursales();
   }, []);
 
   const handleOpenModal = (product) => {
@@ -43,8 +54,12 @@ const Productos = () => {
 
   const handleOpenModalAdd = (product) => {
     setSelectedProduct(product);
-    setCantidad(1);
     setIsModalOpen(true);
+    const initialCantidades = {};
+    sucursales.forEach((sucursal) => {
+      initialCantidades[sucursal.id] = '';
+    });
+    setCantidades(initialCantidades);
   };
 
   const handleCloseModal = () => {
@@ -69,14 +84,26 @@ const Productos = () => {
   };
 
   const handleConfirm = async () => {
-    if (selectedProduct && cantidad > 0) {
+    if (selectedProduct) {
       try {
-        await addCantidadItem(selectedProduct.id, cantidad);
-        getProducts();
-        toast.success("Cantidad agregada correctamente");
+        for (const sucursalId in cantidades) {
+          const cantidad = cantidades[sucursalId];
+          if (cantidad > 0) {
+            const sucursal = sucursales.find((s) => s.id === Number(sucursalId));
+            const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
+
+            if (productoEnSucursal) {
+              await sumarCantidadDeProducto(sucursalId, selectedProduct.id, cantidad);
+            } else {
+              await addItemToSucursal(sucursalId, selectedProduct.id, cantidad);
+            }
+          }
+        }
+        toast.success("Cantidades agregadas correctamente");
+        getProducts(); 
       } catch (error) {
-        console.error('Error al agregar cantidad:', error);
-        toast.error('Error al agregar cantidad');
+        console.error('Error al agregar cantidades:', error);
+        toast.error('Error al agregar cantidades');
       }
     }
     setIsModalOpen(false);
@@ -108,12 +135,25 @@ const Productos = () => {
           <div className="modalCant">
             <div className="modalCant-content">
               <h2>Agregar Cantidad</h2>
-              <input
-                type="number"
-                value={cantidad}
-                onChange={(e) => setCantidad(Number(e.target.value))}
-                min="1"
-              />
+              {sucursales.map((sucursal) => {
+                const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === sucursal.id);
+                return (
+                  <div key={sucursal.id} className="sucursal-item">
+                    <label>{sucursal.nombre}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Cantidad"
+                      value={cantidades[sucursal.id] || 0}
+                      onChange={(e) => setCantidades((prev) => ({
+                        ...prev,
+                        [sucursal.id]: Number(e.target.value),
+                      }))}
+                    />
+                    <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
+                  </div>
+                );
+              })}
               <div className="botones-footer">
                 <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
                 <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
@@ -131,4 +171,4 @@ const Productos = () => {
   );
 };
 
-export default Productos; 
+export default Productos;
