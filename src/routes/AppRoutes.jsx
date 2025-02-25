@@ -31,7 +31,7 @@ const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
 const AppRoutes = () => (
     <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<LoginUser />} />
+        <Route path="/login" element={<LoginUser />} />
 
         
         {/* Rutas privadas */}
@@ -62,7 +62,7 @@ const AppRoutes = () => (
         <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
 
-        <Route path="/inpasep" element = {<LandingPage />}/>
+        <Route path="/" element = {<LandingPage />}/>
     </Routes>
 );
 

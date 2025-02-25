@@ -27,9 +27,9 @@ const useImageLoader = (imageName) => {
   return image;
 };
 
-const MemoizedTopCard = memo(({ title, quantity, porcentaje,Icon }) => (
+const MemoizedTopCard = memo(({ title, quantity, porcentaje, Icon }) => (
   <Suspense fallback={<p>Cargando {title}...</p>}>
-    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} Icon={Icon}/>
+    <TopCard title={title} quantity={quantity} porcentaje={porcentaje} Icon={Icon} />
   </Suspense>
 ));
 
@@ -71,18 +71,24 @@ const Inicio = (props) => {
     fetchStats();
   }, []);
 
-  const initialData = [
-    { time: '2018-12-22', value: 32.51 },
-    { time: '2018-12-23', value: 31.11 },
-    { time: '2018-12-24', value: 27.02 },
-    { time: '2018-12-25', value: 27.32 },
-    { time: '2018-12-26', value: 25.17 },
-    { time: '2018-12-27', value: 28.89 },
-    { time: '2018-12-28', value: 25.46 },
-    { time: '2018-12-29', value: 23.92 },
-    { time: '2018-12-30', value: 22.68 },
-    { time: '2018-12-31', value: 22.67 },
-  ];
+  // Función para generar datos de ventas diarias durante un año
+  const generateYearlyData = () => {
+    const data = [];
+    const startDate = new Date('2023-01-01');
+    const endDate = new Date('2023-12-31');
+    const sucursales = ['Sucursal A', 'Sucursal B', 'Sucursal C'];
+
+    for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+      const date = d.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+      const randomValue = Math.floor(Math.random() * 2000) + 500; // Ventas entre 500 y 2500
+      data.push({ time: date, value: randomValue });
+    }
+
+    return data;
+  };
+
+  // Datos estáticos para la gráfica de ventas diarias por sucursal durante un año
+  const initialData = generateYearlyData();
 
   const handleNavigate = (isInventario) => {
     return () => {
@@ -94,10 +100,10 @@ const Inicio = (props) => {
     <main className='main-cont-inicio'>
       <div className='info-cont'>
         <MemoizedTopCard title="Pts de Venta" quantity={stats.numeroPuntosVenta} Icon={FaMapPin} />
-        <MemoizedTopCard title="Ingresos" quantity={stats.totalVentasHoy} porcentaje="Bs."  Icon={FaSellsy}/>
-        <MemoizedTopCard title="Nro Usuarios"   quantity={stats.numeroUsuarios} Icon={FaHouseUser}/>
-        <MemoizedTopCard title="Clientes" quantity={stats.clientesRegistrados} Icon={FaPersonBooth}/>
-        <MemoizedTopCard title="Nro Panaderos" quantity={stats.totalPanaderos} Icon={FaBreadSlice}/>
+        <MemoizedTopCard title="Ingresos" quantity={stats.totalVentasHoy} porcentaje="Bs." Icon={FaSellsy} />
+        <MemoizedTopCard title="Nro Usuarios" quantity={stats.numeroUsuarios} Icon={FaHouseUser} />
+        <MemoizedTopCard title="Clientes" quantity={stats.clientesRegistrados} Icon={FaPersonBooth} />
+        <MemoizedTopCard title="Nro Panaderos" quantity={stats.totalPanaderos} Icon={FaBreadSlice} />
       </div>
       <section className='tot-cont'>
         <div className='left'>
@@ -130,7 +136,7 @@ const Inicio = (props) => {
         </div>
         <div className='rigth'>
           <div className='inventario'>
-            <h3>Gráficos</h3>
+            <h3>Gráficos de Ventas por Sucursal (Año 2023)</h3>
             <ChartComponent data={initialData} />
           </div>
           <div className='inventario'>
