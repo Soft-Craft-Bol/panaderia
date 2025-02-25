@@ -6,6 +6,17 @@ import InputText from "../../inputs/InputText";
 import "./DespachoForm.css";
 import { fetchItems, getSucursales, createDespacho } from "../../../service/api";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
+
+const alerta = (titulo, mensaje, tipo =  "success") =>{
+  Swal.fire({
+    title: titulo,
+    text: mensaje,
+    icon: tipo, 
+    timer: 2500,
+    showConfirmButton: false,
+  });
+}
 
 const ElementProduct = ({ index, onUpdate, onRemove, isDefault }) => {
   const [productosList, setProductosList] = useState([]);
@@ -53,7 +64,7 @@ const ElementProduct = ({ index, onUpdate, onRemove, isDefault }) => {
         }}
       />
       {!isDefault && ( 
-        <button type="button" className="remove-item-btn" onClick={() => onRemove(index)}>
+        <button type="button" className="btn-cancel" onClick={() => onRemove(index)}>
           Eliminar
         </button>
       )}
@@ -121,7 +132,7 @@ export default function DespachoForm() {
       
       toast.success("Despacho creado con éxito!"); 
 
-      alert("Despacho creado con éxito");
+      alerta("Despacho realizado", " con éxito!");
 
       navigate("/despachos");
 
@@ -130,8 +141,7 @@ export default function DespachoForm() {
     } catch (error) {
       console.error("Error al enviar despacho:", error);
       setMensaje({ texto: "Error al crear el despacho", tipo: "error" });
-
-      alert("Error al crear el despacho");
+      alerta("Error al crear despacho",error,"error");
     }
 
     setSubmitting(false);
@@ -214,7 +224,7 @@ export default function DespachoForm() {
                       ))}
                       <button
                         type="button"
-                        className="add-item-btn"
+                        className="btn-edit"
                         onClick={() => push({ productoId: "", cantidad: 1 })}
                       >
                         + Añadir ítem
