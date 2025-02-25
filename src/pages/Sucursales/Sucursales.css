@@ -1,8 +1,17 @@
-
 .addSucursal-contenedor{
     background-color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+.sucursales-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 30px;
+}
+.cont-add-sucursal input{
+    border: 1px solid #ccc;
 }

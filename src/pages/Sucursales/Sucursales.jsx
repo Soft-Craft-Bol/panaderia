@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { getSucursales } from '../../service/api';
 import CardSucursal from '../../components/cardProducto/cardSucursal';
 import './Sucursales.css';
+import { useNavigate } from "react-router";
 
 const Sucursales = () => {
     const [sucursales, setSucursales] = useState([]);
-
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchSucursales = async () => {
             try {
@@ -30,6 +31,9 @@ const Sucursales = () => {
     return (
         <div>
             <h1>Sucursales</h1>
+            <button className='btn-general' onClick={() => navigate("/sucursales/addSucursal")}>
+                Registrar un nuevo despacho
+            </button>
             <div className="sucursales-list">
                 {sucursales.map(sucursal => (
                     <CardSucursal 

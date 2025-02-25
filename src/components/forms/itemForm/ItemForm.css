@@ -2,8 +2,8 @@
 .cont-new-pat {
     display: flex;
     flex-direction: row;
-    gap: 20px; /* Reducir el gap entre las secciones */
-    padding: 30px; /* Reducir el padding general */
+    gap: 20px;
+    padding: 30px;
     width: 90%;
     max-width: 1000px;
     min-height: 600px;
