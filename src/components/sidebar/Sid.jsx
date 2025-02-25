@@ -71,9 +71,8 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" />
             <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" />
             <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" />
-            <SidebarLink to="/reportes" icon={<FaUserGraduate />} text="Reportes" />
+            <SidebarLink to="/sucursales" icon={<FaUserGraduate />} text="Sucursales" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
-            <SidebarLink to="/horario" icon={<FaCalendarWeek />} text="Horarios" />
           </ul>
         </div>
         <div className="bottom-content">
