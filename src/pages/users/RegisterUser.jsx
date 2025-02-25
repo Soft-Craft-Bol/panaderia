@@ -4,6 +4,9 @@ import * as Yup from 'yup';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { addUser, updateUser, getUserById } from '../../service/api';
 import { FaCamera } from '../../hooks/icons';
+import { loginUser } from '../../service/api';
+import { saveToken, saveUser } from '../../utils/authFunctions';
+import { parseJwt } from '../../utils/Auth';
 import { Toaster, toast } from 'sonner';
 import { useTheme } from '../../context/ThemeContext';
 import './RegisterUser.css';
@@ -106,7 +109,7 @@ function UserForm() {
     email: '',
     photo: null,
     roleRequest: {
-      roleListName: isPublicRoute ? ["USER"] : [], // Si es ruta pública, solo 'USER'
+      roleListName: isPublicRoute ? ["USER", "CLIENTE"] : [],
     },
   });
 
@@ -187,6 +190,33 @@ function UserForm() {
       } else {
         await addUser(userData);
         alerta('Usuario agregado exitosamente', "Bienvenido");
+        //Auto-login tras crear un usuario nuevo
+        if(isPublicRoute){
+          try {
+              const loginResult = await loginUser({
+              username: userData.username.trim(),
+              password: userData.password,
+            });
+        
+            if (loginResult?.data?.jwt) {
+              const token = loginResult.data.jwt;
+              const decodedToken = parseJwt(token);
+              const roles = decodedToken?.authorities?.split(',') || [];
+        
+              saveToken(token);
+              saveUser({
+                username: loginResult.data.username,
+                roles: roles,
+                photo: loginResult.data.photo,
+              });
+        
+              navigate('/home'); // Redirige automáticamente
+            }
+        } catch (error) {
+          console.error('Error en el registro o auto-login:', error);
+        }
+        }
+        
       }
       resetForm();
       navigate('/users');
