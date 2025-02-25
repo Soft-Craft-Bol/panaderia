@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { FaSearch, FaBell, FaMoon, FaSun, FaShoppingCart } from "react-icons/fa";
+import React, { useState,useEffect } from "react";
+import { FaBell, FaMoon, FaSun, FaShoppingCart } from "react-icons/fa";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useCarrito } from "../../context/CarritoContext";

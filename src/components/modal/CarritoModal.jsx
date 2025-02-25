@@ -47,7 +47,7 @@ const Carrito = ({ onClose }) => {
 
           <div className="carrito-total">
             <p>Total: Bs {calcularTotal()}</p>
-          <LinkButton to={"/carrito"}>Ver Carrito</LinkButton>
+          <LinkButton to={"/carrito"} onClick={onClose}>Ver Carrito</LinkButton>
 
           </div>
         </>
