@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal, getProductoServicio } from '../../service/api';
 import '../users/ListUser.css';
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
@@ -15,11 +15,12 @@ const Productos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sucursales, setSucursales] = useState([]);
-  const [cantidades, setCantidades] = useState({}); 
+  const [cantidades, setCantidades] = useState({});
+  const [productosServicio, setProductosServicio] = useState([]);
 
   const navigate = useNavigate();
   const dataLabels = {
-    data1: 'Cantidad unidades:',
+    data1: 'Cantidad General:',
     data2: 'Precio unitario:',
     data3: 'Código Producto SIN:'
   };
@@ -42,10 +43,25 @@ const Productos = () => {
     }
   };
 
+  const fetchProductosServicio = async () => {
+    try {
+      const response = await getProductoServicio();
+      setProductosServicio(response.data);
+    } catch (error) {
+      console.error('Error fetching productos servicio:', error);
+    }
+  };
+
   useEffect(() => {
     getProducts();
     fetchSucursales();
+    fetchProductosServicio();
   }, []);
+
+  const getDescripcionProducto = (codigoProducto) => {
+    const producto = productosServicio.find(p => p.codigoProducto === codigoProducto);
+    return producto ? producto.descripcionProducto : 'Descripción no disponible';
+  };
 
   const handleOpenModal = (product) => {
     setProductoAEliminar(product);
@@ -57,7 +73,7 @@ const Productos = () => {
     setIsModalOpen(true);
     const initialCantidades = {};
     sucursales.forEach((sucursal) => {
-      initialCantidades[sucursal.id] = ""; 
+      initialCantidades[sucursal.id] = "";
     });
     setCantidades(initialCantidades);
   };
@@ -88,7 +104,7 @@ const Productos = () => {
       try {
         for (const sucursalId in cantidades) {
           const cantidad = cantidades[sucursalId];
-          if (cantidad !== "" && cantidad > 0) { 
+          if (cantidad !== "" && cantidad > 0) {
             const sucursal = sucursales.find((s) => s.id === Number(sucursalId));
             const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
 
@@ -100,7 +116,7 @@ const Productos = () => {
           }
         }
         toast.success("Cantidades agregadas correctamente");
-        getProducts(); 
+        getProducts();
       } catch (error) {
         console.error('Error al agregar cantidades:', error);
         toast.error('Error al agregar cantidades');
@@ -108,6 +124,7 @@ const Productos = () => {
     }
     setIsModalOpen(false);
   };
+
   const handleKeyDown = (e) => {
     if (
       !/[0-9]/.test(e.key) &&
@@ -140,6 +157,7 @@ const Productos = () => {
             onEliminar={() => handleOpenModal(product)}
             onEdit={`/editProduct/${product.id}`}
             onAdd={() => handleOpenModalAdd(product)}
+            descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
           />
         ))}
         {isModalOpen && (
@@ -155,12 +173,12 @@ const Productos = () => {
                       type="number"
                       min="0"
                       placeholder="Ingrese la cantidad"
-                      value={cantidades[sucursal.id] || ""} 
+                      value={cantidades[sucursal.id] || ""}
                       onChange={(e) => setCantidades((prev) => ({
                         ...prev,
-                        [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value), 
+                        [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value),
                       }))}
-                      onKeyDown={handleKeyDown} 
+                      onKeyDown={handleKeyDown}
                     />
                     <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
                   </div>
