@@ -27,6 +27,7 @@ const Facturacion = lazy(() => import("../pages/facturacion/Facturacion"));
 const ClientForm = lazy(() => import("../components/forms/clientForm/ClientForm"));
 const Clientes = lazy(() => import("../pages/clientes/Clientes"));
 const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
+const BreadList = lazy(() => import("../pages/landingPage/BreadList"));
 
 const AppRoutes = () => (
     <Routes>
@@ -53,6 +54,7 @@ const AppRoutes = () => (
         <Route path="/editProduct/:id" element = {<PrivateRoute>  <ItemForm/> </PrivateRoute>} />
         <Route path="/productos-externos" element = {<PrivateRoute> <ProductosExternos /> </PrivateRoute>}/>
         <Route path="/carrito" element = {<PrivateRoute> <CarrritoLista /></PrivateRoute>}/>
+        <Route path="/product" element = {<BreadList /> }/>
 
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />
