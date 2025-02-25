@@ -39,6 +39,7 @@ const AppRoutes = () => (
         {/*Principal Sidebar*/ }
         <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
         <Route path="/registerUser" element={<PrivateRoute><RegisterUser/> </PrivateRoute>} />
+        <Route path="/register" element={<RegisterUser/> } />
         <Route path="/editUser/:id" element={<PrivateRoute><RegisterUser/></PrivateRoute>} />
         <Route path="/horario" element={<PrivateRoute><Horarios/></PrivateRoute>} />
 

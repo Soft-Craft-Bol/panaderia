@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { addUser, updateUser, getUserById } from '../../service/api';
 import { FaCamera } from '../../hooks/icons';
 import { Toaster, toast } from 'sonner';
@@ -92,6 +92,9 @@ function UserForm() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
+  const location = useLocation();
+  const isPublicRoute = location.pathname === "/register";
+
   const roles = useMemo(() => ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'], []);
 
   const [initialValues, setInitialValues] = useState({
@@ -103,7 +106,7 @@ function UserForm() {
     email: '',
     photo: null,
     roleRequest: {
-      roleListName: [],
+      roleListName: isPublicRoute ? ["USER"] : [], // Si es ruta pública, solo 'USER'
     },
   });
 
@@ -223,6 +226,7 @@ function UserForm() {
         {({ values, setFieldValue }) => (
           <Form className="form">
             <div className="form-grid">
+            {!isPublicRoute && (
               <div className="photo-upload-container">
                 <div className="photo-preview">
                   {photoPreview ? (
@@ -241,7 +245,11 @@ function UserForm() {
                   accept="image/*"
                   onChange={(event) => handlePhotoChange(event, setFieldValue)}
                 />
+              </div>               
+              )}
               </div>
+              <div className="photo-upload-container">
+                
               <div className="form-columns">
                 <div className="form-column">
                   <MemoizedInputText label="Nombre" name="nombre" required />
@@ -263,14 +271,11 @@ function UserForm() {
                     required
                   />
                   <MemoizedInputText label="Correo Electrónico" name="email" required />
-                  <Button
-                    variant="primary"
-                    type="button"
-                    onClick={() => setIsRoleModalOpen(true)}
-                    style={{ marginTop: '10px' }}
-                  >
-                    Seleccionar Roles
-                  </Button>
+                  {!isPublicRoute && ( // Oculta el botón si es ruta pública
+                    <Button variant="primary" type="button" onClick={() => setIsRoleModalOpen(true)} style={{ marginTop: "10px" }}>
+                      Seleccionar Roles
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
