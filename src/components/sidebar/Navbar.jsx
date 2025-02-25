@@ -24,11 +24,13 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
   const { carrito } = useCarrito();
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const sucursalImg = useImageLoader("inpased");
-
+  const userPhoto = currentUser?.photo || "https://res.cloudinary.com/dzizafv5s/image/upload/v1740519413/ga7kshmedsl7hmudb5k2.jpg";
   const toggleCarrito = () => {
     setMostrarCarrito(!mostrarCarrito);
   };
 
+
+  
   return (
     <>
       <nav className="navbar">
@@ -54,7 +56,7 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
 
               <div className="profile-container">
                 <img
-                  src={currentUser.photo || "ruta/de/foto/por/defecto.jpg"}
+                  src={userPhoto}
                   alt="Profile"
                   style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", marginLeft: "10px" }}
                 />

@@ -141,7 +141,6 @@ const Productos = () => {
     <div className="productos-contenedor">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
-      <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
       <button
         className="btn-general"
         onClick={() => navigate("/addProduct")}
