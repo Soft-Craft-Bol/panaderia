@@ -1,11 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { fetchItems, deleteItem } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal } from '../../service/api';
 import '../users/ListUser.css';
-import { addCantidadItem } from "../../service/api";
 import { Toaster, toast } from "sonner";
 import LinkButton from "../../components/buttons/LinkButton";
 
@@ -15,36 +14,52 @@ const Productos = () => {
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cantidad, setCantidad] = useState(1);
-
+  const [sucursales, setSucursales] = useState([]);
+  const [cantidades, setCantidades] = useState({}); 
 
   const navigate = useNavigate();
-  const dataLabels={
-    data1:'Cantidad unidades:',
-    data2:'Precio unitario:',
-    data3:'Codigo Producto SIN:'
+  const dataLabels = {
+    data1: 'Cantidad unidades:',
+    data2: 'Precio unitario:',
+    data3: 'Código Producto SIN:'
   };
 
   const getProducts = async () => {
     try {
-      const response = await fetchItems();
+      const response = await getStockWithSucursal();
       setProductos(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
   };
+
+  const fetchSucursales = async () => {
+    try {
+      const response = await getSucursales();
+      setSucursales(response.data);
+    } catch (error) {
+      console.error('Error fetching sucursales:', error);
+    }
+  };
+
   useEffect(() => {
     getProducts();
+    fetchSucursales();
   }, []);
 
   const handleOpenModal = (product) => {
     setProductoAEliminar(product);
     setShowModal(true);
   };
+
   const handleOpenModalAdd = (product) => {
     setSelectedProduct(product);
-    setCantidad(1);
     setIsModalOpen(true);
+    const initialCantidades = {};
+    sucursales.forEach((sucursal) => {
+      initialCantidades[sucursal.id] = ""; 
+    });
+    setCantidades(initialCantidades);
   };
 
   const handleCloseModal = () => {
@@ -63,32 +78,54 @@ const Productos = () => {
         toast.error("Error al eliminar el producto");
       }
     }
-  
+
     setShowModal(false);
     setProductoAEliminar(null);
   };
 
   const handleConfirm = async () => {
-    if (selectedProduct && cantidad > 0) {
+    if (selectedProduct) {
       try {
-        await addCantidadItem(selectedProduct.id, cantidad);
-        getProducts();
-        toast.success("Cantidad agregada correctamente");
+        for (const sucursalId in cantidades) {
+          const cantidad = cantidades[sucursalId];
+          if (cantidad !== "" && cantidad > 0) { 
+            const sucursal = sucursales.find((s) => s.id === Number(sucursalId));
+            const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
+
+            if (productoEnSucursal) {
+              await sumarCantidadDeProducto(sucursalId, selectedProduct.id, cantidad);
+            } else {
+              await addItemToSucursal(sucursalId, selectedProduct.id, cantidad);
+            }
+          }
+        }
+        toast.success("Cantidades agregadas correctamente");
+        getProducts(); 
       } catch (error) {
-        console.error('Error al agregar cantidad:', error);
-        toast.error('Error al agregar cantidad');
+        console.error('Error al agregar cantidades:', error);
+        toast.error('Error al agregar cantidades');
       }
     }
     setIsModalOpen(false);
   };
-
+  const handleKeyDown = (e) => {
+    if (
+      !/[0-9]/.test(e.key) &&
+      e.key !== "Backspace" &&
+      e.key !== "Delete" &&
+      e.key !== "ArrowLeft" &&
+      e.key !== "ArrowRight"
+    ) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="productos-contenedor">
-    <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
+      <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
       <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
-      <button 
+      <button
         className="btn-general"
         onClick={() => navigate("/addProduct")}
       >
@@ -109,25 +146,39 @@ const Productos = () => {
           <div className="modalCant">
             <div className="modalCant-content">
               <h2>Agregar Cantidad</h2>
-            <input
-              type="number"
-              value={cantidad}
-              onChange={(e) => setCantidad(Number(e.target.value))}
-              min="1"
-            />
-            <div className="botones-footer">
-              <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
-              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>              
+              {sucursales.map((sucursal) => {
+                const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === sucursal.id);
+                return (
+                  <div key={sucursal.id} className="sucursal-item">
+                    <label>{sucursal.nombre}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Ingrese la cantidad"
+                      value={cantidades[sucursal.id] || ""} 
+                      onChange={(e) => setCantidades((prev) => ({
+                        ...prev,
+                        [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value), 
+                      }))}
+                      onKeyDown={handleKeyDown} 
+                    />
+                    <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
+                  </div>
+                );
+              })}
+              <div className="botones-footer">
+                <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
+                <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              </div>
             </div>
-            </div>
-            
-          </div>)}
+          </div>
+        )}
       </div>
-      <ModalConfirm 
+      <ModalConfirm
         showModal={showModal}
         handleCloseModal={handleCloseModal}
         confirmarAccion={confirmarAccion}
-      /> 
+      />
     </div>
   );
 };
