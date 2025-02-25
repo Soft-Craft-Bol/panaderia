@@ -275,7 +275,6 @@ const FacturaForm = () => {
                       return (
                         <div className="ds" key={index}>
                         <div  className="form-row">
-                          {/* Inputs y selects */}
                           <SelectPrimary
                             label="Item/Descripción"
                             name={`items[${index}].item`}
