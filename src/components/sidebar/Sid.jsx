@@ -69,6 +69,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" />
             <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" />
+            <SidebarLink to="/insumos" icon={<GiSlicedBread />} text="Insumos" />
             <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" />
             <SidebarLink to="/sucursales" icon={<MdLocationPin />} text="Sucursales" />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />

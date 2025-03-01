@@ -34,7 +34,7 @@
   }
   
   body.dark .button-primary:hover {
-    background-color: #1a5bbf; /* Puedes ajustar el tono si quieres */
+    background-color: #1a5bbf;
   }
   
   body.dark .button-secondary {

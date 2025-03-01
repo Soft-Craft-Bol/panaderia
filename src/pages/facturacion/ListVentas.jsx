@@ -10,9 +10,6 @@ import { FaCloudDownloadAlt } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
 import useFacturas from "../../hooks/useFacturas";
 import SearchAndFilters from "../../components/search/SearchAndFilters";
-
-
-
 const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, isAnulando, isRevirtiendo }) => {
   const estado = venta.cuf ? venta.estado : venta.estado;
 

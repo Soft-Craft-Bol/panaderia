@@ -95,3 +95,5 @@ export const getStockWithSucursal = () => api.get('/sucursal-items/items-with-su
 export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
 export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucursal/${sucursalId}`);
+export const getInsumos = () => api.get('/insumos');
+export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');

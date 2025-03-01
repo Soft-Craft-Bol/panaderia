@@ -28,6 +28,7 @@ const ClientForm = lazy(() => import("../components/forms/clientForm/ClientForm"
 const Clientes = lazy(() => import("../pages/clientes/Clientes"));
 const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
 const BreadList = lazy(() => import("../pages/landingPage/BreadList"));
+const Insumos = lazy(() => import("../pages/insumos/Insumos"));
 
 const AppRoutes = () => (
     <Routes>
@@ -64,7 +65,7 @@ const AppRoutes = () => (
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
-
+        <Route path="/insumos" element = {<PrivateRoute> <Insumos /> </PrivateRoute>}/>
         <Route path="/" element = {<LandingPage />}/>
     </Routes>
 );
