@@ -83,6 +83,9 @@
     gap: 1vh;
     margin-top: 5px;
 }
+.icons-cont .icon{
+    color: #6F767E;
+}
 
 .icons-cont:hover {
     cursor: pointer;
@@ -95,65 +98,64 @@
     cursor: pointer; 
   }
 
-/* Estilos responsivos */
 @media (max-width: 768px) {
     .card-cd {
-        flex-direction: column; /* Cambia la dirección a columna en móviles */
-        width: 90%; /* Ocupa el 90% del ancho en móviles */
-        min-width: auto; /* Elimina el ancho mínimo */
+        flex-direction: column; 
+        width: 90%; 
+        min-width: auto;
     }
 
     .card-cd .left {
-        flex: none; /* Elimina el flex para que la imagen ocupe el ancho completo */
-        height: 150px; /* Altura fija para la imagen en móviles */
+        flex: none;
+        height: 150px;
     }
 
     .card-cd .left img {
-        height: 100%; /* Asegura que la imagen ocupe toda la altura */
+        height: 100%; 
     }
 
     .card-cd .info {
-        padding: 15px; /* Aumenta el padding para mejor legibilidad */
+        padding: 15px;
     }
 
     .card-cd .info h3 {
-        font-size: 1.25rem; /* Reduce el tamaño del título en móviles */
+        font-size: 1.25rem;
     }
 
     .card-cd .info p {
-        font-size: 0.9rem; /* Reduce el tamaño del texto en móviles */
+        font-size: 0.9rem; 
     }
 
     .card-cd .right-info {
-        flex: none; /* Elimina el flex para que la cantidad ocupe una línea */
-        flex-direction: row; /* Cambia la dirección a fila para mejor uso del espacio */
-        justify-content: space-between; /* Separa los elementos */
-        padding: 10px 15px; /* Ajusta el padding */
+        flex: none; 
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 15px; 
     }
 
     .card-cantidad {
-        font-size: 1.25rem; /* Reduce el tamaño de la cantidad en móviles */
+        font-size: 1.25rem; 
     }
 
     .icons-cont {
-        gap: 10px; /* Reduce el espacio entre íconos */
+        gap: 10px; 
     }
 }
 
 @media (max-width: 480px) {
     .card-cd {
-        width: 100%; /* Ocupa el 100% del ancho en pantallas muy pequeñas */
+        width: 100%;
     }
 
     .card-cd .info h3 {
-        font-size: 1.1rem; /* Reduce aún más el tamaño del título */
+        font-size: 1.1rem;
     }
 
     .card-cd .info p {
-        font-size: 0.8rem; /* Reduce aún más el tamaño del texto */
+        font-size: 0.8rem;
     }
 
     .card-cantidad {
-        font-size: 1rem; /* Reduce aún más el tamaño de la cantidad */
+        font-size: 1rem; 
     }
 }

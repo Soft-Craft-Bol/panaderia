@@ -189,7 +189,7 @@ const ItemForm = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        navigate("/productos"); // Redirigir a la página de productos después de cerrar el modal
+        navigate("/productos"); 
     };
 
     return (

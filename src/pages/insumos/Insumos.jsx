@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Insumos.css';
 import { Button } from '../../components/buttons/Button';
 import Card from '../../components/card/cards/Card';
@@ -14,10 +14,16 @@ const Insumos = () => {
 
   const fetchInsumos = async () => {
     try {
-      const response = await getInsumosAndSuccursales();
-      setInsumos(response.data);
-      setLoading(false);
-      console.log('Insumos:', response.data);
+      const cachedInsumos = localStorage.getItem('insumos');
+      if (cachedInsumos) {
+        setInsumos(JSON.parse(cachedInsumos));
+        setLoading(false);
+      } else {
+        const response = await getInsumosAndSuccursales();
+        setInsumos(response.data);
+        localStorage.setItem('insumos', JSON.stringify(response.data));
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching insumos:', error);
       setError(error);
@@ -59,6 +65,7 @@ const Insumos = () => {
                   setHoveredInsumoId(null);
                 }
               }}
+              insumoId={insumo.id}
             />
             {hoveredInsumoId === insumo.id && (
               <Tooltip insumo={insumo} targetElement={hoveredElement} />

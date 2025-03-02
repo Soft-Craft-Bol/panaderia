@@ -66,6 +66,7 @@ const AppRoutes = () => (
         <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
         <Route path="/insumos" element = {<PrivateRoute> <Insumos /> </PrivateRoute>}/>
+        <Route path="/insumos/edit/:id" element = {<PrivateRoute> <ItemForm /> </PrivateRoute>}/>
         <Route path="/" element = {<LandingPage />}/>
     </Routes>
 );
