@@ -87,6 +87,13 @@
 .icons-cont:hover {
     cursor: pointer;
 }
+.card-cd {
+    position: relative;
+  }
+  
+  .info h3 {
+    cursor: pointer; 
+  }
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
