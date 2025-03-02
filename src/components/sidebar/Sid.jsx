@@ -14,11 +14,10 @@ const FaUser = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.F
 const GiSlicedBread = lazy(() => import("react-icons/gi").then(mod => ({ default: mod.GiSlicedBread })));
 const AiOutlineGroup = lazy(() => import("react-icons/ai").then(mod => ({ default: mod.AiOutlineGroup })));
 const GrAnalytics = lazy(() => import("react-icons/gr").then(mod => ({ default: mod.GrAnalytics })));
-const FaUserGraduate = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaUserGraduate })));
+const MdLocationPin = lazy(() => import("react-icons/md").then(mod => ({ default: mod.MdLocationPin })));
 const FaUserCheck = lazy(() => import("react-icons/fa6").then(mod => ({ default: mod.FaUserCheck })));
 const TbLogout = lazy(() => import("react-icons/tb").then(mod => ({ default: mod.TbLogout })));
 const RiTruckFill = lazy(() => import("react-icons/ri").then(mod => ({ default: mod.RiTruckFill })));
-const FaCalendarWeek = lazy(() => import("react-icons/fa").then(mod => ({ default: mod.FaCalendarWeek })));
 
 const SidebarHeader = ({ onToggle, isOpen }) => {
   const currentUser = useMemo(() => getUser(), []);
@@ -83,8 +82,9 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
-            <SidebarLink to="/sucursales" icon={<FaUserGraduate />} text="Sucursales" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
+            <SidebarLink to="/sucursales" icon={<MdLocationPin />} text="Sucursales" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
             <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
+            <SidebarLink to="/reservas" icon={<FaUserCheck />} text="Reservas" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/productos-externos" icon={<GiSlicedBread />} text="Productos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_CLIENTE", )} />
             <SidebarLink to="/carrito" icon={<FaShoppingCart />} text="Carrito" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR", "ROLE_CLIENTE")} />
           </ul>

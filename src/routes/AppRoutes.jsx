@@ -18,6 +18,7 @@ const ItemForm = lazy(() => import("../components/forms/itemForm/ItemForm"));
 const Productos = lazy(() => import("../pages/productos/Productos"));
 const ProductosExternos = lazy (() => import("../pages/productos/ProductosExternos"));
 const CarrritoLista = lazy(() => import("../pages/pedidos/CarritoLista"));
+const ReservasTable = lazy(() => import("../pages/pedidos/ReservasTable"));
 
 const ListVentas = lazy(() => import("../pages/facturacion/ListVentas"));
 const Gastos = lazy(() => import("../pages/gastos/Gastos"));
@@ -54,6 +55,7 @@ const AppRoutes = () => (
         <Route path="/editProduct/:id" element = {<PrivateRoute>  <ItemForm/> </PrivateRoute>} />
         <Route path="/productos-externos" element = {<PrivateRoute> <ProductosExternos /> </PrivateRoute>}/>
         <Route path="/carrito" element = {<PrivateRoute> <CarrritoLista /></PrivateRoute>}/>
+        <Route path="/reservas" element = {<PrivateRoute> <ReservasTable /></PrivateRoute>}/>
         <Route path="/product" element = {<BreadList /> }/>
 
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
