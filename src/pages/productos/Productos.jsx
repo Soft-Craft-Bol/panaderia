@@ -17,12 +17,13 @@ const Productos = () => {
   const [sucursales, setSucursales] = useState([]);
   const [cantidades, setCantidades] = useState({});
   const [productosServicio, setProductosServicio] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const navigate = useNavigate();
   const dataLabels = {
     data1: 'Cantidad General:',
     data2: 'Precio unitario:',
-    data3: 'Código Producto SIN:'
+    data3: 'Código Producto SIN:'
   };
 
   const getProducts = async () => {
@@ -60,7 +61,7 @@ const Productos = () => {
 
   const getDescripcionProducto = (codigoProducto) => {
     const producto = productosServicio.find(p => p.codigoProducto === codigoProducto);
-    return producto ? producto.descripcionProducto : 'Descripción no disponible';
+    return producto ? producto.descripcionProducto : 'Descripción no disponible';
   };
 
   const handleOpenModal = (product) => {
@@ -141,25 +142,37 @@ const Productos = () => {
     <div className="productos-contenedor">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
-      <LinkButton to="/productos-externos">PRODUCTOS EXTERNOS</LinkButton>
       <button
         className="btn-general"
         onClick={() => navigate("/addProduct")}
       >
         (+) &emsp; Agregar nuevo
       </button>
+      
+      <input
+        type="text"
+        placeholder="Buscar por descripción..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+      />
+      
       <div className="cardsProducto-contenedor">
-        {productos.map((product) => (
-          <CardProducto
-            dataLabels={dataLabels}
-            key={product.id}
-            product={product}
-            onEliminar={() => handleOpenModal(product)}
-            onEdit={`/editProduct/${product.id}`}
-            onAdd={() => handleOpenModalAdd(product)}
-            descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
-          />
-        ))}
+        {productos
+          .filter((product) =>
+            product.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+          .map((product) => (
+            <CardProducto
+              dataLabels={dataLabels}
+              key={product.id}
+              product={product}
+              onEliminar={() => handleOpenModal(product)}
+              onEdit={`/editProduct/${product.id}`}
+              onAdd={() => handleOpenModalAdd(product)}
+              descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
+            />
+          ))}
         {isModalOpen && (
           <div className="modalCant">
             <div className="modalCant-content">

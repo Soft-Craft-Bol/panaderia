@@ -52,6 +52,7 @@ const LoginUser = () => {
         username: values.username.trim(),
         password: values.password,
       });
+      console.log('result:', result);
 
       if (result?.data?.jwt) {
         const token = result.data.jwt;
@@ -66,6 +67,8 @@ const LoginUser = () => {
         });
 
         navigate('/home');
+          window.location.reload();
+        
       } else {
         setLoginError('Usuario o contraseña incorrectos.');
       }

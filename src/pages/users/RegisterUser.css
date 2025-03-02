@@ -6,12 +6,12 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: var(--tran-03);
-
+  margin-top: 10%;
   }
 
 .user-form-container h2 {
   text-align: center;
-  margin-top: 80px;
+  margin: 20px;
 }
 
 .form {

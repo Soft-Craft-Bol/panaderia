@@ -197,6 +197,7 @@ function UserForm() {
               username: userData.username.trim(),
               password: userData.password,
             });
+            console.log(loginResult);
         
             if (loginResult?.data?.jwt) {
               const token = loginResult.data.jwt;
@@ -210,7 +211,7 @@ function UserForm() {
                 photo: loginResult.data.photo,
               });
         
-              navigate('/home'); // Redirige automáticamente
+              navigate('/productos-externos'); // Redirige automáticamente
             }
         } catch (error) {
           console.error('Error en el registro o auto-login:', error);
