@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { resizeImage } from '../../../utils/resizeImage';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 import placeholderImage from '../../../assets/img/pan.jpg'; // Importa la imagen local
-import './GenericForm.css';
+import './GenericForm.css'; // Asegúrate de que los estilos estén correctamente importados
 
 const GenericForm = ({
   initialValues,
@@ -69,57 +69,59 @@ const GenericForm = ({
       onSubmit={handleSubmit}
     >
       {({ handleSubmit }) => (
-        <Form className="generic-form">
-          <div className="form-header">
-            <h2>{title}</h2>
-          </div>
-          <div className="form-body">
-            {showImageUpload && (
-              <div className="image-upload">
-                <img
-                  src={previewUrl} // Usa la imagen local o la subida por el usuario
-                  alt="Preview"
-                  className="preview-image"
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="file-input"
-                />
-                <button type="button" onClick={() => document.querySelector('.file-input').click()}>
-                  Subir Imagen
-                </button>
-              </div>
-            )}
-
-            <div className="form-fields">
-              {fields.map((field) => (
-                <div key={field.name} className="form-group">
-                  <label htmlFor={field.name}>{field.label}</label>
-                  {field.type === 'select' ? (
-                    <Field as="select" name={field.name} className="form-control">
-                      <option value="">Seleccione una opción</option>
-                      {field.options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Field>
-                  ) : (
-                    <Field
-                      type={field.type || 'text'}
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      className="form-control"
-                    />
-                  )}
-                  <ErrorMessage name={field.name} component="div" className="error-message" />
-                </div>
-              ))}
+        <Form className="cont-new-pat"> {/* Cambia a cont-new-pat */}
+          <div className="img-card"> {/* Cambia a img-card */}
+            <h3>Imagen del Producto</h3>
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{
+                height: '80%',
+                width: '80%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                borderRadius: '30px',
+              }}
+            />
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="file-input"
+                style={{ display: 'none' }}
+              />
+              <button type="button" onClick={() => document.querySelector('.file-input').click()}>
+                Subir Imagen
+              </button>
             </div>
+          </div>
+          <div className="input-side"> {/* Cambia a input-side */}
+            {fields.map((field) => (
+              <div key={field.name} className="input-group"> {/* Cambia a input-group */}
+                <label htmlFor={field.name}>{field.label}</label>
+                {field.type === 'select' ? (
+                  <Field as="select" name={field.name} className="selector-options"> {/* Cambia a selector-options */}
+                    <option value="">Seleccione una opción</option>
+                    {field.options.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Field>
+                ) : (
+                  <Field
+                    type={field.type || 'text'}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    className="input-card" 
+                  />
+                )}
+                <ErrorMessage name={field.name} component="div" className="error-message" />
+              </div>
+            ))}
             {submitError && <div className="error-message">{submitError}</div>}
-            <div className="form-actions">
+            <div className="form-actions"> {/* Cambia a form-actions */}
               <button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear'}
               </button>

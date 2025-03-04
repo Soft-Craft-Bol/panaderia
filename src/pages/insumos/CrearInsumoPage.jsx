@@ -4,8 +4,9 @@ import { createInsumo } from '../../service/api';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 
-const CrearInsumo = ({ onClose }) => {
+const CrearInsumoPage = () => {
   const navigate = useNavigate();
+
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('El nombre es requerido'),
     proveedor: Yup.string().required('El proveedor es requerido'),
@@ -16,6 +17,7 @@ const CrearInsumo = ({ onClose }) => {
     unidades: Yup.string().required('Las unidades son requeridas'),
     descripcion: Yup.string().required('La descripción es requerida'),
   });
+
   const fields = [
     { name: 'nombre', label: 'Nombre', type: 'text', placeholder: 'Ingrese el nombre del insumo' },
     { name: 'proveedor', label: 'Proveedor', type: 'text', placeholder: 'Ingrese el proveedor' },
@@ -24,15 +26,16 @@ const CrearInsumo = ({ onClose }) => {
     { name: 'unidades', label: 'Unidades', type: 'text', placeholder: 'Ingrese las unidades' },
     { name: 'descripcion', label: 'Descripción', type: 'text', placeholder: 'Ingrese la descripción' },
   ];
+
   const handleSubmit = async (values) => {
     try {
       await createInsumo(values);
-      onClose(); 
       navigate('/insumos');
     } catch (error) {
       console.error('Error creando el insumo:', error);
     }
   };
+
   return (
     <GenericForm
       initialValues={{
@@ -48,9 +51,10 @@ const CrearInsumo = ({ onClose }) => {
       onSubmit={handleSubmit}
       fields={fields}
       title="Crear Insumo"
-      onClose={onClose}
+      onClose={() => navigate('/insumos')} // Redirige a la lista de insumos si se cancela
       showImageUpload={true}
     />
   );
 };
-export default CrearInsumo; 
+
+export default CrearInsumoPage;

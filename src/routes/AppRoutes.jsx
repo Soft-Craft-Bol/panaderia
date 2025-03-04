@@ -29,6 +29,7 @@ const Clientes = lazy(() => import("../pages/clientes/Clientes"));
 const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
 const BreadList = lazy(() => import("../pages/landingPage/BreadList"));
 const Insumos = lazy(() => import("../pages/insumos/Insumos"));
+const CrearInsumoPage = lazy(() => import("../pages/insumos/CrearInsumoPage"));
 
 const AppRoutes = () => (
     <Routes>
@@ -68,6 +69,7 @@ const AppRoutes = () => (
         <Route path="/insumos" element = {<PrivateRoute> <Insumos /> </PrivateRoute>}/>
         <Route path="/insumos/edit/:id" element = {<PrivateRoute> <ItemForm /> </PrivateRoute>}/>
         <Route path="/" element = {<LandingPage />}/>
+        <Route path="/insumos/crear" element={<PrivateRoute><CrearInsumoPage /></PrivateRoute>} />
     </Routes>
 );
 

@@ -98,3 +98,4 @@ export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucur
 export const getInsumos = () => api.get('/insumos');
 export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
 export const createInsumo = (data) => api.post('/insumos', data);
+export const editIns = (id, data) => api.put(`/insumos/${id}`, data);

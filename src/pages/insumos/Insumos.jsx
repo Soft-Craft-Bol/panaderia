@@ -4,7 +4,7 @@ import { Button } from '../../components/buttons/Button';
 import Card from '../../components/card/cards/Card';
 import { getInsumosAndSuccursales } from '../../service/api';
 import Tooltip from '../../components/tooltip/Tooltip';
-import CrearInsumo from './CrearInsumo'; // Importa el componente CrearInsumo
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 
 const Insumos = () => {
   const [insumos, setInsumos] = useState([]);
@@ -12,7 +12,7 @@ const Insumos = () => {
   const [error, setError] = useState(null);
   const [hoveredInsumoId, setHoveredInsumoId] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
-  const [isCreatingInsumo, setIsCreatingInsumo] = useState(false); // Estado para controlar si el formulario está abierto
+  const navigate = useNavigate();
 
   const fetchInsumos = async () => {
     try {
@@ -44,7 +44,7 @@ const Insumos = () => {
     <main className='main-insumos'>
       <h1>Insumos</h1>
       <div>
-        <button className='btn-general' onClick={() => setIsCreatingInsumo(true)}>
+        <button className='btn-general' onClick={() => navigate('/insumos/crear')}> {/* Redirige a la nueva ruta */}
           Crear insumo
         </button>
       </div>
@@ -77,11 +77,6 @@ const Insumos = () => {
           </div>
         ))}
       </div>
-
-      {/* Mostrar el formulario de creación de insumos si isCreatingInsumo es true */}
-      {isCreatingInsumo && (
-        <CrearInsumo onClose={() => setIsCreatingInsumo(false)} />
-      )}
     </main>
   );
 };
