@@ -70,6 +70,7 @@ const Sucursales = () => {
                         dataLabels={dataLabels} 
                         product={sucursal} 
                         onEliminar={() => handleOpenModal(sucursal)}
+                        onEditar={`/editSucursal/${sucursal.id}`}
                     />
                 ))}
             </div>

@@ -8,9 +8,19 @@ import './Sucursales.css';
 import '../../components/forms/itemForm/ItemForm.css';
 import { toast } from 'sonner';
 import uploadImageToCloudinary from "../../utils/uploadImageToCloudinary ";
-import { createSucursal, editSucursal } from "../../service/api";
-import { useNavigate } from "react-router-dom";
+import { createSucursal, editSucursal, getSucursalID} from "../../service/api";
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
+const alerta = (titulo, mensaje, tipo = "success") => {
+    Swal.fire({
+        title: titulo,
+        text: mensaje,
+        icon: tipo,
+        timer: 2500,
+        showConfirmButton: false,
+    });
+};
 
 const AddSucursal = () => {
     const fileInputRef = useRef(null);
@@ -46,6 +56,41 @@ const AddSucursal = () => {
             .required("Ingrese el número de contacto"),
     });
 
+    const { id } = useParams();
+    const [initialValues, setInitialValues] = useState({
+        nombre: "",
+        departamento: "",
+        municipio: "",
+        direccion: "",
+        telefono: "",
+        empresa: { id: 1, nit: 3655579015, razonSocial: "COA CARDONA DE CARDOZO ANTONIA" },
+        image: "",
+    });
+    useEffect(()=>{
+        if(id){
+            const fetchSucursal = async () =>{
+                try{
+                    const response = await getSucursalID(id);
+                    console.log(response);
+                    setInitialValues({
+                        nombre: response.data.nombre || "",
+                        departamento: response.data.departamento || "",
+                        municipio: response.data.municipio || "",
+                        direccion: response.data.direccion || "",
+                        telefono: response.data.telefono || "",
+                        image: response.data.image || "",
+                        empresa: { id: 1, nit: 3655579015, razonSocial: "COA CARDONA DE CARDOZO ANTONIA" },
+                    });
+                    setPreviewUrl(response.data.image);
+                    console.log(initialValues);
+                } catch (error) {
+                    console.error("Error al cargar la sucursal:", error);
+                }
+            };
+            fetchSucursal();
+        }
+    },[id]);
+
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
         
         try {
@@ -64,12 +109,17 @@ const AddSucursal = () => {
                 empresa: values.empresa,
                 image: imageUrl,
             }
-            await createSucursal(sucursalData);
-
+            let respone;
+            if (id){
+                respone = await editSucursal(id, sucursalData);
+                alerta("Sucursal actualizada", "Guardando cambios...")
+            }else{
+                respone = await createSucursal(sucursalData);
+                alerta("Sucursal creada exitosamente!","Registrando...");
+            } 
             resetForm();
             setPreviewUrl(null);
             setSelectedFile(null);
-            alert("Sucursal creada exitosamente");
             navigate("/sucursales")
         } catch (error) {
             console.error("Error al crear sucursal:", error);
@@ -78,19 +128,14 @@ const AddSucursal = () => {
         setSubmitting(false);
     };
 
+   
+
     return (
         <div style={{marginTop:"15px"}}>
             <h1>Datos de la sucursal</h1>
-            <Formik 
-                initialValues={{
-                    nombre: "",
-                    departamento: "",
-                    municipio: "",
-                    direccion: "",
-                    telefono: "",
-                    empresa: { id: 1, nit: 3655579015, razonSocial: "COA CARDONA DE CARDOZO ANTONIA" },
-                    image: "",
-                }}
+            <Formik
+                enableReinitialize
+                initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
             >
@@ -123,7 +168,7 @@ const AddSucursal = () => {
                             <button type="submit" className="btn-general" disabled={isSubmitting}
                                     onClick={() => navigate("/sucursales")}
                             >
-                                {isSubmitting ? "Añadiendo..." : "Añadir Sucursal"}
+                                {id ? "Actualizar Sucursal" : "Añadir Sucursal"}
                             </button>
                         </div>
                         </div>
