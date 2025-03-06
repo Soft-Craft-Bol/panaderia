@@ -8,7 +8,7 @@ import './Sucursales.css';
 import '../../components/forms/itemForm/ItemForm.css';
 import { toast } from 'sonner';
 import uploadImageToCloudinary from "../../utils/uploadImageToCloudinary ";
-import { createSucursal } from "../../service/api";
+import { createSucursal, editSucursal } from "../../service/api";
 import { useNavigate } from "react-router-dom";
 
 

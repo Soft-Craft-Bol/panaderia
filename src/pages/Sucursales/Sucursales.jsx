@@ -61,7 +61,7 @@ const Sucursales = () => {
         <div>
             <h1>Sucursales</h1>
             <button className='btn-general' onClick={() => navigate("/sucursales/addSucursal")}>
-                Registrar un nuevo despacho
+                Registrar nueva Sucursal
             </button>
             <div className="sucursales-list">
                 {sucursales.map(sucursal => (
