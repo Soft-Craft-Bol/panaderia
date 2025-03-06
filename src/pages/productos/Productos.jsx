@@ -148,14 +148,16 @@ const Productos = () => {
       >
         (+) &emsp; Agregar nuevo
       </button>
-      
-      <input
+      <div>
+        <input
         type="text"
         placeholder="Buscar por descripción..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
-      />
+        />
+      </div>
+      
       
       <div className="cardsProducto-contenedor">
         {productos
