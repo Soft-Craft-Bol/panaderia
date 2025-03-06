@@ -47,6 +47,7 @@ const AppRoutes = () => (
 
         <Route path="/sucursales" element={<PrivateRoute><Sucursales /></PrivateRoute>} />
         <Route path="/sucursales/addSucursal" element = {<PrivateRoute> <AddSucursal> </AddSucursal></PrivateRoute>} />
+        <Route path="/editSucursal/:id" element ={<PrivateRoute> <AddSucursal/> </PrivateRoute>}/>
         <Route path="/despachos" element = {<PrivateRoute> <Despachos /> </PrivateRoute>}/>
         <Route path="/despachos/create" element = {<PrivateRoute> <CrearDespacho /> </PrivateRoute>}/>
 
