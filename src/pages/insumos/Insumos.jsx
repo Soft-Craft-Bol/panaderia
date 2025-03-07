@@ -4,7 +4,7 @@ import { Button } from '../../components/buttons/Button';
 import Card from '../../components/card/cards/Card';
 import { getInsumosAndSuccursales } from '../../service/api';
 import Tooltip from '../../components/tooltip/Tooltip';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const Insumos = () => {
   const [insumos, setInsumos] = useState([]);
@@ -44,7 +44,7 @@ const Insumos = () => {
     <main className='main-insumos'>
       <h1>Insumos</h1>
       <div>
-        <button className='btn-general' onClick={() => navigate('/insumos/crear')}> {/* Redirige a la nueva ruta */}
+        <button className='btn-general' onClick={() => navigate('/insumos/crear')}>
           Crear insumo
         </button>
       </div>
@@ -70,6 +70,7 @@ const Insumos = () => {
                 }
               }}
               insumoId={insumo.id}
+              insumoData={insumo} 
             />
             {hoveredInsumoId === insumo.id && (
               <Tooltip insumo={insumo} targetElement={hoveredElement} />

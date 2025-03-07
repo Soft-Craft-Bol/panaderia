@@ -30,6 +30,7 @@ const CrearInsumoPage = () => {
   const handleSubmit = async (values) => {
     try {
       await createInsumo(values);
+      localStorage.removeItem('insumos');
       navigate('/insumos');
     } catch (error) {
       console.error('Error creando el insumo:', error);
@@ -51,7 +52,7 @@ const CrearInsumoPage = () => {
       onSubmit={handleSubmit}
       fields={fields}
       title="Crear Insumo"
-      onClose={() => navigate('/insumos')} // Redirige a la lista de insumos si se cancela
+      onClose={() => navigate('/insumos')} 
       showImageUpload={true}
     />
   );

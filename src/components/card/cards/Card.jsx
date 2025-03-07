@@ -3,15 +3,17 @@ import './Card.css';
 import { FaPencilAlt, FaSearch, FaPlus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
-const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId }) => {
+const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insumoData }) => {
   const navigate = useNavigate();
+
   const handleEdit = () => {
-    navigate(`/insumos/edit/${insumoId}`);    
+    navigate(`/insumos/edit/${insumoId}`, { state: { insumoData } });
+    console.log('Editing', insumoData);
   };
+
   const handleAddQuantity = () => {
-    console.log('Adding quantity');};
-
-
+    console.log('Adding quantity');
+  };
 
   return (
     <div className="card-cd">
@@ -32,7 +34,6 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId }) => 
           </p>
         ))}
         <div className='icons-cont'>
-          {/* <FaSearch className='icon' /> */}
           <FaPencilAlt className='icon' onClick={handleEdit}/>
           <FaPlus className='icon' onClick={handleAddQuantity}/>
         </div>
