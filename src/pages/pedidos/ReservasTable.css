@@ -1,7 +1,88 @@
 /* ReservasTable.css */
 .reservas-container {
     padding: 20px;
-  }
+  }/* ReservasTable.css */
+.reservas-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comprobante-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.comprobante-button:hover {
+    background-color: #0056b3;
+}
+
+.verificar-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.verificar-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.verificar-button:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.modal-content {
+    text-align: center;
+    padding: 20px;
+}
+
+.comprobante-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.productos-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.producto-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.producto-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.producto-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+}
   
   .comprobante-button {
     padding: 5px 10px;
