@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { getToken } from '../utils/authFunctions';
 
+//deply
 const baseURL = "https://api.inpasep.com/api/v1";
 
 const api = axios.create({
@@ -19,7 +20,7 @@ const api = axios.create({
 }, (error) => {
   return Promise.reject(error);
 }); */
-
+//
 api.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
     config.headers['Content-Type'] = 'multipart/form-data';
