@@ -140,7 +140,8 @@ const FacturaForm = () => {
         response = await emitirFactura(facturaData);
         console.log(response.data);
       } catch (error) {
-        if (error.response && error.response.data.message.includes("CUFD")) {
+        console.error(error);
+        if (error.response && error.response.data.message.includes("CUFD") || error.response.data.message.includes("Cufd vigente no encontrado")) {
           toast.info("Solicitando CUFD...");
           await getCufd(selectedPuntoDeVenta.id);
           toast.success("CUFD obtenido correctamente");
