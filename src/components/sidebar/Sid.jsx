@@ -77,6 +77,17 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
         <SidebarHeader onToggle={toggleSidebar} isOpen={isOpen} />
         <div className="menu">
           <ul className="menu-links">
+
+            <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" />
+            <SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" />
+            <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Productos" />
+            <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" />
+            <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" />
+            <SidebarLink to="/insumos" icon={<GiSlicedBread />} text="Insumos" />
+            <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" />
+            <SidebarLink to="/sucursales" icon={<MdLocationPin />} text="Sucursales" />
+            <SidebarLink to="/clientes" icon={<FaUserCheck />} text="Clientes" />
+
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_USER", "ROLE_SECRETARIA", "ROLE_VENDEDOR")} />
             <SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Stock" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_VENDEDOR")} />
@@ -88,6 +99,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/reservas" icon={<AiOutlineShopping/>} text="Reservas" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/productos-externos" icon={<GiSlicedBread />} text="Productos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_CLIENTE", )} />
             <SidebarLink to="/carrito" icon={<FaShoppingCart />} text="Carrito" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR", "ROLE_CLIENTE")} />
+
           </ul>
         </div>
         <div className="bottom-content" style={{marginTop: "-20px"}}>

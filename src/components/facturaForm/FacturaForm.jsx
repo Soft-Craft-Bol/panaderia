@@ -134,10 +134,11 @@ const FacturaForm = () => {
           };
         }),
       };
-
+      console.log(facturaData);
       let response;
       try {
         response = await emitirFactura(facturaData);
+        console.log(response.data);
       } catch (error) {
         console.error(error);
         if (error.response && error.response.data.message.includes("CUFD") || error.response.data.message.includes("Cufd vigente no encontrado")) {
