@@ -2,9 +2,14 @@ import React from "react";
 import styles from "./CardProductoExterno.module.css"; 
 import { FaShoppingCart } from "react-icons/fa";
 
-const CardProductExt = ({ item, onReservar, onAgregarAlCarrito, tipoUsuario }) => {
+const CardProductExt = ({ item, onReservar, onAgregarAlCarrito, tipoUsuario, descuento }) => {
   return (
     <div className={`${styles.breadCard} ${styles.fadeInUp}`}>
+      {descuento && (
+        <div className={styles.descuentoBadge}>
+          {descuento}% OFF
+        </div>
+      )}
       <div className={styles.breadImageContainer}>
         <img
           src={item.imagen}
