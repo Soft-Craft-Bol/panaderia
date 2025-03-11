@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useCarrito } from "../../context/CarritoContext";
-import { getStockWithSucursal } from "../../service/api";
+import { getStockWithSucursal, getItemsPromocion } from "../../service/api";
 import Modal from "../../components/modal/Modal";
 import CardProductExt from "../../components/cardProducto/CardProductExt";
 import { Toaster, toast } from "sonner";
