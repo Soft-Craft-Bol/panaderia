@@ -9,6 +9,7 @@ import { FaShoppingCart } from "react-icons/fa";
 
 const ProductosExternos = () => {
   const [productos, setProductos] = useState([]);
+  const [promociones, setPromociones] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -25,6 +26,14 @@ const ProductosExternos = () => {
       })
       .catch((error) => {
         console.error("Error al obtener los productos:", error);
+      });
+
+    getItemsPromocion()
+      .then((response) => {
+        setPromociones(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las promociones:", error);
       });
   }, []);
 
@@ -146,6 +155,23 @@ const ProductosExternos = () => {
           <option value="Sin Sucursal">Sin Sucursal</option>
         </select>
       </div>
+
+      {promociones.length > 0 && (
+        <div className="promocionesSection">
+          <h2 className="sucursalTitle">Productos en Promoción</h2>
+          <div className="cardsProducto-contenedor">
+            {promociones.map((promo) => (
+              <CardProductExt
+                key={promo.id}
+                item={promo.item}
+                onAgregarAlCarrito={handleAbrirModal}
+                tipoUsuario="externo"
+                descuento={promo.descuento}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {Object.keys(groupedItems)
         .filter(
