@@ -5,6 +5,8 @@ import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
+import { FaGift } from "react-icons/fa";
+
 
 const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar, descripcionProducto }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
@@ -26,6 +28,10 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
     if (onAdd) onAdd(product);
   };
 
+  const handleProductoDescuento = () => {
+    console.log('Producto marcado para promoción');
+  }
+
   const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
   const sucursalesDisponibles = product.sucursales.map(sucursal => `${sucursal.nombre}(${sucursal.cantidad})`).join(', ');
 
@@ -35,9 +41,13 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
       <div className='data-cont'>
         <div className="cabecera-card">
           <h2 title={product.descripcion}>{product.descripcion}</h2>
-          <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
-            <strong>+ </strong>
-          </button>
+          <div>
+            <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
+              <strong>+ </strong>
+            </button>
+            <FaGift title='Marcar producto para promoción' className='icon' onClick={handleProductoDescuento}/>
+          </div>
+          
         </div>
 
         {isImageExpanded && (

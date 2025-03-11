@@ -1,8 +1,7 @@
 import React from 'react';
-import GenericForm from '../../components/forms/GenericForm';
+import GenericForm from '../../components/forms/genericForm/GenericForm';
 import { useLocation } from 'react-router-dom';
 import * as Yup from 'yup';
-import { editIns } from '../../service/api'; // Importa el método para editar insumos
 
 const EditarInsumo = () => {
   const location = useLocation();
@@ -39,13 +38,9 @@ const EditarInsumo = () => {
   ];
 
   const handleSubmit = async (values) => {
-    try {
-      await editIns(insumoData.id, values); // Usa el método editIns para actualizar el insumo
-      window.history.back(); // Regresa a la página anterior después de la edición
-    } catch (error) {
-      console.error('Error actualizando el insumo:', error);
-    }
+    console.log('hola gaspar');
   };
+  
 
   return (
     <GenericForm
