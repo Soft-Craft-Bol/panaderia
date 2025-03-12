@@ -1,30 +1,40 @@
 import React, { useState } from 'react';
 import './Card.css';
-import { FaPencilAlt, FaSearch, FaPlus } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaMinus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { getSucursales, sumarCantidadDeInsumo } from '../../../service/api';
+import { getSucursales, sumarCantidadDeInsumo, restarCantidadDeInsumo } from '../../../service/api';
+
 const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insumoData }) => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
+  const [isSubtractModalOpen, setIsSubtractModalOpen] = useState(false); 
   const [sucursales, setSucursales] = useState([]); 
-  const [selectedSucursal, setSelectedSucursal] = useState('');
-  const [cantidadInput, setCantidadInput] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState(''); 
+  const [cantidadInput, setCantidadInput] = useState(''); 
 
   const handleEdit = () => {
     navigate(`/insumos/edit/${insumoId}`, { state: { insumoData } });
     console.log('Editing', insumoData);
   };
-
   const handleAddQuantity = async () => {
     try {
       const response = await getSucursales();
       setSucursales(response.data);
-      setIsModalOpen(true);
+      setIsAddModalOpen(true);
     } catch (error) {
       console.error('Error al obtener las sucursales:', error);
     }
   };
-  const handleSubmit = async () => {
+  const handleSubstractQuantity = async () => {
+    try {
+      const response = await getSucursales();
+      setSucursales(response.data);
+      setIsSubtractModalOpen(true);
+    } catch (error) {
+      console.error('Error al obtener las sucursales:', error);
+    }
+  };
+  const handleAddSubmit = async () => {
     if (!selectedSucursal || !cantidadInput) {
       alert('Por favor, selecciona una sucursal e ingresa una cantidad.');
       return;
@@ -33,10 +43,26 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
     try {
       await sumarCantidadDeInsumo(selectedSucursal, insumoId, cantidadInput);
       alert('Cantidad agregada exitosamente.');
-      setIsModalOpen(false); 
+      setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error al agregar la cantidad:', error);
       alert('Hubo un error al agregar la cantidad.');
+    }
+  };
+
+  const handleSubtractSubmit = async () => {
+    if (!selectedSucursal || !cantidadInput) {
+      alert('Por favor, selecciona una sucursal e ingresa una cantidad.');
+      return;
+    }
+
+    try {
+      await restarCantidadDeInsumo(selectedSucursal, insumoId, cantidadInput);
+      alert('Cantidad restada exitosamente.');
+      setIsSubtractModalOpen(false);
+    } catch (error) {
+      console.error('Error al restar la cantidad:', error);
+      alert('Hubo un error al restar la cantidad.');
     }
   };
 
@@ -59,16 +85,16 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
           </p>
         ))}
         <div className='icons-cont'>
-          <FaPencilAlt className='icon' onClick={handleEdit}/>
+          <FaPencilAlt className='icon' onClick={handleEdit} />
           <FaPlus className='icon' onClick={handleAddQuantity} />
+          <FaMinus className='icon' onClick={handleSubstractQuantity} />
         </div>
       </div>
       <div className='right-info'>
         <p className="card-cantidad">{cantidad || 30}</p>
         <span className='p-label'>Ud.</span>
       </div>
-
-      {isModalOpen && (
+      {isAddModalOpen && (
         <div className="modal-overlay">
           <div className="modal">
             <h3>Agregar cantidad</h3>
@@ -95,8 +121,41 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
               />
             </div>
             <div className="modal-actions">
-              <button onClick={handleSubmit}>Agregar</button>
-              <button onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              <button onClick={handleAddSubmit}>Agregar</button>
+              <button onClick={() => setIsAddModalOpen(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {isSubtractModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Restar cantidad</h3>
+            <div className="modal-content">
+              <label>Sucursal:</label>
+              <select
+                value={selectedSucursal}
+                onChange={(e) => setSelectedSucursal(e.target.value)}
+              >
+                <option value="">Selecciona una sucursal</option>
+                {sucursales.map((sucursal) => (
+                  <option key={sucursal.id} value={sucursal.id}>
+                    {sucursal.nombre}
+                  </option>
+                ))}
+              </select>
+
+              <label>Cantidad:</label>
+              <input
+                type="number"
+                value={cantidadInput}
+                onChange={(e) => setCantidadInput(e.target.value)}
+                placeholder="Ingresa la cantidad"
+              />
+            </div>
+            <div className="modal-actions">
+              <button onClick={handleSubtractSubmit}>Restar</button>
+              <button onClick={() => setIsSubtractModalOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>
