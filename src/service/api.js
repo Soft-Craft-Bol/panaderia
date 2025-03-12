@@ -113,3 +113,4 @@ export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
 export const getItemsPromocion = () => api.get('/promocion');
 export const setItemsPromocion = (data) => api.post('/promocion', data);
 export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
+export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
