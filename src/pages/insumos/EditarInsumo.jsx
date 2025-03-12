@@ -2,7 +2,7 @@ import React from 'react';
 import GenericForm from '../../components/forms/GenericForm';
 import { useLocation } from 'react-router-dom';
 import * as Yup from 'yup';
-import { editIns } from '../../service/api'; // Importa el método para editar insumos
+import { editIns } from '../../service/api'; 
 
 const EditarInsumo = () => {
   const location = useLocation();
