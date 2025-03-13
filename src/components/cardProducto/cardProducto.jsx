@@ -35,21 +35,24 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
     setIsPromoModalOpen(true); 
   };
 
-  const handleApplyPromotion = async (descuento) => {
+  const handleApplyPromotion = async (descuento, sucursalId) => {
     try {
       const data = {
         item: {
-          id: product.id 
+          id: product.id,
         },
-        descuento: descuento
+        sucursal: {
+          id: sucursalId,
+        },
+        descuento: descuento,
       };
-      await setItemsPromocion(data); 
-      toast.success("Promoción aplicada correctamente"); 
+      await setItemsPromocion(data);
+      toast.success("Promoción aplicada correctamente");
     } catch (error) {
       console.error('Error al aplicar la promoción:', error);
-      toast.error("Error al aplicar la promoción"); 
+      toast.error("Error al aplicar la promoción");
     } finally {
-      setIsPromoModalOpen(false); 
+      setIsPromoModalOpen(false);
     }
   };
 

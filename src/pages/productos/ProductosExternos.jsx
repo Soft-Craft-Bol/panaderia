@@ -55,9 +55,10 @@ const ProductosExternos = () => {
       toast.success("Producto agregado al carrito");
     }
   };
-
-  // Filtrado de productos
-  const filteredItems = productos.filter((item) => {
+  const productosSinPromocion = productos.filter((producto) => {
+    return !promociones.some((promo) => promo.item.id === producto.id);
+  });
+  const filteredItems = productosSinPromocion.filter((item) => {
     const matchesSearch = item.descripcion
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -67,8 +68,6 @@ const ProductosExternos = () => {
     const inPriceRange = price >= min && price <= max;
     return matchesSearch && inPriceRange;
   });
-
-  // Agrupación por sucursal
   const groupBySucursal = (items) => {
     const grouped = {};
     items.forEach((item) => {
@@ -160,15 +159,20 @@ const ProductosExternos = () => {
         <div className="promocionesSection">
           <h2 className="sucursalTitle">Productos en Promoción</h2>
           <div className="cardsProducto-contenedor">
-            {promociones.map((promo) => (
-              <CardProductExt
-                key={promo.id}
-                item={promo.item}
-                onAgregarAlCarrito={handleAbrirModal}
-                tipoUsuario="externo"
-                descuento={promo.descuento}
-              />
-            ))}
+            {promociones.map((promo) => {
+              const precioConDescuento = promo.item.precioUnitario * (1 - promo.descuento / 100);
+              return (
+                <CardProductExt
+                  key={promo.id}
+                  item={promo.item}
+                  onAgregarAlCarrito={handleAbrirModal}
+                  tipoUsuario="externo"
+                  descuento={promo.descuento}
+                  precioConDescuento={precioConDescuento}
+                  sucursalNombre={promo.sucursal.nombre}
+                />
+              );
+            })}
           </div>
         </div>
       )}
@@ -216,7 +220,7 @@ const ProductosExternos = () => {
             className="agregar-carrito-btn"
             onClick={handleAgregarAlCarrito}
           >
-             Agregar al carrito
+            <FaShoppingCart /> Agregar al carrito
           </button>
         </Modal>
       )}
