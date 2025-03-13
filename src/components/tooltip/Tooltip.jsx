@@ -30,21 +30,10 @@ const Tooltip = ({ insumo, targetElement }) => {
         <h4>{insumo.nombre}</h4>
         <p><strong>Proveedor:</strong> {insumo.proveedor}</p>
         <p><strong>Marca:</strong> {insumo.marca}</p>
-        <p><strong>Precio:</strong> ${insumo.precio}</p>
+        <p><strong>Precio:</strong> {insumo.precio} Bs.</p>
         <p><strong>Descripción:</strong> {insumo.descripcion}</p>
-        {insumo.sucursales.length > 0 && (
-          <div>
-            <strong>Sucursales:</strong>
-            <ul>
-              {insumo.sucursales.map((sucursal, index) => (
-                <li key={index}>{sucursal.nombre} - {sucursal.cantidad} unidades</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );
 };
-
 export default Tooltip;
