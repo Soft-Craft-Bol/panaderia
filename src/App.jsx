@@ -6,7 +6,7 @@ import AppRoutes from "./routes/AppRoutes";
 import './App.css'
 import Navbar from "./components/sidebar/Navbar";
 import { CarritoProvider } from "./context/CarritoContext";
-
+import { Toaster } from "sonner";
 
 function App() {
 
@@ -18,6 +18,7 @@ function App() {
     <CarritoProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Navbar />
+        <Toaster />
           <Suspense fallback={<LoadingComponent />}>
             <AppRoutes />
           </Suspense>

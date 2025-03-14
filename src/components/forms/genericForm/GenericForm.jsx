@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 import { resizeImage } from '../../../utils/resizeImage';
 import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
@@ -139,10 +138,10 @@ const GenericForm = ({
             ))}
             {submitError && <div className="error-message">{submitError}</div>}
             <div className="form-actions">
-              <button type="submit" disabled={isSubmitting}>
+              <button style={{marginTop:"0px"}} type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear'}
               </button>
-              <button type="button" onClick={onClose}>
+              <button className='btn-cancel' type="button" onClick={onClose}>
                 Cancelar
               </button>
             </div>
