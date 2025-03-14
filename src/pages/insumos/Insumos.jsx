@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './Insumos.css';
-import { Button } from '../../components/buttons/Button';
 import Card from '../../components/card/cards/Card';
 import { getSucursalWithInsumos } from '../../service/api';
 import Tooltip from '../../components/tooltip/Tooltip';
