@@ -31,6 +31,8 @@ const ProductosExternos = () => {
     getItemsPromocion()
       .then((response) => {
         setPromociones(response.data);
+        console.log(response.data);
+        console.log(response.request?.responseURL);
       })
       .catch((error) => {
         console.error("Error al obtener las promociones:", error);
@@ -159,20 +161,21 @@ const ProductosExternos = () => {
         <div className="promocionesSection">
           <h2 className="sucursalTitle">Productos en Promoción</h2>
           <div className="cardsProducto-contenedor">
-            {promociones.map((promo) => {
-              const precioConDescuento = promo.item.precioUnitario * (1 - promo.descuento / 100);
-              return (
-                <CardProductExt
-                  key={promo.id}
-                  item={promo.item}
-                  onAgregarAlCarrito={handleAbrirModal}
-                  tipoUsuario="externo"
-                  descuento={promo.descuento}
-                  precioConDescuento={precioConDescuento}
-                  sucursalNombre={promo.sucursal.nombre}
-                />
-              );
-            })}
+          {promociones.map((promo) => {
+            const precioConDescuento = promo.item.precioUnitario * (1 - promo.descuento / 100);
+            const sucursalNombre = promo.sucursal ? promo.sucursal.nombre : "Sin sucursal";
+            return (
+              <CardProductExt
+                key={promo.id}
+                item={promo.item}
+                onAgregarAlCarrito={handleAbrirModal}
+                tipoUsuario="externo"
+                descuento={promo.descuento}
+                precioConDescuento={precioConDescuento}
+                sucursalNombre={sucursalNombre}
+              />
+            );
+          })}
           </div>
         </div>
       )}
