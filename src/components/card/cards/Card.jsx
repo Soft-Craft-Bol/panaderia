@@ -36,6 +36,7 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
       setIsAddModalOpen(false);
       localStorage.removeItem('insumos');
       fetchSucursalesConInsumos(); 
+      setCantidadInput('');
     } catch (error) {
       console.error('Error al agregar la cantidad:', error);
       toast.error('Hubo un error al agregar la cantidad.');
@@ -54,6 +55,7 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
       setIsSubtractModalOpen(false);
       localStorage.removeItem('insumos');
       fetchSucursalesConInsumos(); 
+      setCantidadInput('');
     } catch (error) {
       console.error('Error al restar la cantidad:', error);
       toast.error('Hubo un error al restar la cantidad.');
@@ -80,7 +82,7 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
           </p>
         ))}
         <div className='icons-cont'>
-          <FaPencilAlt className='icon' onClick={handleEdit} />
+          <FaPencilAlt className='icon' title='Editar insumo' onClick={handleEdit} />
           <FaPlus className='icon' title='Agregar más insumos' onClick={handleAddQuantity} />
           <FaMinus className='icon' title='Reducir insumo' onClick={handleSubstractQuantity} />
         </div>
