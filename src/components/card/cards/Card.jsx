@@ -3,13 +3,14 @@ import './Card.css';
 import { FaPencilAlt, FaPlus, FaMinus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { sumarCantidadDeInsumo, restarCantidadDeInsumo } from '../../../service/api';
+import { toast } from 'sonner';
 
 const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insumoData, sucursalId, fetchSucursalesConInsumos }) => {
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
   const [isSubtractModalOpen, setIsSubtractModalOpen] = useState(false); 
   const [cantidadInput, setCantidadInput] = useState(''); 
-
+  
   const handleEdit = () => {
     navigate(`/insumos/edit/${insumoId}`, { state: { insumoData } });
     console.log('Editing', insumoData);
@@ -25,39 +26,42 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
 
   const handleAddSubmit = async () => {
     if (!cantidadInput) {
-      alert('Por favor, ingresa una cantidad.');
+      toast.error('Por favor, ingresa una cantidad.');
       return;
     }
-
+  
     try {
       await sumarCantidadDeInsumo(sucursalId, insumoId, cantidadInput);
-      alert('Cantidad agregada exitosamente.');
+      toast.success('Cantidad agregada exitosamente.');
       setIsAddModalOpen(false);
       localStorage.removeItem('insumos');
       fetchSucursalesConInsumos(); 
+      setCantidadInput('');
     } catch (error) {
       console.error('Error al agregar la cantidad:', error);
-      alert('Hubo un error al agregar la cantidad.');
+      toast.error('Hubo un error al agregar la cantidad.');
     }
   };
-
+  
   const handleSubtractSubmit = async () => {
     if (!cantidadInput) {
-      alert('Por favor, ingresa una cantidad.');
+      toast.error('Por favor, ingresa una cantidad.');
       return;
     }
-
+  
     try {
       await restarCantidadDeInsumo(sucursalId, insumoId, cantidadInput); 
-      alert('Cantidad restada exitosamente.');
+      toast.success('Cantidad restada exitosamente.');
       setIsSubtractModalOpen(false);
       localStorage.removeItem('insumos');
       fetchSucursalesConInsumos(); 
+      setCantidadInput('');
     } catch (error) {
       console.error('Error al restar la cantidad:', error);
-      alert('Hubo un error al restar la cantidad.');
+      toast.error('Hubo un error al restar la cantidad.');
     }
   };
+  
 
   return (
     <div className="card-cd">
@@ -78,9 +82,9 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
           </p>
         ))}
         <div className='icons-cont'>
-          <FaPencilAlt className='icon' onClick={handleEdit} />
-          <FaPlus className='icon' onClick={handleAddQuantity} />
-          <FaMinus className='icon' onClick={handleSubstractQuantity} />
+          <FaPencilAlt className='icon' title='Editar insumo' onClick={handleEdit} />
+          <FaPlus className='icon' title='Agregar más insumos' onClick={handleAddQuantity} />
+          <FaMinus className='icon' title='Reducir insumo' onClick={handleSubstractQuantity} />
         </div>
       </div>
       <div className='right-info'>
@@ -101,8 +105,8 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
               />
             </div>
             <div className="modal-actions">
-              <button onClick={handleAddSubmit}>Agregar</button>
-              <button onClick={() => setIsAddModalOpen(false)}>Cancelar</button>
+              <button className='btn-edit' onClick={handleAddSubmit}>Agregar</button>
+              <button className='btn-cancel' onClick={() => setIsAddModalOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>
@@ -121,8 +125,8 @@ const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insum
               />
             </div>
             <div className="modal-actions">
-              <button onClick={handleSubtractSubmit}>Restar</button>
-              <button onClick={() => setIsSubtractModalOpen(false)}>Cancelar</button>
+              <button className='btn-edit' onClick={handleSubtractSubmit}>Restar</button>
+              <button className='btn-cancel' onClick={() => setIsSubtractModalOpen(false)}>Cancelar</button>
             </div>
           </div>
         </div>

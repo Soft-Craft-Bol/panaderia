@@ -73,9 +73,9 @@ const ListClient = () => {
         header: "Acciones",
         render: (row) => (
           <div className="user-management-table-actions">
-            <Link to={`/editClient/${row.id}`} className="user-management-edit-user">
+            {/*<Link to={`/editClient/${row.id}`} className="user-management-edit-user">
               <FaEdit />
-            </Link>
+            </Link>  Fredo me dijiste que no es necesario :v*/}
             <Button
               type="danger"
               onClick={() => confirmDeleteClient(row)}
