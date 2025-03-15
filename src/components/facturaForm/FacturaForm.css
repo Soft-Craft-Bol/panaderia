@@ -41,12 +41,29 @@
   background-color: #ffffff;
   transition: all 0.3s ease;
 }
-
+.factura-container select {
+  width: 100%;
+  padding: 10px;
+  min-width: 300px;
+  font-size: .85rem;
+}
 .factura-container input:focus,
 .factura-container select:focus {
   border-color: #007bff;
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
   outline: none;
+}
+.form-group{
+  width: 100%;
+}
+input[type="number"] {
+  -moz-appearance: textfield; 
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; 
+  margin: 0;
 }
 
 .form-row {
@@ -229,3 +246,7 @@
   justify-content: space-between;
   margin-top: 20px;
 } 
+.react-select-container {
+  width: 100%; 
+  min-width: 300px; 
+}

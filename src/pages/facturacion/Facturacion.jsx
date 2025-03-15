@@ -48,5 +48,4 @@ const Facturacion = () => {
     </main>
   );
 };
-
 export default Facturacion;
