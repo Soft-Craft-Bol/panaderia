@@ -2,7 +2,8 @@ import axios from 'axios';
 import { getToken } from '../utils/authFunctions';
 
 //deply
-const baseURL = "https://api.inpasep.com/api/v1";
+// const baseURL = "https://api.inpasep.com/api/v1";
+const baseURL = "http://localhost:8080/api/v1";
 
 const api = axios.create({
     baseURL: baseURL,
@@ -109,3 +110,6 @@ export const getInsumos = () => api.get('/insumos');
 export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
 export const createInsumo = (data) => api.post('/insumos', data);
 export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
+export const getItemsPromocion = () => api.get('/promocion');
+export const setItemsPromocion = (data) => api.post('/promocion', data);
+export const deletePromocion = (id) => api.delete(`/promocion/${id}`);

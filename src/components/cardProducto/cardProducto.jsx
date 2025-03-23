@@ -5,9 +5,14 @@ import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
+import { FaGift } from "react-icons/fa";
+import ModalPromocion from '../../pages/productos/ModalPromocion'; 
+import { setItemsPromocion } from '../../service/api';
+import { toast } from 'sonner';
 
 const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar, descripcionProducto }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false); 
   const navigate = useNavigate();
 
   const handleOpenModal = () => {
@@ -26,6 +31,28 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
     if (onAdd) onAdd(product);
   };
 
+  const handleProductoDescuento = () => {
+    setIsPromoModalOpen(true); 
+  };
+
+  const handleApplyPromotion = async (descuento) => {
+    try {
+      const data = {
+        item: {
+          id: product.id 
+        },
+        descuento: descuento
+      };
+      await setItemsPromocion(data); 
+      toast.success("Promoción aplicada correctamente"); 
+    } catch (error) {
+      console.error('Error al aplicar la promoción:', error);
+      toast.error("Error al aplicar la promoción"); 
+    } finally {
+      setIsPromoModalOpen(false); 
+    }
+  };
+
   const cantidadTotal = product.sucursales.reduce((total, sucursal) => total + sucursal.cantidad, 0);
   const sucursalesDisponibles = product.sucursales.map(sucursal => `${sucursal.nombre}(${sucursal.cantidad})`).join(', ');
 
@@ -35,9 +62,12 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
       <div className='data-cont'>
         <div className="cabecera-card">
           <h2 title={product.descripcion}>{product.descripcion}</h2>
-          <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
-            <strong>+ </strong>
-          </button>
+          <div>
+            <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
+              <strong>+ </strong>
+            </button>
+            <FaGift title='Marcar producto para promoción' className='icon' onClick={handleProductoDescuento}/>
+          </div>
         </div>
 
         {isImageExpanded && (
@@ -50,6 +80,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
             </div>
           </div>
         )}
+
         <p><strong>{dataLabels.data1}</strong> {cantidadTotal}</p>
         <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
         {tipoUsuario === 'interno' && (
@@ -80,7 +111,13 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
           )}
         </div> 
       </div>
-      
+      {isPromoModalOpen && (
+        <ModalPromocion
+          product={product}
+          onClose={() => setIsPromoModalOpen(false)}
+          onConfirm={handleApplyPromotion} 
+        />
+      )}
     </div>
   );
 };

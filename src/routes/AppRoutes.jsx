@@ -37,7 +37,6 @@ const AppRoutes = () => (
         {/* Rutas públicas */}
         <Route path="/login" element={<LoginUser />} />
 
-        
         {/* Rutas privadas */}
         <Route path="/home" element={<PrivateRoute><Inicio /></PrivateRoute>} />
         {/*Principal Sidebar*/ }

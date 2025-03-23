@@ -99,6 +99,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/reservas" icon={<AiOutlineShopping/>} text="Reservas" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/productos-externos" icon={<GiSlicedBread />} text="Productos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_CLIENTE", )} />
             <SidebarLink to="/carrito" icon={<FaShoppingCart />} text="Carrito" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR", "ROLE_CLIENTE")} />
+            <SidebarLink to="/insumos" icon={<GiSlicedBread />} text="Insumos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
 
           </ul>
         </div>

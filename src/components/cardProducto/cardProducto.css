@@ -48,6 +48,19 @@
   align-items: center; 
   margin-bottom: 5px;
 }
+.cabecera-card div{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cabecera-card div .icon{
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+.cabecera-card div .icon:hover{
+  color: var(--secondary-color);
+  cursor: pointer;
+}
 
 .cabecera-card button {
   border-radius: 15px;
