@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getStockWithSucursal } from '../../service/api';
+import { getStockWithSucursal, getItemsPromocion } from '../../service/api';
 import styles from './BreadList.module.css';
 import CardProductExt from '../../components/cardProducto/CardProductExt';
 
@@ -8,6 +8,7 @@ const BreadList = () => {
   const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
+  const [promociones, setPromociones] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -22,6 +23,14 @@ const BreadList = () => {
       })
       .catch((error) => {
         console.error('Error al obtener los productos:', error);
+      });
+
+    getItemsPromocion()
+      .then((response) => {
+        setPromociones(response.data);
+      })
+      .catch((error) => {
+        console.error('Error al obtener las promociones:', error);
       });
   }, []);
 
@@ -47,7 +56,11 @@ const BreadList = () => {
     navigate('/register');
   };
 
-  const filteredItems = items.filter((item) => {
+  const productosSinPromocion = items.filter((producto) => {
+    return !promociones.some((promo) => promo.item.id === producto.id);
+  });
+
+  const filteredItems = productosSinPromocion.filter((item) => {
     const matchesSearch = item.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
     const price = item.precioUnitario || 0;
     const min = minPrice === '' ? 0 : parseFloat(minPrice);
@@ -131,6 +144,29 @@ const BreadList = () => {
           </select>
         </div>
       </div>
+
+      {promociones.length > 0 && (
+        <div className={styles.promocionesSection}>
+          <h2 className={styles.sucursalTitle}>Productos en Promoción</h2>
+          <div className={styles.breadGrid}>
+            {promociones.map((promo) => {
+              const precioConDescuento = promo.item.precioUnitario * (1 - promo.descuento / 100);
+              const sucursalNombre = promo.sucursal ? promo.sucursal.nombre : "Sin sucursal";
+              return (
+                <CardProductExt
+                  key={promo.id}
+                  item={promo.item}
+                  onReservar={handleReserve}
+                  tipoUsuario="interno"
+                  descuento={promo.descuento}
+                  precioConDescuento={precioConDescuento}
+                  sucursalNombre={sucursalNombre}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {Object.keys(groupedItems)
         .filter((sucursal) => selectedSucursal === '' || sucursal === selectedSucursal)

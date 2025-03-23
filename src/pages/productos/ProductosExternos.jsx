@@ -31,6 +31,8 @@ const ProductosExternos = () => {
     getItemsPromocion()
       .then((response) => {
         setPromociones(response.data);
+        console.log(response.data);
+        console.log(response.request?.responseURL);
       })
       .catch((error) => {
         console.error("Error al obtener las promociones:", error);
@@ -55,9 +57,10 @@ const ProductosExternos = () => {
       toast.success("Producto agregado al carrito");
     }
   };
-
-  // Filtrado de productos
-  const filteredItems = productos.filter((item) => {
+  const productosSinPromocion = productos.filter((producto) => {
+    return !promociones.some((promo) => promo.item.id === producto.id);
+  });
+  const filteredItems = productosSinPromocion.filter((item) => {
     const matchesSearch = item.descripcion
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -67,8 +70,6 @@ const ProductosExternos = () => {
     const inPriceRange = price >= min && price <= max;
     return matchesSearch && inPriceRange;
   });
-
-  // Agrupación por sucursal
   const groupBySucursal = (items) => {
     const grouped = {};
     items.forEach((item) => {
@@ -160,15 +161,21 @@ const ProductosExternos = () => {
         <div className="promocionesSection">
           <h2 className="sucursalTitle">Productos en Promoción</h2>
           <div className="cardsProducto-contenedor">
-            {promociones.map((promo) => (
+          {promociones.map((promo) => {
+            const precioConDescuento = promo.item.precioUnitario * (1 - promo.descuento / 100);
+            const sucursalNombre = promo.sucursal ? promo.sucursal.nombre : "Sin sucursal";
+            return (
               <CardProductExt
                 key={promo.id}
                 item={promo.item}
                 onAgregarAlCarrito={handleAbrirModal}
                 tipoUsuario="externo"
                 descuento={promo.descuento}
+                precioConDescuento={precioConDescuento}
+                sucursalNombre={sucursalNombre}
               />
-            ))}
+            );
+          })}
           </div>
         </div>
       )}
@@ -216,7 +223,7 @@ const ProductosExternos = () => {
             className="agregar-carrito-btn"
             onClick={handleAgregarAlCarrito}
           >
-             Agregar al carrito
+            <FaShoppingCart /> Agregar al carrito
           </button>
         </Modal>
       )}

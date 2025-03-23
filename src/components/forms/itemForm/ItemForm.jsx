@@ -150,7 +150,7 @@ const ItemForm = () => {
             }
 
             setItemCreated(response.data);
-            setIsModalOpen(true); // Abrir el modal después de crear/actualizar el ítem
+            setIsModalOpen(true);
 
         } catch (error) {
             console.error("Error al guardar el producto:", error);

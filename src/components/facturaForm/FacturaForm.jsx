@@ -23,6 +23,7 @@ const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = getUser();
+  //console.log(currentUser);
   const flag = location.state?.flag || false;
   const [client, setClient] = useState(
     location.state?.client || {
@@ -104,6 +105,7 @@ const FacturaForm = () => {
       );
     }, 0);
   };
+
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
@@ -210,6 +212,7 @@ const FacturaForm = () => {
     if (selectedPuntoDeVenta) {
       try {
         const response = await getStockBySucursal(selectedPuntoDeVenta.sucursal.id);
+        console.log(response.data.items);
         setItems(response.data.items);
       } catch (error) {
         toast.error("Error al cargar los items de la sucursal");
@@ -309,7 +312,7 @@ const FacturaForm = () => {
                             <option value="">Seleccione un item</option>
                             {items.map((i) => (
                               <option key={i.id} value={i.descripcion}>
-                                {i.descripcion}
+                                {i.codigo} {i.descripcion}
                               </option>
                             ))}
                           </SelectPrimary>
@@ -325,7 +328,7 @@ const FacturaForm = () => {
                           />
 
                           <InputFacturacion
-                            label="Precio Unitario (Bs)"
+                            label="Precio Ud(Bs)"
                             name={`items[${index}].precioUnitario`}
                             type="number"
                             required
@@ -341,8 +344,6 @@ const FacturaForm = () => {
                               setFieldValue(`items[${index}].descuento`, e.target.value);
                             }}
                           />
-
-                          {/* Subtotales y botones */}
                           <div className="subtotal-field">
                             <label>Subtotal (Bs):</label>
                             <input

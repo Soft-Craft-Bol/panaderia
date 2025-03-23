@@ -160,6 +160,12 @@
   cursor: pointer;
 }
 
+.form-actions{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
   .cont-new-pat {
     flex-direction: column;
