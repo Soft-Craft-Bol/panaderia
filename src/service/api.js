@@ -116,3 +116,10 @@ export const setItemsPromocion = (data) => api.post('/promocion', data);
 export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
 export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/decrease?cantidad=${cantidad}`);
+
+//eventos
+
+
+export const getEventos = () => api.get('/eventos');
+export const getCufdAnterior = (idPuntoVenta) => api.get(`/codigos/obtener-cufds-anteriores/${idPuntoVenta}`);
+export const definirEvento = (data) => api.post('/evento-significativo/registrar', data);

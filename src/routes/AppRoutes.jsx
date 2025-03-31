@@ -32,6 +32,8 @@ const BreadList = lazy(() => import("../pages/landingPage/BreadList"));
 const Insumos = lazy(() => import("../pages/insumos/Insumos"));
 const CrearInsumoPage = lazy(() => import("../pages/insumos/CrearInsumoPage"));
 const EditarInsumo = lazy(() => import("../pages/insumos/EditarInsumo"));
+const EventForm = lazy(() => import("../pages/event/EventForm") )
+
 const AppRoutes = () => (
     <Routes>
         {/* Rutas públicas */}
@@ -73,6 +75,9 @@ const AppRoutes = () => (
         <Route path="/" element = {<LandingPage />}/>
         <Route path="/insumos/crear" element={<PrivateRoute><CrearInsumoPage /></PrivateRoute>} />
         <Route path="/insumos/edit/:id" element={<PrivateRoute><EditarInsumo /></PrivateRoute>} />
+
+        <Route path="/evento" element={<PrivateRoute><EventForm/></PrivateRoute>}/>
+
     </Routes>
 );
 

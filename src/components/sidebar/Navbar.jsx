@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from "react";
-import { FaBell, FaMoon, FaSun, FaShoppingCart } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaBell, FaMoon, FaSun, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useCarrito } from "../../context/CarritoContext";
@@ -23,65 +23,93 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
   const { currentUser } = useAuth();
   const { carrito } = useCarrito();
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const sucursalImg = useImageLoader("inpased");
   const userPhoto = currentUser?.photo || "https://res.cloudinary.com/dzizafv5s/image/upload/v1740519413/ga7kshmedsl7hmudb5k2.jpg";
+
   const toggleCarrito = () => {
     setMostrarCarrito(!mostrarCarrito);
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
-  
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
-      <nav className="navbar">
-        {currentUser ? (
-          <>
-            <div className="navbar-left">
-              {/* Contenido del lado izquierdo para usuarios logeados */}
-            </div>
+      <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
+        {/* Logo y botón hamburguesa (siempre visible en móvil) */}
+        <div className="navbar-brand">
+          <button className="sidebar-toggle mobile-only" onClick={toggleMobileMenu}>
+            {mobileMenuOpen ? <FaTimes className="iconN" /> : <FaBars className="iconN" />}
+          </button>
+          <Link to="/" className="logo">
+            <img src={sucursalImg} alt="logo" />
+          </Link>
+        </div>
 
-            <div className="navbar-right">
-              <div className="theme-switch" onClick={toggleTheme}>
-                {theme === "light" ? <FaMoon className="iconN" /> : <FaSun className="iconN" />}
+        {/* Menú principal (oculto en móvil cuando el menú está cerrado) */}
+        <div className={`navbar-links ${mobileMenuOpen ? 'active' : ''}`}>
+          {currentUser ? (
+            <>
+              <div className="navbar-left">
+                {/* Contenido del lado izquierdo para usuarios logeados */}
               </div>
 
-              <FaBell className="iconN" />
+              <div className="navbar-right">
+                <div className="theme-switch" onClick={toggleTheme}>
+                  {theme === "light" ? <FaMoon className="iconN" /> : <FaSun className="iconN" />}
+                </div>
 
-              <div className="carrito-icon" onClick={toggleCarrito}>
-                <FaShoppingCart className="iconN" />
-                {carrito.length > 0 && <span className="carrito-contador">{carrito.length}</span>}
+                <button className="icon-button">
+                  <FaBell className="iconN" />
+                </button>
+
+                <button className="icon-button carrito-icon" onClick={toggleCarrito}>
+                  <FaShoppingCart className="iconN" />
+                  {carrito.length > 0 && <span className="carrito-contador">{carrito.length}</span>}
+                </button>
+
+                <div className="profile-container">
+                  <img
+                    src={userPhoto}
+                    alt="Profile"
+                  />
+                  <span className="profile-name">{currentUser.full_name}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="navbar-left">
+                <Link to="/" className="navbar-link">Home</Link>
+                <Link to="/product" className="navbar-link">Productos</Link>
               </div>
 
-              {mostrarCarrito && <Carrito onClose={toggleCarrito} />}
-
-              <div className="profile-container">
-                <img
-                  src={userPhoto}
-                  alt="Profile"
-                  style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", marginLeft: "10px" }}
-                />
-                <span>{currentUser.full_name}</span>
+              <div className="navbar-right">
+                <Link to="/register" className="navbar-link register-link">Registrarse</Link>
+                <Link to="/login" className="navbar-link login-link">Iniciar Sesión</Link>
               </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="navbar-left">
-            <div className="logo">
-                <img src={sucursalImg} alt="logo" style={{ width: "100px", height: "40px" }} />
-              </div>
-              <Link to="/" className="navbar-link">Home</Link>
-              <Link to="/product" className="navbar-link">Productos</Link>
-              
-            </div>
+            </>
+          )}
+        </div>
 
-            <div className="navbar-right">
-              
-            <Link to="/register" className="navbar-link register-link">Register</Link>
-              <Link to="/login" className="navbar-link login-link">Login</Link>
-            </div>
-          </>
-        )}
+        {/* Carrito (siempre visible) */}
+        {mostrarCarrito && <Carrito onClose={toggleCarrito} />}
       </nav>
     </>
   );
