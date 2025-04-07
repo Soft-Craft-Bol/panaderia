@@ -123,3 +123,25 @@
   background-color: #94770e;
   color: #fff; 
 }
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+.form-group label {
+  margin-bottom: 5px;
+  color: black;
+}
+.form-group select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+.form-group select option {
+  color: #333;
+}

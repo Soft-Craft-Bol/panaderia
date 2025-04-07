@@ -53,22 +53,22 @@ const LoginUser = () => {
         password: values.password,
       });
       console.log('result:', result);
-
+  
       if (result?.data?.jwt) {
         const token = result.data.jwt;
         const decodedToken = parseJwt(token);
         const roles = decodedToken?.authorities?.split(',') || [];
-
         saveToken(token);
+  
         saveUser({
           username: result.data.username,
           roles: roles,
           photo: result.data.photo,
+          puntosVenta: result.data.puntosVenta,
         });
-
+  
         navigate('/home');
-          window.location.reload();
-        
+        window.location.reload();
       } else {
         setLoginError('Usuario o contraseña incorrectos.');
       }
