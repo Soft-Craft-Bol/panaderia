@@ -7,13 +7,34 @@ export const CarritoProvider = ({ children }) => {
 
   const agregarAlCarrito = (producto) => {
     setCarrito((prevCarrito) => {
-      const existe = prevCarrito.find((item) => item.id === producto.id);
+      // Si el producto tiene descuento, lo guardamos en el carrito
+      const productoConDescuento = producto.descuento 
+        ? { ...producto, precioOriginal: producto.precioUnitario }
+        : producto;
+      
+      const existe = prevCarrito.find((item) => item.id === productoConDescuento.id);
+      
       if (existe) {
         return prevCarrito.map((item) =>
-          item.id === producto.id ? { ...item, cantidad: item.cantidad + producto.cantidad } : item
+          item.id === productoConDescuento.id 
+            ? { 
+                ...item, 
+                cantidad: item.cantidad + (productoConDescuento.cantidad || 1),
+                // Mantenemos el descuento si ya existía
+                descuento: productoConDescuento.descuento || item.descuento,
+                precioUnitario: productoConDescuento.descuento 
+                  ? productoConDescuento.precioUnitario * (1 - (productoConDescuento.descuento / 100))
+                  : item.precioUnitario
+              } 
+            : item
         );
       }
-      return [...prevCarrito, producto];
+      return [...prevCarrito, {
+        ...productoConDescuento,
+        precioUnitario: productoConDescuento.descuento
+          ? productoConDescuento.precioUnitario * (1 - (productoConDescuento.descuento / 100))
+          : productoConDescuento.precioUnitario
+      }];
     });
   };
 

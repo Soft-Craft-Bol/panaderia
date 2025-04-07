@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Formik, Form, FieldArray, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -24,15 +24,14 @@ const FacturaForm = () => {
   const navigate = useNavigate();
   const currentUser = getUser();
   //console.log(currentUser);
+  const client = location.state?.client || {
+    nombreRazonSocial: "S/N",
+    email: "...",
+    numeroDocumento: "0000000000 CB",
+    id: null,
+  };
+  
   const flag = location.state?.flag || false;
-  const [client, setClient] = useState(
-    location.state?.client || {
-      nombreRazonSocial: "S/N",
-      email: "...",
-      numeroDocumento: "0000000000 CB",
-      id: null,
-    }
-  );
 
   const [items, setItems] = useState([]);
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
@@ -165,16 +164,18 @@ const FacturaForm = () => {
     }
   };
 
-  const handleVentaSinFactura = async (values) => {
+  const handleVentaSinFactura = async (values, { setSubmitting }) => {
     try {
+      setSubmitting(true); // Deshabilitar el botón mientras se procesa
+
       const selectedPuntoDeVenta = puntosDeVenta.find(
         (punto) => punto.nombre === values.puntoDeVenta
       );
-  
+
       if (!selectedPuntoDeVenta) {
         throw new Error("Punto de venta no encontrado");
       }
-  
+
       const ventaSinFacturaData = {
         cliente: client.nombreRazonSocial || "S/N",
         idPuntoVenta: selectedPuntoDeVenta.id,
@@ -193,18 +194,27 @@ const FacturaForm = () => {
           };
         }),
       };
-  
+
       const response = await emitirSinFactura(ventaSinFacturaData);
-      setVentaResult({ success: true, message: "Venta sin factura registrada con éxito", data: response.data });
+      setVentaResult({
+        success: true,
+        message: "Venta sin factura registrada con éxito",
+        data: response.data
+      });
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error al registrar la venta sin factura:", error);
-      setVentaResult({ success: false, message: `Error al registrar la venta sin factura: ${error.message}` });
+      setVentaResult({
+        success: false,
+        message: `Error al registrar la venta sin factura: ${error.message}`
+      });
       setIsModalOpen(true);
+    } finally {
+      setSubmitting(false); // Rehabilitar el botón
     }
   };
 
-  const handlePuntoDeVentaChange = async (puntoDeVentaNombre) => {
+  const handlePuntoDeVentaChange = useCallback(async (puntoDeVentaNombre) => {
     const selectedPuntoDeVenta = puntosDeVenta.find(
       (punto) => punto.nombre === puntoDeVentaNombre
     );
@@ -212,13 +222,13 @@ const FacturaForm = () => {
     if (selectedPuntoDeVenta) {
       try {
         const response = await getStockBySucursal(selectedPuntoDeVenta.sucursal.id);
-        console.log(response.data.items);
         setItems(response.data.items);
       } catch (error) {
         toast.error("Error al cargar los items de la sucursal");
       }
     }
-  };
+  }, [puntosDeVenta]);
+
 
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -295,79 +305,79 @@ const FacturaForm = () => {
 
                       return (
                         <div className="ds" key={index}>
-                        <div  className="form-row">
-                          <SelectPrimary
-                            label="Item/Descripción"
-                            name={`items[${index}].item`}
-                            required
-                            onChange={(e) => {
-                              const selectedItem = items.find((i) => i.descripcion === e.target.value);
-                              if (selectedItem) {
-                                setFieldValue(`items[${index}].item`, e.target.value);
-                                setFieldValue(`items[${index}].precioUnitario`, selectedItem.precioUnitario);
-                                setFieldValue(`items[${index}].cantidadDisponible`, selectedItem.cantidad);
-                              }
-                            }}
-                          >
-                            <option value="">Seleccione un item</option>
-                            {items.map((i) => (
-                              <option key={i.id} value={i.descripcion}>
-                                {i.codigo} {i.descripcion}
-                              </option>
-                            ))}
-                          </SelectPrimary>
-
-                          <InputFacturacion
-                            label="Cantidad"
-                            name={`items[${index}].cantidad`}
-                            type="number"
-                            required
-                            onChange={(e) => {
-                              setFieldValue(`items[${index}].cantidad`, e.target.value);
-                            }}
-                          />
-
-                          <InputFacturacion
-                            label="Precio Ud(Bs)"
-                            name={`items[${index}].precioUnitario`}
-                            type="number"
-                            required
-                            readOnly
-                            value={item.precioUnitario || "0.00"}
-                          />
-
-                          <InputFacturacion
-                            label="Descuento (Bs)"
-                            name={`items[${index}].descuento`}
-                            type="number"
-                            onChange={(e) => {
-                              setFieldValue(`items[${index}].descuento`, e.target.value);
-                            }}
-                          />
-                          <div className="subtotal-field">
-                            <label>Subtotal (Bs):</label>
-                            <input
-                              type="text"
-                              value={calcularSubtotalItem(
-                                item.cantidad,
-                                item.precioUnitario,
-                                item.descuento
-                              ).toFixed(2)}
-                              readOnly
-                            />
-                          </div>
-
-                          {index > 0 && (
-                            <Button
-                              variant="danger"
-                              type="button"
-                              onClick={() => remove(index)}
+                          <div className="form-row">
+                            <SelectPrimary
+                              label="Item/Descripción"
+                              name={`items[${index}].item`}
+                              required
+                              onChange={(e) => {
+                                const selectedItem = items.find((i) => i.descripcion === e.target.value);
+                                if (selectedItem) {
+                                  setFieldValue(`items[${index}].item`, e.target.value);
+                                  setFieldValue(`items[${index}].precioUnitario`, selectedItem.precioUnitario);
+                                  setFieldValue(`items[${index}].cantidadDisponible`, selectedItem.cantidad);
+                                }
+                              }}
                             >
-                              Eliminar
-                            </Button>
-                          )}
-                        </div>
-                        <div className="cantidad-disponible">
+                              <option value="">Seleccione un item</option>
+                              {items.map((i) => (
+                                <option key={i.id} value={i.descripcion}>
+                                  {i.codigo} {i.descripcion}
+                                </option>
+                              ))}
+                            </SelectPrimary>
+
+                            <InputFacturacion
+                              label="Cantidad"
+                              name={`items[${index}].cantidad`}
+                              type="number"
+                              required
+                              onChange={(e) => {
+                                setFieldValue(`items[${index}].cantidad`, e.target.value);
+                              }}
+                            />
+
+                            <InputFacturacion
+                              label="Precio Ud(Bs)"
+                              name={`items[${index}].precioUnitario`}
+                              type="number"
+                              required
+                              readOnly
+                              value={item.precioUnitario || "0.00"}
+                            />
+
+                            <InputFacturacion
+                              label="Descuento (Bs)"
+                              name={`items[${index}].descuento`}
+                              type="number"
+                              onChange={(e) => {
+                                setFieldValue(`items[${index}].descuento`, e.target.value);
+                              }}
+                            />
+                            <div className="subtotal-field">
+                              <label>Subtotal (Bs):</label>
+                              <input
+                                type="text"
+                                value={calcularSubtotalItem(
+                                  item.cantidad,
+                                  item.precioUnitario,
+                                  item.descuento
+                                ).toFixed(2)}
+                                readOnly
+                              />
+                            </div>
+
+                            {index > 0 && (
+                              <Button
+                                variant="danger"
+                                type="button"
+                                onClick={() => remove(index)}
+                              >
+                                Eliminar
+                              </Button>
+                            )}
+                          </div>
+                          <div className="cantidad-disponible">
                             <label>Cantidad Disponible:</label>
                             <span>
                               {item.cantidadDisponible === 0
@@ -417,10 +427,14 @@ const FacturaForm = () => {
                 {!flag && (
                   <Button
                     className="btn-venta-sin-factura"
-                    type="button"
+                    type="button" // Asegúrate que es type="button" y no type="submit"
                     variant="secondary"
-                    onClick={() => handleVentaSinFactura(values)}
-                    disabled={isSubmitting}>
+                    onClick={(e) => {
+                      e.preventDefault(); // Previene el comportamiento por defecto del botón
+                      handleVentaSinFactura(values, { setSubmitting });
+                    }}
+                    disabled={isSubmitting}
+                  >
                     Registrar venta sin Factura
                   </Button>
                 )}
@@ -456,9 +470,9 @@ const FacturaForm = () => {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  generateReciboPDF(ventaResult.data); 
+                  generateReciboPDF(ventaResult.data);
                   console.log(ventaResult.data);
-                  setIsModalOpen(false); 
+                  setIsModalOpen(false);
                   navigate("/ventas");
                 }}
               >

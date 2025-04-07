@@ -1,44 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useField } from 'formik';
 import './SelectPrimary.css';
 
 function SelectPrimary({ label, required, onChange, ...props }) {
-  const [field, meta] = useField(props);
+  const [field, meta, helpers] = useField(props);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredOptions, setFilteredOptions] = useState([]);
   const selectRef = useRef(null);
   const options = React.Children.toArray(props.children);
+
+  // Memoizar el cálculo de opciones filtradas
+  const filteredOptions = useCallback(() => {
+    if (!searchQuery) return options;
+    
+    const query = searchQuery.toLowerCase();
+    return options.filter(option => {
+      if (!option.props || !option.props.children) return false;
+      const optionText = String(option.props.children);
+      return optionText.toLowerCase().includes(query);
+    });
+  }, [searchQuery, options]);
+
   const handleKeyDown = (e) => {
     if (['Tab', 'Enter', 'ArrowUp', 'ArrowDown', 'Escape'].includes(e.key)) {
       return;
     }
     
-    if (!isOpen) {
-      setIsOpen(true);
-    }
+    if (!isOpen) setIsOpen(true);
+    
     if (e.key === 'Backspace') {
-      setSearchQuery(searchQuery.slice(0, -1));
+      setSearchQuery(prev => prev.slice(0, -1));
     } else if (e.key.length === 1) { 
       setSearchQuery(prev => prev + e.key);
     }
   };
-  useEffect(() => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const filtered = options.filter(option => {
-        if (!option.props || !option.props.children) return false;
-        
-        const optionText = String(option.props.children);
-        return optionText.toLowerCase().includes(query);
-      });
-      
-      setFilteredOptions(filtered);
-    } else {
-      setFilteredOptions(options);
-    }
-  }, [searchQuery, options]);
-  const handleBlur = (e) => {
+
+  const handleBlur = useCallback((e) => {
     setTimeout(() => {
       if (selectRef.current && !selectRef.current.contains(document.activeElement)) {
         setIsOpen(false);
@@ -46,23 +43,28 @@ function SelectPrimary({ label, required, onChange, ...props }) {
         field.onBlur(e);
       }
     }, 200);
-  };
-  const handleOptionClick = (value) => {
-    // Create a synthetic event that simulates a select change
-    const syntheticEvent = {
-      target: {
-        name: field.name,
-        value: value
-      }
-    };
-    field.onChange(syntheticEvent);
+  }, [field]);
+
+  const handleOptionClick = useCallback((value) => {
+    helpers.setValue(value);
     if (onChange) {
+      const syntheticEvent = {
+        target: {
+          name: field.name,
+          value: value
+        }
+      };
       onChange(syntheticEvent);
     }
     setSearchQuery('');
     setIsOpen(false);
-  };
-  
+  }, [field.name, helpers, onChange]);
+
+  // Valor mostrado en el input
+  const displayValue = field.value 
+    ? options.find(opt => opt.props.value === field.value)?.props.children || '' 
+    : '';
+
   return (
     <div className="select-component" ref={selectRef}>
       <label htmlFor={props.id || props.name}>
@@ -75,7 +77,7 @@ function SelectPrimary({ label, required, onChange, ...props }) {
           type="text"
           className="select-search"
           placeholder="Buscar..."
-          value={field.value ? options.find(opt => opt.props.value === field.value)?.props.children || '' : ''}
+          value={displayValue}
           onFocus={() => setIsOpen(true)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
@@ -86,12 +88,12 @@ function SelectPrimary({ label, required, onChange, ...props }) {
           <div className="options-dropdown">
             {searchQuery && <div className="search-info">Buscando: {searchQuery}</div>}
             
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option, idx) => (
+            {filteredOptions().length > 0 ? (
+              filteredOptions().map((option, idx) => (
                 <div 
                   key={option.props.value || idx}
                   className={`option-item ${field.value === option.props.value ? 'selected' : ''}`}
-                  onClick={() => handleOptionClick(option.props.value)}
+                  onMouseDown={() => handleOptionClick(option.props.value)}
                 >
                   {option.props.children}
                 </div>
@@ -116,4 +118,4 @@ function SelectPrimary({ label, required, onChange, ...props }) {
   );
 }
 
-export default SelectPrimary;
+export default React.memo(SelectPrimary);

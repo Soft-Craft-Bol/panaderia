@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { signOut, getUser } from "../../utils/authFunctions";
@@ -57,7 +57,7 @@ const SidebarLogout = () => (
   <li>
     <Link to="/" onClick={signOut}>
       <Suspense fallback={<span>...</span>}>
-        <i className="icon"><TbLogout /></i>
+        <i className="icon-logout"><TbLogout /></i>
       </Suspense>
       <span className="text nav-text">Cerrar sesión</span>
     </Link>
@@ -65,14 +65,24 @@ const SidebarLogout = () => (
 );
 
 export const Sidebar = ({ isOpen, toggleSidebar }) => {
-  const { theme, toggleTheme } = useTheme();
+
+  const [isMobile, setIsMobile] = useState(false);
   const currentUser = useMemo(() => getUser(), []);
 
-  const hasRole = (role) => currentUser?.roles.includes(role);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
   return (
-    <nav className={`sidebar ${isOpen ? 'open' : 'close'}`}>
+    <nav className={`sidebar ${isOpen ? 'open' : 'close'} ${isMobile ? 'mobile' : ''}`}>
       <div className="menu-bar">
         <SidebarHeader onToggle={toggleSidebar} isOpen={isOpen} />
         <div className="menu">
@@ -101,18 +111,14 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/carrito" icon={<FaShoppingCart />} text="Carrito" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR", "ROLE_CLIENTE")} />
             <SidebarLink to="/insumos" icon={<GiSlicedBread />} text="Insumos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
             <SidebarLink to="/recetas" icon={<GiSlicedBread />} text="Recetas" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
+            
           </ul>
         </div>
-        <div className="bottom-content" style={{marginTop: "-20px"}}>
+        <div className="bottom-content" style={{marginTop: "20px"}}>
           <SidebarLogout />
-          <li className="mode">
-            <span className="mode-text text">Modo Oscuro</span>
-            <div className="toggle-switch" onClick={toggleTheme}>
-              <span className={`switch ${theme === 'dark' ? 'active' : ''}`} />
-            </div>
-          </li>
         </div>
       </div>
+      
     </nav>
   );
 };
