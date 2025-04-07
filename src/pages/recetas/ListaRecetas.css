@@ -1,0 +1,72 @@
+.recetas-container {
+  padding: 20px;
+  background-color: var(--bg-app);
+  color: var(--color-text-primary);
+}
+
+.recetas-title {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.recetas-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  background-color: var(--bg-component-white);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.recetas-table th,
+.recetas-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border: 1px solid var(--sidebar-color);
+}
+
+.recetas-table th {
+  background-color: var(--primary-color);
+  color: var(--color-text-tertiary);
+  font-weight: bold;
+}
+
+.recetas-table tr:nth-child(even) {
+  background-color: var(--sidebar-color);
+}
+
+.recetas-table tr:hover {
+  background-color: var(--secondary-color);
+  color: var(--color-text-tertiary);
+}
+
+.recetas-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.btn-establecer-receta {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--color-text-tertiary);
+  background-color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-establecer-receta:hover {
+  background-color: var(--color-text-tertiary);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-establecer-receta:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

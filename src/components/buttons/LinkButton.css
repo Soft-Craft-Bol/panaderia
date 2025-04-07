@@ -1,34 +1,93 @@
-
 .link-button {
-    display: inline-block;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-    transition: var(--tran-03);
-  }
-  
-  .link-button {
-    background-color: var(--primary-color);
-    color: #FFFFFF; 
-  }
-  
-  .link-button:hover {
-    background-color: var(--primary-color-light);
-    color:var(--primary-color);
-    border: 2px solid var(--primary-color);
-  }
-  
-  body.dark .link-button {
-    background-color: var(--primary-color-light);
-    color: var(--body-color); 
-  }
-  
-  body.dark .link-button:hover {
-    background-color:  #1a5bbf; /* Puedes ajustar el tono si quieres */
-    ;
-  }
-  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  gap: 0.5rem;
+}
+
+.link-button.primary {
+  background-color: var(--primary-color);
+  color: var(--color-text-tertiary);
+}
+
+.link-button.primary:hover {
+  background-color: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.link-button.secondary {
+  background-color: var(--secondary-color);
+  color: var(--color-text-tertiary);
+}
+
+.link-button.secondary:hover {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.link-button.outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.link-button.outline:hover {
+  background-color: var(--primary-color);
+  color: var(--color-text-tertiary);
+}
+
+[data-theme="dark"] .link-button {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .link-button.primary {
+  background-color: var(--primary-color);
+}
+
+[data-theme="dark"] .link-button.primary:hover {
+  background-color: transparent;
+  color: #f7f7f7;
+  border-color: var(--primary-color-dark);
+}
+
+[data-theme="dark"] .link-button.outline {
+  color: var(--primary-color-light);
+  border-color: var(--primary-color-light);
+}
+
+[data-theme="dark"] .link-button.outline:hover {
+  background-color: var(--primary-color-light);
+  color: var(--color-dark);
+}
+
+/* Tamaños */
+.link-button.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.link-button.large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* Estado deshabilitado */
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Transición suave para el tema */
+.link-button {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

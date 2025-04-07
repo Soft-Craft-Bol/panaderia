@@ -7,14 +7,28 @@ const CarritoLista = () => {
   const { carrito, eliminarDelCarrito } = useCarrito();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-  // Cálculo de subTotal
-  const subTotal = carrito.reduce((acc, item) => {
-    const precio = item.precioUnitario || 0;
-    const cant = item.cantidad || 1;
-    return acc + precio * cant;
-  }, 0);
+  // Función para calcular el precio con descuento
+  const calcularPrecioConDescuento = (item) => {
+    const precioBase = item.precioUnitario || 0;
+    const descuento = item.descuento || 0; // Asume que el descuento viene en porcentaje
+    return precioBase * (1 - descuento / 100);
+  };
 
-  const total = subTotal;
+  // Cálculo de subTotal y descuentos
+  const { subTotal, totalDescuentos, total } = carrito.reduce(
+    (acc, item) => {
+      const precioBase = item.precioUnitario || 0;
+      const precioConDescuento = calcularPrecioConDescuento(item);
+      const cant = item.cantidad || 1;
+      
+      return {
+        subTotal: acc.subTotal + precioBase * cant,
+        totalDescuentos: acc.totalDescuentos + (precioBase - precioConDescuento) * cant,
+        total: acc.total + precioConDescuento * cant
+      };
+    },
+    { subTotal: 0, totalDescuentos: 0, total: 0 }
+  );
 
   return (
     <div className="carrito-contenedor">
@@ -27,14 +41,18 @@ const CarritoLista = () => {
             <th>NOMBRE PRODUCTO</th>
             <th>CANTIDAD</th>
             <th>PRECIO UNITARIO</th>
+            <th>DESCUENTO</th>
             <th>TOTAL</th>
+            <th>ACCIÓN</th>
           </tr>
         </thead>
         <tbody>
           {carrito.map((item) => {
-            const precio = item.precioUnitario || 0;
+            const precioBase = item.precioUnitario || 0;
+            const precioConDescuento = calcularPrecioConDescuento(item);
             const cant = item.cantidad || 1;
-            const totalItem = precio * cant;
+            const totalItem = precioConDescuento * cant;
+            const descuento = item.descuento || 0;
 
             return (
               <tr key={item.id}>
@@ -51,8 +69,14 @@ const CarritoLista = () => {
                 </td>
                 <td>{item.descripcion}</td>
                 <td>{cant}</td>
-                <td>Bs {precio.toFixed(2)}</td>
+                <td>Bs {precioBase.toFixed(2)}</td>
+                <td>{descuento > 0 ? `${descuento}%` : "-"}</td>
                 <td>Bs {totalItem.toFixed(2)}</td>
+                <td>
+                  <button onClick={() => eliminarDelCarrito(item.id)}>
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             );
           })}
@@ -63,10 +87,19 @@ const CarritoLista = () => {
           <p>
             <strong>Sub-Total:</strong> Bs {subTotal.toFixed(2)}
           </p>
+          {totalDescuentos > 0 && (
+            <p className="descuento-texto">
+              <strong>Descuentos:</strong> -Bs {totalDescuentos.toFixed(2)}
+            </p>
+          )}
           <p>
             <strong>Total:</strong> Bs {total.toFixed(2)}
           </p>
-          <button className="btn-general" onClick={() => setMostrarFormulario(true)}>
+          <button 
+            className="btn-general" 
+            onClick={() => setMostrarFormulario(true)}
+            disabled={carrito.length === 0}
+          >
             PAGAR
           </button>
         </div>
@@ -75,6 +108,7 @@ const CarritoLista = () => {
       {mostrarFormulario && (
         <ReservaFormulario
           carrito={carrito}
+          total={total}
           onReservaExitosa={() => {
             setMostrarFormulario(false);
             alert("Reserva creada exitosamente");

@@ -16,17 +16,27 @@ const Facturacion = () => {
       const response = await getAllClient();
       const clients = response.data;
       const client = clients.find(client => client.numeroDocumento.toString() === nit);
+      
       if (client) {
         navigate('/impuestos-form', { state: { client, flag: true } });
       } else {
-        alert('Cliente no encontrado, CREAR CLIENTE');
-        navigate('/clientes/crear-cliente');
+        // Redirigir al formulario de creación con el NIT prellenado
+        navigate('/clientes/crear-cliente', { 
+          state: { 
+            prefillData: { 
+              numeroDocumento: nit,
+            },
+            redirectTo: '/impuestos-form',
+            redirectState: { flag: true }
+          } 
+        });
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
       alert('Error al buscar el cliente');
     }
   };
+
   return (
     <main className='fact-main-cont'>
       <div className='card'>
@@ -48,4 +58,5 @@ const Facturacion = () => {
     </main>
   );
 };
+
 export default Facturacion;

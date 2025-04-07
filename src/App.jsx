@@ -17,7 +17,6 @@ function App() {
     <ThemeProvider>
     <CarritoProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Navbar />
         <Toaster />
           <Suspense fallback={<LoadingComponent />}>
             <AppRoutes />

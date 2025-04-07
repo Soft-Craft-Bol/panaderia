@@ -7,6 +7,7 @@ import Carrito from "../modal/CarritoModal";
 import "./Navbar.css";
 import loadImage from "../../assets/ImagesApp";
 import { Link } from "react-router-dom";
+import { useSidebar } from "../../context/SidebarContext";
 
 const useImageLoader = (imageName) => {
   const [image, setImage] = useState(null);
@@ -52,10 +53,9 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
   return (
     <>
       <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
-        {/* Logo y botón hamburguesa (siempre visible en móvil) */}
         <div className="navbar-brand">
-          <button className="sidebar-toggle mobile-only" onClick={toggleMobileMenu}>
-            {mobileMenuOpen ? <FaTimes className="iconN" /> : <FaBars className="iconN" />}
+        <button className="sidebar-toggle" onClick={toggleSidebar}>
+            {sidebarOpen ? <FaTimes className="iconN" /> : <FaBars className="iconN" />}
           </button>
           <Link to="/" className="logo">
             <img src={sucursalImg} alt="logo" />

@@ -1,19 +1,24 @@
   
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--sidebar-color);
-    padding: 15px 30px;
-    box-shadow: var(--shadow);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    height: 70px;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--sidebar-color);
+  padding: 15px 30px;
+  box-shadow: var(--shadow);
+  position: fixed;
+  width: calc(100% - 250px); /* Ancho inicial cuando sidebar está abierto */
+  left: 250px; /* Posición inicial cuando sidebar está abierto */
+  top: 0;
+  z-index: 10;
+  height: 70px;
+  transition: all 0.3s ease;
+}
 
-    transition: var(--transition);
-  }
+.sidebar-closed .navbar {
+  width: calc(100% - 88px);
+  left: 88px;
+}
   
   .navbar.scrolled {
     padding: 10px 30px;
@@ -236,3 +241,18 @@
       top: 60px;
     }
   }
+
+  @media (max-width: 768px) {
+    .navbar {
+        width: 100% !important;
+        left: 0 !important;
+    }
+    
+    .sidebar-open .navbar {
+        /* No necesita cambios en móvil */
+    }
+    
+    .sidebar-closed .navbar {
+        /* No necesita cambios en móvil */
+    }
+}

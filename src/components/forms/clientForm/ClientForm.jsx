@@ -3,31 +3,31 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import loadImage from '../../../assets/ImagesApp';
 import { createClient, getDocumentoIdentidad } from '../../../service/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation  } from 'react-router-dom';
 import '../itemForm/ItemForm.css';
 
 const validationSchema = Yup.object().shape({
-    nombreRazonSocial: Yup.string()
-        .required('Nombre/Razón Social es requerido'),
-    codigoTipoDocumentoIdentidad: Yup.number()
-        .required('Tipo de Documento es requerido'),
-    numeroDocumento: Yup.string()
-        .required('Número de Documento es requerido'),
+    nombreRazonSocial: Yup.string().required('Nombre/Razón Social es requerido'),
+    codigoTipoDocumentoIdentidad: Yup.number().required('Tipo de Documento es requerido'),
+    numeroDocumento: Yup.string().required('Número de Documento es requerido'),
     complemento: Yup.string(),
-    codigoCliente: Yup.string()
-        .required('Código de Cliente es requerido'),
-    email: Yup.string()
-        .email('Email inválido')
-        .required('Email es requerido')
+    codigoCliente: Yup.string().required('Código de Cliente es requerido'),
+    email: Yup.string().email('Email inválido').required('Email es requerido')
 });
 
 const ClientForm = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [submitError, setSubmitError] = useState(null);
     const [documentosIdentidad, setDocumentosIdentidad] = useState([]);
-    const navigate = useNavigate();
     const [imageUrl, setImageUrl] = useState(null);
+
+    // Obtener datos prellenados de la ubicación
+    const prefillData = location.state?.prefillData || {};
+    const redirectTo = location.state?.redirectTo || '/clientes';
+    const redirectState = location.state?.redirectState || {};
 
     useEffect(() => {
         const fetchDocumentosIdentidad = async () => {
@@ -44,28 +44,25 @@ const ClientForm = () => {
 
     useEffect(() => {
         const fetchImage = async () => {
-        try {
-            const image = await loadImage('panadero');
-            setImageUrl(image.default);
-        } catch (error) {
-            console.error('Error loading image', error);
-        }
+            try {
+                const image = await loadImage('panadero');
+                setImageUrl(image.default);
+            } catch (error) {
+                console.error('Error loading image', error);
+            }
         };
 
         fetchImage();
     }, []);
 
-    if (!imageUrl) {
-        return <div>Cargando...</div>;
-    }
-
     const initialValues = {
         nombreRazonSocial: '',
         codigoTipoDocumentoIdentidad: '',
-        numeroDocumento: '',
+        numeroDocumento: prefillData.numeroDocumento || '',
         complemento: '',
         codigoCliente: '',
-        email: ''
+        email: '',
+        ...prefillData 
     };
 
     
@@ -87,7 +84,18 @@ const ClientForm = () => {
             
             if (response.status === 200 || response.status === 201) {
                 alert('Cliente registrado exitosamente');
-                navigate('/clientes');
+                
+                // Si hay una redirección configurada, navegar allí con el estado
+                if (redirectTo) {
+                    navigate(redirectTo, { 
+                        state: { 
+                            client: response.data,
+                            ...redirectState
+                        } 
+                    });
+                } else {
+                    navigate('/clientes');
+                }
             } else {
                 throw new Error('Error al crear el cliente');
             }
@@ -98,6 +106,10 @@ const ClientForm = () => {
             setSubmitting(false);
         }
     };
+
+    if (!imageUrl) {
+        return <div>Cargando...</div>;
+    }
 
     return (
         <Formik

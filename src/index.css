@@ -1,47 +1,44 @@
 :root {
-  /* 🎨 Colores principales */
   --primary-color: #FFAF5A;
-  --secondary-color: #1e776d;
-
-  /* 🖼️ Fondos */
-  --bg-app: #e0e0e0; /* Alternativa: #f5f5f5 */
-  --bg-component-white: #ffffff;
-  --sidebar-color: #f8f7f6;
-
-  /* 🎨 Colores de texto */
-  --color-text-primary: #000000;
-  --color-text-secondary: #6d7784;
-  --color-text-tertiary: #ffffff;
-  --color-text-quaternary: #ebebeb;
-
-  /* 🔴🟢 Colores de parámetros */
+  --secondary-color: #d78e5e;
   --color-green-parameter: #27c02f;
   --color-red-parameter: #E53E3E;
-
-  /* 🔠 Tipografía */
   --font-size-title: 18px;
-
-  /* 🔘 Iconos */
-  --color-icon: #0d0b80;
-
-  --main-color1: #FFAF5A;
-
-  --secondary-color1: #2c4755;
-  --section-padding1: 60px;
-  --section-background1: #f6f6f6;
   --main-duration1: 0.5s;
-  --color-gray1: #777;
-  --white-bg1: #fff;
-  --gray-special-text: #6b6d6e;
-  --tertiary-color1: #f5deb3;
-  --white: #fff;
-  --black: #000;
-
-  --dark-color: #333;
-  --gray-color: #777;
 }
 
-/* kakaka🖥️ Media query para modo claro */
+/* Modo claro (default) */
+:root, :root[data-theme="light"] {
+  --bg-app: #e0e0e0;
+  --bg-component-white: #ffffff;
+  --sidebar-color: #f8f7f6;
+  --color-text-primary: #000000;
+  --color-text-secondary: #6d7784;
+  --color-icon: #0d0b80;
+  /* etc... */
+}
+
+[data-theme="dark"] {
+  /* Fondos oscuros */
+  --bg-app: #121a21;        
+  --bg-component-white: #080514;
+  --sidebar-color: #1B2431;   
+  
+  --text-color: #E0E0E0;      
+  --text-color-secondary: #9E9E9E; 
+  
+  --color-medium: #273142;   
+  --color-dark: #1B2431;     
+
+  --primary-color: #FFB86B;  
+  --secondary-color: #d38105;
+  --color-5: #FF8A8A;        
+  
+  --color-green-parameter: #4CAF50; 
+  --color-red-parameter: #EF5350;   
+}
+
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg-app: #ffffff;
@@ -49,7 +46,6 @@
   }
 }
 
-/* 📌 Reset y estilos base */
 *,
 *::before,
 *::after {
