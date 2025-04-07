@@ -63,7 +63,7 @@ const ReservaFormulario = ({ carrito, onReservaExitosa }) => {
 
       const reservaRequest = {
         idPuntoVenta: 1,
-        idCliente: 13,
+        idCliente: 1,
         items: carrito.map((item) => ({
           idItem: item.id,
           cantidad: item.cantidad,

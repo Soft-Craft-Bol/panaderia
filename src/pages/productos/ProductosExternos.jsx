@@ -52,11 +52,20 @@ const ProductosExternos = () => {
 
   const handleAgregarAlCarrito = () => {
     if (selectedProduct) {
-      agregarAlCarrito({ ...selectedProduct, cantidad });
+      // Pasamos el producto con su descuento si tiene
+      const productoParaCarrito = {
+        ...selectedProduct,
+        cantidad,
+        descuento: selectedProduct.descuento || 0 // Asegurar que siempre tenga descuento (aunque sea 0)
+      };
+      
+      agregarAlCarrito(productoParaCarrito);
       handleCerrarModal();
       toast.success("Producto agregado al carrito");
     }
   };
+
+
   const productosSinPromocion = productos.filter((producto) => {
     return !promociones.some((promo) => promo.item.id === producto.id);
   });
@@ -201,32 +210,49 @@ const ProductosExternos = () => {
           </div>
         ))}
 
-      {showModal && selectedProduct && (
-        <Modal isOpen={showModal} onClose={handleCerrarModal}>
-          <h2>{selectedProduct.descripcion}</h2>
-          <p>
-            Precio: Bs{" "}
-            {selectedProduct.precioUnitario
-              ? selectedProduct.precioUnitario.toFixed(2)
-              : "0.00"}
+        {showModal && selectedProduct && (
+  <Modal isOpen={showModal} onClose={handleCerrarModal}>
+    <h2>{selectedProduct.descripcion}</h2>
+    
+    {/* Calcular precios una sola vez */}
+    {(() => {
+      const precioOriginal = selectedProduct.precioUnitario || 0;
+      const descuento = selectedProduct.descuento || 0;
+      const precioConDescuento = precioOriginal * (1 - descuento / 100);
+      
+      return descuento > 0 ? (
+        <>
+          <p className="precio-original-modal" style={{ textDecoration: 'line-through', color: '#999' }}>
+            Precio original: Bs {precioOriginal.toFixed(2)}
           </p>
-          <label htmlFor="cantidad">Cantidad:</label>
-          <input
-            id="cantidad"
-            className="cantidad-input"
-            type="number"
-            value={cantidad}
-            min="1"
-            onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
-          />
-          <button
-            className="agregar-carrito-btn"
-            onClick={handleAgregarAlCarrito}
-          >
-            <FaShoppingCart /> Agregar al carrito
-          </button>
-        </Modal>
-      )}
+          <p className="precio-descuento-modal" style={{ color: '#e63946', fontWeight: 'bold' }}>
+            ¡Oferta! Bs {precioConDescuento.toFixed(2)} (Ahorras {descuento}%)
+          </p>
+        </>
+      ) : (
+        <p>
+          Precio: Bs {precioOriginal.toFixed(2)}
+        </p>
+      );
+    })()}
+    
+    <label htmlFor="cantidad">Cantidad:</label>
+    <input
+      id="cantidad"
+      className="cantidad-input"
+      type="number"
+      value={cantidad}
+      min="1"
+      onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
+    />
+    <button
+      className="agregar-carrito-btn"
+      onClick={handleAgregarAlCarrito}
+    >
+      <FaShoppingCart /> Agregar al carrito
+    </button>
+  </Modal>
+)}
     </div>
   );
 };

@@ -11,6 +11,10 @@ function InputText({ label, required, type = "text", ...props }) {
     setShowPassword(!showPassword);
   };
 
+  // Eliminamos el prop 'formik' antes de pasarlo al input
+  const inputProps = { ...props };
+  delete inputProps.formik;
+
   return (
     <div className="input-component">
       <label htmlFor={props.id || props.name}>
@@ -21,7 +25,7 @@ function InputText({ label, required, type = "text", ...props }) {
         <input
           className="text-input"
           {...field}
-          {...props}
+          {...inputProps}  // Usamos inputProps en lugar de props directamente
           type={showPassword ? "text" : type} 
         />
         {type === "password" && (

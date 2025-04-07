@@ -3,7 +3,7 @@ import { getToken } from '../utils/authFunctions';
 
 //deply
 // const baseURL = "https://api.inpasep.com/api/v1";
-const baseURL = "http://localhost:8082/api/v1";
+const baseURL = "http://localhost:8080/api/v1";
 
 const api = axios.create({
     baseURL: baseURL,
@@ -116,3 +116,10 @@ export const setItemsPromocion = (data) => api.post('/promocion', data);
 export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
 export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/decrease?cantidad=${cantidad}`);
+
+//eventos
+
+
+export const getEventos = () => api.get('/eventos');
+export const getCufdAnterior = (idPuntoVenta) => api.get(`/codigos/obtener-cufds-anteriores/${idPuntoVenta}`);
+export const definirEvento = (data) => api.post('/evento-significativo/registrar', data);

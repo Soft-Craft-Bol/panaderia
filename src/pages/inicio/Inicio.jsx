@@ -6,7 +6,6 @@ const TopCard = lazy(() => import('../../components/topCard/TopCard'));
 const InfoLayer = lazy(() => import('../../components/layer/InfoLayer'));
 const Chard = lazy(() => import('../../components/chard/Chard'));
 const ItemChard = lazy(() => import('../../components/chard/ItemChard'));
-import { createChart, LineSeries } from 'lightweight-charts';
 import ChartComponent from '../../components/grafico/Grafico';
 import { useNavigate } from "react-router";
 

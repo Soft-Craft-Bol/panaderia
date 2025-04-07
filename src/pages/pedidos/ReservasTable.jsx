@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import Table from "../../components/table/Table";
 import { getReservas, updateReserva } from "../../service/api";
 import { Toaster, toast } from "sonner";
-import Modal from "../../components/modal/Modal"; // Importar el modal
-import "./ReservasTable.css"; // Estilos personalizados
+import Modal from "../../components/modal/Modal";
+import "./ReservasTable.css";
 
 const ReservasTable = () => {
   const [reservas, setReservas] = useState([]);
-  const [selectedReserva, setSelectedReserva] = useState(null); // Reserva seleccionada para el modal
-  const [showModal, setShowModal] = useState(false); // Controlar la visibilidad del modal
+  const [selectedReserva, setSelectedReserva] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchReservas();
@@ -44,6 +44,21 @@ const ReservasTable = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedReserva(null);
+  };
+
+  const handleDownloadComprobante = () => {
+    if (!selectedReserva?.comprobante) return;
+    
+    const link = document.createElement('a');
+    link.href = selectedReserva.comprobante;
+    
+    // Extraer el nombre del archivo de la URL o crear uno por defecto
+    const fileName = selectedReserva.comprobante.split('/').pop() || `comprobante_${selectedReserva.id}`;
+    
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const columns = [
@@ -99,16 +114,23 @@ const ReservasTable = () => {
       <h2>Lista de Reservas</h2>
       <Table columns={columns} data={reservas} />
 
-      {/* Modal para mostrar el comprobante y los productos */}
       {showModal && selectedReserva && (
         <Modal isOpen={showModal} onClose={handleCloseModal}>
           <h2>Detalles de la Reserva</h2>
           <div className="modal-content">
-            <h3>Comprobante:</h3>
+            <div className="comprobante-header">
+              <h3>Comprobante:</h3>
+              <button 
+                onClick={handleDownloadComprobante}
+                className="download-button"
+              >
+                Descargar Comprobante
+              </button>
+            </div>
             <img
               src={selectedReserva.comprobante}
               alt="Comprobante"
-              style={{ width: "100%", height: "auto",objectFit: "cover" }}
+              style={{ width: "100%", height: "auto", objectFit: "cover" }}
               className="comprobante-image"
             />
 
