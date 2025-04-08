@@ -1,10 +1,8 @@
 import axios from 'axios';
 import { getToken } from '../utils/authFunctions';
-
 //deply
 // const baseURL = "https://api.inpasep.com/api/v1";
 const baseURL = "http://localhost:8082/api/v1";
-
 const api = axios.create({
     baseURL: baseURL,
     responseType: 'json',
@@ -96,7 +94,9 @@ export const getDocumentoIdentidad = () => api.get('/parametros/documentos-ident
 
 //Cufd 
 export const getCufd = (idPuntoVenta) => api.post(`/codigos/obtener-cufd/${idPuntoVenta}`);
-export const fetFacturaDetail = (cuf) => api.get(`/factura/cuf/${cuf}`);
+
+//getFacturaDetail
+export const getFacturaDetail = (cuf) => api.get(`/factura/cuf/${cuf}`);
 //STOCKS
 export const addItemToSucursal = (sucursalId, itemId, cantidad) => api.post(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}?cantidad=${cantidad}`);
 
