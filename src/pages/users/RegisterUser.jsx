@@ -14,6 +14,7 @@ import { Button } from '../../components/buttons/Button';
 import Modal from '../../components/modal/Modal';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import Swal from "sweetalert2";
+import { fetchPuntosDeVenta } from '../../service/api';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -23,6 +24,31 @@ const MemoizedInputText = React.memo(({ label, name, type = "text", required }) 
     <InputText label={label} name={name} type={type} required={required} formik={true} />
   </Suspense>
 ));
+
+const MemoizedSelectPuntoDeVenta = React.memo(({ puntosDeVenta, value, setFieldValue }) => (
+  <div className="form-group">
+    <label htmlFor="puntoDeVenta">Punto de Venta Asignado</label>
+    <select
+      id="puntoDeVenta"
+      name="puntoDeVenta"
+      value={value || ''}
+      onChange={(e) => {
+        const selectedId = e.target.value;
+        setFieldValue('puntoDeVenta', selectedId);
+      }}
+    >
+      <option value="" disabled>
+        Seleccione un punto de venta
+      </option>
+      {puntosDeVenta.map((punto) => (
+        <option key={punto.id} value={punto.id}>
+          {punto.nombre} - {punto.sucursal.nombre}
+        </option>
+      ))}
+    </select>
+  </div>
+));
+
 
 const alerta = (titulo, mensaje, tipo =  "success") =>{
   Swal.fire({
@@ -87,6 +113,8 @@ const RoleSelectionModal = React.memo(({ isOpen, onClose, roles, selectedRoles, 
 });
 
 function UserForm() {
+  const [puntosDeVenta, setPuntosDeVenta] = useState([]);
+  const [selectedPuntoDeVenta, setSelectedPuntoDeVenta] = useState(null); 
   const navigate = useNavigate();
   const { id } = useParams();
   const { theme } = useTheme();
@@ -136,6 +164,20 @@ function UserForm() {
   }), []);
 
   useEffect(() => {
+    const loadPuntosDeVenta = async () => {
+      try {
+        const response = await fetchPuntosDeVenta();
+        setPuntosDeVenta(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error al cargar los puntos de venta:', error);
+      }
+    };
+
+    loadPuntosDeVenta();
+  }, []);
+
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await getUserById(id);
@@ -164,11 +206,15 @@ function UserForm() {
 
   const handleSubmit = useCallback(async (values, { resetForm }) => {
     let imageUrl = editingUser?.photo || null;
-
+  
     if (values.photo instanceof File) {
       imageUrl = await uploadImageToCloudinary(values.photo);
     }
-
+  
+    const selectedPuntoDeVenta = puntosDeVenta.find(
+      (punto) => punto.id === parseInt(values.puntoDeVenta, 10)
+    );
+  
     const userData = {
       username: values.username,
       nombre: values.nombre,
@@ -180,44 +226,43 @@ function UserForm() {
       roleRequest: {
         roleListName: values.roleRequest.roleListName,
       },
+      puntosVenta: selectedPuntoDeVenta ? [selectedPuntoDeVenta] : [], // Incluye el punto de venta seleccionado
     };
-
+    console.log(userData);
     try {
       if (editingUser) {
         console.log(userData);
         await updateUser(editingUser.id, userData);
-        alerta("¡Usuario actualizado!", "Guardando datos ...", )
+        alerta("¡Usuario actualizado!", "Guardando datos ...");
       } else {
         await addUser(userData);
         alerta('Usuario agregado exitosamente', "Bienvenido");
-        //Auto-login tras crear un usuario nuevo
-        if(isPublicRoute){
+        if (isPublicRoute) {
           try {
-              const loginResult = await loginUser({
+            const loginResult = await loginUser({
               username: userData.username.trim(),
               password: userData.password,
             });
             console.log(loginResult);
-        
+  
             if (loginResult?.data?.jwt) {
               const token = loginResult.data.jwt;
               const decodedToken = parseJwt(token);
               const roles = decodedToken?.authorities?.split(',') || [];
-        
+  
               saveToken(token);
               saveUser({
                 username: loginResult.data.username,
                 roles: roles,
                 photo: loginResult.data.photo,
               });
-        
+  
               navigate('/productos-externos'); // Redirige automáticamente
             }
-        } catch (error) {
-          console.error('Error en el registro o auto-login:', error);
+          } catch (error) {
+            console.error('Error en el registro o auto-login:', error);
+          }
         }
-        }
-        
       }
       resetForm();
       navigate('/users');
@@ -225,7 +270,7 @@ function UserForm() {
       console.error('Error response:', error.response);
       alerta('Error al procesar la solicitud', error, 'error');
     }
-  }, [editingUser, navigate, notify]);
+  }, [editingUser, navigate, notify, puntosDeVenta]);
 
   const handlePhotoChange = useCallback((event, setFieldValue) => {
     const file = event.currentTarget.files[0];
@@ -307,7 +352,13 @@ function UserForm() {
                       Seleccionar Roles
                     </Button>
                   )}
+                  <MemoizedSelectPuntoDeVenta
+                    puntosDeVenta={puntosDeVenta}
+                    value={values.puntoDeVenta}
+                    setFieldValue={setFieldValue}
+                  />
                 </div>
+                
               </div>
             </div>
             <Button

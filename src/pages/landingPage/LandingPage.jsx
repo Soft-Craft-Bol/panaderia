@@ -4,6 +4,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import './LandingPage.css';
 import MapComponent from '../../components/map/MapComponent';
+import { useNavigate } from 'react-router-dom';
 
 // Importa tus imágenes aquí
 import inpasedLogo from '../../assets/img/inpased.png';
@@ -18,6 +19,7 @@ const LandingPage = () => {
     threshold: 0.1,
     triggerOnce: false
   });
+  const navigator = useNavigate();
 
   useEffect(() => {
     if (inView) {
@@ -46,10 +48,24 @@ const LandingPage = () => {
       }
     }
   };
+  const handleLogin = () => {
+    navigator('/login');
+  }
+  const handleInicio = () => {
+    navigator('/home');
+  }
 
   return (
     <div className="landing-page">
-      {/* Hero Section */}
+      <div className="navbar">
+        <div className="navbar-logo">
+          <img src={inpasedLogo} alt="Logo Inpased" />
+        </div>
+        <div className="navbar-links">
+          <Link onClick={handleInicio}  to="/login">Inicio</Link>
+          <Link onClick={handleLogin}  to="/login">Login</Link>
+        </div>
+      </div>
       <section className="hero-section">
         <div className="hero-content">
           <motion.img 
@@ -64,7 +80,7 @@ const LandingPage = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            Panadería artesanal con tradición boliviana
+            Panadería con tradición boliviana
           </motion.h1>
           <motion.p
             initial={{ y: 50, opacity: 0 }}
