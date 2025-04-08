@@ -117,9 +117,8 @@ export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
 export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/decrease?cantidad=${cantidad}`);
 
-//eventos
-
-
+//eventos y contingencias
 export const getEventos = () => api.get('/eventos');
 export const getCufdAnterior = (idPuntoVenta) => api.get(`/codigos/obtener-cufds-anteriores/${idPuntoVenta}`);
 export const definirEvento = (data) => api.post('/evento-significativo/registrar', data);
+export const emitirContingencia = (data) => api.post('/factura/contigencia', data);

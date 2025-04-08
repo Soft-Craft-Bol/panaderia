@@ -57,7 +57,7 @@ const SidebarLogout = () => (
   <li>
     <Link to="/" onClick={signOut}>
       <Suspense fallback={<span>...</span>}>
-        <i className="icon-logout"><TbLogout /></i>
+        <i className="icon"><TbLogout /></i>
       </Suspense>
       <span className="text nav-text">Cerrar sesión</span>
     </Link>

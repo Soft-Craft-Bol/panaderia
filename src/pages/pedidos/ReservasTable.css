@@ -42,10 +42,6 @@
     background-color: #218838;
 }
 
-.modal-content {
-    text-align: center;
-    padding: 20px;
-}
 
 .comprobante-image {
     max-width: 100%;
@@ -115,10 +111,6 @@
     background-color: #218838;
   }
   
-  .modal-content {
-    text-align: center;
-    align-items: center;
-  }
   
   .comprobante-image {
     max-width: 150px;
@@ -155,11 +147,7 @@
   }
 
 
-  /* Estilos para el modal de comprobante */
-.modal-content {
-  max-height: 80vh;
-  overflow-y: auto;
-}
+
 
 .comprobante-header {
   display: flex;
