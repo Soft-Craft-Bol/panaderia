@@ -107,11 +107,21 @@ export const getStockWithSucursal = () => api.get('/sucursal-items/items-with-su
 export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
 export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucursal/${sucursalId}`);
+
+
 export const getInsumos = () => api.get('/insumos');
 export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
 export const getSucursalWithInsumos = () => api.get('/sucursal-insumos');
 export const createInsumo = (data) => api.post('/insumos', data);
 export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
+
+
+//Recetas 
+export const getRecetas = () => api.get('/recetas');
+export const createReceta = (data) => api.post('/recetas', data);
+export const deleteReceta = (id) => api.delete(`/recetas/${id}`);
+
+
 export const getItemsPromocion = () => api.get('/promocion');
 export const setItemsPromocion = (data) => api.post('/promocion', data);
 export const deletePromocion = (id) => api.delete(`/promocion/${id}`);

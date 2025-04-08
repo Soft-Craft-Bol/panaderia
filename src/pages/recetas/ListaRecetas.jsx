@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import './ListaRecetas.css';
 import { fetchItems } from '../../service/api';
+import { useNavigate } from 'react-router-dom';
 
 const ListaRecetas = () => {
   const [items, setItems] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getItems = async () => {
@@ -20,12 +22,13 @@ const ListaRecetas = () => {
 
   const handleEstablecerReceta = (itemId) => {
     console.log(`Establecer receta para el item con ID: ${itemId}`);
+    navigate(`/recetas/crear`);
     // Aquí puedes manejar la lógica para establecer la receta
   };
 
   return (
     <div className="recetas-container">
-      <h1 className="recetas-title">Recetas</h1>
+      <h1 className="recetas-title">Recetas/Produccion</h1>
       <table className="recetas-table">
         <thead>
           <tr>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { FaBell, FaMoon, FaSun, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
@@ -8,6 +8,8 @@ import "./Navbar.css";
 import loadImage from "../../assets/ImagesApp";
 import { Link } from "react-router-dom";
 import { useSidebar } from "../../context/SidebarContext";
+import { signOut } from "../../utils/authFunctions";
+import { TbLogout } from "react-icons/tb";
 
 const useImageLoader = (imageName) => {
   const [image, setImage] = useState(null);
@@ -91,7 +93,13 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
                   />
                   <span className="profile-name">{currentUser.full_name}</span>
                 </div>
+                    <Link to="/" onClick={signOut}>
+                      <Suspense fallback={<span>...</span>}>
+                        <i className="icon-logout"><TbLogout /></i>
+                      </Suspense>
+                    </Link>
               </div>
+
             </>
           ) : (
             <>

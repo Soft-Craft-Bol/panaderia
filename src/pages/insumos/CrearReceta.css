@@ -1,0 +1,122 @@
+/* Contenedor principal */
+.crear-receta-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos para los títulos */
+.crear-receta-container h2, 
+.crear-receta-container h3,
+.crear-receta-container h4 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Formulario */
+.crear-receta-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Campos de entrada */
+.crear-receta-container input,
+.crear-receta-container select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Selector de insumos */
+.insumos-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.insumos-selector select {
+    flex: 2;
+}
+
+.insumos-selector input {
+    flex: 1;
+}
+
+.insumos-selector button {
+    flex: 0.5;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.insumos-selector button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Insumos seleccionados */
+.insumos-seleccionados {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.insumos-seleccionados ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.insumo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 5px 0;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-btn:hover {
+    color: #a71d2a;
+}
+
+/* Botón de enviar */
+.submit-btn {
+    background-color: #e68355;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}

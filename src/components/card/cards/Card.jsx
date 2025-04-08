@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Card.css';
 import { FaPencilAlt, FaPlus, FaMinus } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { sumarCantidadDeInsumo, restarCantidadDeInsumo } from '../../../service/api';
+import { sumarCantidadDeInsumo, restarCantidadDeInsumo, getProductoServicio } from '../../../service/api';
 import { toast } from 'sonner';
 
 const Card = ({ img, titulo, datos = {}, cantidad, onTitleHover, insumoId, insumoData, sucursalId, fetchSucursalesConInsumos }) => {
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
   const [isSubtractModalOpen, setIsSubtractModalOpen] = useState(false); 
-  const [cantidadInput, setCantidadInput] = useState(''); 
+  const [cantidadInput, setCantidadInput] = useState('');
+  
+  
+
   
   const handleEdit = () => {
     navigate(`/insumos/edit/${insumoId}`, { state: { insumoData } });
