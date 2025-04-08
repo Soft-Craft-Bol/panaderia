@@ -9,6 +9,7 @@ import {
   emitirSinFactura,
   getCufd,
   getStockBySucursal,
+  emitirContingencia
 } from "../../service/api";
 import { generatePDF } from "../../utils/generatePDF";
 import { getUser } from "../../utils/authFunctions";
@@ -30,7 +31,7 @@ const FacturaForm = () => {
     numeroDocumento: "0000000000 CB",
     id: null,
   };
-  
+
   const flag = location.state?.flag || false;
 
   const [items, setItems] = useState([]);
@@ -214,6 +215,50 @@ const FacturaForm = () => {
     }
   };
 
+  const handleContingencia = async (values, { setSubmitting }) => {
+    try {
+      setSubmitting(true);
+
+      const selectedPuntoDeVenta = puntosDeVenta.find(
+        (punto) => punto.nombre === values.puntoDeVenta
+      );
+
+      if (!selectedPuntoDeVenta) {
+        throw new Error("Punto de venta no encontrado");
+      }
+
+      const facturaData = {
+        idPuntoVenta: selectedPuntoDeVenta.id,
+        idCliente: client.id,
+        tipoComprobante: "FACTURA",
+        metodoPago: values.metodoPago,
+        username: currentUser.username,
+        usuario: client.nombreRazonSocial,
+        detalle: values.items.map((item) => {
+          const selectedItem = items.find((i) => i.descripcion === item.item);
+          if (!selectedItem) {
+            throw new Error(`Item no encontrado: ${item.item}`);
+          }
+          return {
+            idProducto: selectedItem.id,
+            cantidad: Number(item.cantidad),
+            montoDescuento: Number(item.descuento || 0),
+          };
+        }),
+      };
+
+      const response = await emitirContingencia(facturaData);
+      const doc = await generatePDF(response.data.xmlContent);
+      doc.save(`factura-contingencia-${response.data.cuf}.pdf`);
+      toast.success("Factura por contingencia emitida y PDF generado con éxito");
+      navigate("/ventas");
+    } catch (error) {
+      toast.error(`Error al emitir factura por contingencia: ${error.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handlePuntoDeVentaChange = useCallback(async (puntoDeVentaNombre) => {
     const selectedPuntoDeVenta = puntosDeVenta.find(
       (punto) => punto.nombre === puntoDeVentaNombre
@@ -266,8 +311,8 @@ const FacturaForm = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}>
-          {({ values, setFieldValue, isSubmitting }) => (
+          onSubmit={() => { }} >
+          {({ values, setFieldValue, isSubmitting, resetForm }) => (
             <Form>
               <SelectPrimary
                 label="Punto de Venta"
@@ -416,28 +461,54 @@ const FacturaForm = () => {
               </div>
 
               <div className="form-buttons">
-                {flag && (
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={isSubmitting}>
-                    {isSubmitting ? "Emitiendo factura..." : "Emitir Factura"}
-                  </Button>
-                )}
-                {!flag && (
-                  <Button
-                    className="btn-venta-sin-factura"
-                    type="button" // Asegúrate que es type="button" y no type="submit"
-                    variant="secondary"
-                    onClick={(e) => {
-                      e.preventDefault(); // Previene el comportamiento por defecto del botón
-                      handleVentaSinFactura(values, { setSubmitting });
-                    }}
-                    disabled={isSubmitting}
-                  >
-                    Registrar venta sin Factura
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSubmit(values, {
+                      resetForm,
+                      setSubmitting: (submitting) => {
+                        console.log("Submitting:", submitting);
+                      }
+                    });
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Emitiendo..." : "Emitir Factura"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleVentaSinFactura(values, {
+                      setSubmitting: (submitting) => {
+                        console.log("Submitting:", submitting);
+                      }
+                    });
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Registrar venta sin Factura
+                </Button>
+                <Button
+                  type="button"
+                  variant="warning"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleContingencia(values, {
+                      setSubmitting: (submitting) => {
+                        console.log("Submitting:", submitting);
+                      }
+                    });
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Emitir por Contingencia
+                </Button>
+
+
                 <Button
                   type="button"
                   variant="danger"
