@@ -111,6 +111,7 @@ const Productos = () => {
 
             if (productoEnSucursal) {
               await sumarCantidadDeProducto(sucursalId, selectedProduct.id, cantidad);
+              fetchProductosServicio();
             } else {
               await addItemToSucursal(sucursalId, selectedProduct.id, cantidad);
             }

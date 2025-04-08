@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import './Insumos.css';
 import Card from '../../components/card/cards/Card';
-import { getSucursalWithInsumos } from '../../service/api';
+import { getSucursalWithInsumos, getInsumos } from '../../service/api';
 import Tooltip from '../../components/tooltip/Tooltip';
 import { useNavigate } from 'react-router-dom';
 
 const Insumos = () => {
-  const [sucursales, setSucursales] = useState([]);
+  const [insumos, setInsumos] = useState([]); // Cambiado de sucursales a insumos
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hoveredInsumoId, setHoveredInsumoId] = useState(null);
   const [hoveredElement, setHoveredElement] = useState(null);
   const navigate = useNavigate();
 
-  const fetchSucursalesConInsumos = async () => {
+  const fetchInsumos = async () => {
     try {
-      const response = await getSucursalWithInsumos();
-      setSucursales(response.data); 
+      const response = await getInsumos();
+      console.log('response:', response);
+      setInsumos(response.data); // Guardamos directamente los insumos
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching sucursales with insumos:', error);
+      console.error('Error fetching insumos:', error);
       setError(error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSucursalesConInsumos();
+    fetchInsumos();
   }, []);
 
   if (loading) return <div>Cargando...</div>;
@@ -40,44 +41,38 @@ const Insumos = () => {
           Crear insumo
         </button>
       </div>
-      {sucursales.map((sucursal) => (
-        <div key={sucursal.id} className="sucursal-container">
-          <h2>{sucursal.nombre}</h2>
-          <div className="cards-container">
-            {sucursal.insumos.map((insumo) => (
-              <div 
-                key={insumo.id} 
-                style={{ position: 'relative' }}
-                ref={(el) => hoveredInsumoId === insumo.id ? setHoveredElement(el) : null}
-              >
-                <Card
-                  img={insumo.imagen}
-                  titulo={insumo.nombre}
-                  datos={{
-                    Proveedor: insumo.proveedor,
-                    Marca: insumo.marca,
-                  }}
-                  cantidad={insumo.cantidad} 
-                  onTitleHover={(e) => {
-                    if (e.type === 'mouseenter') {
-                      setHoveredInsumoId(insumo.id);
-                    } else {
-                      setHoveredInsumoId(null);
-                    }
-                  }}
-                  insumoId={insumo.id}
-                  insumoData={insumo}
-                  sucursalId={sucursal.id}
-                  fetchSucursalesConInsumos={fetchSucursalesConInsumos}
-                />
-                {hoveredInsumoId === insumo.id && (
-                  <Tooltip insumo={insumo} targetElement={hoveredElement} />
-                )}
-              </div>
-            ))}
+      <div className="cards-container">
+        {insumos.map((insumo) => (
+          <div 
+            key={insumo.id} 
+            style={{ position: 'relative' }}
+            ref={(el) => hoveredInsumoId === insumo.id ? setHoveredElement(el) : null}
+          >
+            <Card
+              img={insumo.imagen}
+              titulo={insumo.nombre}
+              datos={{
+                Proveedor: insumo.proveedor,
+                Marca: insumo.marca,
+              }}
+              cantidad={insumo.cantidad} 
+              onTitleHover={(e) => {
+                if (e.type === 'mouseenter') {
+                  setHoveredInsumoId(insumo.id);
+                } else {
+                  setHoveredInsumoId(null);
+                }
+              }}
+              insumoId={insumo.id}
+              insumoData={insumo}
+              fetchInsumos={fetchInsumos} // Cambiado el nombre de la función
+            />
+            {hoveredInsumoId === insumo.id && (
+              <Tooltip insumo={insumo} targetElement={hoveredElement} />
+            )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </main>
   );
 };

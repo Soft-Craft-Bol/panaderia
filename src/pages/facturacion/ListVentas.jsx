@@ -52,6 +52,7 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
 
 const ListVentas = () => {
   const { facturas, setFacturas, loading, error } = useFacturas();
+  console.log("Facturas:", facturas);
   const currentUser = useMemo(() => getUser(), []);
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
@@ -73,9 +74,9 @@ const ListVentas = () => {
     setIsAnulando(true);
     try {
       const requestData = {
-        idPuntoVenta: 2,
+        idPuntoVenta: venta.idPuntoVenta,
         cuf: venta.cuf,
-        codigoMotivo: 1,
+        codigoMotivo: 1, 
       };
       const response = await anularFactura(requestData);
       toast.success("Factura anulada exitosamente");
@@ -98,7 +99,7 @@ const ListVentas = () => {
     setIsRevirtiendo(true);
     try {
       const requestData = {
-        idPuntoVenta: 2,
+        idPuntoVenta: venta.idPuntoVenta,
         cuf: venta.cuf,
       };
       const response = await revertirAnulacionFactura(requestData);

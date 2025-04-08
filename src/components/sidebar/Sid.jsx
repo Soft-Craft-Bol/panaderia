@@ -115,7 +115,6 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
           </ul>
         </div>
         <div className="bottom-content" style={{marginTop: "20px"}}>
-          <SidebarLogout />
         </div>
       </div>
       
