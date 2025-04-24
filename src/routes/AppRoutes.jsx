@@ -34,6 +34,7 @@ const CrearInsumoPage = lazy(() => import("../pages/insumos/CrearInsumoPage"));
 const EditarInsumo = lazy(() => import("../pages/insumos/EditarInsumo"));
 const ListaRecetas = lazy(() => import("../pages/recetas/ListaRecetas"));
 const CrearReceta = lazy(() => import("../pages/insumos/CrearReceta"));
+const ProductosVentas = lazy(() => import("../pages/productos/ProdcutoVentas"));
 
 const EventForm = lazy(() => import("../pages/event/EventForm") )
 
@@ -64,6 +65,7 @@ const AppRoutes = () => (
         <Route path="/carrito" element = {<PrivateRoute> <CarrritoLista /></PrivateRoute>}/>
         <Route path="/reservas" element = {<PrivateRoute> <ReservasTable /></PrivateRoute>}/>
         <Route path="/product" element = {<BreadList /> }/>
+        <Route path="/productos-ventas" element = {<PrivateRoute> <ProductosVentas /> </PrivateRoute>} />
 
         <Route path="/facturacion" element={<PrivateRoute><Facturacion /></PrivateRoute>} />
         <Route path="/ventas" element={<PrivateRoute><ListVentas /></PrivateRoute>} />
@@ -82,7 +84,9 @@ const AppRoutes = () => (
         <Route path="/recetas" element={<PrivateRoute><ListaRecetas /></PrivateRoute>} />
         <Route path="/recetas/crear" element={<PrivateRoute><CrearReceta /></PrivateRoute>} />
 
+
         <Route path="/evento" element={<PrivateRoute><EventForm/></PrivateRoute>}/>
+
 
     </Routes>
 );

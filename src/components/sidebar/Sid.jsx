@@ -101,6 +101,7 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/home" icon={<FaHome />} text="Dashboard" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_USER", "ROLE_SECRETARIA", "ROLE_VENDEDOR")} />
             <SidebarLink to="/users" icon={<PiChalkboardTeacher />} text="Usuarios" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />
             <SidebarLink to="/productos" icon={<GiSlicedBread />} text="Stock" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_VENDEDOR")} />
+            <SidebarLink to="/productos-ventas" icon={<GiSlicedBread />} text="Productos en Venta" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_PANADERO", "ROLE_VENDEDOR")} />
             <SidebarLink to="/ventas" icon={<AiOutlineGroup />} text="Facturación" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/despachos" icon={<RiTruckFill />} text="Despachos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_VENDEDOR")} />
             <SidebarLink to="/gastos" icon={<GrAnalytics />} text="Gestion de gastos" hasPermission={hasAnyRole("ROLE_ADMIN", "ROLE_SECRETARIA")} />

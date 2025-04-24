@@ -12,6 +12,8 @@ import panIntegral from '../../assets/img/pan10.jpg';
 import panLeche from '../../assets/img/pan6.jpg';
 import empanadaPollo from '../../assets/img/pan7.jpg';
 import panDestacado from '../../assets/img/panHD.jpg';
+import HeroSection from './HeroSection';
+import BestSellersSection from './BestSellersSection';
 
 const LandingPage = () => {
   const controls = useAnimation();
@@ -63,9 +65,13 @@ const LandingPage = () => {
         </div>
         <div className="navbar-links">
           <Link onClick={handleInicio}  to="/login">Inicio</Link>
+          <Link onClick={handleInicio}  to="/product">Productos</Link>
           <Link onClick={handleLogin}  to="/login">Login</Link>
         </div>
       </div>
+      <HeroSection />
+      <BestSellersSection/>
+
       <section className="hero-section">
         <div className="hero-content">
           <motion.img 
@@ -93,6 +99,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
+
       <section className="features-section">
         <div className="section-container">
           <h2 className="section-title">¿Por qué elegirnos?</h2>

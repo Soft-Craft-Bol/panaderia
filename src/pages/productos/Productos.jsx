@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal, getProductoServicio } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal } from '../../service/api';
 import '../users/ListUser.css';
 import { Toaster, toast } from "sonner";
-import LinkButton from "../../components/buttons/LinkButton";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -16,8 +16,10 @@ const Productos = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sucursales, setSucursales] = useState([]);
   const [cantidades, setCantidades] = useState({});
-  const [productosServicio, setProductosServicio] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const dataLabels = {
@@ -26,12 +28,34 @@ const Productos = () => {
     data3: 'Código Producto SIN:'
   };
 
-  const getProducts = async () => {
+  const getProducts = useCallback(async (pageNumber = 0, search = '') => { // Cambia a 0-based
     try {
-      const response = await getStockWithSucursal();
-      setProductos(response.data);
+      setLoading(true);
+      const response = await getStockWithSucursal(pageNumber, search);
+      const pageData = response.data; // Esto es el objeto Page completo
+      const newProducts = pageData.content; // Los productos están aquí
+      
+      if (pageNumber === 0) {
+        setProductos(newProducts);
+      } else {
+        setProductos(prev => [...prev, ...newProducts]);
+      }
+      
+      // Usamos pageData.last para saber si hay más páginas
+      setHasMore(!pageData.last);
+      setPage(pageNumber + 1);
+      
     } catch (error) {
       console.error('Error fetching products:', error);
+      toast.error('Error al cargar productos');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchMoreData = () => {
+    if (!loading && hasMore) { 
+      getProducts(page, searchTerm);
     }
   };
 
@@ -44,23 +68,16 @@ const Productos = () => {
     }
   };
 
-  const fetchProductosServicio = async () => {
-    try {
-      const response = await getProductoServicio();
-      setProductosServicio(response.data);
-    } catch (error) {
-      console.error('Error fetching productos servicio:', error);
-    }
-  };
+  useEffect(() => {
+    getProducts(0, searchTerm); 
+  }, [searchTerm, getProducts]);
 
   useEffect(() => {
-    getProducts();
     fetchSucursales();
-    fetchProductosServicio();
   }, []);
 
   const getDescripcionProducto = (codigoProducto) => {
-    const producto = productosServicio.find(p => p.codigoProducto === codigoProducto);
+    const producto = productos.find(p => p.codigoProducto === codigoProducto);
     return producto ? producto.descripcionProducto : 'Descripción no disponible';
   };
 
@@ -106,19 +123,17 @@ const Productos = () => {
         for (const sucursalId in cantidades) {
           const cantidad = cantidades[sucursalId];
           if (cantidad !== "" && cantidad > 0) {
-            const sucursal = sucursales.find((s) => s.id === Number(sucursalId));
             const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
 
             if (productoEnSucursal) {
               await sumarCantidadDeProducto(sucursalId, selectedProduct.id, cantidad);
-              fetchProductosServicio();
             } else {
               await addItemToSucursal(sucursalId, selectedProduct.id, cantidad);
             }
           }
         }
         toast.success("Cantidades agregadas correctamente");
-        getProducts();
+        getProducts(page, searchTerm); 
       } catch (error) {
         console.error('Error al agregar cantidades:', error);
         toast.error('Error al agregar cantidades');
@@ -151,21 +166,27 @@ const Productos = () => {
       </button>
       <div>
         <input
-        type="text"
-        placeholder="Buscar por descripción..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
+          type="text"
+          placeholder="Buscar por descripción..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
         />
       </div>
       
-      
-      <div className="cardsProducto-contenedor">
-        {productos
-          .filter((product) =>
-            product.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          .map((product) => (
+      <InfiniteScroll
+        dataLength={productos.length}
+        next={fetchMoreData}
+        hasMore={hasMore}
+        loader={<h4>Cargando...</h4>}
+        endMessage={
+          <p style={{ textAlign: 'center' }}>
+            <b>No hay más productos para mostrar</b>
+          </p>
+        }
+      >
+        <div className="cardsProducto-contenedor">
+          {productos.map((product) => (
             <CardProducto
               dataLabels={dataLabels}
               key={product.id}
@@ -176,38 +197,41 @@ const Productos = () => {
               descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
             />
           ))}
-        {isModalOpen && (
-          <div className="modalCant">
-            <div className="modalCant-content">
-              <h2>Agregar Cantidad</h2>
-              {sucursales.map((sucursal) => {
-                const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === sucursal.id);
-                return (
-                  <div key={sucursal.id} className="sucursal-item">
-                    <label>{sucursal.nombre}</label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Ingrese la cantidad"
-                      value={cantidades[sucursal.id] || ""}
-                      onChange={(e) => setCantidades((prev) => ({
-                        ...prev,
-                        [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value),
-                      }))}
-                      onKeyDown={handleKeyDown}
-                    />
-                    <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
-                  </div>
-                );
-              })}
-              <div className="botones-footer">
-                <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
-                <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-              </div>
+        </div>
+      </InfiniteScroll>
+
+      {isModalOpen && (
+        <div className="modalCant">
+          <div className="modalCant-content">
+            <h2>Agregar Cantidad</h2>
+            {sucursales.map((sucursal) => {
+              const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === sucursal.id);
+              return (
+                <div key={sucursal.id} className="sucursal-item">
+                  <label>{sucursal.nombre}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Ingrese la cantidad"
+                    value={cantidades[sucursal.id] || ""}
+                    onChange={(e) => setCantidades((prev) => ({
+                      ...prev,
+                      [sucursal.id]: e.target.value === "" ? "" : Number(e.target.value),
+                    }))}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <label>Cantidad actual: {productoEnSucursal ? productoEnSucursal.cantidad : 0}</label>
+                </div>
+              );
+            })}
+            <div className="botones-footer">
+              <button className="btn-edit" onClick={handleConfirm}>Confirmar</button>
+              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      
       <ModalConfirm
         showModal={showModal}
         handleCloseModal={handleCloseModal}

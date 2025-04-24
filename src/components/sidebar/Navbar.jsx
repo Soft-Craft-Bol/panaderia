@@ -7,7 +7,6 @@ import Carrito from "../modal/CarritoModal";
 import "./Navbar.css";
 import loadImage from "../../assets/ImagesApp";
 import { Link } from "react-router-dom";
-import { useSidebar } from "../../context/SidebarContext";
 import { signOut } from "../../utils/authFunctions";
 import { TbLogout } from "react-icons/tb";
 
@@ -102,17 +101,7 @@ const Navbar = ({ sidebarOpen, toggleSidebar }) => {
 
             </>
           ) : (
-            <>
-              <div className="navbar-left">
-                <Link to="/" className="navbar-link">Home</Link>
-                <Link to="/product" className="navbar-link">Productos</Link>
-              </div>
-
-              <div className="navbar-right">
-                <Link to="/register" className="navbar-link register-link">Registrarse</Link>
-                <Link to="/login" className="navbar-link login-link">Iniciar Sesión</Link>
-              </div>
-            </>
+<>,</>
           )}
         </div>
 
