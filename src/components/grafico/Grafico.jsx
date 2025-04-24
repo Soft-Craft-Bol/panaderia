@@ -5,13 +5,6 @@ import React, { useEffect, useRef } from 'react';
 export const ChartComponent = props => {
     const {
         data,
-        colors: {
-            backgroundColor = 'white',
-            lineColor = '#2962FF',
-            textColor = 'black',
-            areaTopColor = '#2962FF',
-            areaBottomColor = 'rgba(41, 98, 255, 0.28)',
-        } = {},
     } = props;
 
     const chartContainerRef = useRef();
@@ -24,15 +17,20 @@ export const ChartComponent = props => {
 
             const chart = createChart(chartContainerRef.current, {
                 layout: {
-                    background: { type: ColorType.Solid, color: backgroundColor },
-                    textColor,
+                    background: { type: ColorType.Solid, color: getComputedStyle(document.documentElement).getPropertyValue('--bg-component-white').trim() },
+                    textColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim(),
                 },
                 width: chartContainerRef.current.clientWidth,
                 height: 300,
             });
             chart.timeScale().fitContent();
 
-            const newSeries = chart.addSeries(AreaSeries, { lineColor, topColor: areaTopColor, bottomColor: areaBottomColor });
+            const newSeries = chart.addSeries(AreaSeries, {
+                 lineColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+                 topColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+                bottomColor: 'rgba(255, 175, 90, 0.2)',
+                
+                });
             newSeries.setData(data);
 
             window.addEventListener('resize', handleResize);
@@ -43,7 +41,7 @@ export const ChartComponent = props => {
                 chart.remove();
             };
         },
-        [data, backgroundColor, lineColor, textColor, areaTopColor, areaBottomColor]
+        [data]
     );
 
     return (

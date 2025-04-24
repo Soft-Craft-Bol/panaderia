@@ -51,13 +51,24 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
 };
 
 const ListVentas = () => {
-  const { facturas, setFacturas, loading, error } = useFacturas();
-  console.log("Facturas:", facturas);
   const currentUser = useMemo(() => getUser(), []);
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({});
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  
+  const { 
+    facturas, 
+    setFacturas, 
+    loading, 
+    error,
+    totalPages,
+    totalElements
+  } = useFacturas(currentPage, pageSize);
+  console.log("Facturas:", facturas);
+
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
@@ -197,9 +208,17 @@ const ListVentas = () => {
       ),
     },
   ], [handleAnularFactura, handleRevertirFactura, handleDownload, hasAnyRole, isAnulando, isRevirtiendo]);
+  
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+  
+  const handleRowsPerPageChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(0); 
+  };
 
 
-  if (loading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar las facturas</div>;
 
   return (
@@ -214,7 +233,20 @@ const ListVentas = () => {
         onSearch={handleSearch}
         onFilter={handleFilter}
       />
-      <Table columns={columns} data={filteredData} className="user-management-table" />
+
+<Table 
+        columns={columns} 
+        data={facturas} 
+        loading={loading}
+        pagination={{
+          currentPage: currentPage + 1, // Mostrar como 1-based al usuario
+          totalPages,
+          totalElements,
+          rowsPerPage: pageSize
+        }}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
     </div>
   );
 };

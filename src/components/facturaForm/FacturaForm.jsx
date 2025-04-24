@@ -347,7 +347,7 @@ const FacturaForm = () => {
                       const selectedItem = items.find(
                         (i) => i.descripcion === item.item
                       );
-
+                    
                       return (
                         <div className="ds" key={index}>
                           <div className="form-row">

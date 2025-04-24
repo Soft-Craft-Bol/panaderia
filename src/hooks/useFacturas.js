@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { getAllFacturas } from "../service/api";
 
-const useFacturas = () => {
+const useFacturas = (page = 0, size = 10, searchTerm = "", filters = {}) => {
   const [facturas, setFacturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   useEffect(() => {
     const fetchFacturas = async () => {
       try {
-        const response = await getAllFacturas();
+        setLoading(true);
+        const response = await getAllFacturas(page, size, searchTerm, filters);
         setFacturas(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setTotalElements(response.data.totalElements);
       } catch (err) {
         setError(err);
         toast.error("Error al cargar las facturas");
@@ -19,9 +24,15 @@ const useFacturas = () => {
       }
     };
     fetchFacturas();
-  }, []);
+  }, [page, size, searchTerm, filters]);
 
-  return { facturas, setFacturas, loading, error };
+  return { 
+    facturas, 
+    loading, 
+    error,
+    totalPages,
+    totalElements
+  };
 };
 
 export default useFacturas;

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from '../utils/authFunctions';
 //deply
 // const baseURL = "https://api.inpasep.com/api/v1";
-const baseURL = "http://localhost:8082/api/v1";
+const baseURL = "http://localhost:8080/api/v1";
 const api = axios.create({
     baseURL: baseURL,
     responseType: 'json',
@@ -62,7 +62,16 @@ export const deleteSucursal = (id) => api.delete(`/sucursales/${id}`);
 export const getSucursalID = (id) => api.get(`/sucursales/${id}`);
 export const editSucursal = (id, data) => api.put(`/sucursales/${id}`, data);
 
-export const getAllFacturas = () => api.get('/ventas/hoy');
+export const getAllFacturas = (page = 0, size = 10, searchTerm = "", filters = {}) => {
+  const params = {
+    page,
+    size,
+    ...(searchTerm && { search: searchTerm }),
+    ...filters
+  };
+  
+  return api.get('/ventas/hoy', { params });
+};
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
@@ -86,6 +95,7 @@ export const getHorario = () => api.get('/horarios');
 export const getItemsLimited = () => api.get('/items/limited');
 export const getClientLimited = () => api.get('/clientes/limited');
 export const getStats = () => api.get('/stats');
+export const getVentasPorDia = () => api.get('/ventas/totales-por-dia');
 //parametros
 export const getTipoMoneda = () => api.get('/parametros/tipo-moneda');
 export const unidadesMedida = () => api.get('/parametros/unidades-medida');
@@ -102,7 +112,7 @@ export const addItemToSucursal = (sucursalId, itemId, cantidad) => api.post(`/su
 
 
 //productos para los clientes por sucursal
-export const getStockWithSucursal = () => api.get('/sucursal-items/items-with-sucursales');
+export const getStockWithSucursal = (page = 0, size = 10, search = '') => api.get(`/sucursal-items/items-with-sucursales?page=${page}&size=${size}&search=${search}`);
 
 export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
