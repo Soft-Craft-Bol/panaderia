@@ -20,10 +20,13 @@ const ListaRecetas = () => {
     getItems();
   }, []);
 
-  const handleEstablecerReceta = (itemId) => {
-    console.log(`Establecer receta para el item con ID: ${itemId}`);
-    navigate(`/recetas/crear`);
-    // Aquí puedes manejar la lógica para establecer la receta
+  const handleEstablecerReceta = (itemId, itemDescripcion) => {
+    navigate(`/recetas/crear`, {
+      state: {
+        productoId: itemId,
+        nombreProducto: itemDescripcion
+      }
+    });
   };
 
   return (
@@ -59,12 +62,12 @@ const ListaRecetas = () => {
                 />
               </td>
               <td>
-              <button
-                className="btn-establecer-receta"
-                onClick={() => handleEstablecerReceta(item.id)}
-              >
-                Establecer Receta
-              </button>
+                <button
+                  className="btn-establecer-receta"
+                  onClick={() => handleEstablecerReceta(item.id, item.descripcion)}
+                >
+                  Establecer Receta
+                </button>
               </td>
             </tr>
           ))}

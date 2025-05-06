@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import './LandingPage.css';
 import MapComponent from '../../components/map/MapComponent';
 import { useNavigate } from 'react-router-dom';
-
+import SucursalMapSection from './SucursalMapSection';
 // Importa tus imágenes aquí
 import inpasedLogo from '../../assets/img/inpased.png';
 import panIntegral from '../../assets/img/pan10.jpg';
@@ -14,6 +14,8 @@ import empanadaPollo from '../../assets/img/pan7.jpg';
 import panDestacado from '../../assets/img/panHD.jpg';
 import HeroSection from './HeroSection';
 import BestSellersSection from './BestSellersSection';
+import NavbarPublic from './NavbarPublic';
+import Footer from './Footer';
 
 const LandingPage = () => {
   const controls = useAnimation();
@@ -59,16 +61,7 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
-      <div className="navbar">
-        <div className="navbar-logo">
-          <img src={inpasedLogo} alt="Logo Inpased" />
-        </div>
-        <div className="navbar-links">
-          <Link onClick={handleInicio}  to="/login">Inicio</Link>
-          <Link onClick={handleInicio}  to="/product">Productos</Link>
-          <Link onClick={handleLogin}  to="/login">Login</Link>
-        </div>
-      </div>
+      <NavbarPublic />
       <HeroSection />
       <BestSellersSection/>
 
@@ -192,88 +185,9 @@ const LandingPage = () => {
       </section>
 
       {/* Location Section */}
-      <section className="location-section">
-        <div className="section-container">
-          <h2 className="section-title">Visítanos</h2>
-          <p className="section-subtitle">Encuentra nuestras sucursales</p>
-          
-          <div className="location-grid">
-            <div className="map-container">
-              <MapComponent 
-                coordinates={[-17.391960268184448, -66.15505311330328]} 
-                zoom={16} 
-                direccion={"Villa Armonía, La Paz"}
-              />
-              <div className="location-info">
-                <h3>Sucursal Villa Armonía</h3>
-                <p>Av. Principal #1234, La Paz</p>
-                <p>Horario: 7:00 - 20:00</p>
-              </div>
-            </div>
-            
-            <div className="map-container">
-              <MapComponent 
-                coordinates={[-17.386113530324913, -66.16078969825845]} 
-                zoom={16} 
-                direccion={"Héroes del Chaco, La Paz"}
-              />
-              <div className="location-info">
-                <h3>Sucursal Héroes del Chaco</h3>
-                <p>Calle Comercio #567, La Paz</p>
-                <p>Horario: 7:00 - 21:00</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <SucursalMapSection />
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="section-container">
-          <h2>¿Listo para probar nuestros productos?</h2>
-          <p>Visítanos hoy mismo o contáctanos para pedidos especiales</p>
-          <div className="cta-buttons">
-            <button className="btn-primary">Ver ubicaciones</button>
-            <button className="btn-secondary">Contactar</button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="main-footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <img src={inpasedLogo} alt="Inpased" />
-            <p>Panadería artesanal desde 1985</p>
-          </div>
-          
-          <div className="footer-links">
-            <h3>Enlaces</h3>
-            <ul>
-              <li><Link to="/">Inicio</Link></li>
-              <li><Link to="/productos">Productos</Link></li>
-              <li><Link to="/nosotros">Nosotros</Link></li>
-              <li><Link to="/contacto">Contacto</Link></li>
-            </ul>
-          </div>
-          
-          <div className="footer-contact">
-            <h3>Contacto</h3>
-            <p>info@inpased.com</p>
-            <p>+591 12345678</p>
-            <div className="social-icons">
-              <a href="#"><i className="fab fa-facebook"></i></a>
-              <a href="#"><i className="fab fa-instagram"></i></a>
-              <a href="#"><i className="fab fa-whatsapp"></i></a>
-            </div>
-          </div>
-        </div>
-        
-        <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Inpased. Todos los derechos reservados.</p>
-          <p>Desarrollado por <Link to="https://www.softcraftbol.com/">SoftCraft</Link></p>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

@@ -1,101 +1,146 @@
-/* components/cardProducto/CardProducto.module.css */
+/* CardProductoExterno.module.css */
 .breadCard {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #fff;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    animation: fadeInUp 0.5s ease forwards;
-    max-width: 300px;
-    width: 100%;
-    border: 2px solid #f5f5f5;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-gray);
+  border-radius: var(--border-radius);
+  background-color: var(--bg-component-white);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: fadeInUp var(--main-duration1) ease forwards;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  border-radius: 8px;
+}
+
+.breadCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.breadCard.descuento {
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.breadImageContainer {
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+}
+
+.breadImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--main-duration1) ease;
+}
+
+.breadCard:hover .breadImage {
+  transform: scale(1.05);
+}
+
+.breadInfo {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.breadDescription {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.breadPrice,
+.breadQuantity {
+  margin: 0.5rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.breadPrice strong {
+  color: var(--primary-color);
+}
+
+.cardActions {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.reserveButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+}
+
+.reserveButton:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.descuentoBadge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: var(--color-red-parameter);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.sucursalNombre {
+  position: absolute;
+  top: 2.5rem;
+  right: 0.5rem;
+  background-color: var(--color-green-parameter);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
+}
+
+@keyframes fadeInUp {
+  0% {
+      opacity: 0;
+      transform: translateY(10px);
   }
-  .breadCard.descuento {
-    box-shadow: 0px 3px 5px var(--primary-color);
+  100% {
+      opacity: 1;
+      transform: translateY(0);
   }
-   .breadImageContainer {
-    height: 180px;
-    overflow: hidden;
-  }
-  
-  .breadImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .breadInfo {
-    padding: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .breadCard {
+      max-width: 100%;
   }
   
   .breadDescription {
-    font-size: 1.1rem;
-    margin: 5px 0;
-    color: #333;
-    font-weight: bold;
-  }
-  
-  .breadPrice,
-  .breadQuantity {
-    margin: 5px 0;
-    color: #555;
-  }
-  
-  .cardActions {
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: end;
+      font-size: 1rem;
   }
   
   .reserveButton {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    background-color: #ff385c;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
   }
-  
-  .reserveButton:hover {
-    background-color: #fa2b52;
-  }
-  .descuentoBadge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #ff385c;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    font-weight: bold;
-  }
-  
-  
-  @keyframes fadeInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .sucursalNombre {
-    position: absolute;
-    top: 40px;
-    right: 10px;
-    background-color: #ff385c;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-top: 10px;
-  }
+}

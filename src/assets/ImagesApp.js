@@ -20,6 +20,8 @@ const loadImage = async (imageName) => {
       return import("./img/panadero.jpg");
     case "qr":
       return import("./img/qr.jpg");
+    case "canasta":
+      return import("./img/canasta.png");
     case "producto":
       return import("./img/panHD.jpg");
     default:

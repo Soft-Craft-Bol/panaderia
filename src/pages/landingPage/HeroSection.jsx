@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import torat from '../../assets/img/04f731e0873f3429b6a692680ae23f13.png';
+import torat from '../../assets/img/canasta.png';
 import pan from '../../assets/img/panHD.jpg';
 import pan11 from '../../assets/img/pan11.jpg';
 import './HeroSection.css';
 
-const carouselImages = [pan, torat, torat, pan11, pan]; // Puedes cambiar o cargar dinámicamente
+const carouselImages = [pan, torat, pan11, pan]; // Tus imágenes
 
 const HeroSection = () => {
   const carouselRef = useRef(null);
@@ -17,12 +17,7 @@ const HeroSection = () => {
 
     if (carouselImages.length > visibleImages && el) {
       interval = setInterval(() => {
-        const imageWidth = el.querySelector('img')?.offsetWidth + 10;
-        const nextIndex = (currentIndex + 1) % (carouselImages.length - visibleImages + 1);
-        el.scrollTo({
-          left: nextIndex * imageWidth,
-          behavior: 'smooth',
-        });
+        const nextIndex = (currentIndex + 1) % carouselImages.length;
         setCurrentIndex(nextIndex);
       }, 3000);
     }
@@ -30,35 +25,77 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [currentIndex]);
 
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (el) {
+      const imageWidth = el.querySelector('img')?.offsetWidth + 10;
+      el.scrollTo({
+        left: currentIndex * imageWidth,
+        behavior: 'smooth',
+      });
+    }
+  }, [currentIndex]);
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => 
+      prev === 0 ? carouselImages.length - 1 : prev - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => 
+      prev === carouselImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
   return (
     <section className="hero">
-      <div className="hero-text">
-        <h1>
-          Llevamos felicidad <br />
-          <span>a través de un pedazo de pan</span>
-        </h1>
-        <p>
-          Contáctanos para hacer tu pedido o conocer todas nuestras opciones de panadería y repostería.
-          En Inpasep, queremos que disfrutes cada bocado.
-        </p>
-        <div className="hero-buttons">
-          <button className="order-btn">Ordenar ahora</button>
-          <button className="menu-btn">Ver menú completo</button>
-        </div>
-      </div>
-
-      <div className="hero-image">
-        <img src={torat} alt="Pastel de chocolate" className="main-image" />
-        <div className="carousel-preview" ref={carouselRef}>
-          {carouselImages.map((img, index) => (
-            <img key={index} src={img} alt={`Producto ${index + 1}`} />
-          ))}
-        </div>
-        {carouselImages.length > visibleImages && (
-          <div className="carousel-nav">
-            ← {currentIndex + 1}/{carouselImages.length - visibleImages + 1} →
+      <div className="hero-content">
+        <div className="hero-text">
+          <h1>
+            Llevamos felicidad <br />
+            <span>a través de un pedazo de pan</span>
+          </h1>
+          <p>
+            Contáctanos para hacer tu pedido o conocer todas nuestras opciones de panadería y repostería.
+            En Inpasep, queremos que disfrutes cada bocado.
+          </p>
+          <div className="hero-buttons">
+            <button className="order-btn">Ordenar ahora</button>
+            <button className="menu-btn">Ver menú completo</button>
           </div>
-        )}
+        </div>
+
+        <div className="hero-visuals">
+        <img src={torat} alt="Pastel de chocolate" className="main-image" />
+          
+          <div className="carousel-container">
+            <div className="carousel-track" ref={carouselRef}>
+              {carouselImages.map((img, index) => (
+                <div 
+                  key={index} 
+                  className={`carousel-item ${index === currentIndex ? 'active' : ''}`}
+                >
+                  <img src={img} alt={`Producto ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+            
+            <div className="carousel-controls">
+              <button onClick={goToPrev} className="carousel-arrow">←</button>
+              <div className="carousel-indicators">
+                {carouselImages.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`indicator ${idx === currentIndex ? 'active' : ''}`}
+                    onClick={() => setCurrentIndex(idx)}
+                  />
+                ))}
+              </div>
+              <button onClick={goToNext} className="carousel-arrow">→</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

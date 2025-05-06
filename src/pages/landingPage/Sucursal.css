@@ -1,0 +1,150 @@
+/* SucursalMapSection.css */
+
+.location-section {
+    padding: 4rem 1rem;
+    background-color: var(--bg-component-white);
+    transition: background-color var(--main-duration1) ease;
+  }
+  
+  .section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 3rem;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  .location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 10rem;
+    margin-top: 2rem;
+  }
+  
+  .map-container {
+    background: var(--bg-component-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 5px rgba(0, 0, 0, 0.08);
+    transition: all var(--main-duration1) ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+  }
+  
+  .map-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 5px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+  }
+  
+  .map-component {
+    height: 250px;
+    width: 100%;
+    border-bottom: 1px solid var(--sidebar-color);
+  }
+  
+  .location-info {
+    padding: 1.8rem;
+  }
+  
+  .location-info h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .location-info h3::before {
+    content: "📍";
+    font-size: 1.1rem;
+  }
+  
+  .location-info p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .location-info p:first-of-type::before {
+    content: "🏠";
+  }
+  
+  .location-info p:last-of-type::before {
+    content: "📞";
+  }
+  
+  .location-info p:last-child {
+    color: var(--secondary-color);
+    font-weight: 500;
+  }
+  
+  /* Modo oscuro específico */
+  [data-theme="dark"] .map-container {
+    border-color: var(--color-medium);
+  }
+  
+  [data-theme="dark"] .map-component {
+    border-bottom-color: var(--color-dark);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .location-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .section-title {
+      font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .location-info {
+      padding: 1.4rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .location-section {
+      padding: 2.5rem 1rem;
+    }
+    
+    .map-component {
+      height: 220px;
+    }
+    
+    .location-info h3 {
+      font-size: 1.2rem;
+    }
+    
+    .location-info p {
+      font-size: 0.9rem;
+    }
+  }

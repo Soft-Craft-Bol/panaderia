@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import './Carrito.css';
 
 const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, toggleCart }) => {
   const removeFromCart = (productId) => {
-    updateQuantity(productId, 0); // Establece la cantidad a 0 para eliminar
+    updateQuantity(productId, 0);
   };
+
+  const totalConDescuentos = cart.reduce((total, item) => {
+    return total + ((item.tieneDescuento ? item.precioConDescuento : item.precioUnitario) * item.quantity);
+  }, 0);
+
+  const totalProductos = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div className={`cart-container ${isOpen ? 'open' : 'closed'}`}>
@@ -15,9 +21,16 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
             <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {totalProductos > 0 && (
+              <span className="cart-counter">
+                {totalProductos}
+              </span>
+            )}
+          </>
         )}
       </button>
 
@@ -37,13 +50,29 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
           <>
             <div className="cart-items">
               {cart.map(item => (
-                <div key={item.id} className="cart-item">
+                <div key={item.id} className={`cart-item ${item.tieneDescuento ? 'has-discount' : ''}`}>
                   <div className="item-info">
+                    <div className="item-descuent">
                     <span className="item-name">{item.descripcion}</span>
-                    <div className="item-details">
-                      <span className="item-price">
-                        Bs {(item.precioUnitario * item.quantity).toFixed(2)}
+                    {item.tieneDescuento && (
+                      <span className="item-discount-badge">
+                        {Math.round((1 - (item.precioConDescuento / item.precioUnitario)) * 100)}% OFF
                       </span>
+                    )}
+                    </div>
+                    <div className="item-details">
+                      <div className="item-price-container">
+                        {item.tieneDescuento && (
+                          <span className="item-original-price">
+                            Bs {(item.precioUnitario * item.quantity).toFixed(2)}
+                          </span>
+                        )}
+                        <span className="item-price">
+                          Bs {(item.tieneDescuento 
+                            ? (item.precioConDescuento * item.quantity).toFixed(2) 
+                            : (item.precioUnitario * item.quantity).toFixed(2))}
+                        </span>
+                      </div>
                       <span className="item-stock">
                         Stock: {item.stockActual}
                       </span>
@@ -87,13 +116,13 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       </svg>
                     </button>
                     <button 
-  className="remove-btn"
-  onClick={(e) => {
-    e.stopPropagation();
-    removeFromCart(item.id);
-  }}
-  aria-label="Eliminar producto"
->
+                      className="remove-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromCart(item.id);
+                      }}
+                      aria-label="Eliminar producto"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
@@ -106,7 +135,7 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
             <div className="cart-summary">
               <div className="cart-total">
                 <span>Total:</span>
-                <span className="total-amount">Bs {totalCompra.toFixed(2)}</span>
+                <span className="total-amount">Bs {totalConDescuentos.toFixed(2)}</span>
               </div>
               
               <button 

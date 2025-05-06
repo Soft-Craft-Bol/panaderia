@@ -1,122 +1,189 @@
-/* Contenedor principal */
 .crear-receta-container {
     max-width: 800px;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 20px;
-    background-color: #ffffff;
+    background-color: #f9f9f9;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-}
-
-/* Estilos para los títulos */
-.crear-receta-container h2, 
-.crear-receta-container h3,
-.crear-receta-container h4 {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .crear-receta-container h2 {
     color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .form-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-section h3 {
+    color: #444;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .form-group {
     margin-bottom: 15px;
-}
-
-/* Formulario */
-.crear-receta-container form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Campos de entrada */
-.crear-receta-container input,
-.crear-receta-container select {
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* Selector de insumos */
-.insumos-selector {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .form-group textarea {
+    min-height: 80px;
+  }
+  
+  .form-row {
     display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.insumos-selector select {
-    flex: 2;
-}
-
-.insumos-selector input {
+    gap: 15px;
+  }
+  
+  .form-row .form-group {
     flex: 1;
-}
-
-.insumos-selector button {
-    flex: 0.5;
-    padding: 10px;
-    background-color: #007bff;
+  }
+  
+  .agregar-insumo {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+  
+  .btn-agregar {
+    background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 8px 15px;
+    border-radius: 4px;
     cursor: pointer;
-}
-
-.insumos-selector button:disabled {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  .btn-agregar:hover {
+    background-color: #45a049;
+  }
+  
+  .btn-agregar:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
-}
-
-/* Insumos seleccionados */
-.insumos-seleccionados {
-    margin-top: 10px;
+  }
+  
+  .insumos-list {
+    background-color: white;
     padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-}
-
-.insumos-seleccionados ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.insumo-item {
+    border-radius: 6px;
+    border: 1px solid #eee;
+  }
+  
+  .insumos-list h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #555;
+  }
+  
+  .no-items {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .insumo-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    margin: 5px 0;
-    background-color: #e9ecef;
-    border-radius: 5px;
-}
-
-.remove-btn {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .insumo-item:last-child {
+    border-bottom: none;
+  }
+  
+  .insumo-info {
+    flex: 1;
+  }
+  
+  .insumo-nombre {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 3px;
+  }
+  
+  .insumo-cantidad {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .btn-eliminar {
     background: none;
     border: none;
-    color: #dc3545;
+    color: #e74c3c;
     cursor: pointer;
     padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.remove-btn:hover {
-    color: #a71d2a;
-}
-
-/* Botón de enviar */
-.submit-btn {
-    background-color: #e68355;
+  }
+  
+  .btn-eliminar:hover {
+    color: #c0392b;
+  }
+  
+  .form-actions {
+    text-align: right;
+    margin-top: 20px;
+  }
+  
+  .btn-primary {
+    background-color: #3498db;
     color: white;
-    padding: 12px;
     border: none;
-    border-radius: 5px;
+    padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    transition: 0.3s;
-    margin-top: 20px;
-}
-
-.submit-btn:hover {
-    background-color: #218838;
-}
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+  }
+  
+  .btn-primary:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    background-color: #fdecea;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border-left: 4px solid #e74c3c;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+  }

@@ -70,6 +70,10 @@ const ListClient = () => {
         render: (row) => row.email || "-"
       },
       {
+        header: "Celular",
+        accessor: "celular"
+      },
+      {
         header: "Acciones",
         render: (row) => (
           <div className="user-management-table-actions">

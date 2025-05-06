@@ -1,0 +1,49 @@
+.input-component {
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+  
+  .input-component label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+  }
+  
+  .input-component .required {
+    color: #ff4d4f;
+    margin-left: 4px;
+  }
+  
+  .input-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  
+  .input-wrapper .text-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: #fff;
+    transition: all 0.3s;
+  }
+  
+  .input-wrapper .text-input:hover {
+    border-color: #40a9ff;
+  }
+  
+  .input-wrapper .text-input:focus {
+    outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+  
+  .error-message {
+    color: #ff4d4f;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }

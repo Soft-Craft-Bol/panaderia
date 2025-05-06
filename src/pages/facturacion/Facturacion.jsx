@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import './Facturacion.css';
 import { getAllClient } from '../../service/api';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Facturacion = () => {
   const [nit, setNit] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const productosSeleccionados = location.state?.productosSeleccionados || [];
+  const sucursalId = location.state?.sucursalId || null;
 
   const handleInputChange = (e) => {
     setNit(e.target.value);
@@ -13,27 +17,42 @@ const Facturacion = () => {
 
   const handleButtonClick = async () => {
     try {
+      if (!nit) {
+        toast.error("Por favor ingrese un NIT o número de documento");
+        return;
+      }
+
       const response = await getAllClient();
       const clients = response.data;
       const client = clients.find(client => client.numeroDocumento.toString() === nit);
       
       if (client) {
-        navigate('/impuestos-form', { state: { client, flag: true } });
+        navigate('/impuestos-form', { 
+          state: { 
+            client, 
+            flag: true,
+            productosSeleccionados,
+            sucursalId
+          } 
+        });
       } else {
-        // Redirigir al formulario de creación con el NIT prellenado
         navigate('/clientes/crear-cliente', { 
           state: { 
             prefillData: { 
               numeroDocumento: nit,
             },
             redirectTo: '/impuestos-form',
-            redirectState: { flag: true }
+            redirectState: { 
+              flag: true,
+              productosSeleccionados,
+              sucursalId
+            }
           } 
         });
       }
     } catch (error) {
       console.error('Error fetching clients:', error);
-      alert('Error al buscar el cliente');
+      toast.error('Error al buscar el cliente');
     }
   };
 
@@ -48,11 +67,22 @@ const Facturacion = () => {
             value={nit}
             onChange={handleInputChange}
           />
-          <button className='btn-general' onClick={handleButtonClick}>Continuar a la facturacion</button>
+          <button className='btn-general' onClick={handleButtonClick}>
+            Continuar a la facturacion
+          </button>
           <p
             className='link-fact'
-            onClick={() => navigate('/impuestos-form', { state: { client: null, flag: false }})}
-          >Venta sin facturación</p>
+            onClick={() => navigate('/impuestos-form', { 
+              state: { 
+                client: null, 
+                flag: false,
+                productosSeleccionados,
+                sucursalId
+              }
+            })}
+          >
+            Venta sin facturación
+          </p>
         </div>
       </div>
     </main>

@@ -6,29 +6,33 @@ import ReservaFormulario from "./ReservaFormulario";
 const CarritoLista = () => {
   const { carrito, eliminarDelCarrito } = useCarrito();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [metodoPago, setMetodoPago] = useState("qr");
+  const [mensajeError, setMensajeError] = useState("");
 
-  // Función para calcular el precio con descuento
-  const calcularPrecioConDescuento = (item) => {
-    const precioBase = item.precioUnitario || 0;
-    const descuento = item.descuento || 0; // Asume que el descuento viene en porcentaje
-    return precioBase * (1 - descuento / 100);
-  };
-
-  // Cálculo de subTotal y descuentos
   const { subTotal, totalDescuentos, total } = carrito.reduce(
     (acc, item) => {
-      const precioBase = item.precioUnitario || 0;
-      const precioConDescuento = calcularPrecioConDescuento(item);
+      const precioOriginal = item.precioOriginal || item.precioUnitario;
+      const precioFinal = item.precioUnitario;
       const cant = item.cantidad || 1;
-      
+
       return {
-        subTotal: acc.subTotal + precioBase * cant,
-        totalDescuentos: acc.totalDescuentos + (precioBase - precioConDescuento) * cant,
-        total: acc.total + precioConDescuento * cant
+        subTotal: acc.subTotal + precioOriginal * cant,
+        totalDescuentos: acc.totalDescuentos + (precioOriginal - precioFinal) * cant,
+        total: acc.total + precioFinal * cant,
       };
     },
     { subTotal: 0, totalDescuentos: 0, total: 0 }
   );
+
+  const handlePagarClick = () => {
+    if (metodoPago === "efectivo") {
+      setMensajeError("Por el momento solo aceptamos pagos con QR.");
+      return;
+    }
+
+    setMensajeError("");
+    setMostrarFormulario(true);
+  };
 
   return (
     <div className="carrito-contenedor">
@@ -48,10 +52,10 @@ const CarritoLista = () => {
         </thead>
         <tbody>
           {carrito.map((item) => {
-            const precioBase = item.precioUnitario || 0;
-            const precioConDescuento = calcularPrecioConDescuento(item);
+            const precioOriginal = item.precioOriginal || item.precioUnitario;
+            const precioFinal = item.precioUnitario;
             const cant = item.cantidad || 1;
-            const totalItem = precioConDescuento * cant;
+            const totalItem = precioFinal * cant;
             const descuento = item.descuento || 0;
 
             return (
@@ -69,7 +73,7 @@ const CarritoLista = () => {
                 </td>
                 <td>{item.descripcion}</td>
                 <td>{cant}</td>
-                <td>Bs {precioBase.toFixed(2)}</td>
+                <td>Bs {precioFinal.toFixed(2)}</td>
                 <td>{descuento > 0 ? `${descuento}%` : "-"}</td>
                 <td>Bs {totalItem.toFixed(2)}</td>
                 <td>
@@ -82,6 +86,7 @@ const CarritoLista = () => {
           })}
         </tbody>
       </table>
+
       <div className="carrito-opciones">
         <div className="carrito-resumen">
           <p>
@@ -95,9 +100,23 @@ const CarritoLista = () => {
           <p>
             <strong>Total:</strong> Bs {total.toFixed(2)}
           </p>
-          <button 
-            className="btn-general" 
-            onClick={() => setMostrarFormulario(true)}
+
+          <div className="metodo-pago">
+            <label>Método de pago:</label>
+            <select
+              value={metodoPago}
+              onChange={(e) => setMetodoPago(e.target.value)}
+              className="select-metodo"
+            >
+              <option value="qr">QR</option>
+              <option value="efectivo">Efectivo</option>
+            </select>
+            {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+          </div>
+
+          <button
+            className="btn-general"
+            onClick={handlePagarClick}
             disabled={carrito.length === 0}
           >
             PAGAR
@@ -109,6 +128,7 @@ const CarritoLista = () => {
         <ReservaFormulario
           carrito={carrito}
           total={total}
+          metodoPago={metodoPago}
           onReservaExitosa={() => {
             setMostrarFormulario(false);
             alert("Reserva creada exitosamente");

@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@react-google-maps/api": "^2.20.6",
+    "@react-three/drei": "^10.0.7",
+    "@react-three/fiber": "^9.1.2",
     "@tanstack/react-query": "^5.74.4",
     "@tanstack/react-query-devtools": "^5.74.6",
     "axios": "^1.7.9",
@@ -37,6 +40,7 @@
     "recharts": "^2.15.1",
     "sonner": "^1.7.4",
     "sweetalert2": "^11.17.2",
+    "three": "^0.176.0",
     "use-debounce": "^10.0.4",
     "yup": "^1.6.1"
   },

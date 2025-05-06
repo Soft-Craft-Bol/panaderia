@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './Insumos.css';
 import Card from '../../components/card/cards/Card';
-import { getSucursalWithInsumos, getInsumos } from '../../service/api';
-import Tooltip from '../../components/tooltip/Tooltip';
+import { getActivos, desactivarInsumo, activarInsumo } from '../../service/api';
+import Modal from '../../components/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 
 const Insumos = () => {
-  const [insumos, setInsumos] = useState([]); // Cambiado de sucursales a insumos
+  const [insumos, setInsumos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hoveredInsumoId, setHoveredInsumoId] = useState(null);
-  const [hoveredElement, setHoveredElement] = useState(null);
+  const [selectedInsumo, setSelectedInsumo] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const fetchInsumos = async () => {
     try {
-      const response = await getInsumos();
-      console.log('response:', response);
-      setInsumos(response.data); // Guardamos directamente los insumos
+      const response = await getActivos();
+      setInsumos(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching insumos:', error);
@@ -26,52 +25,72 @@ const Insumos = () => {
     }
   };
 
+  const handleDesactivar = async (id) => {
+    try {
+      await desactivarInsumo(id);
+      fetchInsumos();
+    } catch (error) {
+      console.error('Error desactivando insumo:', error);
+    }
+  };
+
+  const handleActivar = async (id) => {
+    try {
+      await activarInsumo(id);
+      fetchInsumos();
+    } catch (error) {
+      console.error('Error activando insumo:', error);
+    }
+  };
+
+  const openModal = (insumo) => {
+    setSelectedInsumo(insumo);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedInsumo(null);
+  };
+
   useEffect(() => {
     fetchInsumos();
   }, []);
 
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>Error al cargar los insumos</div>;
+  if (loading) return <div className="loading">Cargando...</div>;
+  if (error) return <div className="error">Error al cargar los insumos</div>;
 
   return (
     <main className='main-insumos'>
       <h1>Insumos</h1>
-      <div>
+      <div className="insumos-actions">
         <button className='btn-general' onClick={() => navigate('/insumos/crear')}>
           Crear insumo
         </button>
+        <button className='btn-general secondary' onClick={() => navigate('/insumos/inactivos')}>
+          Ver inactivos
+        </button>
       </div>
+      
       <div className="cards-container">
-        {insumos.map((insumo) => (
-          <div 
-            key={insumo.id} 
-            style={{ position: 'relative' }}
-            ref={(el) => hoveredInsumoId === insumo.id ? setHoveredElement(el) : null}
-          >
-            <Card
-              img={insumo.imagen}
-              titulo={insumo.nombre}
-              datos={{
-                Proveedor: insumo.proveedor,
-                Marca: insumo.marca,
-              }}
-              cantidad={insumo.cantidad} 
-              onTitleHover={(e) => {
-                if (e.type === 'mouseenter') {
-                  setHoveredInsumoId(insumo.id);
-                } else {
-                  setHoveredInsumoId(null);
-                }
-              }}
-              insumoId={insumo.id}
-              insumoData={insumo}
-              fetchInsumos={fetchInsumos} // Cambiado el nombre de la función
-            />
-            {hoveredInsumoId === insumo.id && (
-              <Tooltip insumo={insumo} targetElement={hoveredElement} />
-            )}
-          </div>
-        ))}
+      {insumos.map((insumo) => (
+  <Card
+    key={insumo.id}
+    img={insumo.imagen}
+    titulo={insumo.nombre}
+    sucursalId={1}
+    datos={{
+      Proveedor: insumo.proveedor,
+      Marca: insumo.marca,
+      'Precio': `Bs ${insumo.precio.toFixed(2)}`
+    }}
+    insumoId={insumo.id}
+    insumoData={insumo}
+    fetchSucursalesConInsumos={fetchInsumos} // ¡Pasa la función aquí!
+    showDeleteButton={true}
+    onDelete={() => handleDesactivar(insumo.id)}
+  />
+))}
       </div>
     </main>
   );
