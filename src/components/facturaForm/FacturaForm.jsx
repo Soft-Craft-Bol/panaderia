@@ -7,9 +7,9 @@ import {
   fetchPuntosDeVenta,
   emitirFactura,
   emitirSinFactura,
-  getCufd,
   getStockBySucursal,
-  emitirContingencia
+  emitirContingencia,
+  sendEmail
 } from "../../service/api";
 import { generatePDF } from "../../utils/generatePDF";
 import { getUser } from "../../utils/authFunctions";
@@ -40,62 +40,72 @@ const FacturaForm = () => {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ventaResult, setVentaResult] = useState(null);
+  const [showSendEmailModal, setShowSendEmailModal] = useState(false);
+  const [facturaData, setFacturaData] = useState(null);
+  const productosSeleccionados = location.state?.productosSeleccionados || [];
+  const sucursalId = location.state?.sucursalId || null;
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const puntosRes = await fetchPuntosDeVenta();
+        const [puntosRes, stockRes] = await Promise.all([
+          fetchPuntosDeVenta(),
+          sucursalId && productosSeleccionados.length > 0 
+            ? getStockBySucursal(sucursalId) 
+            : Promise.resolve({ data: { items: [] } })
+        ]);
         setPuntosDeVenta(puntosRes.data);
+        setItems(stockRes.data.items);
       } catch (error) {
-        setError("Error al cargar los datos necesarios");
-        toast.error("Error al cargar los datos necesarios");
+        toast.error("Error al cargar datos");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, []);
+  }, [sucursalId, productosSeleccionados]);
 
-  const initialValues = {
+
+  const [initialValues, setInitialValues] = useState({
     puntoDeVenta: "",
     metodoPago: "EFECTIVO",
-    items: [
-      {
-        item: "",
-        cantidad: "",
-        precioUnitario: "",
-        descuento: 0,
-        cantidadDisponible: 0,
-      },
-    ],
-  };
+    items: productosSeleccionados.map(producto => ({
+      item: producto.descripcion,
+      cantidad: producto.quantity,
+      precioUnitario: producto.tieneDescuento ? producto.precioConDescuento : producto.precioUnitario,
+      descuento: producto.tieneDescuento ?
+        (producto.precioUnitario - producto.precioConDescuento) * producto.quantity : 0,
+      cantidadDisponible: producto.stockActual,
+      idProducto: producto.id,
+      tieneDescuento: producto.tieneDescuento
+    }))
+  });
 
   const validationSchema = Yup.object({
     puntoDeVenta: Yup.string().required("Seleccione un punto de venta"),
     metodoPago: Yup.string().required("Método de pago es requerido"),
     items: Yup.array().of(
-      Yup.object().shape({
-        item: Yup.string().required("Seleccione un item"),
-        cantidad: Yup.number()
-          .required("Ingrese la cantidad")
-          .positive("Debe ser un número positivo")
-          .max(Yup.ref("cantidadDisponible")),
-        precioUnitario: Yup.number()
-          .required("Ingrese el precio unitario")
-          .positive("Debe ser un número positivo"),
-        descuento: Yup.number().min(0, "Debe ser un número positivo o cero"),
-        cantidadDisponible: Yup.number(),
+  Yup.object().shape({
+    cantidad: Yup.number()
+      .required("Requerido")
+      .test("stock", "No hay stock", function(value) {
+        const item = this.parent;
+        return value <= item.cantidadDisponible;
       })
-    ),
+  })
+)
   });
 
-  const calcularSubtotalItem = (cantidad, precioUnitario, descuento) => {
+  const calcularSubtotalItem = (cantidad, precioUnitario, descuento, tieneDescuento) => {
     if (!cantidad || !precioUnitario) return 0;
-    const descuentoValido = descuento || 0;
-    return cantidad * precioUnitario - descuentoValido;
+    
+    if (tieneDescuento) {
+      return parseFloat((cantidad * precioUnitario).toFixed(2));
+    }
+    return parseFloat((cantidad * precioUnitario - (0)).toFixed(2));
   };
+  
 
   const calcularSubtotalGeneral = (items) => {
     return items.reduce((total, item) => {
@@ -133,36 +143,75 @@ const FacturaForm = () => {
             idProducto: selectedItem.id,
             cantidad: Number(item.cantidad),
             montoDescuento: Number(item.descuento || 0),
+            unidadMedida: selectedItem.unidadMedida || 1, 
           };
         }),
       };
-      console.log(facturaData);
+
       let response;
       try {
         response = await emitirFactura(facturaData);
-        console.log(response.data);
       } catch (error) {
-        console.error(error);
-        if (error.response && error.response.data.message.includes("CUFD") || error.response.data.message.includes("Cufd vigente no encontrado")) {
-          toast.info("Solicitando CUFD...");
-          await getCufd(selectedPuntoDeVenta.id);
-          toast.success("CUFD obtenido correctamente");
-          response = await emitirFactura(facturaData);
-        } else {
-          throw error;
-        }
+        console.error("Error al emitir la factura:", error);
       }
 
+      setFacturaData({
+        ...response.data,
+        clienteNombre: client.nombreRazonSocial,
+        clienteEmail: client.email
+      });
+
+      setShowSendEmailModal(true);
+
       const doc = await generatePDF(response.data.xmlContent);
-      doc.save(`factura-${response.data.cuf}.pdf`);
-      toast.success("Factura emitida y PDF generado con éxito");
+      
+      const pdfBytes = await doc.output('arraybuffer');
+      setFacturaData(prev => ({
+        ...prev,
+        pdfBytes: Array.from(new Uint8Array(pdfBytes))
+      }));
+
+      toast.success("Factura emitida correctamente");
       resetForm();
-      navigate("/ventas");
     } catch (error) {
       toast.error(`Error al emitir la factura: ${error.message}`);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleSendEmail = async () => {
+    try {
+      if (!facturaData || !facturaData.clienteEmail) {
+        throw new Error("No hay datos de cliente o correo electrónico");
+      }
+
+      const requestData = {
+        toEmail: facturaData.clienteEmail,
+        clienteNombre: facturaData.clienteNombre,
+        numeroFactura: facturaData.numeroFactura,
+        cuf: facturaData.cuf,
+        pdfContent: facturaData.pdfBytes
+      };
+
+      await sendEmail(requestData);
+      toast.success("Factura enviada por correo electrónico");
+      setShowSendEmailModal(false);
+      navigate("/ventas");
+    } catch (error) {
+      toast.error(`Error al enviar el correo: ${error.message}`);
+    }
+  };
+
+  const handlePrint = () => {
+    if (!facturaData) return;
+    
+    // Aquí puedes implementar la lógica para imprimir directamente
+    // o simplemente descargar el PDF como lo hacías antes
+    const doc = generatePDF(facturaData.xmlContent);
+    doc.save(`factura-${facturaData.cuf}.pdf`);
+    setShowSendEmailModal(false);
+    navigate("/ventas");
   };
 
   const handleVentaSinFactura = async (values, { setSubmitting }) => {
@@ -259,6 +308,7 @@ const FacturaForm = () => {
     }
   };
 
+
   const handlePuntoDeVentaChange = useCallback(async (puntoDeVentaNombre) => {
     const selectedPuntoDeVenta = puntosDeVenta.find(
       (punto) => punto.nombre === puntoDeVentaNombre
@@ -273,6 +323,12 @@ const FacturaForm = () => {
       }
     }
   }, [puntosDeVenta]);
+
+
+  const handleBoth = async () => {
+    await handleSendEmail();
+    handlePrint();
+  };
 
 
   if (loading) return <div className="loading">Cargando...</div>;
@@ -336,8 +392,13 @@ const FacturaForm = () => {
               <SelectPrimary
                 label="Método de Pago"
                 name="metodoPago"
-                required>
+                required
+              >
+                <option value="">Seleccione método de pago</option>
                 <option value="EFECTIVO">Efectivo</option>
+                <option value="TARJETA_CREDITO">Tarjeta de Crédito/Débito</option>
+                <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                <option value="QR">Pago QR</option>
               </SelectPrimary>
 
               <FieldArray name="items">
@@ -345,9 +406,16 @@ const FacturaForm = () => {
                   <div className="items-container">
                     {values.items.map((item, index) => {
                       const selectedItem = items.find(
-                        (i) => i.descripcion === item.item
+                        (i) => i.id === item.idProducto || i.descripcion === item.item
                       );
-                    
+
+                      const itemData = selectedItem || {
+                        id: item.idProducto,
+                        descripcion: item.item,
+                        precioUnitario: item.precioUnitario,
+                        cantidad: item.cantidadDisponible
+                      };
+
                       return (
                         <div className="ds" key={index}>
                           <div className="form-row">
@@ -355,21 +423,38 @@ const FacturaForm = () => {
                               label="Item/Descripción"
                               name={`items[${index}].item`}
                               required
+                              value={itemData.descripcion}
                               onChange={(e) => {
                                 const selectedItem = items.find((i) => i.descripcion === e.target.value);
                                 if (selectedItem) {
+                                  const sucursalItem = selectedItem.sucursales?.find(s => s.sucursalId === sucursalId);
+                                  const tieneDescuento = sucursalItem?.tieneDescuento || false;
+                                  const precioUnitario = tieneDescuento ? sucursalItem.precioConDescuento : selectedItem.precioUnitario;
+
                                   setFieldValue(`items[${index}].item`, e.target.value);
-                                  setFieldValue(`items[${index}].precioUnitario`, selectedItem.precioUnitario);
-                                  setFieldValue(`items[${index}].cantidadDisponible`, selectedItem.cantidad);
+                                  setFieldValue(`items[${index}].precioUnitario`, precioUnitario);
+                                  setFieldValue(`items[${index}].cantidadDisponible`, sucursalItem?.cantidad || 0);
+                                  setFieldValue(`items[${index}].idProducto`, selectedItem.id);
+                                  setFieldValue(`items[${index}].tieneDescuento`, tieneDescuento);
+                                  setFieldValue(`items[${index}].descuento`,
+                                    tieneDescuento ?
+                                      (selectedItem.precioUnitario - precioUnitario) * values.items[index].cantidad : 0
+                                  );
                                 }
                               }}
                             >
                               <option value="">Seleccione un item</option>
-                              {items.map((i) => (
-                                <option key={i.id} value={i.descripcion}>
-                                  {i.codigo} {i.descripcion}
-                                </option>
-                              ))}
+                              {items.map((i) => {
+                                const sucursalItem = i.sucursales?.find(s => s.sucursalId === sucursalId);
+                                const tieneDescuento = sucursalItem?.tieneDescuento || false;
+
+                                return (
+                                  <option key={i.id} value={i.descripcion}>
+                                    {i.codigo} - {i.descripcion}
+                                    {tieneDescuento && ` (${Math.round((1 - (sucursalItem.precioConDescuento / i.precioUnitario) * 100))}% OFF)`}
+                                  </option>
+                                );
+                              })}
                             </SelectPrimary>
 
                             <InputFacturacion
@@ -406,7 +491,8 @@ const FacturaForm = () => {
                                 value={calcularSubtotalItem(
                                   item.cantidad,
                                   item.precioUnitario,
-                                  item.descuento
+                                  item.descuento,
+                                  item.tieneDescuento
                                 ).toFixed(2)}
                                 readOnly
                               />
@@ -561,6 +647,36 @@ const FacturaForm = () => {
           </div>
         )}
       </Modal>
+      <Modal isOpen={showSendEmailModal} onClose={() => setShowSendEmailModal(false)}>
+        <div>
+          <h2>Factura generada exitosamente</h2>
+          <p>¿Qué deseas hacer ahora?</p>
+          
+          <div className="modal-buttons" style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '10px',
+            marginTop: '20px'
+          }}>
+            <Button variant="primary" onClick={handleSendEmail}>
+              Enviar por correo al cliente
+            </Button>
+            <Button variant="secondary" onClick={handlePrint}>
+              Imprimir factura
+            </Button>
+            <Button variant="success" onClick={handleBoth}>
+              Enviar por correo e imprimir
+            </Button>
+            <Button variant="danger" onClick={() => {
+              setShowSendEmailModal(false);
+              navigate("/ventas");
+            }}>
+              Solo guardar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </main>
   );
 };

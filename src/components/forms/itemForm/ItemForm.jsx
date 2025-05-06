@@ -28,6 +28,10 @@ const validationSchema = Yup.object().shape({
         .positive('El precio debe ser positivo'),
     unidadMedida: Yup.number(),
     codigoProductoSin: Yup.number().required('Código Producto SIN es requerido'),
+    codigo: Yup.string()
+    .required('Código del producto es requerido')
+    .min(3, 'Debe tener al menos 3 caracteres'),
+
 });
 
 const ItemForm = () => {
@@ -137,7 +141,7 @@ const ItemForm = () => {
                 cantidad: 0,
                 codigoProductoSin: Number(values.codigoProductoSin),
                 imagen: imageUrl,
-                codigo: id ? values.codigo : undefined,
+                codigo: values.codigo,
             };
 
             let response;
@@ -251,6 +255,18 @@ const ItemForm = () => {
                                 </Field>
                                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
                             </div>
+                            <div className="input-group">
+    <label htmlFor="codigo">Código del Producto</label>
+    <Field
+        className="input-card"
+        id="codigo"
+        name="codigo"
+        type="text"
+        placeholder="Ingrese el código interno del producto"
+    />
+    <ErrorMessage name="codigo" component="div" className="error-message" />
+</div>
+
                             <div className="input-group">
                                 <label htmlFor="precioUnitario">Precio Unitario (Bs.)</label>
                                 <Field className="input-card" id="precioUnitario" name="precioUnitario" type="number" />

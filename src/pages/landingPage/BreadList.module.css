@@ -101,7 +101,7 @@
 /* Botones del modal */
 .modalButton {
     padding: 10px 20px;
-    background-color: #ff385c;
+    background-color: #ffa238;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -109,7 +109,7 @@
 }
 
 .modalButton:hover {
-    background-color: #fa2b52;
+    background-color: #fa7e2b;
 }
 
 .modalButtonSec {

@@ -5,6 +5,7 @@ import { getStats, getVentasPorDia } from '../../service/api';
 import { useQuery } from '@tanstack/react-query';
 import ChartComponent from '../../components/grafico/Grafico';
 import { useNavigate } from "react-router";
+import ScrollToTop from '../../components/loading/ScrollToTop';
 
 const TopCard = lazy(() => import('../../components/topCard/TopCard'));
 const InfoLayer = lazy(() => import('../../components/layer/InfoLayer'));
@@ -66,7 +67,7 @@ const Inicio = () => {
 
   return (
     <main className='main-cont-inicio'>
-      {loading ? <p>Cargando datos...</p> : (
+      {loading ? <ScrollToTop/> : (
         <>
           <div className='info-cont'>
             <MemoizedTopCard title="Pts de Venta" quantity={stats.numeroPuntosVenta} Icon={FaMapPin} />
@@ -77,7 +78,7 @@ const Inicio = () => {
           </div>
           <section className='tot-cont'>
             <div className='left'>
-              <Suspense fallback={<p>Cargando imagen...</p>}>
+              <Suspense fallback={<ScrollToTop/>}>
                 {sucursalImg && (
                   <InfoLayer
                     title="Sucursales"

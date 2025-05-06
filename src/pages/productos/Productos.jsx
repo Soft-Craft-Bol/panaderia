@@ -3,23 +3,24 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal, quitarPromocion } from '../../service/api';
 import '../users/ListUser.css';
 import { Toaster, toast } from "sonner";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 
 const Productos = () => {
-  const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showPromoModal, setShowPromoModal] = useState(false);
+  const [selectedProductForPromo, setSelectedProductForPromo] = useState(null);
   const [productoAEliminar, setProductoAEliminar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sucursales, setSucursales] = useState([]);
   const [cantidades, setCantidades] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
 
   const navigate = useNavigate();
   const dataLabels = {
@@ -28,36 +29,26 @@ const Productos = () => {
     data3: 'Código Producto SIN:'
   };
 
-  const getProducts = useCallback(async (pageNumber = 0, search = '') => { // Cambia a 0-based
-    try {
-      setLoading(true);
-      const response = await getStockWithSucursal(pageNumber, search);
-      const pageData = response.data; // Esto es el objeto Page completo
-      const newProducts = pageData.content; // Los productos están aquí
-      
-      if (pageNumber === 0) {
-        setProductos(newProducts);
-      } else {
-        setProductos(prev => [...prev, ...newProducts]);
-      }
-      
-      // Usamos pageData.last para saber si hay más páginas
-      setHasMore(!pageData.last);
-      setPage(pageNumber + 1);
-      
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Error al cargar productos');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    refetch
+  } = useInfiniteQuery({
+    queryKey: ['productos', debouncedSearchTerm],
+    queryFn: ({ pageParam = 0 }) =>
+      getStockWithSucursal(pageParam, 10, debouncedSearchTerm).then(res => ({
+        productos: res.data.content,
+        nextPage: !res.data.last ? pageParam + 1 : undefined
+      })),
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 15 * 60 * 1000,
+    keepPreviousData: true
+  });
 
-  const fetchMoreData = () => {
-    if (!loading && hasMore) { 
-      getProducts(page, searchTerm);
-    }
-  };
+  const productos = data?.pages.flatMap(p => p.productos) || [];
 
   const fetchSucursales = async () => {
     try {
@@ -69,16 +60,12 @@ const Productos = () => {
   };
 
   useEffect(() => {
-    getProducts(0, searchTerm); 
-  }, [searchTerm, getProducts]);
-
-  useEffect(() => {
     fetchSucursales();
   }, []);
 
   const getDescripcionProducto = (codigoProducto) => {
-    const producto = productos.find(p => p.codigoProducto === codigoProducto);
-    return producto ? producto.descripcionProducto : 'Descripción no disponible';
+    const producto = productos.find(p => p.codigoProductoSin === codigoProducto);
+    return producto ? producto.descripcion : 'Descripción no disponible';
   };
 
   const handleOpenModal = (product) => {
@@ -105,14 +92,13 @@ const Productos = () => {
     if (productoAEliminar) {
       try {
         await deleteItem(productoAEliminar.id);
-        setProductos(prevProductos => prevProductos.filter(p => p.id !== productoAEliminar.id));
+        refetch(); // Refetch data after deletion
         toast.success("Producto eliminado correctamente");
       } catch (error) {
         console.error("Error al eliminar el producto:", error);
         toast.error("Error al eliminar el producto");
       }
     }
-
     setShowModal(false);
     setProductoAEliminar(null);
   };
@@ -123,7 +109,7 @@ const Productos = () => {
         for (const sucursalId in cantidades) {
           const cantidad = cantidades[sucursalId];
           if (cantidad !== "" && cantidad > 0) {
-            const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === Number(sucursalId));
+            const productoEnSucursal = selectedProduct.sucursales.find((s) => s.sucursalId === Number(sucursalId));
 
             if (productoEnSucursal) {
               await sumarCantidadDeProducto(sucursalId, selectedProduct.id, cantidad);
@@ -133,7 +119,7 @@ const Productos = () => {
           }
         }
         toast.success("Cantidades agregadas correctamente");
-        getProducts(page, searchTerm); 
+        refetch(); // Refetch data after adding quantities
       } catch (error) {
         console.error('Error al agregar cantidades:', error);
         toast.error('Error al agregar cantidades');
@@ -141,6 +127,25 @@ const Productos = () => {
     }
     setIsModalOpen(false);
   };
+
+  const handleRemovePromocionInit = (product) => {
+    setSelectedProductForPromo(product);
+    setShowPromoModal(true);
+  };
+
+  const handleRemovePromocionConfirm = async (sucursalId) => {
+    try {
+      await quitarPromocion(selectedProductForPromo.id, sucursalId);
+      toast.success("Promoción eliminada correctamente");
+      refetch();
+      setShowPromoModal(false);
+    } catch (error) {
+      console.error("Error al eliminar la promoción:", error);
+      toast.error(error.response?.data?.message || "Error al eliminar la promoción");
+    }
+  };
+
+
 
   const handleKeyDown = (e) => {
     if (
@@ -154,30 +159,43 @@ const Productos = () => {
     }
   };
 
+  // Function to check if product has any discount in any branch
+  const hasDiscount = (product) => {
+    return product.sucursales.some(s => s.tieneDescuento);
+  };
+
+
+
   return (
     <div className="productos-contenedor">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
       <h1>Productos en stock</h1>
-      <button
-        className="btn-general"
-        onClick={() => navigate("/addProduct")}
-      >
-        (+) &emsp; Agregar nuevo
-      </button>
+      <div className="botones-header">
+        <button className="btn-general1" onClick={() => navigate("/addProduct")}>
+          (+) &emsp; Agregar nuevo
+        </button>
+        <button className="btn-general1" onClick={() => navigate("/insumos")}>
+          🍞 &emsp; Gestionar Insumos
+        </button>
+        <button className="btn-general1" onClick={() => navigate("/recetas")}>
+          📋 &emsp; Gestionar recetas
+        </button>
+      </div>
+
       <div>
         <input
           type="text"
-          placeholder="Buscar por descripción..."
+          placeholder="Buscar por descripción..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
       </div>
-      
+
       <InfiniteScroll
         dataLength={productos.length}
-        next={fetchMoreData}
-        hasMore={hasMore}
+        next={fetchNextPage}
+        hasMore={hasNextPage}
         loader={<h4>Cargando...</h4>}
         endMessage={
           <p style={{ textAlign: 'center' }}>
@@ -187,25 +205,79 @@ const Productos = () => {
       >
         <div className="cardsProducto-contenedor">
           {productos.map((product) => (
-            <CardProducto
-              dataLabels={dataLabels}
+            <div
               key={product.id}
-              product={product}
-              onEliminar={() => handleOpenModal(product)}
-              onEdit={`/editProduct/${product.id}`}
-              onAdd={() => handleOpenModalAdd(product)}
-              descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
-            />
+              className={`product-card-container ${hasDiscount(product) ? 'has-discount' : ''}`}
+            >
+              {hasDiscount(product) && (
+                <div className="discount-badge">
+                  ¡EN DESCUENTO!
+                  <button
+                    className="btn-remove-promo"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemovePromocionInit(product);
+                    }}
+                    title="Eliminar promoción"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              <CardProducto
+                dataLabels={dataLabels}
+                product={product}
+                onEliminar={() => handleOpenModal(product)}
+                onEdit={`/editProduct/${product.id}`}
+                onAdd={() => handleOpenModalAdd(product)}
+                descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
+                onPromocionAplicada={refetch}
+              />
+            </div>
           ))}
         </div>
       </InfiniteScroll>
+
+      {showPromoModal && selectedProductForPromo && (
+        <div className="modal-promo">
+          <div className="modal-promo-content">
+            <h2>Eliminar promoción</h2>
+            <p>Selecciona la sucursal donde quieres quitar la promoción:</p>
+
+            <div className="sucursal-list">
+              {selectedProductForPromo.sucursales
+                .filter(s => s.tieneDescuento)
+                .map(sucursal => (
+                  <div key={sucursal.sucursalId} className="sucursal-item-promo">
+                    <button
+                      onClick={() => handleRemovePromocionConfirm(sucursal.sucursalId)}
+                      className="btn-sucursal-promo"
+                    >
+                      {sucursal.nombre}
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+
+            <div className="botones-footer">
+              <button
+                className="btn-cancel"
+                onClick={() => setShowPromoModal(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="modalCant">
           <div className="modalCant-content">
             <h2>Agregar Cantidad</h2>
             {sucursales.map((sucursal) => {
-              const productoEnSucursal = selectedProduct.sucursales.find((s) => s.id === sucursal.id);
+              const productoEnSucursal = selectedProduct.sucursales.find((s) => s.sucursalId === sucursal.id);
               return (
                 <div key={sucursal.id} className="sucursal-item">
                   <label>{sucursal.nombre}</label>
@@ -231,7 +303,7 @@ const Productos = () => {
           </div>
         </div>
       )}
-      
+
       <ModalConfirm
         showModal={showModal}
         handleCloseModal={handleCloseModal}

@@ -118,10 +118,17 @@ export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put
 export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
 export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucursal/${sucursalId}`);
 
-
+//Insumos
 export const getInsumos = () => api.get('/insumos');
+export const getActivos = () => api.get('/insumos/activos');
+export const desactivarInsumo = (id) => api.put(`/insumos/desactivar/${id}`);
+export const getInactivos = () => api.get('/insumos/inactivos');
+export const activarInsumo = (id) => api.put(`/insumos/activar/${id}`);
+export const updateInsumo = (id, data) => api.put(`/insumos/${id}`, data);
+export const eliminarInsumo = (id) => api.delete(`/insumos/${id}`);
 export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
 export const getSucursalWithInsumos = () => api.get('/sucursal-insumos');
+export const createSucursalInsumo = (data, idSucursal, idInsumo) => api.post(`/sucursal-insumos/sucursal/${idSucursal}/insumo/${idInsumo}`, data);
 export const createInsumo = (data) => api.post('/insumos', data);
 export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
 
@@ -130,11 +137,20 @@ export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
 export const getRecetas = () => api.get('/recetas');
 export const createReceta = (data) => api.post('/recetas', data);
 export const deleteReceta = (id) => api.delete(`/recetas/${id}`);
+export const getRecetaID = (id) => api.get(`/recetas/${id}`);
+
+//Produccion 
+export const getProduccion = () => api.get('/produccion');
+export const createProduccion = (data) => api.post('/produccion', data);
 
 
+//Promociones
 export const getItemsPromocion = () => api.get('/promocion');
 export const setItemsPromocion = (data) => api.post('/promocion', data);
 export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
+// Cambia la función deletePromocion para aceptar ambos IDs
+export const quitarPromocion = (itemId, sucursalId) => 
+  api.delete(`/promocion/by-item-sucursal?itemId=${itemId}&sucursalId=${sucursalId}`);
 export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/decrease?cantidad=${cantidad}`);
 
@@ -143,3 +159,8 @@ export const getEventos = () => api.get('/eventos');
 export const getCufdAnterior = (idPuntoVenta) => api.get(`/codigos/obtener-cufds-anteriores/${idPuntoVenta}`);
 export const definirEvento = (data) => api.post('/evento-significativo/registrar', data);
 export const emitirContingencia = (data) => api.post('/factura/contigencia', data);
+
+//EMAIL
+export const sendEmail = (data) => api.post('/email/enviar-factura', data);
+
+

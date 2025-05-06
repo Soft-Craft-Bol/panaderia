@@ -1,9 +1,9 @@
 .cardP {
   position: relative;
   padding: 0;
-  width: 290px;
-  max-width: 50%;
-  min-height: 500px;
+  width: 100%;
+  max-width: 400px;
+  min-height: 600px;
   box-shadow: -1px 15px 30px -12px rgba(32, 32, 32, 0.4);
   border-radius: 0.9rem;
   /* border: 1px solid var(--primary-color); */

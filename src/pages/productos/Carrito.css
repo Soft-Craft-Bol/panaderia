@@ -1,9 +1,8 @@
-/* Estilos del carrito */
 .cart-container {
     position: fixed;
     top: 25%;
     right: 0;
-    height: 50vh;
+    height: 70vh;
     width: 350px;
     background: var(--bg-component-white);
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
@@ -78,6 +77,9 @@
     scrollbar-color: var(--primary-color) var(--bg-component-white);
   }
   
+  .item-descuent{
+    display: flex;
+  }
   .cart-items::-webkit-scrollbar {
     width: 6px;
   }
@@ -287,3 +289,29 @@
       gap: 0.25rem;
     }
   }
+
+  /* Contador del carrito */
+.cart-toggle-btn {
+  position: relative;
+}
+
+.cart-counter {
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  background-color: #ff0000;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Ajustes para el icono del carrito */
+.cart-toggle-btn svg {
+  margin-right: 0;
+}

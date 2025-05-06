@@ -7,6 +7,7 @@ import { loginUser } from '../../service/api';
 import { saveToken, saveUser } from '../../utils/authFunctions';
 import { parseJwt } from '../../utils/Auth';
 import loadImage from '../../assets/ImagesApp';
+import NavbarPublic from '../landingPage/NavbarPublic';
 
 const Button = lazy(() => import('../../components/buttons/ButtonPrimary'));
 const InputText = lazy(() => import('../../components/inputs/InputText'));
@@ -53,20 +54,20 @@ const LoginUser = () => {
         password: values.password,
       });
       console.log('result:', result);
-  
+
       if (result?.data?.jwt) {
         const token = result.data.jwt;
         const decodedToken = parseJwt(token);
         const roles = decodedToken?.authorities?.split(',') || [];
         saveToken(token);
-  
+
         saveUser({
           username: result.data.username,
           roles: roles,
           photo: result.data.photo,
           puntosVenta: result.data.puntosVenta,
         });
-  
+
         navigate('/home');
         window.location.reload();
       } else {
@@ -85,6 +86,7 @@ const LoginUser = () => {
 
   return (
     <div className="login-container">
+    <NavbarPublic/>
       <Suspense fallback={<p>Cargando imagen...</p>}>
         {inpased && <img className="logo-fesa" src={inpased} alt="Inpased" height="100px" />}
       </Suspense>
@@ -108,7 +110,12 @@ const LoginUser = () => {
                 {loginError && <span className="error-message">{loginError}</span>}
                 <Link to="/reset">¿Olvidaste la contraseña?</Link>
                 <Suspense fallback={<div>Cargando botón...</div>}>
-                  <Button type="submit" variant="primary" disabled={isSubmitting} className="btn-general" formik = {true}>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                    className="btn-general"
+                  >
                     {isSubmitting ? 'Ingresando...' : 'Ingresar'}
                   </Button>
                 </Suspense>

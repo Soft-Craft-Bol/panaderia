@@ -25,6 +25,7 @@ const CrearInsumoPage = () => {
     { name: 'precio', label: 'Precio', type: 'number', placeholder: 'Ingrese el precio' },
     { name: 'unidades', label: 'Unidades', type: 'text', placeholder: 'Ingrese las unidades' },
     { name: 'descripcion', label: 'Descripción', type: 'text', placeholder: 'Ingrese la descripción' },
+
   ];
 
   const handleSubmit = async (values) => {
@@ -47,12 +48,14 @@ const CrearInsumoPage = () => {
         unidades: '',
         descripcion: '',
         imagen: '',
+        activo: true,
       }}
+
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
       fields={fields}
       title="Crear Insumo"
-      onClose={() => navigate('/insumos')} 
+      onClose={() => navigate('/insumos')}
       showImageUpload={true}
     />
   );

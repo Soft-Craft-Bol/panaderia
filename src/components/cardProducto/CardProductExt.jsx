@@ -2,47 +2,57 @@ import React from "react";
 import styles from "./CardProductoExterno.module.css"; 
 import { FaShoppingCart } from "react-icons/fa";
 
-const CardProductExt = ({ item, onReservar, onAgregarAlCarrito, tipoUsuario, descuento, precioConDescuento, sucursalNombre }) => {
+const CardProductExt = ({ 
+  item, 
+  onReservar, 
+  onAgregarAlCarrito, 
+  tipoUsuario, 
+  descuento, 
+  precioConDescuento, 
+  sucursalNombre 
+}) => {
   return (
-    <div className={`${styles.breadCard} ${styles.fadeInUp} ${descuento ? styles.descuento : ""}`}>
+    <div className={`${styles.breadCard} ${descuento ? styles.descuento : ""}`}>
       {descuento && (
         <div className={styles.descuentoBadge}>
-          {descuento}% DESCUENTO
+          {descuento}% OFF
         </div>
       )}
+      
       {sucursalNombre && (
         <div className={styles.sucursalNombre}>
           {sucursalNombre}
         </div>
       )}
+      
       <div className={styles.breadImageContainer}>
         <img
-          src={item.imagen}
+          src={item.imagen || '/placeholder-product.jpg'}
           alt={item.descripcion}
           className={styles.breadImage}
+          loading="lazy"
         />
       </div>
 
       <div className={styles.breadInfo}>
         <h2 className={styles.breadDescription}>{item.descripcion}</h2>
-        <p className={styles.breadPrice}>
-          Precio:{" "}
+        
+        <div className={styles.breadPrice}>
           {descuento ? (
-            <span style={{ textDecoration: "line-through", color: "#999" }}>
-              Bs{item.precioUnitario?.toFixed(2)}
-            </span>
+            <>
+              <span style={{ textDecoration: "line-through", color: "var(--color-text-secondary)" }}>
+                Bs {item.precioUnitario?.toFixed(2)}
+              </span>
+              <strong> Bs {precioConDescuento?.toFixed(2)}</strong>
+            </>
           ) : (
-            <strong>Bs{item.precioUnitario?.toFixed(2)}</strong>
+            <strong>Bs {item.precioUnitario?.toFixed(2)}</strong>
           )}
-        </p>
-        {precioConDescuento && (
-          <p className={styles.breadPrice}>
-            Precio con descuento: <strong>Bs{precioConDescuento.toFixed(2)}</strong>
-          </p>
-        )}
+        </div>
+        
         {item.sucursal && (
           <p className={styles.breadQuantity}>
-            Cantidad en {item.sucursal.nombre}: {item.sucursal.cantidad}
+            Disponible: {item.sucursal.cantidad} unidades
           </p>
         )}
       </div>
@@ -52,13 +62,15 @@ const CardProductExt = ({ item, onReservar, onAgregarAlCarrito, tipoUsuario, des
           <button
             onClick={() => onAgregarAlCarrito(item)}
             className={styles.reserveButton}
+            aria-label={`Agregar ${item.descripcion} al carrito`}
           >
-            <FaShoppingCart /> Agregar al carrito
+            <FaShoppingCart /> Agregar
           </button>
         ) : (
           <button
             onClick={() => onReservar(item.id)}
             className={styles.reserveButton}
+            aria-label={`Reservar ${item.descripcion}`}
           >
             Reservar
           </button>

@@ -1,9 +1,10 @@
-import React, { useState, useRef,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import loadImage from '../../../assets/ImagesApp';
 import { createClient, getDocumentoIdentidad } from '../../../service/api';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import SelectSecondary from '../../selected/SelectSecondary';
 import '../itemForm/ItemForm.css';
 
 const validationSchema = Yup.object().shape({
@@ -12,14 +13,13 @@ const validationSchema = Yup.object().shape({
     numeroDocumento: Yup.string().required('Número de Documento es requerido'),
     complemento: Yup.string(),
     codigoCliente: Yup.string().required('Código de Cliente es requerido'),
-    email: Yup.string().email('Email inválido').required('Email es requerido')
+    email: Yup.string().email('Email inválido').required('Email es requerido'),
+    celular: Yup.string().matches(/^[0-9]+$/, 'Solo se permiten números').required('Celular es requerido')
 });
 
 const ClientForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
     const [submitError, setSubmitError] = useState(null);
     const [documentosIdentidad, setDocumentosIdentidad] = useState([]);
     const [imageUrl, setImageUrl] = useState(null);
@@ -62,15 +62,14 @@ const ClientForm = () => {
         complemento: '',
         codigoCliente: '',
         email: '',
+        celular: '',
         ...prefillData 
     };
-
-    
 
     const handleSubmit = async (values, { setSubmitting }) => {
         try {
             setSubmitError(null);
-            
+            console.log('Valores del formulario antes de enviar:', values);
             const clientData = {
                 nombreRazonSocial: values.nombreRazonSocial,
                 codigoTipoDocumentoIdentidad: Number(values.codigoTipoDocumentoIdentidad),
@@ -78,14 +77,14 @@ const ClientForm = () => {
                 complemento: values.complemento,
                 codigoCliente: values.codigoCliente,
                 email: values.email,
+                celular: values.celular
             };
-
+            console.log('Datos del cliente a enviar:', clientData);
             const response = await createClient(clientData);
             
             if (response.status === 200 || response.status === 201) {
                 alert('Cliente registrado exitosamente');
                 
-                // Si hay una redirección configurada, navegar allí con el estado
                 if (redirectTo) {
                     navigate(redirectTo, { 
                         state: { 
@@ -117,7 +116,7 @@ const ClientForm = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
         >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, errors, touched }) => (
                 <Form className='cont-new-pat'>
                     <div className='img-card'>
                         <h3>Registro del cliente</h3>
@@ -132,7 +131,6 @@ const ClientForm = () => {
                                 borderRadius: '30px',
                             }}
                         />
-                        
                     </div>
 
                     <div className='input-side'>
@@ -148,19 +146,21 @@ const ClientForm = () => {
                             <ErrorMessage name="nombreRazonSocial" component="div" className="error-message" />
                         </div>
 
-                        <div className="select-group">
-                            <label htmlFor="codigoTipoDocumentoIdentidad">Tipo de Documento</label>
-                            <Field as="select" name="codigoTipoDocumentoIdentidad">
-                                <option value="">Seleccione un tipo de documento</option>
-                                {documentosIdentidad.map(doc => (
-                                    <option key={doc.id} value={doc.codigoClasificador}>
-                                        {doc.descripcion}
-                                    </option>
-                                ))}
-                            </Field>
-                            <ErrorMessage name="codigoTipoDocumentoIdentidad" component="div" />
-                        </div>
-
+                        <SelectSecondary
+    label="Tipo de Documento"
+    name="codigoTipoDocumentoIdentidad"
+    error={touched.codigoTipoDocumentoIdentidad && errors.codigoTipoDocumentoIdentidad}
+    required
+>
+    <option value="">Seleccione un tipo de documento</option>
+    {documentosIdentidad.map(doc => {
+        return (
+            <option key={doc.id} value={Number(doc.codigoClasificador)}>
+                {doc.descripcion}
+            </option>
+        );
+    })}
+</SelectSecondary>
                         <div className="input-group">
                             <label htmlFor="numeroDocumento">Número de Documento:</label>
                             <Field
@@ -209,6 +209,18 @@ const ClientForm = () => {
                             <ErrorMessage name="email" component="div" className="error-message" />
                         </div>
 
+                        <div className="input-group">
+                            <label htmlFor="celular">Número de Celular:</label>
+                            <Field
+                                className="input-card"
+                                id="celular"
+                                name="celular"
+                                type="text"
+                                placeholder="Ingrese número de celular"
+                            />
+                            <ErrorMessage name="celular" component="div" className="error-message" />
+                        </div>
+
                         {submitError && <div className="error-message">{submitError}</div>}
 
                         <button type="submit" disabled={isSubmitting}>
@@ -220,4 +232,5 @@ const ClientForm = () => {
         </Formik>
     );
 };
+
 export default ClientForm;

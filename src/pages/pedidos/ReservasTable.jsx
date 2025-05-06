@@ -117,7 +117,7 @@ const ReservasTable = () => {
       {showModal && selectedReserva && (
         <Modal isOpen={showModal} onClose={handleCloseModal}>
           <h2>Detalles de la Reserva</h2>
-          <div className="modal-content">
+          <div className="modal-content1">
             <div className="comprobante-header">
               <h3>Comprobante:</h3>
               <button 

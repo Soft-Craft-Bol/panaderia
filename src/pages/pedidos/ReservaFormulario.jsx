@@ -119,6 +119,7 @@ const ReservaFormulario = ({ carrito, onReservaExitosa }) => {
                 <option value="TARJETA">Tarjeta de Crédito/Débito</option>
                 <option value="TRANSFERENCIA">Transferencia Bancaria</option>
                 <option value="QR">Pago QR</option>
+                <option value="Efectivo">Efectivo</option>
               </SelectPrimary>
 
               <h3>Ingresa el monto del anticipo</h3>

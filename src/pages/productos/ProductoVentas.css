@@ -35,13 +35,6 @@
     box-shadow: 0 0 0 2px rgba(255, 175, 90, 0.2);
   }
   
-  .ventas-main-content {
-    display: flex;
-    flex: 1;
-    gap: 1.5rem;
-    overflow: hidden;
-    min-height: 0; 
-  }
   
   .productos-section {
     flex: 2;
@@ -66,6 +59,7 @@
   }
   
   .producto-card {
+    position: relative; 
     background: var(--bg-component-white);
     border-radius: 12px;
     overflow: hidden;
@@ -76,7 +70,7 @@
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.05);
   }
-  
+
   .producto-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
@@ -274,28 +268,30 @@
   }
 
 
-  /* Elimina height: 100vh del contenedor principal */
-.ventas-container {
+  .ventas-container {
     display: flex;
     flex-direction: column;
     background: var(--bg-app);
     padding: 1rem;
     position: relative;
-  }
+    min-height: 100vh;
+}
   
-  /* Añade margen derecho cuando el carrito está abierto */
-  .ventas-main-content {
-    display: flex;
-    flex: 1;
-    gap: 1.5rem;
-    margin-right: 350px; /* Igual al ancho del carrito */
-    transition: margin-right 0.3s ease;
-  }
+.ventas-main-content {
+  display: flex;
+  flex: 1;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  width: 100%; /* Por defecto ocupa todo el espacio */
+}
   
-  /* Cuando el carrito está cerrado */
-  .cart-container.closed + .ventas-main-content {
-    margin-right: 0;
-  }
+.cart-container.closed + .ventas-main-content {
+  width: 100%;
+}
+.cart-container.open ~ .ventas-main-content {
+  width: calc(100% - 350px); /* Resta el ancho del carrito */
+}
+
   
   /* Responsive */
   @media (max-width: 768px) {
@@ -306,4 +302,66 @@
     .cart-container.open + .ventas-main-content {
       margin-right: 0;
     }
+  }
+
+
+  /* Estilos para descuentos */
+.producto-card.has-discount {
+    border: 1px solid var(--primary-color);
+  }
+  
+  .discount-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--color-red-parameter);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 1;
+  }
+  
+  .price-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .original-price {
+    font-size: 0.8rem;
+    text-decoration: line-through;
+    color: var(--color-text-secondary);
+  }
+  
+  .detail-value.price.discounted {
+    color: var(--color-red-parameter);
+  }
+  
+  /* Estilos para el carrito con descuentos */
+  .cart-item.has-discount {
+    border-left: 3px solid var(--primary-color);
+  }
+  
+  .item-discount-badge {
+    font-size: 0.75rem;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .item-price-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .item-original-price {
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    color: var(--color-text-secondary);
   }
