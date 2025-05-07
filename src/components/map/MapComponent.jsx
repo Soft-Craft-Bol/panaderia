@@ -13,7 +13,7 @@ const MapComponent = ({ coordinates, direccion, zoom = 20, img }) => {
   const [showInfo, setShowInfo] = useState(true);
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyBFSCSL763mdkz5ms2PuloRSsocy8fehvc">
+    <LoadScript googleMapsApiKey="">
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={{ lat: coordinates[0], lng: coordinates[1] }}
