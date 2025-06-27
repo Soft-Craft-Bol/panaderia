@@ -45,6 +45,8 @@ const Inicio = () => {
     select: (data) => data.data
   });
 
+
+
   const { data: ventasPorDia = [], isLoading: loadingVentas } = useQuery({
     queryKey: ['ventasPorDia'],
     queryFn: getVentasPorDia,

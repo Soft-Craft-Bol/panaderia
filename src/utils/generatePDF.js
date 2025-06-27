@@ -177,7 +177,7 @@ export const generatePDF = async (xmlData) => {
 
   console.log('Link generado:', qrDataUrl);
 
-  return doc;
+  return doc.output('arraybuffer');
 };
 
 const getXMLValue = (element, tagName) => {

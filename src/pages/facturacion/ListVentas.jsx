@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import Table from "../../components/table/Table";
+import Table, { useColumnVisibility } from "../../components/table/Table";
 import { anularFactura, revertirAnulacionFactura } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
@@ -11,6 +11,7 @@ import { FaCloudDownloadAlt } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
 import useFacturas from "../../hooks/useFacturas";
 import SearchAndFilters from "../../components/search/SearchAndFilters";
+import SelectSecondary from "../../components/selected/SelectSecondary";
 
 const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, isAnulando, isRevirtiendo }) => {
   return (
@@ -52,27 +53,56 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
 
 const ListVentas = () => {
   const queryClient = useQueryClient();
-  const currentUser = useMemo(() => getUser(), []);
+  const currentUser = getUser();
+
+  // Obtener filtros guardados en localStorage o usar valores por defecto
+  const getInitialState = () => {
+    const savedState = localStorage.getItem('ventasFilters');
+    return savedState ? JSON.parse(savedState) : {
+      pageIndex: 0,
+      pageSize: 10,
+      searchTerm: "",
+      filters: {
+        estado: "",
+        tipoBusqueda: "cliente"
+      }
+    };
+  };
+
+  // Estados para paginación, búsqueda y filtros
+  const [state, setState] = useState(getInitialState);
+  const { pageIndex, pageSize, searchTerm, filters } = state;
+
+  // Estados para acciones
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({});
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
 
+  // Guardar estado en localStorage cuando cambia
+  useEffect(() => {
+    localStorage.setItem('ventasFilters', JSON.stringify(state));
+  }, [state]);
+
+  // Obtener datos
   const {
-    data: facturasData,
+    data: facturasData = {},
     isLoading,
-    isError,
-    isPreviousData
+    isError
   } = useFacturas(pageIndex, pageSize, searchTerm, filters);
-console.log("Facturas Data:", facturasData?.content);
-  const facturas = facturasData?.content || [];
-  console.log("Facturas:", facturas);
-  const totalPages = facturasData?.totalPages || 0;
-  const totalElements = facturasData?.totalElements || 0;
+
+  const facturas = facturasData.content || [];
+  const totalPages = facturasData.totalPages || 0;
+  const totalElements = facturasData.totalElements || 0;
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
+
+  // Opciones para el filtro de estados
+  const estadoOptions = useMemo(() => [
+    { value: "", label: "Todos los estados" },
+    { value: "EMITIDA", label: "Emitidas" },
+    { value: "COMPLETADO", label: "Completadas" },
+    { value: "ANULADA", label: "Anuladas" },
+    { value: "PENDIENTE", label: "Pendientes" }
+  ], []);
 
   const handleDownload = async (factura) => {
     if (factura?.xmlContent) {
@@ -131,35 +161,77 @@ console.log("Facturas Data:", facturasData?.content);
   };
 
   const handleSearch = (term) => {
-    setSearchTerm(term);
-    setPageIndex(0); // Resetear a primera página al buscar
+    setState(prev => ({
+      ...prev,
+      searchTerm: term,
+      pageIndex: 0
+    }));
   };
 
   const handleFilter = (newFilters) => {
-    setFilters(newFilters);
-    setPageIndex(0); // Resetear a primera página al filtrar
+    setState(prev => ({
+      ...prev,
+      filters: {
+        ...prev.filters,
+        ...newFilters
+      },
+      pageIndex: 0
+    }));
   };
 
+  // Manejador específico para el cambio de estado
+  const handleEstadoChange = (selectedEstado) => {
+    handleFilter({ estado: selectedEstado });
+  };
+
+  const handlePageChange = (newPage) => {
+    setState(prev => ({
+      ...prev,
+      pageIndex: newPage - 1
+    }));
+  };
+
+  const handleRowsPerPageChange = (newSize) => {
+    setState(prev => ({
+      ...prev,
+      pageSize: newSize,
+      pageIndex: 0
+    }));
+  };
+
+  // Opciones para los filtros de búsqueda
+  const filterOptions = useMemo(() => ({
+    tipoBusqueda: [
+      { value: "cliente", label: "Buscar por cliente" },
+      { value: "usuario", label: "Buscar por usuario" },
+      { value: "producto", label: "Buscar por producto" }
+    ]
+  }), []);
+
   const columns = useMemo(() => [
-    { 
-      header: "ID Venta", 
+    {
+      header: "ID Venta",
       accessor: "idVenta",
-      width: "100px"
+      width: "100px",
+      show: true,
     },
-    { 
-      header: "Punto de Venta", 
+    {
+      header: "Punto de Venta",
       accessor: "nombrePuntoVenta",
-      render: (venta) => venta.nombrePuntoVenta || "-"
+      render: (venta) => venta.nombrePuntoVenta || "-",
+      show: true
     },
-    { 
-      header: "Sucursal", 
+    {
+      header: "Sucursal",
       accessor: "nombreSucursal",
-      render: (venta) => venta.nombreSucursal || "-"
+      render: (venta) => venta.nombreSucursal || "-",
+      show: true
     },
-    { 
-      header: "Cliente", 
+    {
+      header: "Cliente",
       accessor: "nombreRazonSocial",
-      render: (venta) => venta.nombreRazonSocial || "S/N"
+      render: (venta) => venta.nombreRazonSocial || "S/N",
+      show: true
     },
     {
       header: "Fecha",
@@ -187,7 +259,8 @@ console.log("Facturas Data:", facturasData?.content);
         };
         return tipos[venta.tipoComprobante] || venta.tipoComprobante || "-";
       },
-      width: "100px"
+      width: "100px",
+      show: true
     },
     {
       header: "Estado",
@@ -200,7 +273,8 @@ console.log("Facturas Data:", facturasData?.content);
           </span>
         );
       },
-      width: "120px"
+      width: "120px",
+      show: true
     },
     {
       header: "Productos",
@@ -216,7 +290,8 @@ console.log("Facturas Data:", facturasData?.content);
             <div className="more-items">+{(venta.detalles || []).length - 3} más</div>
           )}
         </div>
-      )
+      ),
+      show: true
     },
     {
       header: "Total (Bs)",
@@ -226,12 +301,14 @@ console.log("Facturas Data:", facturasData?.content);
           {(venta.detalles || []).reduce((sum, d) => sum + (d.subTotal || 0), 0).toFixed(2)}
         </strong>
       ),
-      width: "120px"
+      width: "120px",
+      show: true
     },
     {
       header: "Usuario",
       accessor: "nombreUsuario",
-      render: (venta) => venta.nombreUsuario || "-"
+      render: (venta) => venta.nombreUsuario || "-",
+      show: true
     },
     {
       header: "Acciones",
@@ -247,19 +324,16 @@ console.log("Facturas Data:", facturasData?.content);
           isAnulando={isAnulando}
           isRevirtiendo={isRevirtiendo}
         />
-      )
+      ),
+      show: true
     }
   ], [hasAnyRole, isAnulando, isRevirtiendo]);
 
-  const handlePageChange = (newPage) => {
-    // newPage viene como 1-based desde Table
-    setPageIndex(Math.max(0, newPage - 1));
-  };
+  const {
+  filteredColumns,
+  ColumnVisibilityControl
+} = useColumnVisibility(columns, "ventasHiddenColumns");
 
-  const handleRowsPerPageChange = (newSize) => {
-    setPageSize(newSize);
-    setPageIndex(0);
-  };
 
   if (isError) return <div className="error-message">Error al cargar las ventas</div>;
 
@@ -270,26 +344,54 @@ console.log("Facturas Data:", facturasData?.content);
         <h2>Gestión de Ventas</h2>
         <LinkButton to="/facturacion">Nueva Venta</LinkButton>
       </div>
-      
-      <SearchAndFilters
-        columns={columns}
-        onSearch={handleSearch}
-        onFilter={handleFilter}
-      />
 
+      <div className="filtros-ventas-container">
+        {/* Selector de estado */}
+        <div className="filtro-estado">
+          <label htmlFor="filtro-estado">Filtrar por estado:</label>
+          <SelectSecondary
+            id="filtro-estado"
+            name="estado"  // Añade esto
+            value={filters.estado || ""}
+            onChange={(e) => handleEstadoChange(e.target.value)}
+            className="select-estado"
+          >
+            {estadoOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </SelectSecondary>
+        </div>
+
+        {/* Componente de búsqueda */}
+        <SearchAndFilters
+          columns={columns}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          filterOptions={filterOptions}
+          initialFilters={filters}
+          searchPlaceholder={`Buscar por ${filterOptions.tipoBusqueda.find(t => t.value === filters.tipoBusqueda)?.label || 'cliente'}`}
+        />
+      </div>
+  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+          <ColumnVisibilityControl buttonLabel="Columnas" />
+        </div>
       <Table
-        columns={columns}
-        data={facturas}
-        loading={isLoading}
-        pagination={{
-          currentPage: pageIndex + 1,
-          totalPages,
-          totalElements,
-          rowsPerPage: pageSize
-        }}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-      />
+  columns={filteredColumns}  
+  data={facturas}
+  loading={isLoading}
+  pagination={{
+    currentPage: pageIndex + 1,
+    totalPages,
+    totalElements,
+    rowsPerPage: pageSize
+  }}
+  onPageChange={handlePageChange}
+  onRowsPerPageChange={handleRowsPerPageChange}
+  showColumnVisibility={false}
+  storageKey="ventasHiddenColumns"
+/>
     </div>
   );
 };

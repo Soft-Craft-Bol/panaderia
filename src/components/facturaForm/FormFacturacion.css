@@ -1,0 +1,363 @@
+/* Estilos base del contenedor */
+.facturacion-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: var(--bg-component-white);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.facturacion-container h2 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+/* Estructura de secciones */
+.seccion-cliente,
+.seccion-detalles,
+.seccion-pago {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--sidebar-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.seccion-cliente h3,
+.seccion-detalles h3,
+.seccion-pago h3 {
+  color: var(--secondary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+/* Formulario de cliente */
+.cont-new-pat {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-side {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.input-card {
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--bg-component-white);
+  color: var(--color-text-primary);
+}
+
+.input-card:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 175, 90, 0.2);
+}
+
+.input-card:disabled {
+  background-color: #f5f5f5;
+  color: #777;
+}
+
+.search-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-button {
+  padding: 0 1.5rem;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: var(--primary-color);
+}
+
+.search-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-status {
+  color: var(--secondary-color);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.error-message {
+  color: var(--color-red-parameter);
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+/* Tabla de productos */
+.detalles-tabla {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.detalles-tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-component-white);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.detalles-tabla th,
+.detalles-tabla td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.detalles-tabla th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+}
+
+.detalles-tabla tr:nth-child(even) {
+  background-color: rgba(255, 175, 90, 0.05);
+}
+
+.detalles-tabla tr:hover {
+  background-color: rgba(255, 175, 90, 0.1);
+}
+
+/* Resumen de totales */
+.resumen-totales {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background-color: var(--bg-component-white);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+}
+
+.total-line.total-final {
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  padding-top: 0.8rem;
+  border-top: 2px dashed var(--secondary-color);
+}
+
+/* Método de pago */
+.metodo-pago-group {
+  margin-bottom: 1.5rem;
+}
+
+.btn-emitir {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--color-green-parameter);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-emitir:hover {
+  background-color: #1e9c26;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(39, 192, 47, 0.3);
+}
+
+.btn-emitir:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-confirmar {
+  background-color: var(--color-green-parameter);
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: var(--color-red-parameter);
+  color: white;
+}
+
+/* Botones de acción del formulario */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-column: 1 / -1;
+}
+
+.edit-button {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.cancel-button {
+  background-color: var(--color-red-parameter);
+  color: white;
+}
+
+.submit-button {
+  background-color: var(--color-green-parameter);
+  color: white;
+}
+
+.edit-button,
+.cancel-button,
+.submit-button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover,
+.cancel-button:hover,
+.submit-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.contingencia-options {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.contingencia-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.contingencia-label input {
+    width: 18px;
+    height: 18px;
+}
+
+.factura-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .facturacion-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .input-side {
+    grid-template-columns: 1fr;
+  }
+  
+  .seccion-cliente,
+  .seccion-detalles,
+  .seccion-pago {
+    padding: 1rem;
+  }
+  
+  .detalles-tabla th,
+  .detalles-tabla td {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .edit-button,
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-container {
+    flex-direction: column;
+  }
+  
+  .search-button {
+    padding: 0.8rem;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-confirmar,
+  .btn-cancelar {
+    width: 100%;
+  }
+}
+
+
+[data-theme="dark"] .facturacion-container,
+[data-theme="dark"] .facturacion-container .input-card,
+[data-theme="dark"] .facturacion-container .input-group label,
+[data-theme="dark"] .facturacion-container .detalles-tabla,
+[data-theme="dark"] .facturacion-container .detalles-tabla th,
+[data-theme="dark"] .facturacion-container .detalles-tabla td,
+[data-theme="dark"] .facturacion-container .resumen-totales,
+[data-theme="dark"] .facturacion-container .modal-content {
+  color: var(--text-color);
+}
+[data-theme="dark"] .input-card:disabled {
+    color: #777;
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { Button } from "../../components/buttons/Button";
-import Table from "../../components/table/Table";
+import Table, { useColumnVisibility } from "../../components/table/Table";
 import { FaEdit, MdDelete } from "../../hooks/icons";
 import { getUsers, deleteUser } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 import LinkButton from "../../components/buttons/LinkButton";
 import "./ListUser.css";
+import ColumnVisibilityControl from "../../components/table/ColumnVisibilityControl";
 
 const Modal = lazy(() => import("../../components/modal/Modal"));
 
@@ -118,6 +119,13 @@ const UserManagement = () => {
     [currentUser, confirmDeleteUser]
   );
 
+  
+   const {
+      filteredColumns,
+      ColumnVisibilityControl
+    } = useColumnVisibility(columns, "ventasHiddenColumns");
+  
+
   return (
     <div className="user-management-container">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
@@ -131,7 +139,12 @@ const UserManagement = () => {
         )}
       </div>
 
-      <Table columns={columns} data={users} className="user-management-table" />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+          <ColumnVisibilityControl buttonLabel="Columnas" />
+        </div>
+
+      <Table  columns={filteredColumns}  data={users} className="user-management-table"  showColumnVisibility={false}  
+          storageKey="ventasHiddenColumns"   />
 
       <Suspense fallback={<div>Cargando modal...</div>}>
         {deleteConfirmOpen && (

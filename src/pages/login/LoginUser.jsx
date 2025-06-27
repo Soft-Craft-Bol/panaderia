@@ -8,6 +8,7 @@ import { saveToken, saveUser } from '../../utils/authFunctions';
 import { parseJwt } from '../../utils/Auth';
 import loadImage from '../../assets/ImagesApp';
 import NavbarPublic from '../landingPage/NavbarPublic';
+import Footer from '../landingPage/Footer';
 
 const Button = lazy(() => import('../../components/buttons/ButtonPrimary'));
 const InputText = lazy(() => import('../../components/inputs/InputText'));
@@ -67,9 +68,7 @@ const LoginUser = () => {
           photo: result.data.photo,
           puntosVenta: result.data.puntosVenta,
         });
-
         navigate('/home');
-        window.location.reload();
       } else {
         setLoginError('Usuario o contraseña incorrectos.');
       }
@@ -85,10 +84,11 @@ const LoginUser = () => {
   }, [navigate]);
 
   return (
-    <div className="login-container">
+    <>
+      <div className="login-container">
     <NavbarPublic/>
       <Suspense fallback={<p>Cargando imagen...</p>}>
-        {inpased && <img className="logo-fesa" src={inpased} alt="Inpased" height="100px" />}
+        {inpased && <img className="header-logo" src={inpased} alt="Inpased" height="100px" />}
       </Suspense>
       <div className="login-form">
         <h1>Inicia sesión</h1>
@@ -124,7 +124,10 @@ const LoginUser = () => {
           )}
         </Formik>
       </div>
+      
     </div>
+    <Footer />
+    </>
   );
 };
 

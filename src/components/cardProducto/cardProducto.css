@@ -6,58 +6,65 @@
   min-height: 600px;
   box-shadow: -1px 15px 30px -12px rgba(32, 32, 32, 0.4);
   border-radius: 0.9rem;
-  /* border: 1px solid var(--primary-color); */
   line-height: 0.9;
   text-align: start;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: white;
+  background-color: var(--bg-component-white);
+  color: var(--text-color);
+  transition: all 0.3s ease;
 }
 
 .cardP h2 {
-  height: 40px; 
+  height: 40px;
   overflow: hidden;
-  text-overflow: ellipsis; 
-  white-space: nowrap; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
-  padding: 5px 0; 
-  font-size: 1.2rem; 
-  line-height: 1.2; 
+  padding: 5px 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  color: var(--text-color);
 }
 
 .cardP img {
-  height: 200px; 
+  height: 200px;
   width: 100%;
-  border-radius: 10px 10px 0 0; 
-  margin: 0; 
+  border-radius: 10px 10px 0 0;
+  margin: 0;
   object-fit: cover;
-  display: block; 
+  display: block;
+  border-bottom: 1px solid var(--color-medium);
 }
 
 .cardFooter {
   justify-content: space-between;
   display: flex;
   padding: 5px 0;
-  margin-top: auto; 
+  margin-top: auto;
 }
 
 .cabecera-card {
   display: flex;
   justify-content: space-between;
-  align-items: center; 
+  align-items: center;
   margin-bottom: 5px;
 }
-.cabecera-card div{
+
+.cabecera-card div {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.cabecera-card div .icon{
+
+.cabecera-card div .icon {
   color: var(--primary-color);
   font-size: 1.2rem;
+  transition: color 0.3s ease;
 }
-.cabecera-card div .icon:hover{
+
+.cabecera-card div .icon:hover {
   color: var(--secondary-color);
   cursor: pointer;
 }
@@ -65,33 +72,87 @@
 .cabecera-card button {
   border-radius: 15px;
   border: solid var(--primary-color);
-  background-color: white;
+  background-color: var(--bg-component-white);
   color: var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.cabecera-card button:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .cardP p {
   margin: 5px 0;
   line-height: 1.8;
+  color: var(--text-color);
 }
 
 .cardP strong {
   font-weight: bold;
+  color: var(--text-color);
 }
-.desc-larga{
-  display: -webkit-box; 
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden; 
-    text-overflow: ellipsis;
-    white-space: normal;
-    height: auto;
-    margin: 0; 
-    line-height: 1.2; 
-    position: relative; 
+
+.desc-larga {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  height: auto;
+  margin: 0;
+  line-height: 1.2;
+  position: relative;
+  color: var(--text-color-secondary);
 }
+
 .data-cont {
   padding: 1rem;
-  flex: 1; 
+  flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* Estilos para tema oscuro específicos */
+[data-theme="dark"] {
+  .cardP {
+    box-shadow: -1px 15px 30px -12px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--color-medium);
+  }
+
+  .cabecera-card button {
+    background-color: var(--color-dark);
+  }
+
+  .desc-larga {
+    color: var(--text-color-secondary);
+  }
+}
+
+/* Estilos para la imagen modal */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.modal-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }

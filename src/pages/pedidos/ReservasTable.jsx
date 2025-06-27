@@ -143,7 +143,7 @@ const ReservasTable = () => {
                       src={item.imagen || "https://res.cloudinary.com/dzizafv5s/image/upload/v1739134946/swwqwwjh2kxmd4dugnql.jpg"}
                       alt={item.descripcion}
                       style={{ width: "100px", height: "100px" }}
-                      className="producto-image"
+                      className="producto-image1"
                     />
                     <div>
                       <p>

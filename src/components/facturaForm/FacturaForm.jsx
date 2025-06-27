@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   fetchPuntosDeVenta,
   emitirFactura,
-  emitirSinFactura,
   getStockBySucursal,
   emitirContingencia,
   sendEmail
@@ -18,13 +17,12 @@ import InputFacturacion from "../inputs/InputFacturacion";
 import { Button } from "../buttons/Button";
 import SelectPrimary from "../selected/SelectPrimary";
 import Modal from "../modal/Modal";
-import { generateReciboPDF } from "../../utils/generateReciboPDF";
 
 const FacturaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = getUser();
-  //console.log(currentUser);
+  
   const client = location.state?.client || {
     nombreRazonSocial: "S/N",
     email: "...",
@@ -38,8 +36,6 @@ const FacturaForm = () => {
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ventaResult, setVentaResult] = useState(null);
   const [showSendEmailModal, setShowSendEmailModal] = useState(false);
   const [facturaData, setFacturaData] = useState(null);
   const productosSeleccionados = location.state?.productosSeleccionados || [];
@@ -66,7 +62,6 @@ const FacturaForm = () => {
     fetchData();
   }, [sucursalId, productosSeleccionados]);
 
-
   const [initialValues, setInitialValues] = useState({
     puntoDeVenta: "",
     metodoPago: "EFECTIVO",
@@ -86,15 +81,15 @@ const FacturaForm = () => {
     puntoDeVenta: Yup.string().required("Seleccione un punto de venta"),
     metodoPago: Yup.string().required("Método de pago es requerido"),
     items: Yup.array().of(
-  Yup.object().shape({
-    cantidad: Yup.number()
-      .required("Requerido")
-      .test("stock", "No hay stock", function(value) {
-        const item = this.parent;
-        return value <= item.cantidadDisponible;
+      Yup.object().shape({
+        cantidad: Yup.number()
+          .required("Requerido")
+          .test("stock", "No hay stock", function(value) {
+            const item = this.parent;
+            return value <= item.cantidadDisponible;
+          })
       })
-  })
-)
+    )
   });
 
   const calcularSubtotalItem = (cantidad, precioUnitario, descuento, tieneDescuento) => {
@@ -105,17 +100,15 @@ const FacturaForm = () => {
     }
     return parseFloat((cantidad * precioUnitario - (0)).toFixed(2));
   };
-  
 
   const calcularSubtotalGeneral = (items) => {
     return items.reduce((total, item) => {
       return (
         total +
-        calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento)
+        calcularSubtotalItem(item.cantidad, item.precioUnitario, item.descuento, item.tieneDescuento)
       );
     }, 0);
   };
-
 
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
@@ -135,7 +128,7 @@ const FacturaForm = () => {
         username: currentUser.username,
         usuario: client.nombreRazonSocial,
         detalle: values.items.map((item) => {
-          const selectedItem = items.find((i) => i.descripcion === item.item);
+          const selectedItem = items.find((i) => i.id === item.idProducto || i.descripcion === item.item);
           if (!selectedItem) {
             throw new Error(`Item no encontrado: ${item.item}`);
           }
@@ -153,6 +146,7 @@ const FacturaForm = () => {
         response = await emitirFactura(facturaData);
       } catch (error) {
         console.error("Error al emitir la factura:", error);
+        throw error;
       }
 
       setFacturaData({
@@ -161,16 +155,15 @@ const FacturaForm = () => {
         clienteEmail: client.email
       });
 
-      setShowSendEmailModal(true);
-
       const doc = await generatePDF(response.data.xmlContent);
-      
       const pdfBytes = await doc.output('arraybuffer');
+      
       setFacturaData(prev => ({
         ...prev,
         pdfBytes: Array.from(new Uint8Array(pdfBytes))
       }));
 
+      setShowSendEmailModal(true);
       toast.success("Factura emitida correctamente");
       resetForm();
     } catch (error) {
@@ -206,62 +199,10 @@ const FacturaForm = () => {
   const handlePrint = () => {
     if (!facturaData) return;
     
-    // Aquí puedes implementar la lógica para imprimir directamente
-    // o simplemente descargar el PDF como lo hacías antes
     const doc = generatePDF(facturaData.xmlContent);
     doc.save(`factura-${facturaData.cuf}.pdf`);
     setShowSendEmailModal(false);
     navigate("/ventas");
-  };
-
-  const handleVentaSinFactura = async (values, { setSubmitting }) => {
-    try {
-      setSubmitting(true); // Deshabilitar el botón mientras se procesa
-
-      const selectedPuntoDeVenta = puntosDeVenta.find(
-        (punto) => punto.nombre === values.puntoDeVenta
-      );
-
-      if (!selectedPuntoDeVenta) {
-        throw new Error("Punto de venta no encontrado");
-      }
-
-      const ventaSinFacturaData = {
-        cliente: client.nombreRazonSocial || "S/N",
-        idPuntoVenta: selectedPuntoDeVenta.id,
-        tipoComprobante: "RECIBO",
-        username: currentUser.username,
-        metodoPago: values.metodoPago,
-        detalle: values.items.map((item) => {
-          const selectedItem = items.find((i) => i.descripcion === item.item);
-          if (!selectedItem) {
-            throw new Error(`Item no encontrado: ${item.item}`);
-          }
-          return {
-            idProducto: selectedItem.id,
-            cantidad: Number(item.cantidad),
-            montoDescuento: Number(item.descuento || 0),
-          };
-        }),
-      };
-
-      const response = await emitirSinFactura(ventaSinFacturaData);
-      setVentaResult({
-        success: true,
-        message: "Venta sin factura registrada con éxito",
-        data: response.data
-      });
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Error al registrar la venta sin factura:", error);
-      setVentaResult({
-        success: false,
-        message: `Error al registrar la venta sin factura: ${error.message}`
-      });
-      setIsModalOpen(true);
-    } finally {
-      setSubmitting(false); // Rehabilitar el botón
-    }
   };
 
   const handleContingencia = async (values, { setSubmitting }) => {
@@ -308,7 +249,6 @@ const FacturaForm = () => {
     }
   };
 
-
   const handlePuntoDeVentaChange = useCallback(async (puntoDeVentaNombre) => {
     const selectedPuntoDeVenta = puntosDeVenta.find(
       (punto) => punto.nombre === puntoDeVentaNombre
@@ -324,19 +264,17 @@ const FacturaForm = () => {
     }
   }, [puntosDeVenta]);
 
-
   const handleBoth = async () => {
     await handleSendEmail();
     handlePrint();
   };
-
 
   if (loading) return <div className="loading">Cargando...</div>;
   if (error) return <div className="error">{error}</div>;
 
   return (
     <main className="factura-container">
-      <h1>Formulario de venta</h1>
+      <h1>Formulario de Facturación</h1>
 
       <section className="client-info">
         <h2>Datos del Cliente</h2>
@@ -344,11 +282,6 @@ const FacturaForm = () => {
           label="Razón Social"
           value={client.nombreRazonSocial || ""}
           readOnly={flag}
-          onChange={(e) => {
-            if (!flag) {
-              setClient({ ...client, nombreRazonSocial: e.target.value });
-            }
-          }}
         />
         <InputFacturacion
           label="Correo"
@@ -363,11 +296,12 @@ const FacturaForm = () => {
       </section>
 
       <section className="corporate-details">
-        <h2>Detalles corporativos</h2>
+        <h2>Detalles de Facturación</h2>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={() => { }} >
+          onSubmit={handleSubmit}
+        >
           {({ values, setFieldValue, isSubmitting, resetForm }) => (
             <Form>
               <SelectPrimary
@@ -381,9 +315,7 @@ const FacturaForm = () => {
               >
                 <option value="">Seleccione un punto de venta</option>
                 {puntosDeVenta.map((punto) => (
-                  <option
-                    key={punto.id}
-                    value={punto.nombre}>
+                  <option key={punto.id} value={punto.nombre}>
                     {punto.nombre}
                   </option>
                 ))}
@@ -548,35 +480,11 @@ const FacturaForm = () => {
 
               <div className="form-buttons">
                 <Button
-                  type="button"
+                  type="submit"
                   variant="primary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleSubmit(values, {
-                      resetForm,
-                      setSubmitting: (submitting) => {
-                        console.log("Submitting:", submitting);
-                      }
-                    });
-                  }}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Emitiendo..." : "Emitir Factura"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleVentaSinFactura(values, {
-                      setSubmitting: (submitting) => {
-                        console.log("Submitting:", submitting);
-                      }
-                    });
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Registrar venta sin Factura
                 </Button>
                 <Button
                   type="button"
@@ -593,8 +501,6 @@ const FacturaForm = () => {
                 >
                   Emitir por Contingencia
                 </Button>
-
-
                 <Button
                   type="button"
                   variant="danger"
@@ -615,38 +521,7 @@ const FacturaForm = () => {
           Generar factura con un NIT diferente
         </Button>
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        {ventaResult?.success ? (
-          <div>
-            <h2>¡Venta registrada con éxito!</h2>
-            <p>{ventaResult.message}</p>
-            <div className="modal-buttons">
-              <Button variant="primary" onClick={() => navigate("/ventas")}>
-                Continuar
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  generateReciboPDF(ventaResult.data);
-                  console.log(ventaResult.data);
-                  setIsModalOpen(false);
-                  navigate("/ventas");
-                }}
-              >
-                Imprimir Recibo
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <h2>Error al registrar la venta</h2>
-            <p>{ventaResult?.message}</p>
-            <Button variant="danger" onClick={() => setIsModalOpen(false)}>
-              Cerrar
-            </Button>
-          </div>
-        )}
-      </Modal>
+
       <Modal isOpen={showSendEmailModal} onClose={() => setShowSendEmailModal(false)}>
         <div>
           <h2>Factura generada exitosamente</h2>
@@ -676,7 +551,6 @@ const FacturaForm = () => {
           </div>
         </div>
       </Modal>
-
     </main>
   );
 };

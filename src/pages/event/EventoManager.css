@@ -1,0 +1,59 @@
+/* FormularioManager.css */
+
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.tab:hover {
+  background-color: #e0e0e0;
+}
+
+
+/* Estilos para el mensaje de CUFD */
+.cufd-message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.cufd-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.cufd-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Estilos para mostrar el CUFD */
+.cufd-display {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin: 10px 0;
+  word-break: break-all;
+}
+
+.cufd-display code {
+  display: block;
+  margin-top: 5px;
+  padding: 5px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+}

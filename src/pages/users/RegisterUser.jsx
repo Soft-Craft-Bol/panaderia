@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { addUser, updateUser, getUserById } from '../../service/api';
 import { FaCamera } from '../../hooks/icons';
-import { loginUser } from '../../service/api';
-import { saveToken, saveUser } from '../../utils/authFunctions';
-import { parseJwt } from '../../utils/Auth';
 import { Toaster, toast } from 'sonner';
 import { useTheme } from '../../context/ThemeContext';
 import './RegisterUser.css';
 import { Button } from '../../components/buttons/Button';
-import Modal from '../../components/modal/Modal';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import Swal from "sweetalert2";
 import { fetchPuntosDeVenta } from '../../service/api';
+import { IoCloseOutline } from 'react-icons/io5';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
@@ -49,8 +46,7 @@ const MemoizedSelectPuntoDeVenta = React.memo(({ puntosDeVenta, value, setFieldV
   </div>
 ));
 
-
-const alerta = (titulo, mensaje, tipo =  "success") =>{
+const alerta = (titulo, mensaje, tipo = "success") => {
   Swal.fire({
     title: titulo,
     text: mensaje,
@@ -60,72 +56,16 @@ const alerta = (titulo, mensaje, tipo =  "success") =>{
   });
 }
 
-// Componente para el modal de selección de roles
-const RoleSelectionModal = React.memo(({ isOpen, onClose, roles, selectedRoles, setFieldValue }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h3>Seleccionar Roles</h3>
-      <div className="roles-container">
-        {roles.map((role) => {
-          const isSelected = selectedRoles.includes(role);
-          return (
-            <div
-              key={role}
-              className={`role-checkbox ${isSelected ? "selected" : ""}`}
-              onClick={() => {
-                const newRoles = isSelected
-                  ? selectedRoles.filter((r) => r !== role) // Desmarcar
-                  : [...selectedRoles, role]; // Marcar
-                setFieldValue("roleRequest.roleListName", newRoles);
-              }}
-            >
-              <input
-                type="checkbox"
-                id={role}
-                name="roleRequest.roleListName"
-                value={role}
-                checked={isSelected}
-                onChange={(e) => {
-                  const { checked, value } = e.target;
-                  setFieldValue(
-                    "roleRequest.roleListName",
-                    checked
-                      ? [...selectedRoles, value]
-                      : selectedRoles.filter((r) => r !== value)
-                  );
-                }}
-              />
-              <label htmlFor={role}>{role}</label>
-            </div>
-          );
-        })}
-      </div>
-      <Button
-        variant="primary"
-        type="button"
-        onClick={onClose}
-        style={{ marginTop: "20px" }}
-      >
-        Cerrar
-      </Button>
-    </Modal>
-  );
-});
-
 function UserForm() {
   const [puntosDeVenta, setPuntosDeVenta] = useState([]);
-  const [selectedPuntoDeVenta, setSelectedPuntoDeVenta] = useState(null); 
   const navigate = useNavigate();
   const { id } = useParams();
   const { theme } = useTheme();
 
   const [editingUser, setEditingUser] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
-  const location = useLocation();
-  const isPublicRoute = location.pathname === "/register";
-
+  // Roles disponibles
   const roles = useMemo(() => ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'], []);
 
   const [initialValues, setInitialValues] = useState({
@@ -137,7 +77,7 @@ function UserForm() {
     email: '',
     photo: null,
     roleRequest: {
-      roleListName: isPublicRoute ? ["USER", "CLIENTE"] : [],
+      roleListName: [],
     },
   });
 
@@ -168,7 +108,6 @@ function UserForm() {
       try {
         const response = await fetchPuntosDeVenta();
         setPuntosDeVenta(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error('Error al cargar los puntos de venta:', error);
       }
@@ -182,7 +121,6 @@ function UserForm() {
       try {
         const response = await getUserById(id);
         setEditingUser(response.data);
-        console.log(response.data);
         setInitialValues({
           username: response.data.username || '',
           nombre: response.data.firstName || '',
@@ -192,7 +130,7 @@ function UserForm() {
           email: response.data.email || '',
           photo: response.data.photo || null,
           roleRequest: {
-            roleListName: response.data.roles || [],
+            roleListName: response.data.roles.map(role => role.roleEnum) || [],
           },
         });
         if (response.data.photo) setPhotoPreview(response.data.photo);
@@ -203,6 +141,15 @@ function UserForm() {
 
     if (id) fetchUser();
   }, [id, notify]);
+
+  // Función para agregar/quitar roles
+  const toggleRole = (role, setFieldValue, currentRoles) => {
+    const newRoles = currentRoles.includes(role)
+      ? currentRoles.filter(r => r !== role)
+      : [...currentRoles, role];
+    
+    setFieldValue("roleRequest.roleListName", newRoles);
+  };
 
   const handleSubmit = useCallback(async (values, { resetForm }) => {
     let imageUrl = editingUser?.photo || null;
@@ -226,43 +173,16 @@ function UserForm() {
       roleRequest: {
         roleListName: values.roleRequest.roleListName,
       },
-      puntosVenta: selectedPuntoDeVenta ? [selectedPuntoDeVenta] : [], // Incluye el punto de venta seleccionado
+      puntosVenta: selectedPuntoDeVenta ? [selectedPuntoDeVenta] : [],
     };
-    console.log(userData);
+    
     try {
       if (editingUser) {
-        console.log(userData);
         await updateUser(editingUser.id, userData);
         alerta("¡Usuario actualizado!", "Guardando datos ...");
       } else {
         await addUser(userData);
-        alerta('Usuario agregado exitosamente', "Bienvenido");
-        if (isPublicRoute) {
-          try {
-            const loginResult = await loginUser({
-              username: userData.username.trim(),
-              password: userData.password,
-            });
-            console.log(loginResult);
-  
-            if (loginResult?.data?.jwt) {
-              const token = loginResult.data.jwt;
-              const decodedToken = parseJwt(token);
-              const roles = decodedToken?.authorities?.split(',') || [];
-  
-              saveToken(token);
-              saveUser({
-                username: loginResult.data.username,
-                roles: roles,
-                photo: loginResult.data.photo,
-              });
-  
-              navigate('/productos-externos'); // Redirige automáticamente
-            }
-          } catch (error) {
-            console.error('Error en el registro o auto-login:', error);
-          }
-        }
+        alerta('Usuario agregado exitosamente');
       }
       resetForm();
       navigate('/users');
@@ -302,7 +222,6 @@ function UserForm() {
         {({ values, setFieldValue }) => (
           <Form className="form">
             <div className="form-grid">
-            {!isPublicRoute && (
               <div className="photo-upload-container">
                 <div className="photo-preview">
                   {photoPreview ? (
@@ -321,11 +240,7 @@ function UserForm() {
                   accept="image/*"
                   onChange={(event) => handlePhotoChange(event, setFieldValue)}
                 />
-              </div>               
-              )}
               </div>
-              <div className="photo-upload-container">
-                
               <div className="form-columns">
                 <div className="form-column">
                   <MemoizedInputText label="Nombre" name="nombre" required />
@@ -347,20 +262,61 @@ function UserForm() {
                     required
                   />
                   <MemoizedInputText label="Correo Electrónico" name="email" required />
-                  {!isPublicRoute && ( // Oculta el botón si es ruta pública
-                    <Button variant="primary" type="button" onClick={() => setIsRoleModalOpen(true)} style={{ marginTop: "10px" }}>
-                      Seleccionar Roles
-                    </Button>
-                  )}
+                  
                   <MemoizedSelectPuntoDeVenta
                     puntosDeVenta={puntosDeVenta}
                     value={values.puntoDeVenta}
                     setFieldValue={setFieldValue}
                   />
                 </div>
-                
               </div>
             </div>
+            
+            {/* Selector de roles similar al de permisos */}
+            {/* Selector de roles similar al de permisos */}
+<div className="role-selection-group">
+  <div className="roles-selector-container">
+    <label htmlFor="roles">Seleccionar Roles:</label>
+    <select
+      id="roles"
+      onChange={(e) => {
+        const role = e.target.value;
+        if (role && !values.roleRequest.roleListName.includes(role)) {
+          toggleRole(role, setFieldValue, values.roleRequest.roleListName);
+        }
+      }}
+      value=""
+    >
+      <option value="" disabled>Seleccione un rol para agregar</option>
+      {roles
+        .filter(role => !values.roleRequest.roleListName.includes(role))
+        .map(role => (
+          <option key={role} value={role}>{role}</option>
+        ))}
+    </select>
+  </div>
+
+  <div className="selected-roles-container">
+    <h3>Roles asignados:</h3>
+    <div className="selected-roles-list">
+      {values.roleRequest.roleListName.length === 0 ? (
+        <p className="no-roles-message">No hay roles seleccionados</p>
+      ) : (
+        values.roleRequest.roleListName.map((role, index) => (
+          <div 
+            key={index} 
+            className="role-item"
+            onClick={() => toggleRole(role, setFieldValue, values.roleRequest.roleListName)}
+          >
+            {role}
+            <IoCloseOutline size={16} />
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+</div>
+
             <Button
               variant="primary"
               type="submit"
@@ -368,14 +324,6 @@ function UserForm() {
             >
               {editingUser ? 'Actualizar' : 'Registrar'}
             </Button>
-
-            <RoleSelectionModal
-              isOpen={isRoleModalOpen}
-              onClose={() => setIsRoleModalOpen(false)}
-              roles={roles}
-              selectedRoles={values.roleRequest.roleListName}
-              setFieldValue={setFieldValue}
-            />
           </Form>
         )}
       </Formik>

@@ -1,27 +1,32 @@
-.productos-contenedor{
+/* Estilos base - aplican para ambos temas */
+.productos-contenedor {
     flex-direction: column;
-    background-color: white;
+    background-color: var(--bg-component-white);
     border-radius: 20px;
     padding: 20px;
+    color: inherit; /* Hereda el color de texto del tema */
 }
 
-.cardsProducto-contenedor{
-    margin:15px;
+.cardsProducto-contenedor {
+    margin: 15px;
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
-    justify-content:   center;
+    justify-content: center;
 }
 
 .form__input {
     height: 2.5rem;
     padding: 0 1.25rem;
-    border: 1px solid black;
+    border: 1px solid var(--color-medium);
     border-radius: 2px;
     margin: 0.625rem auto;
     transition: all 250ms;
+    background-color: var(--bg-component-white);
+    color: inherit;
 }
 
+/* Modal de cantidades */
 .modalCant {
   position: fixed;
   top: 0;
@@ -32,158 +37,119 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
   
 .modalCant-content {
-  background-color: white;
+  background-color: var(--bg-component-white);
   padding: 20px;
   border-radius: 10px;
   width: 50%;
   max-width: 500px;
+  color: inherit;
 }
   
-  .modalCant input {
+.modalCant input {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-medium);
     border-radius: 5px;
-  }
-  .botones-footer {
+    background-color: var(--bg-component-white);
+    color: inherit;
+}
+
+.botones-footer {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-  }
-  
-  .modalCant button {
-    width: 40%;
-    padding: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-  }
+}
 
-  .cantidad-input {
+/* Inputs y botones */
+.cantidad-input {
     padding: 8px 12px;
     font-size: 16px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-medium);
     width: 100%;
     max-width: 200px;
     margin-bottom: 12px;
     transition: border 0.3s ease;
-  }
+    background-color: var(--bg-component-white);
+    color: inherit;
+}
   
-  .cantidad-input:focus {
-    border-color: #007bff;
+.cantidad-input:focus {
+    border-color: var(--primary-color);
     outline: none;
-  }
-  .agregar-carrito-btn {
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    max-width: 200px;
-  }
-  
-  .agregar-carrito-btn:hover {
-    background-color: #218838;
-  }
-  
-  .agregar-carrito-btn:focus {
-    outline: none;
-  }
-  .btn-edit, .btn-cancel {
+}
+
+/* Botones */
+.btn-edit, .btn-cancel {
     padding: 5px 10px;
     border-radius: 5px;
     border: none;
     cursor: pointer;
-  }
-  .btn-edit {
-    background-color: #007bff;
     color: white;
-  }
+}
+
+.btn-edit {
+    background-color: var(--secondary-color);
+}
   
-  .btn-cancel {
-    background-color: #dc3545;
-    color: white;
-  }
-  .sucursal-item {
+.btn-cancel {
+    background-color: var(--color-red-parameter);
+}
+
+.sucursal-item {
     margin-bottom: 10px;
-  }
-  .sucursal-item label {
+}
+
+.sucursal-item label {
     display: block;
     margin-bottom: 5px;
-  }
+    color: inherit;
+}
   
-  .sucursal-item input {
+.sucursal-item input {
     width: 100%;
     padding: 5px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-medium);
     text-align: center;
     width: 50%;
-  }
+    background-color: var(--bg-component-white);
+    color: inherit;
+}
 
-
-  
-  .searchFilters {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .search-input {
+/* Buscador */
+.search-input {
     margin: 10px;
     padding: 8px;
     font-size: 1rem;
     width: 60%;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-medium);
     border-radius: 4px;
-  }
-  
-  .priceInput {
-    padding: 8px;
-    font-size: 1rem;
-    width: 120px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .sucursalSection {
-    margin: 20px 0;
-    text-align: center;
-  }
-  
-  .sucursalTitle {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  /* Add these styles to highlight discounted products */
+    background-color: var(--bg-component-white);
+    color: inherit;
+}
+
+/* Productos con descuento */
 .product-card-container {
   position: relative;
 }
 
 .has-discount {
-  border: 2px solid #ff6b6b;
+  border: 2px solid var(--color-red-parameter);
   border-radius: 0.9rem;
-  box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 0 10px rgba(239, 83, 80, 0.3);
 }
 
 .discount-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #ff6b6b;
+  background-color: var(--color-red-parameter);
   color: white;
   padding: 5px 30px;
   border-radius: 20px;
@@ -192,8 +158,6 @@
   z-index: 10;
   animation: pulse 2s infinite;
 }
-
-
 
 .btn-remove-promo {
   position: absolute;
@@ -208,7 +172,6 @@
   padding: 0 5px;
   font-size: 14px;
 }
-
 
 /* Modal de promoción */
 .modal-promo {
@@ -225,11 +188,12 @@
 }
 
 .modal-promo-content {
-  background: white;
+  background: var(--bg-component-white);
   padding: 20px;
   border-radius: 8px;
   width: 400px;
   max-width: 90%;
+  color: inherit;
 }
 
 .sucursal-list {
@@ -245,14 +209,15 @@
 .btn-sucursal-promo {
   width: 100%;
   padding: 10px;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
+  background: var(--sidebar-color);
+  border: 1px solid var(--color-medium);
   border-radius: 4px;
   cursor: pointer;
   text-align: left;
+  color: inherit;
 }
 
-
+/* Botones del header */
 .botones-header {
   display: flex;
   gap: 12px;
@@ -279,7 +244,7 @@
   background-color: var(--secondary-color);
 }
 
-
+/* Animación */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -292,4 +257,27 @@
   }
 }
 
-/* Existing styles remain the same */
+/* Estilos específicos para tema oscuro */
+[data-theme="dark"] {
+    .productos-contenedor,
+    .modalCant-content,
+    .modal-promo-content {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        color: var(--text-color);
+    }
+    
+    .search-input,
+    .modalCant input,
+    .cantidad-input {
+        border-color: var(--color-dark);
+    }
+    
+    .btn-sucursal-promo {
+        background-color: var(--color-dark);
+        border-color: var(--color-medium);
+    }
+    
+    .sucursalTitle {
+        color: var(--text-color);
+    }
+}

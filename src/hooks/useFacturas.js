@@ -3,16 +3,27 @@ import { getAllFacturas } from "../service/api";
 
 const useFacturas = (page = 0, size = 10, searchTerm = "", filters = {}) => {
   return useQuery({
-    queryKey: ['facturas', page, size, searchTerm, filters],
+    queryKey: ['facturas', { page, size, searchTerm, ...filters }],
     queryFn: async () => {
-      const response = await getAllFacturas(page, size, searchTerm, filters);
+      const params = {
+        page: Number(page),
+        size: Number(size),
+        ...(searchTerm && { busqueda: searchTerm }),
+        ...(filters.estado && { estado: filters.estado }),
+        ...(filters.idPuntoVenta && { idPuntoVenta: filters.idPuntoVenta }),
+        ...(filters.tipoBusqueda && { tipoBusqueda: filters.tipoBusqueda }),
+      };
+
+      const response = await getAllFacturas(params);
       return {
-        content: response.data.content,  // Asegúrate que coincide con tu estructura
+        content: response.data.content,
         totalPages: response.data.totalPages,
         totalElements: response.data.totalElements
       };
     },
-    keepPreviousData: true
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    retry: 2
   });
 };
 

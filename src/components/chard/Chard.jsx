@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useTheme } from '../../hooks/useTheme'; // Asumiendo que tienes un hook de tema
+import { useTheme } from '../../hooks/useTheme';
 import './Chard.css';
 import { getClientLimited } from '../../service/api';
 

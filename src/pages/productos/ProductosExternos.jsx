@@ -8,6 +8,7 @@ import { Toaster, toast } from "sonner";
 import "./Productos.css";
 import { FaShoppingCart } from "react-icons/fa";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Footer from "../landingPage/Footer";
 
 const ProductosExternos = () => {
   const [promociones, setPromociones] = useState([]);
@@ -111,7 +112,8 @@ const ProductosExternos = () => {
   ];
 
   return (
-    <div className="productos-contenedor">
+    <>
+      <div className="productos-contenedor">
       <h2>Lista de Productos</h2>
       <Toaster
         dir="auto"
@@ -254,6 +256,8 @@ const ProductosExternos = () => {
         </Modal>
       )}
     </div>
+    <Footer />
+    </>
   );
 };
 

@@ -16,6 +16,8 @@ import HeroSection from './HeroSection';
 import BestSellersSection from './BestSellersSection';
 import NavbarPublic from './NavbarPublic';
 import Footer from './Footer';
+import Contacts from './Contacts';
+import Nosotros from './Nosotros';
 
 const LandingPage = () => {
   const controls = useAnimation();
@@ -64,35 +66,6 @@ const LandingPage = () => {
       <NavbarPublic />
       <HeroSection />
       <BestSellersSection/>
-
-      <section className="hero-section">
-        <div className="hero-content">
-          <motion.img 
-            src={inpasedLogo} 
-            alt="Inpased Logo"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8 }}
-          />
-          <motion.h1
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Panadería con tradición boliviana
-          </motion.h1>
-          <motion.p
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Elaboramos con amor los mejores panes desde 1985
-          </motion.p>
-        </div>
-      </section>
-
-      {/* Features Section */}
-
       <section className="features-section">
         <div className="section-container">
           <h2 className="section-title">¿Por qué elegirnos?</h2>
@@ -131,61 +104,10 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </section>
-
-      {/* Products Section */}
-      <section className="products-section">
-        <div className="section-container">
-          <h2 className="section-title">Nuestros productos destacados</h2>
-          <p className="section-subtitle">Conoce algunas de nuestras especialidades</p>
-          
-          <div className="products-grid">
-            <motion.div 
-              className="product-card"
-              whileHover={{ y: -10, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
-            >
-              <div className="product-image">
-                <img src={panIntegral} alt="Pan Integral Especial" />
-              </div>
-              <div className="product-info">
-                <h3>Pan Integral Especial</h3>
-                <p>Elaborado con harina integral orgánica y semillas naturales.</p>
-                <button className="btn-primary">Ver más</button>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="product-card"
-              whileHover={{ y: -10, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
-            >
-              <div className="product-image">
-                <img src={panLeche} alt="Pan de Leche Suave" />
-              </div>
-              <div className="product-info">
-                <h3>Pan de Leche Suave</h3>
-                <p>Especialmente suave y esponjoso, perfecto para el desayuno.</p>
-                <button className="btn-primary">Ver más</button>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              className="product-card"
-              whileHover={{ y: -10, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
-            >
-              <div className="product-image">
-                <img src={empanadaPollo} alt="Empanada de Pollo" />
-              </div>
-              <div className="product-info">
-                <h3>Empanada de Pollo</h3>
-                <p>Rellena con pollo desmenuzado y especias tradicionales.</p>
-                <button className="btn-primary">Ver más</button>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
+      <Nosotros />
       {/* Location Section */}
       <SucursalMapSection />
+      <Contacts />
 
       <Footer/>
     </div>
