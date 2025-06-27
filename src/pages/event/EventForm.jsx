@@ -1,201 +1,317 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { eventoValidationSchema } from '../../schemas/eventoValidations';
 import { getCufdAnterior, definirEvento } from '../../service/api';
+import { getUser } from '../../utils/authFunctions';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import SelectSecondary from '../../components/selected/SelectSecondary';
 import InputSecundary from '../../components/inputs/InputSecundary';
+import Modal from '../../components/modal/Modal'; // Importa el modal
+import { FaCopy } from 'react-icons/fa';
+import { Toaster, toast } from 'sonner';
+
 import './EventForm.css';
 
 const EventoForm = () => {
-    const [puntosVenta, setPuntosVenta] = useState([]);
     const [cufdsDisponibles, setCufdsDisponibles] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [resultado, setResultado] = useState(null);
+    const [error, setError] = useState(null);
+    const [minFechaFinEvento, setMinFechaFinEvento] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
-        setPuntosVenta([
-            { id: 1, nombre: 'Punto de Venta Central' },
-            { id: 2, nombre: 'Punto de Venta Norte' },
-            { id: 3, nombre: 'Punto de Venta Sur' },
-        ]);
-    }, []);
+    const currentUser = getUser();
+    const puntoVentaId = currentUser?.puntosVenta[0]?.id;
+
+
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                toast.success('Código copiado al portapapeles');
+            })
+            .catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+    };
 
     const formik = useFormik({
         initialValues: {
-            idPuntoVenta: '',
             cufdEvento: '',
             fechaHoraInicioEvento: '',
             fechaHoraFinEvento: '',
             codigoMotivoEvento: '',
         },
-        validationSchema: Yup.object({
-            idPuntoVenta: Yup.number().required('Selecciona un punto de venta'),
-            cufdEvento: Yup.string().required('Selecciona un CUFD'),
-            fechaHoraInicioEvento: Yup.string().required('Selecciona una fecha de inicio'),
-            fechaHoraFinEvento: Yup.string()
-                .required('Selecciona una fecha de fin')
-                .test('is-greater', 'La fecha fin debe ser mayor a la fecha inicio', function (value) {
-                    if (!this.parent.fechaHoraInicioEvento || !value) return true;
-                    return new Date(value).getTime() > new Date(this.parent.fechaHoraInicioEvento).getTime();
-                })
-                .test('not-future', 'La fecha fin no puede ser mayor a hoy', function (value) {
-                    if (!value) return true;
-                    return new Date(value).getTime() <= new Date().getTime();
-                }),
-            codigoMotivoEvento: Yup.number().required('Selecciona un motivo de evento'),
-        }),
-        onSubmit: async (values) => {
-            setLoading(true);
-            try {
-                const payload = {
-                    idPuntoVenta: values.idPuntoVenta,
-                    cufdEvento: values.cufdEvento,
-                    fechaHoraInicioEvento: new Date(values.fechaHoraInicioEvento).toISOString(),
-                    fechaHoraFinEvento: new Date(values.fechaHoraFinEvento).toISOString(),
-                    codigoMotivoEvento: values.codigoMotivoEvento,
-                };
-
-                console.log('Payload enviado:', payload);
-
-                const res = await definirEvento(payload);
-                console.log(res);
-                alert('Evento registrado correctamente');
-                formik.resetForm();
-                setCufdsDisponibles([]);
-            } catch (error) {
-                alert('Error al registrar el evento: ' + (error.message || 'Intente nuevamente'));
-            } finally {
-                setLoading(false);
-            }
-        }
+        validationSchema: eventoValidationSchema,
+        onSubmit: handleSubmit,
     });
 
+    async function handleSubmit(values) {
+        setLoading(true);
+        setError(null);
+        setResultado(null);
+
+        try {
+            const formatDateForBackend = (dateString) => {
+                const date = new Date(dateString);
+                const pad = (num) => num.toString().padStart(2, '0');
+
+                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+            };
+
+            const payload = {
+                idPuntoVenta: puntoVentaId,
+                codigoMotivoEvento: Number(values.codigoMotivoEvento),
+                descripcion: getDescripcionMotivo(values.codigoMotivoEvento),
+                cufdEvento: values.cufdEvento,
+                fechaHoraInicioEvento: formatDateForBackend(values.fechaHoraInicioEvento),
+                fechaHoraFinEvento: formatDateForBackend(values.fechaHoraFinEvento)
+            };
+console.log("Payload enviado al backend:", payload);
+            const response = await definirEvento(payload);
+
+            setResultado({
+                codigoRecepcion: response.data?.respuestaSiat?.codigoRecepcionEventoSignificativo,
+                mensaje: 'Evento registrado correctamente',
+                detalles: response,
+                motivo: getDescripcionMotivo(values.codigoMotivoEvento)
+            });
+
+            setShowModal(true); // Mostrar el modal
+            formik.resetForm();
+            setCufdsDisponibles([]);
+            await fetchCufds();
+
+        } catch (error) {
+            console.error('Error al registrar evento:', error);
+            setError({
+                titulo: 'Error al registrar el evento',
+                mensaje: error.response?.data?.message || error.message || 'Ocurrió un error inesperado',
+                detalles: error.response?.data?.details || ''
+            });
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchCufds = async () => {
+        if (!puntoVentaId) return;
+
+        try {
+            const { data } = await getCufdAnterior(puntoVentaId);
+            const cufdsData = Array.isArray(data) ? data : [data];
+
+            if (cufdsData.length > 0) {
+                setCufdsDisponibles(cufdsData);
+                const primerCufd = cufdsData[0];
+                const fechaInicio = primerCufd?.fechaHoraInicioEvento;
+
+                // Usar la función mejorada
+                const fechaInicioFormateada = formatDateTime(fechaInicio);
+
+                // Crear fecha de inicio del evento (1 minuto después)
+                const fechaInicioEvento = addOneMinute(fechaInicio);
+
+                formik.setValues((prev) => ({
+                    ...prev,
+                    cufdEvento: primerCufd?.cufdEvento || '',
+                    fechaHoraInicioEvento: fechaInicioEvento, // Usar la fecha con 1 minuto añadido
+                }));
+
+                setMinFechaFinEvento(fechaInicioEvento);  // actualiza mínimo
+            }
+        } catch (error) {
+            console.error('Error al obtener CUFDs:', error);
+            setCufdsDisponibles([]);
+            setError({
+                titulo: 'Error al cargar CUFDs',
+                mensaje: 'No se pudieron cargar los CUFDs disponibles',
+                detalles: error.message
+            });
+        }
+    };
+
+    const formatDateTimeLocal = (dateTimeString) => {
+        if (!dateTimeString) return '';
+
+        const date = new Date(dateTimeString);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    useEffect(() => {
+        fetchCufds();
+    }, [puntoVentaId]);
+
+    useEffect(() => {
+        if (formik.values.fechaHoraInicioEvento) {
+            setMinFechaFinEvento(formik.values.fechaHoraInicioEvento);
+        }
+    }, [formik.values.fechaHoraInicioEvento]);
+
+    const addOneMinute = (dateTimeString) => {
+        if (!dateTimeString) return '';
+
+        const date = new Date(dateTimeString);
+        date.setMinutes(date.getMinutes() + 1);
+
+        return formatDateTimeLocal(date.toISOString());
+    };
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
+
         const date = new Date(dateTimeString);
-        return date.toISOString().replace('Z', ''); // Mantiene la zona horaria local
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        // Retornar en formato datetime-local
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
-    ;
-
-    useEffect(() => {
-        const fetchCufds = async () => {
-            if (!formik.values.idPuntoVenta) {
-                setCufdsDisponibles([]);
-                return;
-            }
-
-            try {
-                const { data } = await getCufdAnterior(formik.values.idPuntoVenta);
-                const cufdsData = Array.isArray(data) ? data : [data];
-
-                if (cufdsData.length > 0) {
-                    setCufdsDisponibles(cufdsData);
-                    const primerCufd = cufdsData[0];
-                    formik.setValues({
-                        ...formik.values,
-                        cufdEvento: primerCufd.cufdEvento,
-                        fechaHoraInicioEvento: formatDateTime(primerCufd.fechaHoraInicioEvento),
-                    });
-                }
-            } catch (error) {
-                console.error('Error al obtener CUFDs:', error);
-                setCufdsDisponibles([]);
-            }
-        };
-
-        fetchCufds();
-    }, [formik.values.idPuntoVenta]);
-
     return (
         <div className="evento-container">
-            <h2 className="evento-title">Registro de Evento Significativo</h2>
+            <Toaster position="top-right" richColors />
+            <h3 className="evento-title">Registro de Evento Significativo</h3>
             <p className="evento-subtitle">Complete los datos del evento a registrar</p>
 
             <form onSubmit={formik.handleSubmit} className="evento-form">
-                <div className="evento-section">
-                    <h3 className="evento-section-title">Datos del Punto de Venta</h3>
-                    <SelectSecondary
-                        label="Punto de Venta *"
-                        name="idPuntoVenta"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.idPuntoVenta}
-                        error={formik.touched.idPuntoVenta && formik.errors.idPuntoVenta}
-                    >
-                        <option value="">Seleccione un punto de venta</option>
-                        {puntosVenta.map((pv) => (
-                            <option key={pv.id} value={pv.id}>{pv.nombre}</option>
-                        ))}
-                    </SelectSecondary>
-                </div>
-
-                <div className="evento-section">
-                    <h3 className="evento-section-title">Selección de CUFD</h3>
-                    <SelectSecondary
-                        label="CUFD Disponible *"
-                        name="cufdEvento"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.cufdEvento}
-                        error={formik.touched.cufdEvento && formik.errors.cufdEvento}
-                        disabled={!formik.values.idPuntoVenta || cufdsDisponibles.length === 0}
-                    >
-                        <option value="">Seleccione un CUFD</option>
-                        {cufdsDisponibles.map((cufd) => (
-                            <option key={cufd.cufdEvento} value={cufd.cufdEvento}>
-                                {new Date(cufd.fechaHoraInicioEvento).toLocaleString()} - {cufd.cufdEvento.substring(0, 10)}...
-                            </option>
-                        ))}
-                    </SelectSecondary>
-                </div>
-
-                <div className="evento-section">
-                    <h3 className="evento-section-title">Fechas del Evento</h3>
-                    <InputSecundary
-                        label="Fecha y Hora de Inicio *"
-                        name="fechaHoraInicioEvento"
-                        type="datetime-local"
-                        formik={formik}
-                        required
-                        disabled
-                    />
-                    <InputSecundary
-                        label="Fecha y Hora de Fin *"
-                        name="fechaHoraFinEvento"
-                        type="datetime-local"
-                        formik={formik}
-                        required 
-                        min={formik.values.fechaHoraInicioEvento}
-                        max={formatDateTime(new Date())}
-                    />
-
-                </div>
-
-                <div className="evento-section">
-                    <h3 className="evento-section-title">Motivo del Evento</h3>
-                    <SelectSecondary
-                        label="Motivo del Evento *"
-                        name="codigoMotivoEvento"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.codigoMotivoEvento}
-                        error={formik.touched.codigoMotivoEvento && formik.errors.codigoMotivoEvento}
-                    >
-                        <option value="">Seleccione un motivo</option>
-                        <option value="1">Corte del servicio de Internet</option>
-                        <option value="2">Inaccesibilidad al Servicio Web</option>
-                    </SelectSecondary>
-                </div>
-
+                <CufdSection formik={formik} cufdsDisponibles={cufdsDisponibles} puntoVentaId={puntoVentaId} />
+                <FechaSection formik={formik} minFechaFinEvento={minFechaFinEvento} />
+                <MotivoSection formik={formik} />
+                {error && (
+                    <div className="error-message">
+                        <p>{error.mensaje}</p>
+                    </div>
+                )}
                 <div className="evento-actions">
                     <ButtonPrimary type="submit" disabled={loading || !formik.isValid}>
                         {loading ? 'Registrando...' : 'Registrar Evento'}
                     </ButtonPrimary>
                 </div>
             </form>
+
+            {/* Modal para mostrar el resultado */}
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                <div className="modal-content">
+                    <h3>{resultado?.mensaje || 'Resultado del evento'}</h3>
+                    <div className="resultado-container">
+                        <p><strong>Código de recepción:</strong></p>
+                        <div className="codigo-container">
+                            <span className="codigo-recepcion">
+                                {resultado?.codigoRecepcion}
+                            </span>
+                            <button
+                                className="copy-button"
+                                onClick={() => copyToClipboard(resultado?.codigoRecepcion)}
+                                title="Copiar código"
+                            >
+                                <FaCopy />
+                            </button>
+                        </div>
+                        <p><strong>Motivo:</strong> {resultado?.motivo}</p>
+                    </div>
+                    <div className="modal-actions">
+                        <ButtonPrimary onClick={() => setShowModal(false)}>
+                            Cerrar
+                        </ButtonPrimary>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };
+
+// Secciones del formulario
+const CufdSection = ({ formik, cufdsDisponibles, puntoVentaId }) => (
+    <div className="evento-section">
+        <h4 className="evento-section-title">Selección de CUFD</h4>
+        <SelectSecondary
+            label="CUFD Disponible *"
+            name="cufdEvento"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.cufdEvento}
+            error={formik.touched.cufdEvento && formik.errors.cufdEvento}
+            disabled={!puntoVentaId || cufdsDisponibles.length === 0}
+        >
+            <option value="">Seleccione un CUFD</option>
+            {cufdsDisponibles.map((cufd) => (
+                <option key={cufd.cufdEvento} value={cufd.cufdEvento}>
+                    {new Date(cufd.fechaHoraInicioEvento).toLocaleString()} - {cufd.cufdEvento.substring(0, 10)}...
+                </option>
+            ))}
+        </SelectSecondary>
+    </div>
+);
+
+const FechaSection = ({ formik, minFechaFinEvento }) => (
+    <div className="evento-section">
+        <h4 className="evento-section-title">Fechas del Evento</h4>
+        <InputSecundary
+            label="Fecha y Hora de Inicio *"
+            name="fechaHoraInicioEvento"
+            type="datetime-local"
+            formik={formik}
+            required
+        />
+        <InputSecundary
+            label="Fecha y Hora de Fin *"
+            name="fechaHoraFinEvento"
+            type="datetime-local"
+            formik={formik}
+            required
+            min={minFechaFinEvento}
+            max={new Date().toISOString().slice(0, 16)}
+        />
+    </div>
+);
+
+
+const MotivoSection = ({ formik }) => (
+    <div className="evento-section">
+        <h4 className="evento-section-title">Motivo del Evento</h4>
+        <SelectSecondary
+            label="Motivo del Evento *"
+            name="codigoMotivoEvento"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.codigoMotivoEvento}
+            error={formik.touched.codigoMotivoEvento && formik.errors.codigoMotivoEvento}
+        >
+            <option value="">Seleccione un motivo</option>
+            <option value="1">1) Corte del servicio de Internet</option>
+            <option value="2">2) Inaccesibilidad al Servicio Web de la Administración Tributaria</option>
+            <option value="3">3) Ingreso a zonas sin Internet por despliegue de puntos de venta</option>
+            <option value="4">4) Venta en Lugares sin internet</option>
+            <option value="5">5) Virus informático o falla de software</option>
+            <option value="6">6) Cambio de infraestructura de sistema o falla de hardware</option>
+            <option value="7">7) Corte de suministro de energía eléctrica</option>
+        </SelectSecondary>
+    </div>
+);
+
+// Funciones auxiliares
+const getDescripcionMotivo = (codigo) => {
+    const motivos = {
+        "1": "CORTE DEL SERVICIO DE INTERNET",
+        "2": "INACCESIBILIDAD AL SERVICIO WEB DE LA ADMINISTRACIÓN TRIBUTARIA",
+        "3": "INGRESO A ZONAS SIN INTERNET POR DESPLIEGUE DE PUNTOS DE VENTA",
+        "4": "VENTA EN LUGARES SIN INTERNET",
+        "5": "VIRUS INFORMÁTICO O FALLA DE SOFTWARE",
+        "6": "CAMBIO DE INFRAESTRUCTURA DE SISTEMA O FALLA DE HARDWARE",
+        "7": "CORTE DE SUMINISTRO DE ENERGÍA ELÉCTRICA"
+    };
+    return motivos[codigo] || "";
+};
+
 
 export default EventoForm;

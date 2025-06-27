@@ -1,0 +1,15 @@
+.tabla-eventos td,
+.tabla-eventos th {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tabla-eventos td span {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tabla-eventos td span:hover {
+  color: #007bff;
+  text-decoration: underline;
+}

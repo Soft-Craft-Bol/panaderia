@@ -6,6 +6,7 @@ import styles from './BreadList.module.css';
 import CardProductExt from '../../components/cardProducto/CardProductExt';
 import { useInView } from 'react-intersection-observer';
 import NavbarPublic from './NavbarPublic';
+import Footer from './Footer';
 
 const BreadList = () => {
   const navigate = useNavigate();
@@ -219,6 +220,7 @@ const BreadList = () => {
         </div>
       )}
     </div>
+    <Footer/>
   </>
   );
 };

@@ -37,10 +37,31 @@ const CrearReceta = lazy(() => import("../pages/insumos/CrearReceta"));
 const ProductosVentas = lazy(() => import("../pages/productos/ProdcutoVentas"));
 const InsumosInactivos = lazy(() => import("../pages/insumos/InsumosInactivos"));
 const EventForm = lazy(() => import("../pages/event/EventForm") )
+const ListEvent = lazy(() => import("../pages/event/ListEvent") )
+const EventManager = lazy(() => import("../pages/event/EventoManager") )
 const ProduccionForm = lazy(() => import("../pages/insumos/ProduccionForm") )
+const TopClients = lazy(() => import("../pages/clientes/TopClients") )
+const ItemMassImport = lazy(() => import("../components/forms/itemForm/ItemMassImport") )
+const FormFacturacion = lazy(() => import("../components/facturaForm/FormFacturacion") )
+const RegisterClient = lazy(() => import("../components/forms/clientForm/RegisterClient"));
+const SectionContact = lazy(() => import("../pages/landingPage/SectionContact"));
+const SectionNosotros = lazy(() => import("../pages/landingPage/SectionNosotros"));
+const CierreCaja = lazy(() => import("../pages/cajas/CierreCajaForm"));
+import MyComponent from "../components/table/MyComponent";
+const cajaEjemplo = {
+    id: 1,
+    nombre: "Caja Principal",
+    montoInicial: 500.00
+  };
+
+  const usuarioEjemplo = {
+    id: 1,
+    nombre: "Juan Pérez"
+  };
 
 
 const AppRoutes = () => (
+  
     <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<LoginUser />} />
@@ -83,16 +104,26 @@ const AppRoutes = () => (
         <Route path="/insumos/crear" element={<PrivateRoute><CrearInsumoPage /></PrivateRoute>} />
         <Route path="/insumos/inactivos" element={<PrivateRoute><InsumosInactivos /></PrivateRoute>} />
         <Route path="/insumos/edit/:id" element={<PrivateRoute><EditarInsumo /></PrivateRoute>} />
+        <Route path="/insumos/produccion" element={<PrivateRoute><ProduccionForm/></PrivateRoute>} />
 
         <Route path="/recetas" element={<PrivateRoute><ListaRecetas /></PrivateRoute>} />
         <Route path="/recetas/crear" element={<PrivateRoute><CrearReceta /></PrivateRoute>} />
 
 
         <Route path="/evento" element={<PrivateRoute><EventForm/></PrivateRoute>}/>
+        <Route path="/list-evento" element={<PrivateRoute><ListEvent/></PrivateRoute>} />
+        <Route path="/event-manager" element={<PrivateRoute><EventManager/></PrivateRoute>} />
+        
+        <Route path="/top-clientes" element={<PrivateRoute><TopClients/></PrivateRoute>} />
+        <Route path="/item-mass-import" element={<PrivateRoute><ItemMassImport/></PrivateRoute>} />
+        <Route path="/impuestos-form1" element={<PrivateRoute><FormFacturacion/></PrivateRoute>} />
+        <Route path="/register-client" element={<RegisterClient />} />
+        <Route path="/contacto" element={<SectionContact />} />
+        <Route path="/nosotros" element={<SectionNosotros />} />
 
-        <Route path="/insumos/produccion" element={<PrivateRoute><ProduccionForm/></PrivateRoute>} />
+<Route path= "/my-component" element={<PrivateRoute><MyComponent/></PrivateRoute>} />
 
-
+<Route path="/cierre-caja" element={<PrivateRoute> <CierreCaja caja={cajaEjemplo} usuario={usuarioEjemplo}  /></PrivateRoute>} />
 
     </Routes>
 );

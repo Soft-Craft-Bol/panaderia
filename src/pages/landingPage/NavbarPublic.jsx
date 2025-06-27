@@ -25,7 +25,7 @@ const NavbarPublic = () => {
   };
 
   return (
-    <motion.nav 
+    <motion.nav
       className={`navbar1 ${scrolled ? 'scrolled' : ''}`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -35,27 +35,34 @@ const NavbarPublic = () => {
         <div className="navbar1-brand" onClick={() => handleNavigation('/')}>
           <img src={inpasedLogo} alt="Logo Inpased" className="logo" />
         </div>
-        
+
         <div className={`navbar1-links ${mobileMenuOpen ? 'active' : ''}`}>
           <Link to="/" className="nav-link" onClick={() => handleNavigation('/')}>Inicio</Link>
           <Link to="/product" className="nav-link">Productos</Link>
           <Link to="/nosotros" className="nav-link">Nosotros</Link>
           <Link to="/contacto" className="nav-link">Contacto</Link>
-          <button 
+          <button
             className="btn-login"
             onClick={() => handleNavigation('/login')}
           >
             Iniciar Sesión
           </button>
+          <button
+            className="btn-register"
+            onClick={() => handleNavigation('/register-client')}
+          >
+            Registrarse
+          </button>
         </div>
-        
-        <button 
+
+        <button
           className="mobile-menu-button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Menú móvil"
         >
           {mobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
+
       </div>
     </motion.nav>
   );

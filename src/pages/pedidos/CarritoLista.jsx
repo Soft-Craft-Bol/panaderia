@@ -101,19 +101,6 @@ const CarritoLista = () => {
             <strong>Total:</strong> Bs {total.toFixed(2)}
           </p>
 
-          <div className="metodo-pago">
-            <label>Método de pago:</label>
-            <select
-              value={metodoPago}
-              onChange={(e) => setMetodoPago(e.target.value)}
-              className="select-metodo"
-            >
-              <option value="qr">QR</option>
-              <option value="efectivo">Efectivo</option>
-            </select>
-            {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
-          </div>
-
           <button
             className="btn-general"
             onClick={handlePagarClick}

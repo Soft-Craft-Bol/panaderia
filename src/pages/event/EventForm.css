@@ -1,10 +1,4 @@
-.evento-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-  }
+
   .evento-title {
     text-align: center;
   }
@@ -14,3 +8,61 @@
     margin-top: 2rem;
   }
   
+.evento-descripcion h4 {
+  margin-top: 0;
+  color: #007bff;
+}
+
+.evento-descripcion p {
+  margin-bottom: 0;
+}
+
+.resultado-container {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.codigo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.codigo-recepcion {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 5px 10px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #3498db;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.copy-button:hover {
+    color: #2980b9;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.error-message {
+    color: #ee1a30;
+    display: flex;
+    justify-content: center;
+}
+

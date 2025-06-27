@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './Carrito.css';
+import { emitirSinFactura } from '../../service/api';
 
-const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, toggleCart }) => {
+const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, toggleCart, handleFinalizarVenta }) => {
   const removeFromCart = (productId) => {
     updateQuantity(productId, 0);
   };
@@ -33,17 +34,22 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
           </>
         )}
       </button>
+       <button className="mobile-close-btn" onClick={toggleCart}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      </button>
 
       <div className="cart-content">
         <h2 className="cart-title">Carrito de Compras</h2>
-        
+
         {cart.length === 0 ? (
           <div className="cart-empty">
             <p>No hay productos en el carrito</p>
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-              <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 6H21" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 6H21" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="var(--primary-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
         ) : (
@@ -53,12 +59,12 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                 <div key={item.id} className={`cart-item ${item.tieneDescuento ? 'has-discount' : ''}`}>
                   <div className="item-info">
                     <div className="item-descuent">
-                    <span className="item-name">{item.descripcion}</span>
-                    {item.tieneDescuento && (
-                      <span className="item-discount-badge">
-                        {Math.round((1 - (item.precioConDescuento / item.precioUnitario)) * 100)}% OFF
-                      </span>
-                    )}
+                      <span className="item-name">{item.descripcion}</span>
+                      {item.tieneDescuento && (
+                        <span className="item-discount-badge">
+                          {Math.round((1 - (item.precioConDescuento / item.precioUnitario)) * 100)}% OFF
+                        </span>
+                      )}
                     </div>
                     <div className="item-details">
                       <div className="item-price-container">
@@ -68,8 +74,8 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                           </span>
                         )}
                         <span className="item-price">
-                          Bs {(item.tieneDescuento 
-                            ? (item.precioConDescuento * item.quantity).toFixed(2) 
+                          Bs {(item.tieneDescuento
+                            ? (item.precioConDescuento * item.quantity).toFixed(2)
                             : (item.precioUnitario * item.quantity).toFixed(2))}
                         </span>
                       </div>
@@ -78,9 +84,9 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="quantity-controls">
-                    <button 
+                    <button
                       className="quantity-btn minus"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -90,7 +96,7 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       aria-label="Reducir cantidad"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       </svg>
                     </button>
                     <input
@@ -102,7 +108,7 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       className="quantity-input"
                       aria-label="Cantidad"
                     />
-                    <button 
+                    <button
                       className="quantity-btn plus"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -112,10 +118,10 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       aria-label="Aumentar cantidad"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       </svg>
                     </button>
-                    <button 
+                    <button
                       className="remove-btn"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -124,7 +130,7 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                       aria-label="Eliminar producto"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       </svg>
                     </button>
                   </div>
@@ -137,17 +143,30 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
                 <span>Total:</span>
                 <span className="total-amount">Bs {totalConDescuentos.toFixed(2)}</span>
               </div>
-              
-              <button 
-                className="checkout-btn"
-                onClick={handleCheckout}
-                disabled={cart.length === 0}
-              >
-                Finalizar Venta
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </button>
+
+              <div className="checkout-buttons">
+                <button
+                  className="checkout-btn direct-checkout"
+                  onClick={handleFinalizarVenta}
+                  disabled={cart.length === 0}
+                >
+                  Finalizar Venta
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+
+                <button
+                  className="checkout-btn invoice-checkout"
+                  onClick={handleCheckout}
+                  disabled={cart.length === 0}
+                >
+                  Facturación
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 17L9 12M12 17V12M15 17V12M19 21V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H7C6.46957 3 5.96086 3.21071 5.58579 3.58579C5.21071 3.96086 5 4.46957 5 5V21L8 19L12 21L16 19L19 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -160,6 +179,7 @@ Carrito.propTypes = {
   cart: PropTypes.array.isRequired,
   updateQuantity: PropTypes.func.isRequired,
   handleCheckout: PropTypes.func.isRequired,
+  handleFinalizarVenta: PropTypes.func.isRequired,
   totalCompra: PropTypes.number.isRequired,
   isOpen: PropTypes.bool.isRequired,
   toggleCart: PropTypes.func.isRequired

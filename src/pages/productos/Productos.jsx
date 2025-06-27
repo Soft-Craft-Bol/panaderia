@@ -180,6 +180,9 @@ const Productos = () => {
         <button className="btn-general1" onClick={() => navigate("/recetas")}>
           📋 &emsp; Gestionar recetas
         </button>
+        <button className="btn-general1" onClick={() => navigate("/insumos/produccion")}>
+          🍪 &emsp; Producir producto
+        </button>
       </div>
 
       <div>

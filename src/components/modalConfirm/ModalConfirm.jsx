@@ -7,27 +7,27 @@ const ModalConfirm = ({
   onConfirm, 
   title, 
   message, 
-  confirmText = "Confirmar", 
-  cancelText = "Cancelar",
+  confirmText = "Confirm", 
+  cancelText = "Cancel",
   danger = false
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modalConf">
-        <div className="modalConf-content">
-          <h2>{title}</h2>
-          <p>{message}</p>
-          <div className="modalConf-buttons">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-conf" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-conf-content">
+          {title && <h2 className="modal-conf-title">{title}</h2>}
+          {message && <p className="modal-conf-message">{message}</p>}
+          <div className="modal-conf-buttons">
             <button 
-              className={danger ? "btn-danger" : "btn-confirm"}
+              className={`modal-conf-button ${danger ? "modal-conf-button-danger" : "modal-conf-button-primary"}`}
               onClick={onConfirm}
             >
               {confirmText}
             </button>
             <button 
-              className="btn-cancel"
+              className="modal-conf-button modal-conf-button-cancel"
               onClick={onClose}
             >
               {cancelText}

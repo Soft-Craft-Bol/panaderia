@@ -1,0 +1,49 @@
+.register-client-container {
+    max-width: 600px;
+    height: 650px;
+    margin: 0 auto; 
+    padding: 20px;
+    background-color: var(--sidebar-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: var(--tran-03);
+    margin-top: 8%;
+    margin-bottom: 5%;
+}
+
+.register-client-container h2 {
+  text-align: center;
+  margin: 20px;
+  color: var(--text-color);
+}
+
+.client-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.form-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.form-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .form-columns {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .register-client-container {
+    margin-top: 15%;
+    padding: 15px;
+  }
+}   

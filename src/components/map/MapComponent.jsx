@@ -1,6 +1,7 @@
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { useState } from 'react';
 
+
 const MapComponent = ({ coordinates, direccion, zoom = 20, img }) => {
   const containerStyle = {
     width: '100%',
@@ -13,7 +14,7 @@ const MapComponent = ({ coordinates, direccion, zoom = 20, img }) => {
   const [showInfo, setShowInfo] = useState(true);
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyBFSCSL763mdkz5ms2PuloRSsocy8fehvc">
+    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={{ lat: coordinates[0], lng: coordinates[1] }}
