@@ -19,6 +19,16 @@
 .card {
   position: relative;
 }
+.insumos-actions{
+  display: flex;
+  gap: 15%;
+}
+
+.select-sucursal {
+  padding: 8px;
+  font-size: 1rem;
+  margin-left: 1rem;
+}
 
 
 /* Estilos para el modal */

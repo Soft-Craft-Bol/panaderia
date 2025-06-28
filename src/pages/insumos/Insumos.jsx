@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import './Insumos.css';
 import Card from '../../components/card/cards/Card';
-import { getActivos, desactivarInsumo, activarInsumo } from '../../service/api';
+import { getActivos, desactivarInsumo, activarInsumo, getSucursales } from '../../service/api';
 import Modal from '../../components/modal/Modal';
 import { useNavigate } from 'react-router-dom';
+import { CurveModifier } from '@react-three/drei';
+import SelectPrimary from '../../components/selected/SelectPrimary';
 
 const Insumos = () => {
   const [insumos, setInsumos] = useState([]);
+  const [sucursales, setSucursales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
   const [selectedInsumo, setSelectedInsumo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -16,9 +20,24 @@ const Insumos = () => {
   const fetchInsumos = async () => {
     try {
       const response = await getActivos();
-      console.log(response.data.content)
       setInsumos(response.data.content);
       setLoading(false);
+    } catch (error) {
+      console.error('Error fetching insumos:', error);
+      setError(error);
+      setLoading(false);
+    }
+  };
+
+  const fetchSucursales = async () => {
+    try {
+      const response = await getSucursales();
+      setSucursales(response.data);
+      setLoading(false);
+      if (response.data.length > 0) {
+        setSucursalSeleccionada(response.data[0].id);
+      }
+
     } catch (error) {
       console.error('Error fetching insumos:', error);
       setError(error);
@@ -56,6 +75,7 @@ const Insumos = () => {
 
   useEffect(() => {
     fetchInsumos();
+    fetchSucursales();
   }, []);
 
   if (loading) return <div className="loading">Cargando...</div>;
@@ -71,6 +91,20 @@ const Insumos = () => {
         <button className='btn-general secondary' onClick={() => navigate('/insumos/inactivos')}>
           Ver inactivos
         </button>
+        <select
+          value={sucursalSeleccionada || ''}
+          onChange={(e) => setSucursalSeleccionada(Number(e.target.value))}
+          className="select-sucursal"
+        >
+          <option value="" disabled hidden>
+            Seleccione una sucursal
+          </option>
+          {sucursales.map((sucursal) => (
+            <option key={sucursal.id} value={sucursal.id}>
+              {sucursal.nombre}
+            </option>
+          ))}
+        </select>
       </div>
       
       <div className="cards-container">
