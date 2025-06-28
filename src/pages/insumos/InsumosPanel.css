@@ -1,0 +1,140 @@
+.insumos-panel {
+  padding: 20px;
+  background-color: var(--sidebar-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.sucursal-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sucursal-selector select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--toggle-color);
+  background-color: var(--primary-color-light);
+  color: var(--text-color);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.insumos-table-container {
+  overflow-x: auto;
+}
+
+.insumos-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.insumos-table th, 
+.insumos-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--toggle-color);
+}
+
+.insumos-table th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+}
+
+.insumos-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.insumos-table tr.low-stock {
+  background-color: rgba(255, 165, 0, 0.1);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.status-badge.success {
+  background-color: rgba(0, 128, 0, 0.1);
+  color: green;
+}
+
+.status-badge.warning {
+  background-color: rgba(255, 165, 0, 0.2);
+  color: darkorange;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-color-secondary);
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.loading-message, 
+.error-message {
+  padding: 20px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.error-message {
+  color: #d32f2f;
+  background-color: rgba(211, 47, 47, 0.1);
+  border-radius: 4px;
+}
+
+/* Estilos para modo oscuro */
+body.dark .insumos-panel {
+  background-color: var(--color-medium);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .sucursal-selector select {
+  background-color: var(--color-5);
+  border-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+body.dark .insumos-table th {
+  background-color: var(--primary-color-light);
+}
+
+body.dark .insumos-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark .action-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
