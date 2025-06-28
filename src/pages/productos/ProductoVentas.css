@@ -22,7 +22,7 @@
 .ventas-header h1 {
   font-size: 1.8rem;
   margin: 0;
-  color: var(--primary-color);
+  color: black;
 }
 
 .search-box {
@@ -348,6 +348,37 @@
     font-size: 0.75rem;
   }
   
+
+}
+
+
+/* ProductoVentas.css */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.cierre-caja-button {
+  background-color: #eb8b0f;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.cierre-caja-button:hover {
+  background-color: #886421;
+}
+
+.cierre-caja-button .button-icon {
+  font-size: 1.1em;
 }
 
 /* Modo oscuro específico */

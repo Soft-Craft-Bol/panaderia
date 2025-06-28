@@ -9,10 +9,14 @@ import LinkButton from "../../components/buttons/LinkButton";
 import { useVentas } from "../../hooks/useVentas";
 import ModalConfirm from "../../components/modalConfirm/ModalConfirm";
 import { getUser } from "../../utils/authFunctions";
+import { FaCashRegister } from "react-icons/fa";
 
 const currentUser = getUser();
-const ID_SUCURSAL_ACTUAL = currentUser?.puntosVenta ? currentUser.puntosVenta[0].id : 1;
+if (!currentUser?.puntosVenta || currentUser.puntosVenta.length === 0) {
+  alert('No cuenta con sucursales asignadas.');
+}
 
+const ID_SUCURSAL_ACTUAL = currentUser.puntosVenta[0].id;
 // Componente memoizado para evitar rerenders innecesarios
 const ProductoCard = memo(({ product, addToCart, getCurrentStock }) => {
     const currentStock = getCurrentStock(product);
@@ -340,6 +344,13 @@ const ProductosVentas = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+                <button 
+      className="cierre-caja-button"
+      onClick={() => navigate('/cierre-caja')}
+    >
+      <FaCashRegister className="button-icon" />
+      Cierre de Caja
+    </button>
             </div>
 
             <div className="ventas-main-content">

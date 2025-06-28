@@ -52,7 +52,7 @@ const CrearReceta = () => {
       setLoadingInsumos(true);
       try {
         const insumosResponse = await getActivos();
-        setTodosLosInsumos(insumosResponse.data);
+        setTodosLosInsumos(insumosResponse.data.content);
       } catch (err) {
         setError('Error al cargar los insumos');
         console.error(err);
