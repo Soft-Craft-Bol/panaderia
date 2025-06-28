@@ -48,6 +48,7 @@ const RegisterClient = lazy(() => import("../components/forms/clientForm/Registe
 const SectionContact = lazy(() => import("../pages/landingPage/SectionContact"));
 const SectionNosotros = lazy(() => import("../pages/landingPage/SectionNosotros"));
 const CierreCaja = lazy(() => import("../pages/cajas/CierreCajaForm"));
+const InsumosPanel = lazy(() => import("../pages/insumos/InsumosPanel"));
 import MyComponent from "../components/table/MyComponent";
 const cajaEjemplo = {
     id: 1,
@@ -57,7 +58,7 @@ const cajaEjemplo = {
 
   const usuarioEjemplo = {
     id: 1,
-    nombre: "Juan Pérez"
+    nombre: "Gaspar"
   };
 
 
@@ -99,7 +100,7 @@ const AppRoutes = () => (
         <Route path="/clientes/crear-cliente" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/editClient/:id" element = {<PrivateRoute> <ClientForm /> </PrivateRoute>}/>
         <Route path="/clientes" element = {<PrivateRoute> <Clientes /> </PrivateRoute>}/>
-        <Route path="/insumos" element = {<PrivateRoute> <Insumos /> </PrivateRoute>}/>
+        <Route path="/insumos" element = {<PrivateRoute> <InsumosPanel /> </PrivateRoute>}/>
         {/* <Route path="/insumos/edit/:id" element = {<PrivateRoute> <ItemForm /> </PrivateRoute>}/> */}
         <Route path="/" element = {<LandingPage />}/>
         <Route path="/insumos" element = {<PrivateRoute>  </PrivateRoute>} />

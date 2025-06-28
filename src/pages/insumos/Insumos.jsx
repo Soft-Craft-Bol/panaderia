@@ -22,6 +22,7 @@ const Insumos = () => {
   const fetchInsumos = async () => {
     try {
       const response = await getActivos();
+      console.log(response.data.content);
       setInsumos(response.data.content);
       setLoading(false);
     } catch (error) {
