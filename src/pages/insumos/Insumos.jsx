@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './Insumos.css';
 import Card from '../../components/card/cards/Card';
-import { getActivos, desactivarInsumo, activarInsumo, getSucursales } from '../../service/api';
+import { getActivos, desactivarInsumo, activarInsumo, getSucursales, insumoPorSucursal } from '../../service/api';
 import Modal from '../../components/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import { CurveModifier } from '@react-three/drei';
 import SelectPrimary from '../../components/selected/SelectPrimary';
+import InsumosPorSucursal from '../../components/insumos/InsumosPorSucursal';
 
 const Insumos = () => {
   const [insumos, setInsumos] = useState([]);
@@ -13,6 +14,7 @@ const Insumos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sucursalSeleccionada, setSucursalSeleccionada] = useState(null);
+  const [insumosSucursal, setInsumosSucursal] = useState([]);
   const [selectedInsumo, setSelectedInsumo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ const Insumos = () => {
       setLoading(false);
       if (response.data.length > 0) {
         setSucursalSeleccionada(response.data[0].id);
+        fetchInsumosPorSucursal(response.data[0].id);
       }
 
     } catch (error) {
@@ -44,6 +47,16 @@ const Insumos = () => {
       setLoading(false);
     }
   };
+
+  const fetchInsumosPorSucursal = async (id) => {
+  try {
+    const response = await insumoPorSucursal(id);
+    setInsumosSucursal(response.data);
+  } catch (error) {
+    console.error('Error al cargar insumos por sucursal:', error);
+  }
+};
+
 
   const handleDesactivar = async (id) => {
     try {
@@ -84,6 +97,7 @@ const Insumos = () => {
   return (
     <main className='main-insumos'>
       <h1>Insumos</h1>
+      
       <div className="insumos-actions">
         <button className='btn-general' onClick={() => navigate('/insumos/crear')}>
           Crear insumo
@@ -93,7 +107,11 @@ const Insumos = () => {
         </button>
         <select
           value={sucursalSeleccionada || ''}
-          onChange={(e) => setSucursalSeleccionada(Number(e.target.value))}
+          onChange={(e) => {
+            const id = Number(e.target.value);
+            setSucursalSeleccionada(id);
+            fetchInsumosPorSucursal(id);
+          }}
           className="select-sucursal"
         >
           <option value="" disabled hidden>
@@ -107,27 +125,9 @@ const Insumos = () => {
         </select>
       </div>
       
-      <div className="cards-container">
-      {insumos.map((insumo) => (
-  <Card
-    key={insumo.id}
-    img={insumo.imagen}
-    titulo={insumo.nombre}
-    sucursalId={1}
-    datos={{
-      Proveedor: insumo.proveedor,
-      Marca: insumo.marca,
-      'Precio': insumo.precioActual != null
-        ? `Bs ${Number(insumo.precioActual).toFixed(2)}`
-        : 'Precio no disponible'
-    }}
-    insumoId={insumo.id}
-    insumoData={insumo}
-    fetchSucursalesConInsumos={fetchInsumos}
-    showDeleteButton={true}
-    onDelete={() => handleDesactivar(insumo.id)}
-  />
-))}
+      <div className="">
+      <h2>Insumos de la sucursal</h2>
+        <InsumosPorSucursal insumos={insumosSucursal} />
       </div>
     </main>
   );
