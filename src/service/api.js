@@ -125,11 +125,12 @@ export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucur
 
 //Insumos
 
-export const getActivos = () => api.get('/insumos/activos');
+export const getActivos = () => api.get('/insumos');
 export const desactivarInsumo = (id) => api.put(`/insumos/desactivar/${id}`);
 export const getInactivos = () => api.get('/insumos/inactivos');
 export const activarInsumo = (id) => api.put(`/insumos/activar/${id}`);
 export const updateInsumo = (id, data) => api.put(`/insumos/${id}`, data);
+export const insumoPorSucursal = (id) => api.get(`/insumos/sucursal/${id}`);
 export const eliminarInsumo = (id) => api.delete(`/insumos/${id}`);
 export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
 export const getSucursalWithInsumos = () => api.get('/sucursal-insumos');
