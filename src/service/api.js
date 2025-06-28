@@ -171,6 +171,9 @@ export const emitirContingencia = (data) => api.post('/factura/contigencia', dat
 //EMAIL
 export const sendEmail = (data) => api.post('/email/enviar-factura', data);
 
+//Sales Chart
+export const getSalesChart = () => api.get('/sales-chart');
+
 export const crearInsumo = (data) => api.post('/insumos/crear', data);
 export const asignarInsumoSucursal = (data, idInsumo) => api.post(`/sucursal-insumos/${idInsumo}`, data);
 export const comprarInsumo = (data) => api.post('/compras-insumos', data);

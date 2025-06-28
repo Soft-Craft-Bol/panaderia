@@ -77,6 +77,12 @@ const ListVentas = () => {
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
 
+  // Estados para ordenamiento
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'asc'
+  });
+
   // Guardar estado en localStorage cuando cambia
   useEffect(() => {
     localStorage.setItem('ventasFilters', JSON.stringify(state));
@@ -183,6 +189,51 @@ const ListVentas = () => {
   const handleEstadoChange = (selectedEstado) => {
     handleFilter({ estado: selectedEstado });
   };
+
+  // Función para manejar el ordenamiento
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Función para obtener los datos ordenados
+  const getSortedData = (data) => {
+    if (!sortConfig.key) return data;
+
+    return [...data].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortConfig.key) {
+        case 'estado':
+          aValue = a.estado || 'COMPLETADO';
+          bValue = b.estado || 'COMPLETADO';
+          break;
+        case 'tipoComprobante':
+          aValue = a.tipoComprobante || '';
+          bValue = b.tipoComprobante || '';
+          break;
+        case 'cliente':
+          aValue = a.nombreRazonSocial || 'S/N';
+          bValue = b.nombreRazonSocial || 'S/N';
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  const sortedFacturas = getSortedData(facturas);
 
   const handlePageChange = (newPage) => {
     setState(prev => ({
@@ -342,7 +393,6 @@ const ListVentas = () => {
       <Toaster position="bottom-right" richColors />
       <div className="user-management-header">
         <h2>Gestión de Ventas</h2>
-        <LinkButton to="/facturacion">Nueva Venta</LinkButton>
       </div>
 
       <div className="filtros-ventas-container">
@@ -373,13 +423,53 @@ const ListVentas = () => {
           initialFilters={filters}
           searchPlaceholder={`Buscar por ${filterOptions.tipoBusqueda.find(t => t.value === filters.tipoBusqueda)?.label || 'cliente'}`}
         />
+
+        {/* Filtros de ordenamiento */}
+        <div className="sort-filters-container">
+          <span className="sort-filters-label">Ordenar por:</span>
+          <div className="sort-filters">
+            <button
+              className={`sort-filter-btn ${sortConfig.key === 'estado' ? 'active' : ''}`}
+              onClick={() => handleSort('estado')}
+            >
+              Estado
+              {sortConfig.key === 'estado' && (
+                <span className="sort-arrow">
+                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </button>
+            <button
+              className={`sort-filter-btn ${sortConfig.key === 'tipoComprobante' ? 'active' : ''}`}
+              onClick={() => handleSort('tipoComprobante')}
+            >
+              Tipo de Factura
+              {sortConfig.key === 'tipoComprobante' && (
+                <span className="sort-arrow">
+                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </button>
+            <button
+              className={`sort-filter-btn ${sortConfig.key === 'cliente' ? 'active' : ''}`}
+              onClick={() => handleSort('cliente')}
+            >
+              Cliente
+              {sortConfig.key === 'cliente' && (
+                <span className="sort-arrow">
+                  {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
   <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
           <ColumnVisibilityControl buttonLabel="Columnas" />
         </div>
       <Table
   columns={filteredColumns}  
-  data={facturas}
+  data={sortedFacturas}
   loading={isLoading}
   pagination={{
     currentPage: pageIndex + 1,

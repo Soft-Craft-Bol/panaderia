@@ -53,3 +53,197 @@
   background-color: #9e9e9e; 
   color: white;
 }
+
+/* Contenedor de filtros de ventas */
+.filtros-ventas-container {
+  background-color: var(--bg-component-white);
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(255, 175, 90, 0.15);
+  transition: all 0.3s ease;
+}
+
+.filtro-estado {
+  margin-bottom: 20px;
+}
+
+.filtro-estado label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--color-text-primary);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.select-estado {
+  width: 220px;
+  padding: 12px 16px;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: var(--bg-component-white);
+  color: var(--color-text-primary);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 175, 90, 0.1);
+}
+
+.select-estado:focus {
+  border-color: var(--secondary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.3rem rgba(255, 175, 90, 0.3);
+  transform: translateY(-1px);
+}
+
+.select-estado:hover {
+  border-color: var(--secondary-color);
+  box-shadow: 0 4px 8px rgba(255, 175, 90, 0.2);
+}
+
+/* Filtros de ordenamiento */
+.sort-filters-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid var(--primary-color);
+}
+
+.sort-filters-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: var(--color-text-primary);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sort-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sort-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  background-color: var(--bg-component-white);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 4px rgba(255, 175, 90, 0.1);
+}
+
+.sort-filter-btn:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 175, 90, 0.3);
+}
+
+.sort-filter-btn.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(255, 175, 90, 0.4);
+  transform: translateY(-1px);
+}
+
+.sort-filter-btn.active:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(215, 142, 94, 0.4);
+}
+
+.sort-arrow {
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 6px;
+  transition: transform 0.3s ease;
+}
+
+.sort-filter-btn.active .sort-arrow {
+  animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Responsive design para filtros */
+@media (max-width: 768px) {
+  .filtros-ventas-container {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .sort-filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .sort-filter-btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 16px 20px;
+  }
+  
+  .select-estado {
+    width: 100%;
+  }
+}
+
+/* Estilos específicos para modo oscuro */
+[data-theme="dark"] .filtros-ventas-container {
+  box-shadow: 0 4px 12px rgba(255, 184, 107, 0.2);
+  border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .select-estado {
+  box-shadow: 0 2px 4px rgba(255, 184, 107, 0.15);
+}
+
+[data-theme="dark"] .select-estado:focus {
+  box-shadow: 0 0 0 0.3rem rgba(255, 184, 107, 0.4);
+}
+
+[data-theme="dark"] .select-estado:hover {
+  box-shadow: 0 4px 8px rgba(255, 184, 107, 0.25);
+}
+
+[data-theme="dark"] .sort-filter-btn {
+  box-shadow: 0 2px 4px rgba(255, 184, 107, 0.15);
+}
+
+[data-theme="dark"] .sort-filter-btn:hover {
+  box-shadow: 0 6px 16px rgba(255, 184, 107, 0.4);
+}
+
+[data-theme="dark"] .sort-filter-btn.active {
+  box-shadow: 0 4px 12px rgba(255, 184, 107, 0.5);
+}
+
+[data-theme="dark"] .sort-filter-btn.active:hover {
+  box-shadow: 0 8px 20px rgba(255, 184, 107, 0.5);
+}
