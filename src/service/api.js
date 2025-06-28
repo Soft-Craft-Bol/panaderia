@@ -125,7 +125,7 @@ export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucur
 
 //Insumos
 
-export const getActivos = () => api.get('/insumos/activos');
+export const getActivos = () => api.get('/insumos');
 export const desactivarInsumo = (id) => api.put(`/insumos/desactivar/${id}`);
 export const getInactivos = () => api.get('/insumos/inactivos');
 export const activarInsumo = (id) => api.put(`/insumos/activar/${id}`);

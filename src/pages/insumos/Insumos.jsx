@@ -16,7 +16,8 @@ const Insumos = () => {
   const fetchInsumos = async () => {
     try {
       const response = await getActivos();
-      setInsumos(response.data);
+      console.log(response.data.content)
+      setInsumos(response.data.content);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching insumos:', error);
@@ -82,11 +83,13 @@ const Insumos = () => {
     datos={{
       Proveedor: insumo.proveedor,
       Marca: insumo.marca,
-      'Precio': `Bs ${insumo.precio.toFixed(2)}`
+      'Precio': insumo.precioActual != null
+        ? `Bs ${Number(insumo.precioActual).toFixed(2)}`
+        : 'Precio no disponible'
     }}
     insumoId={insumo.id}
     insumoData={insumo}
-    fetchSucursalesConInsumos={fetchInsumos} // ¡Pasa la función aquí!
+    fetchSucursalesConInsumos={fetchInsumos}
     showDeleteButton={true}
     onDelete={() => handleDesactivar(insumo.id)}
   />

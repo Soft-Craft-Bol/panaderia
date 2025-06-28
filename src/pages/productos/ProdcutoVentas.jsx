@@ -11,8 +11,11 @@ import ModalConfirm from "../../components/modalConfirm/ModalConfirm";
 import { getUser } from "../../utils/authFunctions";
 
 const currentUser = getUser();
-const ID_SUCURSAL_ACTUAL = currentUser?.puntosVenta ? currentUser.puntosVenta[0].id : 1;
+if (!currentUser?.puntosVenta || currentUser.puntosVenta.length === 0) {
+  alert('No cuenta con sucursales asignadas.');
+}
 
+const ID_SUCURSAL_ACTUAL = currentUser.puntosVenta[0].id;
 // Componente memoizado para evitar rerenders innecesarios
 const ProductoCard = memo(({ product, addToCart, getCurrentStock }) => {
     const currentStock = getCurrentStock(product);
