@@ -14,6 +14,7 @@ const InsumosPorSucursal = ({ insumos }) => {
           <div className="insumo-info">
             <p><strong>Unidades:</strong> {insumo.unidades}</p>
             <p><strong>Cantidad:</strong> {insumo.cantidad}</p>
+            <p><strong>Tipo:</strong>{insumo.tipo} </p>
             <p><strong>Stock mínimo:</strong> {insumo.stockMinimo}</p>
             <p><strong>Vencimiento:</strong> {new Date(insumo.fechaVencimiento).toLocaleDateString()}</p>
           </div>

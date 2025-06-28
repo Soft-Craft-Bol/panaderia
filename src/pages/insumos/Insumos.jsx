@@ -102,9 +102,9 @@ const Insumos = () => {
         <button className='btn-general' onClick={() => navigate('/insumos/crear')}>
           Crear insumo
         </button>
-        <button className='btn-general secondary' onClick={() => navigate('/insumos/inactivos')}>
+        {/* <button className='btn-general secondary' onClick={() => navigate('/insumos/inactivos')}>
           Ver inactivos
-        </button>
+        </button> */}
         <select
           value={sucursalSeleccionada || ''}
           onChange={(e) => {
