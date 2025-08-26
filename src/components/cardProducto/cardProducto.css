@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--bg-component-white);
+  background-color: var(--color-bg-primary);
   color: var(--text-color);
   transition: all 0.3s ease;
 }
@@ -114,23 +114,41 @@
   flex-direction: column;
 }
 
-/* Estilos para tema oscuro específicos */
-[data-theme="dark"] {
-  .cardP {
-    box-shadow: -1px 15px 30px -12px rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--color-medium);
-  }
-
-  .cabecera-card button {
-    background-color: var(--color-dark);
-  }
-
-  .desc-larga {
-    color: var(--text-color-secondary);
-  }
+[data-theme="dark"] .cardP {
+  box-shadow: -1px 15px 30px -12px rgba(0, 0, 0, 0.6);
+  background-color: var(--color-gray-800);
+  border: 1px solid var(--color-medium);
+  color: var(--text-color);
 }
 
-/* Estilos para la imagen modal */
+[data-theme="dark"] .cardP h2 {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .cardP p,
+[data-theme="dark"] .cardP strong {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .cardP img {
+  border-bottom: 1px solid var(--color-medium);
+}
+
+[data-theme="dark"] .desc-larga {
+  color: var(--text-color-secondary);
+}
+
+[data-theme="dark"] .cabecera-card button {
+  background-color: var(--bg-component-dark);
+  color: var(--primary-color);
+}
+
+[data-theme="dark"] .cabecera-card button:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* ─── Imagen Modal ────────────────────────────────────────────────── */
 .image-modal {
   position: fixed;
   top: 0;
@@ -155,4 +173,79 @@
   height: auto;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* ─── Responsividad ─────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .cardP {
+    max-width: 100%;
+    min-height: auto;
+  }
+
+  .cardFooter {
+    gap: 0.5rem;
+  }
+
+  .cardFooter .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cabecera-card h2 {
+    font-size: 1rem;
+  }
+
+  .cardP img {
+    height: 180px;
+  }
+
+  .desc-larga {
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardP {
+    padding: 0;
+    border-radius: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .cardP img {
+    height: 150px;
+  }
+
+  .data-cont {
+    padding: 0.75rem;
+  }
+
+  .cardP h2 {
+    font-size: 1rem;
+  }
+
+  .cabecera-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .cabecera-card div {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .cabecera-card button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .cardFooter {
+    gap: 0.5rem;
+  }
+
+  .cardFooter .button {
+    width: 100%;
+  }
 }

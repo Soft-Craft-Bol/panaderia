@@ -1,32 +1,35 @@
-/* Estilos base - aplican para ambos temas */
+/* Base styles - apply to both themes */
 .productos-contenedor {
-    flex-direction: column;
-    background-color: var(--bg-component-white);
-    border-radius: 20px;
-    padding: 20px;
-    color: inherit; /* Hereda el color de texto del tema */
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
-.cardsProducto-contenedor {
-    margin: 15px;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
+
+
+
+.titulo-seccion {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
-.form__input {
-    height: 2.5rem;
-    padding: 0 1.25rem;
-    border: 1px solid var(--color-medium);
-    border-radius: 2px;
-    margin: 0.625rem auto;
-    transition: all 250ms;
-    background-color: var(--bg-component-white);
-    color: inherit;
+.acciones-productos {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
 }
 
-/* Modal de cantidades */
+
+/* Quantity modal */
 .modalCant {
   position: fixed;
   top: 0;
@@ -38,142 +41,168 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
-  
+
 .modalCant-content {
-  background-color: var(--bg-component-white);
-  padding: 20px;
-  border-radius: 10px;
-  width: 50%;
+  background-color: var(--color-bg-primary);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  width: 90%;
   max-width: 500px;
-  color: inherit;
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border-light);
 }
-  
+
 .modalCant input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid var(--color-medium);
-    border-radius: 5px;
-    background-color: var(--bg-component-white);
-    color: inherit;
+  width: 100%;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
 }
 
 .botones-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
 }
 
-/* Inputs y botones */
+/* Quantity input */
 .cantidad-input {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid var(--color-medium);
-    width: 100%;
-    max-width: 200px;
-    margin-bottom: 12px;
-    transition: border 0.3s ease;
-    background-color: var(--bg-component-white);
-    color: inherit;
-}
-  
-.cantidad-input:focus {
-    border-color: var(--primary-color);
-    outline: none;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-medium);
+  width: 100%;
+  max-width: 200px;
+  margin-bottom: var(--space-sm);
+  transition: border var(--transition-fast);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
-/* Botones */
+.cantidad-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+/* Buttons */
+.btn-general1 {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 500;
+}
+
+.btn-general1:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
 .btn-edit, .btn-cancel {
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    color: white;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-on-primary);
+  font-weight: 500;
+  transition: all var(--transition-normal);
 }
 
 .btn-edit {
-    background-color: var(--secondary-color);
-}
-  
-.btn-cancel {
-    background-color: var(--color-red-parameter);
+  background-color: var(--color-secondary);
 }
 
+.btn-edit:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.btn-cancel {
+  background-color: var(--color-error);
+}
+
+.btn-cancel:hover {
+  background-color: var(--color-error-dark);
+}
+
+/* Branch items */
 .sucursal-item {
-    margin-bottom: 10px;
+  margin-bottom: var(--space-md);
 }
 
 .sucursal-item label {
-    display: block;
-    margin-bottom: 5px;
-    color: inherit;
+  display: block;
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
 }
-  
+
 .sucursal-item input {
-    width: 100%;
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid var(--color-medium);
-    text-align: center;
-    width: 50%;
-    background-color: var(--bg-component-white);
-    color: inherit;
+  width: 50%;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-medium);
+  text-align: center;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
 }
 
-/* Buscador */
-.search-input {
-    margin: 10px;
-    padding: 8px;
-    font-size: 1rem;
-    width: 60%;
-    border: 1px solid var(--color-medium);
-    border-radius: 4px;
-    background-color: var(--bg-component-white);
-    color: inherit;
-}
-
-/* Productos con descuento */
+/* Discount products */
 .product-card-container {
   position: relative;
 }
 
 .has-discount {
-  border: 2px solid var(--color-red-parameter);
-  border-radius: 0.9rem;
-  box-shadow: 0 0 10px rgba(239, 83, 80, 0.3);
+  border: 2px solid var(--color-error);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 10px rgba(var(--color-error-rgb), 0.3);
 }
 
 .discount-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: var(--color-red-parameter);
-  color: white;
-  padding: 5px 30px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: bold;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background-color: var(--color-error);
+  color: var(--color-text-on-primary);
+  padding: var(--space-xs) var(--space-xl);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
   z-index: 10;
   animation: pulse 2s infinite;
 }
 
 .btn-remove-promo {
   position: absolute;
-  right: 5px;
-  top: 45%;
+  right: var(--space-xs);
+  top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  color: white;
-  font-weight: bold;
+  color: var(--color-text-on-primary);
+  font-weight: 700;
   cursor: pointer;
-  padding: 0 5px;
-  font-size: 14px;
+  padding: 0 var(--space-xs);
+  font-size: var(--font-size-md);
 }
 
-/* Modal de promoción */
+/* Promotion modal */
 .modal-promo {
   position: fixed;
   top: 0;
@@ -185,66 +214,47 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .modal-promo-content {
-  background: var(--bg-component-white);
-  padding: 20px;
-  border-radius: 8px;
-  width: 400px;
-  max-width: 90%;
-  color: inherit;
+  background: var(--color-bg-primary);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border-light);
 }
 
 .sucursal-list {
-  margin: 15px 0;
+  margin: var(--space-md) 0;
   max-height: 300px;
   overflow-y: auto;
 }
 
 .sucursal-item-promo {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
 }
 
 .btn-sucursal-promo {
   width: 100%;
-  padding: 10px;
-  background: var(--sidebar-color);
-  border: 1px solid var(--color-medium);
-  border-radius: 4px;
+  padding: var(--space-sm);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-align: left;
-  color: inherit;
+  color: var(--color-text-primary);
+  transition: all var(--transition-fast);
 }
 
-/* Botones del header */
-.botones-header {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+.btn-sucursal-promo:hover {
+  background-color: var(--color-bg-tertiary);
 }
 
-.btn-general1 {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-general1:hover {
-  background-color: var(--secondary-color);
-}
-
-/* Animación */
+/* Animation */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -257,27 +267,129 @@
   }
 }
 
-/* Estilos específicos para tema oscuro */
-[data-theme="dark"] {
-    .productos-contenedor,
-    .modalCant-content,
-    .modal-promo-content {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        color: var(--text-color);
-    }
-    
-    .search-input,
-    .modalCant input,
-    .cantidad-input {
-        border-color: var(--color-dark);
-    }
-    
-    .btn-sucursal-promo {
-        background-color: var(--color-dark);
-        border-color: var(--color-medium);
-    }
-    
-    .sucursalTitle {
-        color: var(--text-color);
-    }
+.categoria-section {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: var(--color-bg-secondary, #fafafa);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
+
+.categoria-titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  border-left: 5px solid var(--color-primary);
+  padding-left: 0.8rem;
+  color: var(--color-text-primary);
+}
+
+.categoria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+
+/* Dark theme styles */
+[data-theme="dark"] {
+  .productos-contenedor,
+  .modalCant-content,
+  .modal-promo-content {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-color: var(--color-border-dark);
+  }
+  
+  .btn-sucursal-promo {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-border-dark);
+  }
+  
+  .sucursal-item input {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-border-dark);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .cardsProducto-contenedor {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .productos-contenedor {
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+  }
+  
+  .header-productos {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .acciones-productos {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .modalCant-content,
+  .modal-promo-content {
+    padding: var(--space-lg);
+    width: 95%;
+  }
+  
+  .sucursal-item input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardsProducto-contenedor {
+    grid-template-columns: 1fr;
+  }
+  
+  .botones-footer {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .btn-general1,
+  .btn-edit,
+  .btn-cancel {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+.has-discount {
+  border: 2px solid #ff9800;
+  position: relative;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff9800;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-remove-promo {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+

@@ -1,59 +1,146 @@
-/* FormularioManager.css */
 
+
+/* Contenedor principal */
+.manager-container {
+  padding: 1rem;
+  margin-top: 2rem;
+  background-color: var(--sidebar-color);
+  color: var(--text-color);
+}
+
+/* Contenedor de pestañas */
+.tabs-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+}
 
 .tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem; /* Espacio para scroll en móviles */
+  min-width: fit-content;
 }
 
 .tab {
-  padding: 10px 20px;
-  background-color: #f0f0f0;
+  padding: 0.75rem 1rem;
+  background-color: var(--secondary-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  color: var(--text-color);
+  font-size: 0.9rem;
 }
 
 .tab:hover {
-  background-color: #e0e0e0;
+  background-color: var(--tab-hover);
 }
 
-
-/* Estilos para el mensaje de CUFD */
-.cufd-message {
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
-  text-align: center;
+.tab.active {
+  background-color: var(--tab-active);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.cufd-message.success {
-  background-color: #d4edda;
-  color: #155724;
+.tab.cufd-button {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: var(--primary-color);
 }
 
-.cufd-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
+.tab.cufd-button:hover {
+  background-color: rgba(0, 123, 255, 0.2);
 }
 
 /* Estilos para mostrar el CUFD */
 .cufd-display {
-  padding: 10px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  margin: 10px 0;
+  padding: 0.75rem;
+  background-color: var(--tab-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 1rem 0;
   word-break: break-all;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .cufd-display code {
   display: block;
-  margin-top: 5px;
-  padding: 5px;
-  background-color: #e9ecef;
-  border-radius: 3px;
+  padding: 0.5rem;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+  font-family: monospace;
+  overflow-x: auto;
+}
+
+.copy-button {
+  padding: 0.25rem 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-end;
+  font-size: 0.8rem;
+}
+
+.copy-button:hover {
+  opacity: 0.9;
+}
+
+/* Contenedor de la lista */
+.list-container {
+  margin-top: 1.5rem;
+}
+
+/* Modal para móviles */
+.mobile-modal {
+  width: 95%;
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .manager-container {
+    padding: 0.75rem;
+  }
+  
+  .tabs {
+    gap: 0.25rem;
+  }
+  
+  .tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .cufd-display {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .manager-container {
+    padding: 0.5rem;
+  }
+  
+  .tab {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .cufd-display {
+    font-size: 0.8rem;
+  }
+  
+  .copy-button {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
 }

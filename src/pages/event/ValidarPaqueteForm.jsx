@@ -8,7 +8,7 @@ import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import Alert from '../../components/alert/Alert';
 import './EventForm.css';
 
-const ValidarPaqueteForm = () => {
+const ValidarPaqueteForm = ({ initialCodigoRecepcion, onClose }) => {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ const ValidarPaqueteForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      codigoRecepcion: '',
+      codigoRecepcion: initialCodigoRecepcion || '',
     },
     validationSchema: Yup.object({
       codigoRecepcion: Yup.string()

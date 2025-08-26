@@ -6,7 +6,7 @@ import AppRoutes from "./routes/AppRoutes";
 import './App.css'
 import Navbar from "./components/sidebar/Navbar";
 import { CarritoProvider } from "./context/CarritoContext";
-import { Toaster } from "sonner";
+import { UserDataProvider } from "./context/UserDataContext";
 
 function App() {
 
@@ -14,17 +14,18 @@ function App() {
 
   return (
     <AuthProvider>
-    <ThemeProvider>
-    <CarritoProvider>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Toaster />
-          <Suspense fallback={<LoadingComponent />}>
-            <AppRoutes />
-          </Suspense>
-        </BrowserRouter>
-        </CarritoProvider>
-    </ThemeProvider>
-  </AuthProvider>
+      <UserDataProvider>
+        <ThemeProvider>
+          <CarritoProvider>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <Suspense fallback={<LoadingComponent />}>
+                <AppRoutes />
+              </Suspense>
+            </BrowserRouter>
+          </CarritoProvider>
+        </ThemeProvider>
+      </UserDataProvider>
+    </AuthProvider>
   );
 }
 export default App;

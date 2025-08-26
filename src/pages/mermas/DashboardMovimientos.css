@@ -1,0 +1,27 @@
+.dashboard-container {
+  padding: 2rem;
+  background-color: var(--color-bg-primary);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-container h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-actions button {
+  flex: 1;
+}
+
+[data-theme="dark"] .dashboard-container {
+  background-color: var(--color-bg-secondary);
+}
+

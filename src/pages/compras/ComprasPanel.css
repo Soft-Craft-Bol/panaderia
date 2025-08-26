@@ -1,0 +1,73 @@
+/* src/components/compras/ComprasPanel.css */
+
+.compras-panel {
+  padding: 1.5rem;
+  background-color: var(--bg-component-white);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all var(--main-duration1) ease;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--sidebar-color);
+}
+
+.panel-header h2 {
+  font-size: var(--font-size-title);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Estilos para la tabla */
+.table-container {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--bg-component-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .compras-panel,
+[data-theme="dark"] .table-container {
+  background-color: var(--color-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .panel-header {
+  border-bottom-color: var(--color-medium);
+}
+
+[data-theme="dark"] .action-buttons button {
+  opacity: 0.9;
+}
+
+[data-theme="dark"] .action-buttons button:hover {
+  opacity: 1;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .compras-panel {
+    padding: 1rem;
+  }
+  
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .action-buttons button {
+    flex: 1;
+    min-width: 100px;
+  }
+}

@@ -1,0 +1,39 @@
+.config-container {
+  background: var(--bg-component-white);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 1000px;
+  margin: 20px auto;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.config-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.config-response {
+  background: var(--sidebar-color);
+  padding: 15px;
+  border-radius: 6px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.config-response pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}

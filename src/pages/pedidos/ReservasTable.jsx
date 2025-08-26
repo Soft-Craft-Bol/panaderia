@@ -25,16 +25,30 @@ const ReservasTable = () => {
     }
   };
 
-  const handleVerificarReserva = async (id) => {
+  const handleChangeEstado = async (id, estado, motivo = "") => {
     try {
-      await updateReserva(id);
-      toast.success("Reserva verificada exitosamente");
+      await updateReserva(id, estado, motivo);
+      toast.success(`Reserva ${estado} exitosamente`);
       fetchReservas();
     } catch (error) {
-      console.error("Error al verificar la reserva:", error);
-      toast.error("Error al verificar la reserva");
+      console.error(`Error al cambiar estado a ${estado}:`, error);
+      toast.error(`Error al cambiar estado a ${estado}`);
     }
   };
+
+  const handleAprobar = (id) => handleChangeEstado(id, "Aprobada");
+
+  const handleCancelar = (id) => handleChangeEstado(id, "Cancelada");
+
+  const handleRechazar = (id) => {
+    const motivo = prompt("Ingrese el motivo del rechazo:");
+    if (motivo) {
+      handleChangeEstado(id, "Rechazada", motivo);
+    } else {
+      toast.warning("Debe ingresar un motivo para rechazar");
+    }
+  };
+
 
   const handleShowComprobante = (reserva) => {
     setSelectedReserva(reserva);
@@ -48,13 +62,13 @@ const ReservasTable = () => {
 
   const handleDownloadComprobante = () => {
     if (!selectedReserva?.comprobante) return;
-    
+
     const link = document.createElement('a');
     link.href = selectedReserva.comprobante;
-    
+
     // Extraer el nombre del archivo de la URL o crear uno por defecto
     const fileName = selectedReserva.comprobante.split('/').pop() || `comprobante_${selectedReserva.id}`;
-    
+
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
@@ -87,18 +101,35 @@ const ReservasTable = () => {
       ),
     },
     {
-      header: "Acciones",
-      accessor: "actions",
-      render: (row) => (
+  header: "Acciones",
+  accessor: "actions",
+  render: (row) =>
+    row.estado === "Pendiente" ? (
+      <div className="acciones-buttons">
         <button
-          className="verificar-button"
-          onClick={() => handleVerificarReserva(row.id)}
-          disabled={row.estado !== "Pendiente"}
+          className="aprobar-button"
+          onClick={() => handleAprobar(row.id)}
         >
-          Verificar
+          Aprobar
         </button>
-      ),
-    },
+        <button
+          className="rechazar-button"
+          onClick={() => handleRechazar(row.id)}
+        >
+          Rechazar
+        </button>
+        <button
+          className="cancelar-button"
+          onClick={() => handleCancelar(row.id)}
+        >
+          Cancelar
+        </button>
+      </div>
+    ) : (
+      <span>-</span>
+    ),
+}
+
   ];
 
   return (
@@ -120,7 +151,7 @@ const ReservasTable = () => {
           <div className="modal-content1">
             <div className="comprobante-header">
               <h3>Comprobante:</h3>
-              <button 
+              <button
                 onClick={handleDownloadComprobante}
                 className="download-button"
               >
@@ -138,9 +169,9 @@ const ReservasTable = () => {
             <ul className="productos-list">
               {selectedReserva.items.map((item) => (
                 <li key={item.idItem} className="producto-item">
-                  <div className="producto-info">
+                  <div className="producto-info-reserva">
                     <img
-                      src={item.imagen || "https://res.cloudinary.com/dzizafv5s/image/upload/v1739134946/swwqwwjh2kxmd4dugnql.jpg"}
+                      src={item.photoUrl || "https://res.cloudinary.com/dzizafv5s/image/upload/v1739134946/swwqwwjh2kxmd4dugnql.jpg"}
                       alt={item.descripcion}
                       style={{ width: "100px", height: "100px" }}
                       className="producto-image1"

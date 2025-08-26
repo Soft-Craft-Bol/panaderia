@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Table from "../../components/table/Table";
 import { getDespachos } from "../../service/api";
 import Modal from "../../components/modal/Modal"; 
 
 const Despachos = () => {
-  const navigate = useNavigate();
   const [despachos, setDespachos] = useState([]); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDespachoItems, setSelectedDespachoItems] = useState([]);
@@ -56,10 +54,7 @@ const Despachos = () => {
 
   return (
     <div>
-      <h1>Despachos realizados</h1>
-      <button className='btn-general' onClick={() => navigate("/despachos/create")}>
-        Registrar un nuevo despacho
-      </button>
+      
       <div className="tabla-despachos" style={{ marginTop: "15px" }}>
         <Table columns={columns} data={mappedData} /> 
       </div>

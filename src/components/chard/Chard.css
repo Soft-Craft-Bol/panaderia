@@ -1,7 +1,7 @@
-/* Estilos base para tablas */
+/* Contenedor y tabla base */
 .table-container {
   width: 100%;
-  margin: 1rem 0;
+  margin: var(--space-md) 0;
   overflow-x: auto;
 }
 
@@ -13,105 +13,116 @@
 .custom-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 .custom-table thead {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
 }
 
 .custom-table th {
-  padding: 12px 15px;
+  padding: var(--space-sm) var(--space-md);
   text-align: left;
   font-weight: 600;
 }
 
 .custom-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid var(--bg-app);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
   color: var(--color-text-primary);
 }
 
+/* Hover fila */
 .custom-table tbody tr:hover {
-  background-color: var(--primary-color-light);
+  background-color: var(--color-primary-light);
 }
 
-/* Estilos para tema oscuro */
+/* Modo oscuro */
 [data-theme="dark"] .custom-table {
-  border: 1px solid var(--color-medium);
+  border: 1px solid var(--color-border-medium);
+  background-color: var(--color-bg-secondary);
 }
 
 [data-theme="dark"] .custom-table thead {
-  background-color: var(--secondary-color);
+  background-color: var(--color-secondary);
 }
 
 [data-theme="dark"] .custom-table td {
-  border-bottom: 1px solid var(--color-medium);
+  border-bottom: 1px solid var(--color-border-medium);
   color: var(--color-text-secondary);
 }
 
 [data-theme="dark"] .custom-table tbody tr:hover {
-  background-color: var(--color-dark);
+  background-color: var(--color-secondary-light);
 }
 
-/* Estilos para móviles */
+/* Estilos móviles */
 @media (max-width: 768px) {
   .table-responsive {
     display: block;
   }
-  
+
   .custom-table {
     display: block;
   }
-  
+
   .custom-table thead {
     display: none;
   }
-  
-  .custom-table tbody, 
-  .custom-table tr, 
+
+  .custom-table tbody,
+  .custom-table tr,
   .custom-table td {
     display: block;
     width: 100%;
   }
-  
+
   .custom-table tr {
-    margin-bottom: 15px;
-    border: 1px solid var(--bg-app);
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--color-border-light);
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
   }
-  
+
   .custom-table td {
     text-align: right;
     padding-left: 50%;
     position: relative;
   }
-  
+
   .custom-table td::before {
     content: attr(data-label);
     position: absolute;
-    left: 15px;
+    left: var(--space-sm);
     width: 45%;
-    padding-right: 10px;
+    padding-right: var(--space-xs);
     font-weight: bold;
     text-align: left;
-    color: var(--primary-color);
+    color: var(--color-primary);
+  }
+
+  [data-theme="dark"] .custom-table tr {
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-border-medium);
   }
 
   [data-theme="dark"] .custom-table td::before {
-    color: var(--secondary-color);
+    color: var(--color-secondary);
   }
 }
 
 /* Estados de carga y error */
 .loading-table,
 .error-table {
-  padding: 20px;
+  padding: var(--space-lg);
   text-align: center;
   color: var(--color-text-secondary);
-  background-color: var(--bg-component-white);
-  border-radius: 8px;
-  margin: 20px 0;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
 }
 
 .loading-table::after {

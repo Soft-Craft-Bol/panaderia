@@ -14,7 +14,7 @@ const ModalConfirm = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay-conf" onClick={onClose}>
       <div className="modal-conf" onClick={(e) => e.stopPropagation()}>
         <div className="modal-conf-content">
           {title && <h2 className="modal-conf-title">{title}</h2>}

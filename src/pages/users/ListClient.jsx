@@ -108,11 +108,6 @@ const ListClient = () => {
         <h2 className="user-management-title">Todos de Clientes</h2>
         <LinkButton to={`/clientes/crear-cliente`}>Agregar Cliente</LinkButton>
       </div>
-      <div className="user-management-header">
-        <h2 className="user-management-title">Clientes mas frecuentes</h2>
-        <LinkButton to={`/top-clientes`}>Clientes frecuentes</LinkButton>
-      </div>
-
       <Table 
         columns={columns} 
         data={clients} 

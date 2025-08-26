@@ -1,0 +1,33 @@
+.despacho-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.despacho-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.despacho-title {
+  color: #333;
+}
+
+.insumo-item {
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.insumo-item:last-child {
+  border-bottom: none;
+}
+
+.error-message {
+  color: #d32f2f;
+  background-color: #fde0e0;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}

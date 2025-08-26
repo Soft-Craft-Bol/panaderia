@@ -1,82 +1,102 @@
-import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../components/buttons/Button";
 import Table, { useColumnVisibility } from "../../components/table/Table";
-import { FaEdit, MdDelete } from "../../hooks/icons";
-import { getUsers, deleteUser } from "../../service/api";
+import { deleteUser } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
-import { Link } from "react-router-dom";
-
 import LinkButton from "../../components/buttons/LinkButton";
+import { useUsers } from "../../hooks/useUsers";
+import ActionButtons from "../../components/buttons/ActionButtons"; // Importa el componente
 import "./ListUser.css";
-import ColumnVisibilityControl from "../../components/table/ColumnVisibilityControl";
 
 const Modal = lazy(() => import("../../components/modal/Modal"));
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  // Cambiar el valor inicial de currentPage a 1
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  
+  const { 
+    users,
+    pagination,
+    isLoading,
+    isError,
+    isFetching,
+    refetch
+    // Pasar currentPage - 1 para convertir de base-1 a base-0 para la API
+  } = useUsers(currentPage - 1, pageSize);
+
+  const queryClient = useQueryClient();
   const currentUser = useMemo(() => getUser(), []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await getUsers();
-      const newResponse = response.data;
-      const filtrado = newResponse.filter((theUser) => {
-        if(theUser.username != currentUser.username){
-          return theUser;
-        }
-      })
-      setUsers(filtrado);
-    };
-    fetchUsers();
-  }, []);
-
-  const hasRole = (role) => currentUser?.roles.includes(role);
-
-  const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
-  const handleDeleteUser = useCallback(async () => {
-    try {
-      await deleteUser(userToDelete.id);
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['users']);
       toast.success("Usuario eliminado exitosamente.");
-    } catch (error) {
+    },
+    onError: () => {
       toast.error("Error al eliminar el usuario.");
-    } finally {
+    },
+    onSettled: () => {
       setDeleteConfirmOpen(false);
       setUserToDelete(null);
     }
-  }, [userToDelete, currentUser]);
+  });
 
-  const confirmDeleteUser = useCallback(
-    (user) => {
-      if (user.id === currentUser.id) {
-        toast.error("No puedes eliminar tu propio usuario.");
-        return;
-      }
-      if (!hasAnyRole("ROLE_ADMIN", "DELETE")) {
-        toast.error("No tienes permiso para eliminar usuarios.");
-        return;
-      }
-      setUserToDelete(user);
-      setDeleteConfirmOpen(true);
-    },
-    [currentUser]
-  );
+  const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
+
+  const handleView = (row) => {
+    console.log("Ver usuario:", row);
+  };
+
+  const handleEdit = (row) => {
+    window.location.href = `/editUser/${row.id}`;
+  };
+
+  const handleDelete = (row) => {
+    if (row.id === currentUser.id) {
+      toast.error("No puedes eliminar tu propio usuario.");
+      return;
+    }
+    if (!hasAnyRole("ROLE_ADMIN", "DELETE")) {
+      toast.error("No tienes permiso para eliminar usuarios.");
+      return;
+    }
+    setUserToDelete(row);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteUser = () => {
+    if (userToDelete) {
+      deleteMutation.mutate(userToDelete.id);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleRowsPerPageChange = (newSize) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   const columns = useMemo(
     () => [
       { header: "ID", accessor: "id" },
       {
-        header: "",
+        header: "Foto",
         accessor: "photo",
         render: (row) => (
           <div className="user-photo">
             <img
               src={row.photo || "ruta/de/foto/por/defecto.jpg"}
-              alt={`${row.name} ${row.last_name}`}
+              alt={`${row.firstName} ${row.lastName}`}
               className="clickable-photo"
               style={{ width: "50px", height: "50px", borderRadius: "50%" }}
               onClick={() => setSelectedImage(row.photo || "ruta/de/foto/por/defecto.jpg")}
@@ -84,47 +104,36 @@ const UserManagement = () => {
           </div>
         ),
       },
-      { 
-        header: "Nombre de usuario", 
-        accessor: "username",
-      },
+      { header: "Nombre de usuario", accessor: "username" },
       { header: "Nombre", accessor: "firstName" },
       { header: "Apellido", accessor: "lastName" },
       { header: "Teléfono", accessor: "telefono" },
       { header: "Correo Electrónico", accessor: "email" },
-     
+      { header: "Roles", accessor: "roles", render: (row) => row.roles.join(', ') },
       
-      (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER") || hasRole("UPDATE")) && {
+      (hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER", "UPDATE", "DELETE")) && {
         header: "Acciones",
         render: (row) => (
-          <div className="user-management-table-actions">
-            {hasAnyRole("ROLE_ADMIN", "UPDATE") && (
-              <Link to={`/editUser/${row.id}`} className="user-management-edit-user">
-                <FaEdit />
-              </Link>
-            )}
-            {hasAnyRole("ROLE_ADMIN", "DELETE") && (
-              <Button
-                type="danger"
-                onClick={() => confirmDeleteUser(row)}
-                disabled={currentUser?.id === row.id}
-              >
-                <MdDelete />
-              </Button>
-            )}
-          </div>
+          <ActionButtons
+            onView={() => handleView(row)}
+            onEdit={() => handleEdit(row)}
+            onDelete={() => handleDelete(row)}
+            showView={false} 
+            showEdit={hasAnyRole("ROLE_ADMIN", "UPDATE")}
+            showDelete={hasAnyRole("ROLE_ADMIN", "DELETE") && row.id !== currentUser.id}
+            editTitle="Editar usuario"
+            deleteTitle="Eliminar usuario"
+          />
         ),
       },
     ].filter(Boolean),
-    [currentUser, confirmDeleteUser]
+    [currentUser]
   );
 
-  
-   const {
-      filteredColumns,
-      ColumnVisibilityControl
-    } = useColumnVisibility(columns, "ventasHiddenColumns");
-  
+  const {
+    filteredColumns,
+    ColumnVisibilityControl
+  } = useColumnVisibility(columns, "ventasHiddenColumns");
 
   return (
     <div className="user-management-container">
@@ -139,12 +148,27 @@ const UserManagement = () => {
         )}
       </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-          <ColumnVisibilityControl buttonLabel="Columnas" />
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <ColumnVisibilityControl buttonLabel="Columnas" />
+      </div>
 
-      <Table  columns={filteredColumns}  data={users} className="user-management-table"  showColumnVisibility={false}  
-          storageKey="ventasHiddenColumns"   />
+      <Table 
+        columns={filteredColumns} 
+        data={users} 
+        className="user-management-table"
+        showColumnVisibility={false}
+        storageKey="ventasHiddenColumns"
+        pagination={{
+          // Pasar currentPage directamente (basado en 1) al componente Table
+          currentPage: currentPage,
+          totalPages: pagination.totalPages,
+          totalElements: pagination.totalElements,
+          rowsPerPage: pageSize
+        }}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        loading={isLoading || isFetching}
+      />
 
       <Suspense fallback={<div>Cargando modal...</div>}>
         {deleteConfirmOpen && (
@@ -152,10 +176,10 @@ const UserManagement = () => {
             <h2>Confirmar Eliminación</h2>
             <p>¿Estás seguro de que deseas eliminar este usuario?</p>
             <div className="user-management-table-actions">
-              <Button className="btn-edit" type="danger" onClick={handleDeleteUser}>
+              <Button  type="danger" onClick={handleDeleteUser}>
                 Confirmar
               </Button>
-              <Button className="btn-cancel" type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+              <Button type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
                 Cancelar
               </Button>
             </div>

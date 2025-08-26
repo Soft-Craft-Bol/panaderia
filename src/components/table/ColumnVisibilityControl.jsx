@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ColumnVisibilityControl.css'; // Moveremos los estilos relevantes aquí
+import './ColumnVisibilityControl.css'; 
 
 const ColumnVisibilityControl = ({
   columns,
@@ -18,7 +18,7 @@ const ColumnVisibilityControl = ({
     <>
       {isMenuOpen && (
         <div
-          className="modal-overlay"
+          className="column-modal-overlay"
           onClick={() => setIsMenuOpen(false)}
         />
       )}
@@ -34,9 +34,9 @@ const ColumnVisibilityControl = ({
           </span>
         </button>
         <div className={`column-visibility-menu ${isMenuOpen ? "open" : ""}`}>
-          {columns.map((column) => (
+          {columns.map((column, index) => (
             column.show !== false && (
-              <div key={column.accessor} className="column-visibility-item">
+              <div key={index} className="column-visibility-item">
                 <label>
                 <label className="switch">
                     <input

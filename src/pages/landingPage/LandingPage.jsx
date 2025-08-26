@@ -14,7 +14,7 @@ import empanadaPollo from '../../assets/img/pan7.jpg';
 import panDestacado from '../../assets/img/panHD.jpg';
 import HeroSection from './HeroSection';
 import BestSellersSection from './BestSellersSection';
-import NavbarPublic from './NavbarPublic';
+import NavbarPublic from '../../components/sidebar/NavbarPublic';
 import Footer from './Footer';
 import Contacts from './Contacts';
 import Nosotros from './Nosotros';
@@ -104,7 +104,7 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </section>
-      <Nosotros />
+      {/* <Nosotros /> */}
       {/* Location Section */}
       <SucursalMapSection />
       <Contacts />

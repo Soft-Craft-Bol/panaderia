@@ -1,0 +1,56 @@
+.text-warning {
+  color: #d97706;
+  font-weight: bold;
+}
+
+.text-danger {
+  color: #dc2626; 
+  font-weight: bold;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+.bg-success {
+  background-color: #16a34a; 
+  color: white;
+}
+
+.bg-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.text-danger .ml-2 {
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.insumos-sucursal-table {
+  margin-top: 1rem;
+}
+
+
+.table-row-low-stock {
+  background-color: #bb9c1f;
+}
+
+.table-row-expired {
+  background-color: #fee2e2; 
+}
+
+.comprar-button{
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}

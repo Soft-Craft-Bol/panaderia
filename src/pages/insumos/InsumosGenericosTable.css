@@ -1,0 +1,24 @@
+
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+
+
+
+
+.no-insumos {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+.insumos-count {
+  font-weight: 500;
+}
+
+.insumos-count.no-insumos {
+  color: #d32f2f;
+}
+

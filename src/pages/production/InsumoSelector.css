@@ -1,0 +1,202 @@
+.insumo-selector {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--color-border-light);
+}
+
+.insumo-selector.incompleto {
+  border-left: 4px solid var(--color-warning);
+  background-color: rgba(221, 107, 32, 0.05);
+}
+
+.insumo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.insumo-header h4 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.requerimientos {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: var(--space-sm);
+  font-weight: normal;
+}
+
+.requerido-lote::after {
+  content: "|";
+  margin-left: var(--space-sm);
+  color: var(--color-border-medium);
+}
+
+.diferencia {
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+.btn-add-insumo {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.btn-add-insumo:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-add-insumo:disabled {
+  background-color: var(--color-gray-400);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.opciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.opcion-item {
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+}
+
+.opcion-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.opcion-nombre {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+}
+
+.btn-remove-insumo {
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+}
+
+.btn-remove-insumo:hover {
+  background-color: var(--color-error);
+  color: var(--color-white);
+}
+
+.opcion-details {
+  display: flex;
+  gap: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.stock-info {
+  color: var(--color-info-dark);
+}
+
+.cantidad-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.cantidad-input label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  min-width: 150px;
+}
+
+.cantidad-input input {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  width: 100px;
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.cantidad-input input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.cantidad-input input:disabled {
+  background-color: var(--color-bg-secondary);
+  cursor: not-allowed;
+}
+
+.porcentaje {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  min-width: 50px;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .insumo-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .requerimientos {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .requerido-lote::after {
+    content: none;
+  }
+  
+  .cantidad-input {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+  
+  .cantidad-input label {
+    width: 100%;
+  }
+}

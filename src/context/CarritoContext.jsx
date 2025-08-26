@@ -1,9 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const CarritoContext = createContext();
 
 export const CarritoProvider = ({ children }) => {
-  const [carrito, setCarrito] = useState([]);
+  const [carrito, setCarrito] = useState(() => {
+    const carritoGuardado = localStorage.getItem("carrito");
+    return carritoGuardado ? JSON.parse(carritoGuardado) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+  }, [carrito]);
 
   const agregarAlCarrito = (producto) => {
     setCarrito((prevCarrito) => {
@@ -15,7 +22,7 @@ export const CarritoProvider = ({ children }) => {
             : item
         );
       }
-      return [...prevCarrito, { ...producto }];
+      return [...prevCarrito, { ...producto, cantidad: producto.cantidad || 1 }];
     });
   };
 
@@ -23,8 +30,19 @@ export const CarritoProvider = ({ children }) => {
     setCarrito((prevCarrito) => prevCarrito.filter((item) => item.id !== id));
   };
 
+  const vaciarCarrito = () => {
+    setCarrito([]);
+  };
+
   return (
-    <CarritoContext.Provider value={{ carrito, agregarAlCarrito, eliminarDelCarrito }}>
+    <CarritoContext.Provider
+      value={{
+        carrito,
+        agregarAlCarrito,
+        eliminarDelCarrito,
+        vaciarCarrito,
+      }}
+    >
       {children}
     </CarritoContext.Provider>
   );

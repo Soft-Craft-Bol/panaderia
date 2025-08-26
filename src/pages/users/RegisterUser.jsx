@@ -12,10 +12,10 @@ import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import Swal from "sweetalert2";
 import { fetchPuntosDeVenta } from '../../service/api';
 import { IoCloseOutline } from 'react-icons/io5';
+import BackButton from '../../components/buttons/BackButton';
 
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
-// Componente memoizado para InputText
 const MemoizedInputText = React.memo(({ label, name, type = "text", required }) => (
   <Suspense fallback={<div>Cargando campo...</div>}>
     <InputText label={label} name={name} type={type} required={required} formik={true} />
@@ -39,7 +39,7 @@ const MemoizedSelectPuntoDeVenta = React.memo(({ puntosDeVenta, value, setFieldV
       </option>
       {puntosDeVenta.map((punto) => (
         <option key={punto.id} value={punto.id}>
-          {punto.nombre} - {punto.sucursal.nombre}
+          {punto.nombre} - {punto.sucursal?.nombre || 'Sin sucursal'}
         </option>
       ))}
     </select>
@@ -50,7 +50,7 @@ const alerta = (titulo, mensaje, tipo = "success") => {
   Swal.fire({
     title: titulo,
     text: mensaje,
-    icon: tipo, 
+    icon: tipo,
     timer: 2500,
     showConfirmButton: false,
   });
@@ -66,16 +66,18 @@ function UserForm() {
   const [photoPreview, setPhotoPreview] = useState(null);
 
   // Roles disponibles
-  const roles = useMemo(() => ['ADMIN', 'USER', 'INVITED', 'DEVELOPER', 'PANADERO', 'MAESTRO', 'SECRETARIA', 'VENDEDOR', 'CLIENTE'], []);
+  const roles = useMemo(() => ['ADMIN', 'PANADERO', 'MAESTRO', 'VENDEDOR', 'CLIENTE'], []);
 
   const [initialValues, setInitialValues] = useState({
     username: '',
     nombre: '',
     apellido: '',
     password: '',
+    confirmPassword: '',
     telefono: '',
     email: '',
     photo: null,
+    puntoDeVenta: null,
     roleRequest: {
       roleListName: [],
     },
@@ -85,23 +87,35 @@ function UserForm() {
     type === 'success' ? toast.success(message) : toast.error(message);
   }, []);
 
-  const validationSchema = useMemo(() => Yup.object({
-    nombre: Yup.string().required('Requerido'),
-    apellido: Yup.string().required('Requerido'),
-    username: Yup.string().required('Requerido'),
-    email: Yup.string().email('Correo inválido').required('Requerido'),
-    telefono: Yup.string().required('Requerido'),
-    password: Yup.string()
-      .min(6, 'Mínimo 6 caracteres')
-      .required('Requerido'),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden')
-      .required('Confirmar contraseña es requerido'),
-    roleRequest: Yup.object({
-      roleListName: Yup.array().min(1, 'Seleccione al menos un rol').required('Requerido'),
-    }),
-    photo: Yup.mixed().nullable(),
-  }), []);
+  const validationSchema = useMemo(() => {
+    const baseSchema = {
+      nombre: Yup.string().required('Requerido'),
+      apellido: Yup.string().required('Requerido'),
+      username: Yup.string().required('Requerido'),
+      email: Yup.string().email('Correo inválido').required('Requerido'),
+      telefono: Yup.string().required('Requerido'),
+      roleRequest: Yup.object({
+        roleListName: Yup.array().min(1, 'Seleccione al menos un rol').required('Requerido'),
+      }),
+      photo: Yup.mixed().nullable(),
+      puntoDeVenta: Yup.number().nullable(),
+      password: Yup.string().when([], {
+        is: () => !id,
+        then: schema => schema.min(6, 'Mínimo 6 caracteres').required('Requerido'),
+        otherwise: schema => schema.min(6, 'Mínimo 6 caracteres').notRequired(),
+      }),
+      confirmPassword: Yup.string().when('password', {
+        is: val => !!val?.length,
+        then: schema => schema
+          .oneOf([Yup.ref('password'), null], 'Las contraseñas no coinciden')
+          .required('Debe confirmar la contraseña'),
+        otherwise: schema => schema.notRequired(),
+      }),
+    };
+
+    return Yup.object(baseSchema);
+  }, [id]);
+
 
   useEffect(() => {
     const loadPuntosDeVenta = async () => {
@@ -120,19 +134,29 @@ function UserForm() {
     const fetchUser = async () => {
       try {
         const response = await getUserById(id);
+        console.log('User data:', response.data);
         setEditingUser(response.data);
+
+        // Obtener el primer punto de venta (o null si no hay)
+        const puntoVentaId = response.data.puntosVenta?.length > 0
+          ? response.data.puntosVenta[0].id
+          : null;
+
         setInitialValues({
           username: response.data.username || '',
           nombre: response.data.firstName || '',
           apellido: response.data.lastName || '',
           password: '',
-          telefono: response.data.telefono || '',
+          confirmPassword: '',
+          telefono: response.data.telefono?.toString() || '',
           email: response.data.email || '',
           photo: response.data.photo || null,
+          puntoDeVenta: puntoVentaId,
           roleRequest: {
-            roleListName: response.data.roles.map(role => role.roleEnum) || [],
+            roleListName: response.data.roles || [],
           },
         });
+
         if (response.data.photo) setPhotoPreview(response.data.photo);
       } catch (error) {
         notify('Error al obtener los datos del usuario.', 'error');
@@ -142,31 +166,30 @@ function UserForm() {
     if (id) fetchUser();
   }, [id, notify]);
 
-  // Función para agregar/quitar roles
   const toggleRole = (role, setFieldValue, currentRoles) => {
     const newRoles = currentRoles.includes(role)
       ? currentRoles.filter(r => r !== role)
       : [...currentRoles, role];
-    
+
     setFieldValue("roleRequest.roleListName", newRoles);
   };
 
   const handleSubmit = useCallback(async (values, { resetForm }) => {
     let imageUrl = editingUser?.photo || null;
-  
+
     if (values.photo instanceof File) {
       imageUrl = await uploadImageToCloudinary(values.photo);
     }
-  
+
     const selectedPuntoDeVenta = puntosDeVenta.find(
       (punto) => punto.id === parseInt(values.puntoDeVenta, 10)
     );
-  
+
     const userData = {
       username: values.username,
       nombre: values.nombre,
       apellido: values.apellido,
-      password: values.password,
+      ...(values.password && { password: values.password }),
       telefono: values.telefono,
       email: values.email,
       photo: imageUrl,
@@ -175,22 +198,22 @@ function UserForm() {
       },
       puntosVenta: selectedPuntoDeVenta ? [selectedPuntoDeVenta] : [],
     };
-    
+
     try {
       if (editingUser) {
         await updateUser(editingUser.id, userData);
-        alerta("¡Usuario actualizado!", "Guardando datos ...");
+        alerta("¡Usuario actualizado!", "Los datos del usuario han sido guardados.");
       } else {
         await addUser(userData);
-        alerta('Usuario agregado exitosamente');
+        alerta('Usuario agregado exitosamente', 'El nuevo usuario ha sido registrado.');
       }
       resetForm();
       navigate('/users');
     } catch (error) {
       console.error('Error response:', error.response);
-      alerta('Error al procesar la solicitud', error, 'error');
+      alerta('Error al procesar la solicitud', error.response?.data?.message || 'Error desconocido', 'error');
     }
-  }, [editingUser, navigate, notify, puntosDeVenta]);
+  }, [editingUser, navigate, puntosDeVenta]);
 
   const handlePhotoChange = useCallback((event, setFieldValue) => {
     const file = event.currentTarget.files[0];
@@ -212,6 +235,7 @@ function UserForm() {
   return (
     <div className={`user-form-container ${theme}`}>
       <Toaster duration={2000} position="bottom-right" />
+      <BackButton to="/users" />
       <h2>{editingUser ? 'Editar Usuario' : 'Registrar Usuario'}</h2>
       <Formik
         initialValues={initialValues}
@@ -231,7 +255,7 @@ function UserForm() {
                   )}
                 </div>
                 <label htmlFor="photo" className="photo-label">
-                  {photoPreview ? 'Editar Foto' : 'Foto de perfil'}
+                  {photoPreview ? 'Cambiar Foto' : 'Subir Foto'}
                 </label>
                 <input
                   id="photo"
@@ -246,7 +270,7 @@ function UserForm() {
                   <MemoizedInputText label="Nombre" name="nombre" required />
                   <MemoizedInputText label="Apellido" name="apellido" required />
                   <MemoizedInputText label="Usuario" name="username" required />
-                  <MemoizedInputText label="Teléfono" name="telefono" required />
+                  <MemoizedInputText label="Teléfono" name="telefono" type="tel" required />
                 </div>
                 <div className="form-column">
                   <MemoizedInputText
@@ -259,71 +283,79 @@ function UserForm() {
                     label="Confirmar Contraseña"
                     name="confirmPassword"
                     type="password"
-                    required
+                    required={values.password?.length > 0}
                   />
-                  <MemoizedInputText label="Correo Electrónico" name="email" required />
-                  
-                  <MemoizedSelectPuntoDeVenta
-                    puntosDeVenta={puntosDeVenta}
-                    value={values.puntoDeVenta}
-                    setFieldValue={setFieldValue}
-                  />
+                  <MemoizedInputText label="Correo Electrónico" name="email" type="email" required />
+
+                  {puntosDeVenta.length > 0 && (
+                    <MemoizedSelectPuntoDeVenta
+                      puntosDeVenta={puntosDeVenta}
+                      value={values.puntoDeVenta}
+                      setFieldValue={setFieldValue}
+                    />
+                  )}
                 </div>
               </div>
             </div>
-            
-            {/* Selector de roles similar al de permisos */}
-            {/* Selector de roles similar al de permisos */}
-<div className="role-selection-group">
-  <div className="roles-selector-container">
-    <label htmlFor="roles">Seleccionar Roles:</label>
-    <select
-      id="roles"
-      onChange={(e) => {
-        const role = e.target.value;
-        if (role && !values.roleRequest.roleListName.includes(role)) {
-          toggleRole(role, setFieldValue, values.roleRequest.roleListName);
-        }
-      }}
-      value=""
-    >
-      <option value="" disabled>Seleccione un rol para agregar</option>
-      {roles
-        .filter(role => !values.roleRequest.roleListName.includes(role))
-        .map(role => (
-          <option key={role} value={role}>{role}</option>
-        ))}
-    </select>
-  </div>
 
-  <div className="selected-roles-container">
-    <h3>Roles asignados:</h3>
-    <div className="selected-roles-list">
-      {values.roleRequest.roleListName.length === 0 ? (
-        <p className="no-roles-message">No hay roles seleccionados</p>
-      ) : (
-        values.roleRequest.roleListName.map((role, index) => (
-          <div 
-            key={index} 
-            className="role-item"
-            onClick={() => toggleRole(role, setFieldValue, values.roleRequest.roleListName)}
-          >
-            {role}
-            <IoCloseOutline size={16} />
-          </div>
-        ))
-      )}
-    </div>
-  </div>
-</div>
+            <div className="role-selection-group">
+              <div className="roles-selector-container">
+                <label htmlFor="roles">Seleccionar Roles:</label>
+                <select
+                  id="roles"
+                  onChange={(e) => {
+                    const role = e.target.value;
+                    if (role) {
+                      toggleRole(role, setFieldValue, values.roleRequest.roleListName);
+                    }
+                  }}
+                  value=""
+                >
+                  <option value="" disabled>Seleccione un rol para agregar</option>
+                  {roles
+                    .filter(role => !values.roleRequest.roleListName.includes(role))
+                    .map(role => (
+                      <option key={role} value={role}>{role}</option>
+                    ))}
+                </select>
+              </div>
 
-            <Button
-              variant="primary"
-              type="submit"
-              style={{ marginTop: '20px', alignSelf: 'center' }}
-            >
-              {editingUser ? 'Actualizar' : 'Registrar'}
-            </Button>
+              <div className="selected-roles-container">
+                <h3>Roles asignados:</h3>
+                <div className="selected-roles-list">
+                  {values.roleRequest.roleListName.length === 0 ? (
+                    <p className="no-roles-message">No hay roles seleccionados</p>
+                  ) : (
+                    values.roleRequest.roleListName.map((role, index) => (
+                      <div
+                        key={index}
+                        className="role-item"
+                        onClick={() => toggleRole(role, setFieldValue, values.roleRequest.roleListName)}
+                      >
+                        {role}
+                        <IoCloseOutline size={16} />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => navigate('/users')}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="primary"
+                type="submit"
+              >
+                {editingUser ? 'Actualizar Usuario' : 'Registrar Usuario'}
+              </Button>
+            </div>
           </Form>
         )}
       </Formik>

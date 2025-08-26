@@ -4,6 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import ImagesApp from '../../assets/ImagesApp';
 import { useNavigate } from "react-router-dom";
+import { Button } from "../buttons/Button";
 
 const CardSucursal = ({ dataLabels, product, onEliminar, onEditar }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
@@ -49,12 +50,24 @@ const CardSucursal = ({ dataLabels, product, onEliminar, onEditar }) => {
         <p><strong>{dataLabels.data4}</strong> {product.telefono}</p>
         <p><strong>{dataLabels.data5}</strong> {product.empresa.razonSocial}</p>
         <div className="cardFooter">
-          <button className="btn-edit" onClick={handleEdit}>
-            <FaEdit /> Editar
-          </button>
-          <button className="btn-cancel" onClick={onEliminar} style={{ width: "45%" }}>
-            <MdDelete /> Eliminar
-          </button>
+          <Button
+            variant="info"
+            type="button"
+            onClick={handleEdit}
+            style={{ width: '45%' }}
+          >
+            <FaEdit />
+            Editar
+          </Button>
+          <Button
+            variant="danger"
+            type="button"
+            onClick={onEliminar}
+            style={{ width: '45%' }}
+          >
+            <MdDelete />
+            Eliminar
+          </Button>
         </div>
       </div>
     </div>

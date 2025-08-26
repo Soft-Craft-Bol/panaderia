@@ -100,7 +100,7 @@ const SalesChart = () => {
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip formatter={(value) => [`${value.toFixed(2)} Bs`, 'Ventas']} />
-            <Bar dataKey="ventas" fill="var(--primary-color)" />
+            <Bar dataKey="ventas" fill="var(--color-primary)" />
           </BarChart>
         </ResponsiveContainer>
       </div>

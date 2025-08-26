@@ -1,14 +1,20 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { getStockWithSucursal } from '../service/api';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'; // Añade useQueryClient
+import { getProductosByPuntoVenta } from '../service/api';
 import { useDebounce } from 'use-debounce';
 import { useState } from 'react';
 
-export const useProductos = (initialSearchTerm = '') => {
+export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
+    const queryClient = useQueryClient(); // Añade esta línea
     const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+    const [codigoProductoSin, setCodigoProductoSin] = useState(null);
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
-    const [selectedSucursal, setSelectedSucursal] = useState('');
+    const [conDescuento, setConDescuento] = useState(null);
+    const [categoriaId, setCategoriaId] = useState(null);
+    const [sinStock, setSinStock] = useState(false);
+    const [sortField, setSortField] = useState('cantidad,desc');
     const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
+    const [debouncedCodigoProductoSin] = useDebounce(codigoProductoSin, 400);
     
     const {
         data,
@@ -18,13 +24,35 @@ export const useProductos = (initialSearchTerm = '') => {
         refetch,
         ...queryResult
     } = useInfiniteQuery({
-        queryKey: ['productos', debouncedSearchTerm, minPrice, maxPrice, selectedSucursal],
+        queryKey: [
+            'productos', 
+            puntoVentaId, 
+            debouncedSearchTerm, 
+            debouncedCodigoProductoSin,
+            conDescuento,
+            categoriaId,
+            sinStock,
+            sortField
+        ],
         queryFn: ({ pageParam = 0 }) => 
-            getStockWithSucursal(pageParam, 10, debouncedSearchTerm, minPrice, maxPrice, selectedSucursal)
-                .then(res => ({
-                    productos: res.data.content,
-                    nextPage: !res.data.last ? pageParam + 1 : undefined
-                })),
+            getProductosByPuntoVenta(
+                puntoVentaId,
+                pageParam, 
+                10, 
+                debouncedSearchTerm,
+                debouncedCodigoProductoSin, 
+                conDescuento,
+                categoriaId,
+                sinStock,
+                sortField 
+            ).then(res => ({
+                productos: res.data.productos,
+                paginaActual: res.data.paginaActual,
+                totalPaginas: res.data.totalPaginas,
+                nextPage: res.data.paginaActual < res.data.totalPaginas - 1 
+                    ? pageParam + 1 
+                    : undefined
+            })),
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 5 * 60 * 1000,
         cacheTime: 15 * 60 * 1000,
@@ -32,21 +60,52 @@ export const useProductos = (initialSearchTerm = '') => {
     });
 
     const productos = data?.pages.flatMap(p => p.productos) || [];
+    const totalProductos = data?.pages[0]?.totalElementos || 0;
+
+    const loadMore = () => {
+        if (hasNextPage && !isFetching) {
+            fetchNextPage();
+        }
+    };
+
+    // Función para invalidar y refrescar los datos
+    const invalidateAndRefetch = async () => {
+        await queryClient.invalidateQueries([
+            'productos', 
+            puntoVentaId, 
+            debouncedSearchTerm, 
+            debouncedCodigoProductoSin,
+            conDescuento,
+            sinStock,
+            sortField
+        ]);
+        await refetch();
+    };
 
     return {
         productos,
+        totalProductos,
         searchTerm,
         setSearchTerm,
+        codigoProductoSin,
+        setCodigoProductoSin,
         minPrice,
         setMinPrice,
         maxPrice,
         setMaxPrice,
-        selectedSucursal,
-        setSelectedSucursal,
-        fetchNextPage,
+        conDescuento,
+        setConDescuento,
+        categoriaId,
+        setCategoriaId,
+        sinStock,
+        setSinStock,
+        sortField,
+        setSortField,
+        loadMore,
         hasNextPage,
         isFetching,
         refetch,
+        invalidateAndRefetch,
         ...queryResult
     };
 };

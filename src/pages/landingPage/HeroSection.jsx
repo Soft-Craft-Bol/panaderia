@@ -3,8 +3,14 @@ import torat from '../../assets/img/canasta.png';
 import pan from '../../assets/img/panHD.jpg';
 import pan11 from '../../assets/img/pan11.jpg';
 import './HeroSection.css';
+import { Navigate } from 'react-router-dom';
 
-const carouselImages = [pan, torat, pan11, pan]; // Tus imágenes
+const carouselImages = ['https://res.cloudinary.com/dzizafv5s/image/upload/v1753557122/bbtijbf8mgincxda6gnd.jpg',
+                       'https://res.cloudinary.com/dzizafv5s/image/upload/v1747692666/ndcdtlxqsahx6kbe0q6g.jpg',
+                      'https://res.cloudinary.com/dzizafv5s/image/upload/v1747691866/j8tqjkpkyyx0d8pdl1s8.jpg', 
+                      'https://res.cloudinary.com/dzizafv5s/image/upload/v1743861962/eu6tdgdh4vch9gsptztr.jpg', 
+                      'https://res.cloudinary.com/dzizafv5s/image/upload/v1747691374/xlzhdsvukyqzmypgux7m.jpg'
+                    ]; // Tus imágenes
 
 const HeroSection = () => {
   const carouselRef = useRef(null);
@@ -61,7 +67,7 @@ const HeroSection = () => {
             En Inpasep, queremos que disfrutes cada bocado.
           </p>
           <div className="hero-buttons">
-            <button className="order-btn">Ordenar ahora</button>
+            <button className="order-btn" onClick={() => Navigate('/product')}>Ordenar ahora</button>
             <button className="menu-btn">Ver menú completo</button>
           </div>
         </div>

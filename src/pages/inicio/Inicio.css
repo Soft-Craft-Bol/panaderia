@@ -1,56 +1,63 @@
 @import '../../../src/index.css';
+
+/* Layout principal */
+.main-cont-inicio {
+  padding: 1rem;
+}
+
+/* Contenedor de tarjetas superiores */
 .info-cont {
   display: flex;
-  gap: 3%;
+  flex-wrap: wrap;
   justify-content: center;
-  border-radius: 10px;
-  padding-bottom: 5px;
+  gap: 1.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
 }
 
 .tot-cont {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 2rem;
   width: 100%;
 }
 
 .tot-cont .left {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 1rem;
   flex: 1;
-  min-width: 250px;
+  min-width: 280px;
 }
 
 .tot-cont .rigth {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  flex: 4;
-  margin-bottom: 10px;
-  min-width: 300px;
+  gap: 1.5rem;
+  flex: 2;
+  min-width: 320px;
 }
 
-.tot-cont .rigth .ventas, .inventario {
-  background-color: var(--sidebar-color);
-  flex: 1;
-  border-radius: 10px;
-  padding: 10px;
+.ventas, .inventario {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
 }
-.see-more{
+
+.see-more {
   text-decoration: underline;
-}
-.see-more:hover{
   cursor: pointer;
+  color: var(--color-primary);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+.see-more:hover {
+  text-decoration: none;
 }
 
 @media (max-width: 1024px) {
-  .info-cont {
-    flex-direction: column;
-    align-items: center;
-  }
-
   .tot-cont {
     flex-direction: column;
     align-items: center;
@@ -62,25 +69,29 @@
 }
 
 @media (max-width: 768px) {
-  .tot-cont .rigth {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 480px) {
   .info-cont {
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 1rem;
   }
 
   .tot-cont .left, .tot-cont .rigth {
     width: 100%;
+    flex: none;
   }
 
-  .tot-cont .rigth .ventas, .inventario {
-    padding: 5px;
+  .ventas, .inventario {
+    padding: 0.75rem;
   }
 }
-.main-cont-inicio p{
-  margin: 0 0 0 0;
+
+/* Modo oscuro (usando [data-theme="dark"]) */
+[data-theme="dark"] .ventas,
+[data-theme="dark"] .inventario {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .see-more {
+  color: var(--color-primary-light);
 }

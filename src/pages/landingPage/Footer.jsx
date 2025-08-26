@@ -7,6 +7,7 @@ import './Footer.css';
 const Footer = () => {
   return (
     <footer className="main-footer">
+    <br/>
       <div className="footer-content">
         <div className="footer-logo">
           <img src={inpasedLogo} alt="Inpased" />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getHorario } from '../../service/api';
 import './TablaHorarios.css';
 
-const TablaHorarios = () => {
+const TablaHorarios = ({refreshTrigger }) => {
   const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,8 +24,7 @@ const TablaHorarios = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchHorarios = async () => {
+  const fetchHorarios = async () => {
       try {
         const response = await getHorario();
         setHorarios(response.data);
@@ -37,8 +36,10 @@ const TablaHorarios = () => {
       }
     };
 
-    fetchHorarios();
-  }, []);
+
+  useEffect(() => {
+        fetchHorarios();
+    }, [refreshTrigger]);
 
   if (loading) {
     return (

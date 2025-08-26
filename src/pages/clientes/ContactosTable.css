@@ -1,0 +1,96 @@
+.contacto-table-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* .table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+} */
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 6px;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.contacto-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.contacto-name {
+  font-weight: 500;
+}
+
+.contacto-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.contacto-email, .contacto-phone {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.contacto-email:hover, .contacto-phone:hover {
+  color: #1976d2;
+}
+
+.contacto-details {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.estado-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.estado-badge.pendiente {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.estado-badge.atendido {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.estado-badge.cancelado {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.contacto-actions {
+  display: flex;
+  gap: 8px;
+}
