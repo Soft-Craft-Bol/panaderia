@@ -17,7 +17,7 @@ export const ChartComponent = props => {
 
             const chart = createChart(chartContainerRef.current, {
                 layout: {
-                    background: { type: ColorType.Solid, color: getComputedStyle(document.documentElement).getPropertyValue('--bg-component-white').trim() },
+                    background: { type: ColorType.Solid, color: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-primary').trim() },
                     textColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim(),
                 },
                 width: chartContainerRef.current.clientWidth,
@@ -26,8 +26,8 @@ export const ChartComponent = props => {
             chart.timeScale().fitContent();
 
             const newSeries = chart.addSeries(AreaSeries, {
-                 lineColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
-                 topColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+                 lineColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(),
+                 topColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(),
                 bottomColor: 'rgba(255, 175, 90, 0.2)',
                 
                 });

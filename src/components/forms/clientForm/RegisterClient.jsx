@@ -10,7 +10,7 @@ import { useTheme } from '../../../context/ThemeContext';
 import { Button } from '../../buttons/Button';
 import Swal from "sweetalert2";
 import './RegisterClient.css';
-import NavbarPublic from '../../../pages/landingPage/NavbarPublic';
+import NavbarPublic from '../../sidebar/NavbarPublic';
 import Footer from '../../../pages/landingPage/Footer';
 
 const InputText = React.lazy(() => import('../../inputs/InputText'));

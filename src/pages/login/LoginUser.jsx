@@ -7,10 +7,10 @@ import { loginUser } from '../../service/api';
 import { saveToken, saveUser } from '../../utils/authFunctions';
 import { parseJwt } from '../../utils/Auth';
 import loadImage from '../../assets/ImagesApp';
-import NavbarPublic from '../landingPage/NavbarPublic';
+import NavbarPublic from '../../components/sidebar/NavbarPublic';
 import Footer from '../landingPage/Footer';
 
-const Button = lazy(() => import('../../components/buttons/ButtonPrimary'));
+const ButtonPrimary = lazy(() => import('../../components/buttons/ButtonPrimary'));
 const InputText = lazy(() => import('../../components/inputs/InputText'));
 
 
@@ -48,40 +48,48 @@ const LoginUser = () => {
   const logo = useImageLoader("logo");
 
   const handleSubmit = useCallback(async (values, { setSubmitting }) => {
-    setLoginError('');
-    try {
-      const result = await loginUser({
-        username: values.username.trim(),
-        password: values.password,
+  setLoginError('');
+  try {
+    const result = await loginUser({
+      username: values.username.trim(),
+      password: values.password,
+    });
+    if (result?.data?.jwt) {
+      const token = result.data.jwt;
+      const decodedToken = parseJwt(token);
+      const roles = decodedToken?.authorities?.split(',') || [];
+      saveToken(token);
+
+      saveUser({
+        id: result.data.id, 
+        username: result.data.username,
+        roles: roles,
+        photo: result.data.photo,
+        puntosVenta: result.data.puntosVenta,
+        sucursal: result.data.sucursal,
+          cajasAbiertas: result.data.cajasAbiertas,
+          horarios: result.data.horarios,
+          permissions: result.data.permissions,
       });
-      console.log('result:', result);
 
-      if (result?.data?.jwt) {
-        const token = result.data.jwt;
-        const decodedToken = parseJwt(token);
-        const roles = decodedToken?.authorities?.split(',') || [];
-        saveToken(token);
-
-        saveUser({
-          username: result.data.username,
-          roles: roles,
-          photo: result.data.photo,
-          puntosVenta: result.data.puntosVenta,
-        });
-        navigate('/home');
+      if (roles.includes('ROLE_CLIENTE')) {
+        navigate('/product');
       } else {
-        setLoginError('Usuario o contraseña incorrectos.');
+        navigate('/home');
       }
-    } catch (error) {
-      console.error('Error en el login:', error);
-      setLoginError(
-        error.response?.status === 401
-          ? 'Usuario o contraseña incorrectos.'
-          : 'Ocurrió un error. Intente más tarde.'
-      );
+    } else {
+      setLoginError('Usuario o contraseña incorrectos.');
     }
-    setSubmitting(false);
-  }, [navigate]);
+  } catch (error) {
+    console.error('Error en el login:', error);
+    setLoginError(
+      error.response?.status === 401
+        ? 'Usuario o contraseña incorrectos.'
+        : 'Ocurrió un error. Intente más tarde.'
+    );
+  }
+  setSubmitting(false);
+}, [navigate]);
 
   return (
     <>
@@ -110,14 +118,13 @@ const LoginUser = () => {
                 {loginError && <span className="error-message">{loginError}</span>}
                 <Link to="/reset">¿Olvidaste la contraseña?</Link>
                 <Suspense fallback={<div>Cargando botón...</div>}>
-                  <Button
+                  <ButtonPrimary
                     type="submit"
                     variant="primary"
                     disabled={isSubmitting}
-                    className="btn-general"
                   >
                     {isSubmitting ? 'Ingresando...' : 'Ingresar'}
-                  </Button>
+                  </ButtonPrimary>
                 </Suspense>
               </div>
             </Form>

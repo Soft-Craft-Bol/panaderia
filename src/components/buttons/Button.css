@@ -1,49 +1,100 @@
 .button {
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: var(--font-size-md);
+    padding: var(--space-sm) var(--space-sm);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: var(--tran-03);
-  }
+    transition: all var(--transition-normal) ease;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+}
   
-  .button-primary {
-    background-color: var(--primary-color);
-    color: #FFFFFF;
-  }
+.button-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+}
   
-  .button-primary:hover {
-    background-color: var(--primary-color-light);
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-  }
+.button-primary:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
   
-  .button-secondary {
-    background-color: var(--sidebar-color);
-    color: var(--text-color-secundary);
-  }
+.button-secondary {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-medium);
+}
   
-  .button-secondary:hover {
-    background-color: var(--toggle-color);
-    color: var(--text-color);
-  }
+.button-secondary:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-primary);
+}
+
+.button-info {
+  background-color: var(--color-info);
+  color: var(--color-text-on-primary);
+}
+
+.button-info:hover {
+  background-color: var(--color-info-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.button-danger {
+  background-color: var(--color-error);
+  color: var(--color-text-on-primary);
+}
+
+.button-danger:hover {
+  background-color: var(--color-error-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* DARK MODE */
+[data-theme="dark"] .button-info {
+  background-color: var(--color-info-light);
+  color: var(--color-text-on-primary);
+}
+
+[data-theme="dark"] .button-info:hover {
+  background-color: var(--color-info);
+}
+
+[data-theme="dark"] .button-danger {
+  background-color: var(--color-error);
+  color: var(--color-text-on-primary);
+}
+
+[data-theme="dark"] .button-danger:hover {
+  background-color: var(--color-error-light);
+}
+
+
+/* Estilos para modo oscuro */
+[data-theme="dark"] .button-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+}
   
-  body.dark .button-primary {
-    background-color: var(--primary-color-light);
-    color: var(--text-color);
-  }
+[data-theme="dark"] .button-primary:hover {
+    background-color: var(--color-primary-light);
+}
   
-  body.dark .button-primary:hover {
-    background-color: #1a5bbf;
-  }
+[data-theme="dark"] .button-secondary {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border-dark);
+}
   
-  body.dark .button-secondary {
-    background-color: var(--color-medium);
-    color: var(--text-color);
-  }
-  
-  body.dark .button-secondary:hover {
-    background-color: var(--color-5);
-    color: #FFFFFF;
-  }
-  
+[data-theme="dark"] .button-secondary:hover {
+    background-color: var(--color-gray-700);
+    color: var(--color-text-primary);
+    border-color: var(--color-primary-light);
+}

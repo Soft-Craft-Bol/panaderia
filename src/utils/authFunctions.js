@@ -28,3 +28,7 @@ export const getUser = () => {
   const userDataString = Cookies.get('userData');
   return userDataString ? JSON.parse(userDataString) : null;
 };
+
+export const removeToken = () => {
+  Cookies.remove('authToken');
+}

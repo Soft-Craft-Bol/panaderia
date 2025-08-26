@@ -63,6 +63,8 @@ const AddSucursal = () => {
         municipio: "",
         direccion: "",
         telefono: "",
+        latitud: 0,
+        longitud: 0,
         empresa: { id: 1, nit: 3655579015, razonSocial: "COA CARDONA DE CARDOZO ANTONIA" },
         image: "",
     });
@@ -80,6 +82,8 @@ const AddSucursal = () => {
                         telefono: response.data.telefono || "",
                         image: response.data.image || "",
                         empresa: { id: 1, nit: 3655579015, razonSocial: "COA CARDONA DE CARDOZO ANTONIA" },
+                        latitud: response.data.latitud || 0,
+                        longitud: response.data.longitud || 0,
                     });
                     setPreviewUrl(response.data.image);
                     console.log(initialValues);
@@ -106,6 +110,8 @@ const AddSucursal = () => {
                 municipio: values.municipio,
                 direccion: values.direccion,
                 telefono: values.telefono,
+                latitud: values.latitud,
+                longitud: values.longitud,
                 empresa: values.empresa,
                 image: imageUrl,
             }
@@ -164,6 +170,9 @@ const AddSucursal = () => {
                         <InputText label="Municipio:" name="municipio" type="text" />
                         <InputText label="Dirección de la sucursal:" name="direccion" type="text" />
                         <InputText label="Teléfono de la sucursal:" name="telefono" type="integer" />
+                        <InputText label="Latitud:" name="latitud" type="number" />
+                        <InputText label="Longitud:" name="longitud" type="number" />
+
                          <div>
                             <button type="submit" className="btn-general" disabled={isSubmitting}
                                     onClick={() => navigate("/sucursales")}

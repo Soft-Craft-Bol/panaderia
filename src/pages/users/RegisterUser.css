@@ -1,17 +1,17 @@
 .user-form-container {
-    max-width: 800px;
-    margin: 0 auto; 
-    padding: 20px;
-    background-color: var(--sidebar-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: var(--tran-03);
-  margin-top: 10%;
-  }
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-md);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+}
 
 .user-form-container h2 {
   text-align: center;
-  margin: 20px;
+  margin: var(--space-md);
+  color: var(--color-text-primary);
 }
 
 .form {
@@ -20,210 +20,209 @@
   align-items: center;
 }
 
-  
-  .form-columns {
-    display: flex;
-    justify-content: space-between;
-    gap: 50px; 
-  }
+.form .form-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
 
-  .photo-upload-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .photo-preview {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background-color: #f5f5f5;
-    position: relative;
-  }
-  
-  .photo-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .camera-icon {
-    font-size: 50px;
-    color: #888;
-  }
-  
-  .photo-label {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #555;
-  }
+.form-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-xl);
+}
 
-  .photo-upload-container label {
-    cursor: pointer;
-    color: var(--primary-color);
-  }
+.photo-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  
-  input[type="file"] {
-    display: none;
-  }
+.photo-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-medium);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--color-bg-tertiary);
+  position: relative;
+}
 
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-icon {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-tertiary);
+}
+
+.photo-label {
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.photo-upload-container label {
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+input[type="file"] {
+  display: none;
+}
 
 .roles-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 
 .role-checkbox {
   display: flex;
   align-items: center;
-  background-color: #eeb751; 
-  border-radius: 10px; 
-  padding: 10px 15px;
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color var(--transition-normal), transform var(--transition-fast);
+  color: var(--color-text-on-primary);
 }
 
 .role-checkbox input[type="checkbox"] {
-  display: none; 
+  display: none;
 }
 
 .role-checkbox label {
-  margin-left: 8px;
+  margin-left: var(--space-xs);
   cursor: pointer;
-  user-select: none; 
-}
-
-.role-checkbox input[type="checkbox"]:checked + label {
-  color: #f8f6f6; 
-}
-
-.role-checkbox input[type="checkbox"]:checked ~ .role-checkbox {
-  background-color: #db812d;
-}
-
-.role-checkbox input[type="checkbox"]:checked ~ .role-checkbox {
-  background-color: #256ebb;
-  color: #fff; 
+  user-select: none;
+  color: inherit;
 }
 
 .role-checkbox:hover {
-  background-color: #e0e0e0; 
+  background-color: var(--color-primary);
   transform: scale(1.05);
 }
 
 .role-checkbox.selected {
-  background-color: #94770e;
-  color: #fff; 
+  background-color: var(--color-secondary-dark);
+  color: var(--color-text-on-primary);
 }
+
+.role-checkbox input[type="checkbox"]:checked + label {
+  color: var(--color-text-on-primary);
+}
+
+.role-checkbox input[type="checkbox"]:checked ~ .role-checkbox {
+  background-color: var(--color-secondary-dark);
+  color: var(--color-text-on-primary);
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
 }
+
 .form-group label {
-  margin-bottom: 5px;
-  color: black;
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
 }
+
 .form-group select {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
+  padding: var(--space-sm);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--transition-normal);
 }
+
 .form-group select option {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .roles-selector-container {
-  margin: 20px 0;
+  margin: var(--space-md) 0;
   width: 100%;
 }
 
 .roles-selector-container select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background-color: var(--sidebar-color);
-  color: var(--text-color);
-  font-size: 14px;
-  margin-bottom: 10px;
-  transition: var(--tran-03);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-sm);
+  transition: var(--transition-normal);
 }
 
 .roles-selector-container select:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(238, 183, 81, 0.2);
 }
 
 .selected-roles-container {
-  margin-top: 15px;
+  margin-top: var(--space-sm);
 }
 
 .selected-roles-container h3 {
-  margin-bottom: 10px;
-  color: var(--text-color);
-  font-size: 16px;
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
 }
 
 .selected-roles-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 5px;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
 }
 
 .role-item {
   display: inline-flex;
   align-items: center;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
 }
 
 .role-item:hover {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--color-primary-dark);
+  color: var(--color-text-on-primary);
 }
 
 .role-item svg {
-  margin-left: 6px;
-  transition: all 0.2s ease;
+  margin-left: var(--space-xs);
+  transition: all var(--transition-fast);
 }
 
 .role-item:hover svg {
-  color: white;
+  color: var(--color-text-on-primary);
 }
 
-/* Mensaje cuando no hay roles seleccionados */
 .no-roles-message {
-  color: var(--text-color-light);
+  color: var(--color-text-tertiary);
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--font-size-xs);
 }
 
-/* Estilos para el contenedor del selector y la lista */
 .role-selection-group {
-  background-color: var(--panel-color);
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  padding: var(--space-md);
 }

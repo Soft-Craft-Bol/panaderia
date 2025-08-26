@@ -67,7 +67,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.producto-info {
+.producto-info-reserva {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -125,11 +125,6 @@
     background-color: #f9f9f9;
   }
   
-  .producto-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
   .modal-content1 {
     max-height: 80vh;
     overflow-y: auto;
@@ -172,10 +167,52 @@
   padding: 1rem 0;
 }
 
-.producto-info {
+.acciones-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 8px;
+}
+
+.aprobar-button {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.rechazar-button {
+  background-color: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancelar-button {
+  background-color: #ffc107;
+  color: black;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
   align-items: center;
+}
+
+.detalles-button {
+  background-color: #007bff;
+  color: white;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 

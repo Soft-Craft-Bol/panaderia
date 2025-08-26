@@ -5,7 +5,6 @@ import { FaShoppingCart } from "react-icons/fa";
 const CardProductExt = ({ 
   item, 
   onReservar, 
-  onAgregarAlCarrito, 
   tipoUsuario, 
   descuento, 
   precioConDescuento, 
@@ -58,24 +57,14 @@ const CardProductExt = ({
       </div>
 
       <div className={styles.cardActions}>
-        {tipoUsuario === "externo" ? (
-          <button
-            onClick={() => onAgregarAlCarrito(item)}
-            className={styles.reserveButton}
-            aria-label={`Agregar ${item.descripcion} al carrito`}
-          >
-            <FaShoppingCart /> Agregar
-          </button>
-        ) : (
-          <button
-            onClick={() => onReservar(item.id)}
-            className={styles.reserveButton}
-            aria-label={`Reservar ${item.descripcion}`}
-          >
-            Reservar
-          </button>
-        )}
-      </div>
+  <button
+    onClick={() => onReservar(item)}
+    className={styles.reserveButton}
+    aria-label={`Reservar ${item.descripcion}`}
+  >
+    {tipoUsuario === "externo" ? <><FaShoppingCart /> Agregar</> : <>Reservar</>}
+  </button>
+</div>
     </div>
   );
 };

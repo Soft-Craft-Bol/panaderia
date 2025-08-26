@@ -1,29 +1,30 @@
 import React from 'react';
 import { useField } from 'formik';
-import './SelectSecondary.css'; 
+import './SelectSecondary.css';
 
-function SelectSecondary({ label, children, error, ...props }) {
-  // Intenta usar useField solo si estamos dentro de un Formik
-  let field = {};
-  let meta = {};
+function SelectSecondary({ label, children, formikCompatible = true, ...props }) {
+  let field = {
+    value: props.value,
+    onChange: props.onChange,
+    onBlur: props.onBlur,
+    name: props.name
+  };
   
-  try {
-    // Esto lanzará un error si no estamos dentro de Formik
-    [field, meta] = useField(props);
-  } catch (e) {
-    // Si no estamos en Formik, usamos props directamente
-    field = {
-      value: props.value,
-      onChange: props.onChange,
-      onBlur: props.onBlur,
-      name: props.name
-    };
-    meta = {
-      touched: false,
-      error: error || null
-    };
+  let meta = {
+    touched: false,
+    error: props.error || null
+  };
+
+  if (formikCompatible) {
+    try {
+      const [formikField, formikMeta] = useField(props);
+      field = formikField;
+      meta = formikMeta;
+    } catch (e) {
+      console.debug('SelectSecondary no está dentro de Formik, usando props normales');
+    }
   }
-  
+
   return (
     <div className="input-component">
       {label && (
@@ -35,9 +36,13 @@ function SelectSecondary({ label, children, error, ...props }) {
       <div className="input-wrapper">
         <select 
           className="text-input" 
-          {...field} 
+          {...field}
           {...props}
           value={field.value || ''}
+          onChange={(e) => {
+            field.onChange && field.onChange(e);
+            props.onChange && props.onChange(e);
+          }}
         >
           {children}
         </select>

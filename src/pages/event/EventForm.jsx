@@ -6,13 +6,13 @@ import { getUser } from '../../utils/authFunctions';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import SelectSecondary from '../../components/selected/SelectSecondary';
 import InputSecundary from '../../components/inputs/InputSecundary';
-import Modal from '../../components/modal/Modal'; // Importa el modal
+import Modal from '../../components/modal/Modal';
 import { FaCopy } from 'react-icons/fa';
 import { Toaster, toast } from 'sonner';
 
 import './EventForm.css';
 
-const EventoForm = () => {
+const EventoForm = ({ onSuccess, onClose }) => {
     const [cufdsDisponibles, setCufdsDisponibles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [resultado, setResultado] = useState(null);
@@ -39,7 +39,8 @@ const EventoForm = () => {
             cufdEvento: '',
             fechaHoraInicioEvento: '',
             fechaHoraFinEvento: '',
-            codigoMotivoEvento: '',
+            //codigoMotivoEvento: '',
+            codigoMotivoEvento: 3,
         },
         validationSchema: eventoValidationSchema,
         onSubmit: handleSubmit,
@@ -60,24 +61,31 @@ const EventoForm = () => {
 
             const payload = {
                 idPuntoVenta: puntoVentaId,
-                codigoMotivoEvento: Number(values.codigoMotivoEvento),
+                //codigoMotivoEvento: Number(values.codigoMotivoEvento),
+                codigoMotivoEvento: 3,
                 descripcion: getDescripcionMotivo(values.codigoMotivoEvento),
                 cufdEvento: values.cufdEvento,
                 fechaHoraInicioEvento: formatDateForBackend(values.fechaHoraInicioEvento),
                 fechaHoraFinEvento: formatDateForBackend(values.fechaHoraFinEvento)
             };
-console.log("Payload enviado al backend:", payload);
             const response = await definirEvento(payload);
+            console.log('Respuesta del servidor:', response);
+            const codigoEvento = response.data?.respuestaSiat?.codigoRecepcionEventoSignificativo;
+            /* 
+                        setResultado({
+                            codigoRecepcion: codigoEvento,
+                            mensaje: 'Evento registrado correctamente',
+                            detalles: response,
+                            motivo: getDescripcionMotivo(values.codigoMotivoEvento)
+                        }); */
 
-            setResultado({
-                codigoRecepcion: response.data?.respuestaSiat?.codigoRecepcionEventoSignificativo,
-                mensaje: 'Evento registrado correctamente',
-                detalles: response,
-                motivo: getDescripcionMotivo(values.codigoMotivoEvento)
-            });
+            
 
-            setShowModal(true); // Mostrar el modal
+            setShowModal(true);
             formik.resetForm();
+            if (onSuccess) {
+                onSuccess(codigoEvento);
+            }
             setCufdsDisponibles([]);
             await fetchCufds();
 
@@ -105,19 +113,15 @@ console.log("Payload enviado al backend:", payload);
                 const primerCufd = cufdsData[0];
                 const fechaInicio = primerCufd?.fechaHoraInicioEvento;
 
-                // Usar la función mejorada
-                const fechaInicioFormateada = formatDateTime(fechaInicio);
-
-                // Crear fecha de inicio del evento (1 minuto después)
                 const fechaInicioEvento = addOneMinute(fechaInicio);
 
                 formik.setValues((prev) => ({
                     ...prev,
                     cufdEvento: primerCufd?.cufdEvento || '',
-                    fechaHoraInicioEvento: fechaInicioEvento, // Usar la fecha con 1 minuto añadido
+                    fechaHoraInicioEvento: fechaInicioEvento, 
                 }));
 
-                setMinFechaFinEvento(fechaInicioEvento);  // actualiza mínimo
+                setMinFechaFinEvento(fechaInicioEvento); 
             }
         } catch (error) {
             console.error('Error al obtener CUFDs:', error);
@@ -174,7 +178,6 @@ console.log("Payload enviado al backend:", payload);
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
 
-        // Retornar en formato datetime-local
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
     return (
@@ -237,6 +240,7 @@ const CufdSection = ({ formik, cufdsDisponibles, puntoVentaId }) => (
         <SelectSecondary
             label="CUFD Disponible *"
             name="cufdEvento"
+            formikCompatible={true}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.cufdEvento}
@@ -253,27 +257,45 @@ const CufdSection = ({ formik, cufdsDisponibles, puntoVentaId }) => (
     </div>
 );
 
-const FechaSection = ({ formik, minFechaFinEvento }) => (
-    <div className="evento-section">
-        <h4 className="evento-section-title">Fechas del Evento</h4>
-        <InputSecundary
-            label="Fecha y Hora de Inicio *"
-            name="fechaHoraInicioEvento"
-            type="datetime-local"
-            formik={formik}
-            required
-        />
-        <InputSecundary
-            label="Fecha y Hora de Fin *"
-            name="fechaHoraFinEvento"
-            type="datetime-local"
-            formik={formik}
-            required
-            min={minFechaFinEvento}
-            max={new Date().toISOString().slice(0, 16)}
-        />
-    </div>
-);
+const FechaSection = ({ formik, minFechaFinEvento }) => {
+    const getCurrentDateTimeLocal = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    useEffect(() => {
+        if (!formik.values.fechaHoraFinEvento) {
+            formik.setFieldValue('fechaHoraFinEvento', getCurrentDateTimeLocal());
+        }
+    }, []);
+
+    return (
+        <div className="evento-section">
+            <h4 className="evento-section-title">Fechas del Evento</h4>
+            <InputSecundary
+                label="Fecha y Hora de Inicio *"
+                name="fechaHoraInicioEvento"
+                type="datetime-local"
+                formik={formik}
+                required
+            />
+            <InputSecundary
+                label="Fecha y Hora de Fin *"
+                name="fechaHoraFinEvento"
+                type="datetime-local"
+                formik={formik}
+                required
+                min={minFechaFinEvento}
+                max={new Date().toISOString().slice(0, 16)}
+            />
+        </div>
+    );
+};
 
 
 const MotivoSection = ({ formik }) => (
@@ -282,6 +304,7 @@ const MotivoSection = ({ formik }) => (
         <SelectSecondary
             label="Motivo del Evento *"
             name="codigoMotivoEvento"
+            formikCompatible={true}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.codigoMotivoEvento}

@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
-import { FaEdit, FaShoppingCart } from 'react-icons/fa';
+import { FaEdit, FaShoppingCart, FaTags } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import ImagesApp from '../../assets/ImagesApp';
 import './cardProducto.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../buttons/Button';
 import { FaGift } from "react-icons/fa";
-import ModalPromocion from '../../pages/productos/ModalPromocion'; 
-import { setItemsPromocion } from '../../service/api';
+import ModalPromocion from '../../pages/productos/ModalPromocion';
+import { setItemsPromocion, asignarCategoriaAItem, getCategorias } from '../../service/api';
+import Modal from "../modal/Modal"; 
+import { useQuery } from "@tanstack/react-query";
 import { toast } from 'sonner';
+import SelectSecondary from '../selected/SelectSecondary';
 
-const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar, descripcionProducto }) => {
+const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsuario = 'interno', onReservar, descripcionProducto, onCategoriaAsignada }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
-  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false); 
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [isCategoriaModalOpen, setIsCategoriaModalOpen] = useState(false);
+  const [selectedCategoriaId, setSelectedCategoriaId] = useState("");
   const navigate = useNavigate();
+
+  const { data: categorias = [] } = useQuery({
+    queryKey: ['categorias-card'],
+    queryFn: () => getCategorias().then(res => res.data)
+  });
 
   const handleOpenModal = () => {
     setIsImageExpanded(true);
@@ -32,7 +42,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
   };
 
   const handleProductoDescuento = () => {
-    setIsPromoModalOpen(true); 
+    setIsPromoModalOpen(true);
   };
   const handleApplyPromotion = async (descuento, sucursalId) => {
     try {
@@ -45,7 +55,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
         },
         descuento: descuento
       };
-      
+
       await setItemsPromocion(data);
       toast.success("Promoción aplicada correctamente");
       // Aquí puedes agregar una función para refrescar los datos si es necesario
@@ -54,6 +64,22 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
       toast.error(error.response?.data?.message || "Error al aplicar la promoción");
     } finally {
       setIsPromoModalOpen(false);
+    }
+  };
+
+  const handleAsignarCategoria = async () => {
+    if (!selectedCategoriaId) {
+      toast.error("Seleccione una categoría");
+      return;
+    }
+    try {
+      await asignarCategoriaAItem(product.id, selectedCategoriaId);
+      toast.success("Categoría asignada correctamente");
+      onCategoriaAsignada?.(); 
+      setIsCategoriaModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al asignar categoría");
     }
   };
 
@@ -70,7 +96,8 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
             <button style={{ fontSize: "100%" }} onClick={handleCardClick}>
               <strong>+ </strong>
             </button>
-            <FaGift title='Marcar producto para promoción' className='icon' onClick={handleProductoDescuento}/>
+            <FaGift title='Marcar producto para promoción' className='icon' onClick={handleProductoDescuento} />
+             <FaTags title="Asignar categoría" className="icon" onClick={() => setIsCategoriaModalOpen(true)} />
           </div>
         </div>
 
@@ -87,6 +114,7 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
 
         <p><strong>{dataLabels.data1}</strong> {cantidadTotal}</p>
         <p><strong>{dataLabels.data2}</strong> {product.precioUnitario} Bs</p>
+        <p><strong>{dataLabels.data4}</strong> {product.categoria}</p>
         {tipoUsuario === 'interno' && (
           <>
             <p className='desc-larga'><strong>{dataLabels.data3}</strong> {descripcionProducto}</p>
@@ -96,12 +124,24 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
         <div className="cardFooter">
           {tipoUsuario === 'interno' ? (
             <>
-              <button className="btn-edit" onClick={handleEdit}>
-                <FaEdit /> Editar
-              </button>
-              <button className="btn-cancel" onClick={onEliminar} style={{ width: "45%" }}>
-                <MdDelete /> Eliminar
-              </button>
+              <Button
+                variant="info"
+                type="button"
+                onClick={handleEdit}
+                style={{ width: '45%' }}
+              >
+                <FaEdit />
+                Editar
+              </Button>
+              <Button
+                variant="danger"
+                type="button"
+                onClick={onEliminar}
+                style={{ width: '45%' }}
+              >
+                <MdDelete />
+                Eliminar
+              </Button>
             </>
           ) : (
             <Button
@@ -113,13 +153,31 @@ const CardProducto = ({ product, dataLabels, onEliminar, onEdit, onAdd, tipoUsua
               <FaShoppingCart /> Agregar al carrito
             </Button>
           )}
-        </div> 
+        </div>
       </div>
+
+      <Modal isOpen={isCategoriaModalOpen} onClose={() => setIsCategoriaModalOpen(false)}>
+        <h2>Asignar categoría</h2>
+        <SelectSecondary
+          value={selectedCategoriaId}
+          formikCompatible={false}
+          onChange={(e) => setSelectedCategoriaId(e.target.value)}
+        >
+          <option value="">Seleccione una categoría</option>
+          {categorias.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+          ))}
+        </SelectSecondary>
+        <div className="botones-footer">
+          <button className="btn-edit" onClick={handleAsignarCategoria}>Asignar</button>
+          <button className="btn-cancel" onClick={() => setIsCategoriaModalOpen(false)}>Cancelar</button>
+        </div>
+      </Modal>
       {isPromoModalOpen && (
         <ModalPromocion
           product={product}
           onClose={() => setIsPromoModalOpen(false)}
-          onConfirm={handleApplyPromotion} 
+          onConfirm={handleApplyPromotion}
         />
       )}
     </div>

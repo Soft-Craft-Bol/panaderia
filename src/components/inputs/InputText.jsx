@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { useField } from "formik";
 import "./InputText.css";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function InputText({ label, required, type = "text", ...props }) {
-  const [field, meta] = useField(props);
+function InputText({ label, required, type = "text", formik = true, ...props }) {
   const [showPassword, setShowPassword] = useState(false);
+
+  let field = {};
+  let meta = {};
+
+  if (formik) {
+    [field, meta] = useField(props);
+  }
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-
-  // Eliminamos el prop 'formik' antes de pasarlo al input
-  const inputProps = { ...props };
-  delete inputProps.formik;
 
   return (
     <div className="input-component">
@@ -24,9 +26,9 @@ function InputText({ label, required, type = "text", ...props }) {
       <div className="input-wrapper">
         <input
           className="text-input"
-          {...field}
-          {...inputProps}  // Usamos inputProps en lugar de props directamente
-          type={showPassword ? "text" : type} 
+          {...(formik ? field : {})}
+          {...props}
+          type={showPassword ? "text" : type}
         />
         {type === "password" && (
           <button
@@ -39,7 +41,7 @@ function InputText({ label, required, type = "text", ...props }) {
           </button>
         )}
       </div>
-      {meta.touched && meta.error ? (
+      {formik && meta.touched && meta.error ? (
         <div className="error-message">{meta.error}</div>
       ) : null}
     </div>

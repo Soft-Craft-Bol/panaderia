@@ -1,36 +1,202 @@
+/* Contenedor principal */
+.item-horario {
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 600px;
+  margin: var(--space-xl) auto;
+  color: var(--color-text-primary);
+  transition: all var(--transition-normal) ease;
+}
+
+/* Título */
+.item-horario h4 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-lg);
+  color: var(--color-primary);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Controles de formulario */
+.item-horario select,
+.item-horario input[type="date"],
+.item-horario input[type="time"] {
+  width: 100%;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  transition: all var(--transition-fast) ease;
+}
+
+/* Estados de focus */
+.item-horario select:focus,
+.item-horario input[type="date"]:focus,
+.item-horario input[type="time"]:focus {
+  outline: 2px solid var(--color-primary-light);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(247, 152, 74, 0.2);
+}
+
+/* Contenedores flex */
+.item-horario > div {
+  margin-bottom: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* Checkboxes personalizados */
 .checkday-control {
-    font-weight: bold;
-    line-height: 1.1;
-    display: inline-flex;
-    grid-template-columns: 1em auto;
-    text-align: center;
-  }
+  display: flex;
+  align-items: center;
+  margin-right: var(--space-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  user-select: none;
+}
 
-  select {
-    border: 0;
-    outline: 0;
-    font: inherit;
-    width: 90%;
-    padding: 8px;
-    background: black no-repeat right 0.8em center / 1.4em, #fff;
-    color: black;
-    border-radius: 3px;
-    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
-    cursor: pointer;
-  }
- .item-horario button{
-  margin-left: 1%;
-  height: 1.5rem;
+.checkday-control input {
+  margin-right: var(--space-xs);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
 
- }
- .item-horario button:hover{
-  background-color: #28a745;
-  color: white;
- }  
- .item-horario td{
-  align-items: top;
- }
- .item-horario select{
-  margin-bottom: 1rem;
-  margin-top: 1rem;
- }
+.checkday-control input:checked {
+  accent-color: var(--color-primary);
+}
+
+.checkday-control input:checked + span {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+/* Botones */
+.submit-button {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  width: 100%;
+  margin-top: var(--space-sm);
+}
+
+.submit-button:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.submit-button:disabled {
+  background-color: var(--color-gray-400);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Botones secundarios */
+.item-horario button[type="button"] {
+  background-color: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  font-size: var(--font-size-sm);
+}
+
+.item-horario button[type="button"]:hover {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+
+/* Selectores en línea */
+.item-horario .inline-selects {
+  display: flex;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.item-horario .inline-selects select {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Contenedor de fechas */
+.item-horario .date-container {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  width: 100%;
+}
+
+.item-horario .date-container input {
+  flex: 1;
+}
+
+/* Efecto de transición para elementos interactivos */
+.item-horario select,
+.item-horario input,
+.item-horario button {
+  transition: all var(--transition-fast) ease;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .item-horario {
+    padding: var(--space-md);
+    margin: var(--space-md) auto;
+    border-radius: var(--radius-md);
+  }
+  
+  .item-horario > div {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+  
+  .checkday-control {
+    margin-bottom: var(--space-xs);
+    margin-right: 0;
+  }
+  
+  .item-horario .inline-selects,
+  .item-horario .date-container {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .item-horario h4 {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Modo oscuro específico */
+[data-theme="dark"] .item-horario {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-light);
+}
+
+[data-theme="dark"] .item-horario select,
+[data-theme="dark"] .item-horario input {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border-medium);
+}
+
+[data-theme="dark"] .checkday-control input:checked + span {
+  color: var(--color-primary-light);
+}

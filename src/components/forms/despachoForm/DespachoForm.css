@@ -1,62 +1,213 @@
+/* Contenedor principal */
 .despachos-contenedor {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: #efeaea;
-    border-radius: 10px;
-    margin: 30px;
-}
-
-.number-comment {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Espacio entre inputs */
+    max-width: 1200px;
+    margin: var(--space-xl) auto;
+    padding: var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    gap: var(--space-lg);
 }
 
-.form-group {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    margin-top: 8px;
-}
-
-.form-group > div {
-    width: 40%;
-}
-
-.despacho-input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.despachos-contenedor h1 {
+    color: var(--color-primary);
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-md);
     text-align: center;
 }
-.despacho-productos{
+
+/* Grupos de formulario */
+.form-group {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    align-content: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
 }
-.despacho-productos-cabecera{
-    width: 60%;
+
+/* Campos de entrada */
+.despacho-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    transition: all var(--transition-fast);
+    margin-bottom: var(--space-xs);
+}
+
+.despacho-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.despacho-input[type="number"] {
+    text-align: right;
+    max-width: 120px;
+}
+
+/* Sección de productos/insumos */
+.despacho-productos {
     display: flex;
-    justify-content: space-between;
-    margin-left: 20%;
-    margin-right: 20%;
-    margin-bottom: 10px;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
-.cuerpo-productos{
-    background-color: white;
-    margin: 20px;
-    width: 90%;
+
+.despacho-productos h3 {
+    color: var(--color-secondary);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-sm);
 }
+
 .element-product {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 15px;
-  }
+    gap: var(--space-md);
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.producto-seleccionado {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.producto-seleccionado strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.producto-seleccionado span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Elemento individual de insumo */
+.element-insumo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.insumo-seleccionado {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.insumo-seleccionado strong {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.insumo-seleccionado span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Botones */
+.btn-cancel {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-error-light);
+    color: var(--color-error-dark);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+}
+
+.btn-cancel:hover {
+    background: var(--color-error);
+    color: var(--color-white);
+}
+
+/* Estilos para el selector de insumos */
+.selector-container {
+    flex: 1;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .despachos-contenedor {
+        padding: var(--space-md);
+    }
+
+    .form-group {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .element-insumo {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-sm);
+    }
+
+    .despacho-input[type="number"] {
+        max-width: 100%;
+    }
+}
+
+/* Estilos para tema oscuro */
+[data-theme="dark"] {
+    .despachos-contenedor {
+        background: var(--color-bg-tertiary);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .despacho-productos {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-dark);
+    }
+
+    .insumo-seleccionado {
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border-dark);
+    }
+
+    .btn-cancel {
+        background: var(--color-error-dark);
+        color: var(--color-error-light);
+    }
+
+    .btn-cancel:hover {
+        background: var(--color-error);
+    }
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+/* Mejoras para el selector de sucursales */
+.despacho-input[as="select"] {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right var(--space-sm) center;
+    background-size: 1em;
+    padding-right: var(--space-xl);
+}

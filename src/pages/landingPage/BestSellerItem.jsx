@@ -14,20 +14,17 @@ const BestSellerItem = ({ image, name, price, soldCount, rating }) => {
       <p className="product-price">{price}</p>
       <p className="product-sold">{soldCount}</p>
       <div className="rating-stars">
-        {/* Estrellas llenas */}
-        {[...Array(fullStars)].map((_, i) => (
+        {/* {[...Array(fullStars)].map((_, i) => (
           <span key={`full-${i}`} className="star">★</span>
         ))}
         
-        {/* Media estrella si aplica */}
         {hasHalfStar && <span className="star">½</span>}
         
-        {/* Estrellas vacías */}
         {[...Array(emptyStars)].map((_, i) => (
           <span key={`empty-${i}`} className="star">☆</span>
         ))}
         
-        <span className="rating-score">({rating.toFixed(1)})</span>
+        <span className="rating-score">({rating.toFixed(1)})</span> */}
       </div>
     </div>
   );

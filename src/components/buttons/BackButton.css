@@ -1,0 +1,55 @@
+.back-button-container {
+  width: 100%;
+  display: flex;
+  z-index: 10;
+  margin-bottom: var(--space-md);
+}
+
+.back-button-container.left {
+  justify-content: flex-start;
+}
+
+.back-button-container.center {
+  justify-content: center;
+}
+
+.back-button-container.right {
+  justify-content: flex-end;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-sm);
+  height: 40px;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-back:hover {
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  font-weight: 600;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Estilos para modo oscuro */
+[data-theme="dark"] .btn-back {
+  background-color: var(--color-primary-dark);
+}
+
+[data-theme="dark"] .btn-back:hover {
+  background: var(--color-gray-100);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}

@@ -6,7 +6,7 @@ const InfoLayer = ({ title, description, total, image }) => {
   const [flipped, setFlipped] = useState(false);
 
   // Memoizar los colores basados en el tema
-  const COLORS = useMemo(() => ["var(--primary-color)", "var(--bg-app)"], []);
+  const COLORS = useMemo(() => ["var(--color-info)", "var(--color-primary)"], []);
 
   const data = useMemo(() => [
     { name: "Actual", value: total },
@@ -19,12 +19,12 @@ const InfoLayer = ({ title, description, total, image }) => {
 
   return (
     <div
-      className={`info-layer ${flipped ? "flipped" : ""}`}
+      className={`info-layer1 ${flipped ? "flipped" : ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={() => setFlipped(!flipped)} // Para dispositivos táctiles
     >
-      <div className="card-content">
+      <div className="card-content1">
         <div className="front">
           <img 
             src={image} 

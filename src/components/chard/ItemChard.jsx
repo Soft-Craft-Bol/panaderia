@@ -21,6 +21,7 @@ const ItemChard = () => {
     const fetchData = async () => {
       try {
         const response = await getItemsLimited();
+        console.log('getItemsLimited response:', response);
         if (Array.isArray(response?.data)) {
           setData(response.data);
         } else {
@@ -56,8 +57,8 @@ const ItemChard = () => {
               <tr key={index}>
                 {columns.map((col) => (
                   <td key={`${index}-${col.accessor}`} data-label={col.header}>
-                    {col.accessor === 'precioUnitario' 
-                      ? `$${parseFloat(item[col.accessor]).toFixed(2)}`
+                    {col.accessor === 'precioUnitario'
+                      ? `Bs ${parseFloat(item[col.accessor]).toFixed(2)}`
                       : item[col.accessor] || '-'}
                   </td>
                 ))}

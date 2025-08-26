@@ -1,0 +1,76 @@
+.recetas-main-container {
+  width: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg-primary);
+}
+
+.recetas-header {
+  margin-bottom: var(--space-lg);
+}
+
+.recetas-header h1 {
+  color: var(--color-primary);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-2xl);
+}
+
+/* Dark theme styles */
+[data-theme="dark"] {
+  .recetas-main-container {
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .tab-button {
+    color: var(--color-text-secondary);
+  }
+
+  .tab-button:hover {
+    background-color: rgba(var(--color-white-rgb), 0.05);
+    color: var(--color-text-primary);
+  }
+
+  .tab-button.active {
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    color: var(--color-primary-light);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .recetas-main-container {
+    padding: var(--space-md);
+  }
+  
+  .tabs-header {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: var(--space-xs);
+  }
+  
+  .tab-button {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+  }
+  
+  .recetas-header h1 {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .recetas-main-container {
+    padding: var(--space-sm);
+  }
+  
+  .tab-button {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-xs);
+  }
+  
+  .recetas-header h1 {
+    font-size: var(--font-size-lg);
+  }
+}

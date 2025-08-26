@@ -10,7 +10,7 @@ import { FaCopy } from 'react-icons/fa';
 import './EventForm.css';
 import { toast, Toaster } from 'sonner';
 
-const EnvioPaquete = () => {
+const EnvioPaquete = ({ initialCodigoEvento, onSuccess, onClose }) => {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const EnvioPaquete = () => {
 
   const formik = useFormik({
     initialValues: {
-      codigoEvento: '',
+      codigoEvento: initialCodigoEvento || '',
       cafc: '',
     },
     validationSchema: Yup.object({
@@ -42,17 +42,24 @@ const EnvioPaquete = () => {
 
       try {
         const response = await registrarEvento(payload);
-        const data = response?.data || response;
+        const codigoRecepcion = response?.data.codigoRecepcion;
+/* 
+        const data = response?.data;
 
         setResultado({
-          codigoRecepcion: data.codigoRecepcion,
+          codigoRecepcion: codigoRecepcion,
           codigoEvento: data.codigoEvento,
           mensaje: data.mensaje,
           cantidadFacturas: data.cantidadFacturasAlmacenadas
-        });
+        }); */
+        
 
         setShowModal(true);
+
         formik.resetForm();
+         if (onSuccess) {
+          onSuccess(codigoRecepcion); // <- Manda al tercer formulario
+        }
       } catch (e) {
         setError({
           titulo: 'Error al registrar evento',
@@ -105,7 +112,7 @@ const EnvioPaquete = () => {
 
         <div className="evento-actions">
           <ButtonPrimary type="submit" disabled={!formik.isValid || loading}>
-            {loading ? 'Registrando...' : 'Registrar Evento'}
+            {loading ? 'Enviando Paquete...' : 'Enviar Paquete'}
           </ButtonPrimary>
         </div>
       </form>

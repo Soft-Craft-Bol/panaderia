@@ -1,0 +1,54 @@
+.insumos-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.selector-container-asignacion {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.insumo-mini-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-medium);
+  font-size: var(--font-size-sm);
+}
+
+.unidad {
+  color: var(--color-text-secondary);
+  margin-left: var(--space-xs);
+  font-size: var(--font-size-xs);
+}
+
+.prioridad-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.prioridad-edit input {
+  width: 60px;
+  padding: var(--space-xs);
+  font-size: var(--font-size-xs);
+}
+
+.btn-eliminar {
+  background: none;
+  border: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+}
+
+.no-items {
+  font-style: italic;
+  color: var(--color-text-tertiary);
+}

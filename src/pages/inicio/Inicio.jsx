@@ -69,7 +69,6 @@ const Inicio = () => {
 
   return (
     <main className='main-cont-inicio'>
-      {loading ? <ScrollToTop/> : (
         <>
           <div className='info-cont'>
             <MemoizedTopCard title="Pts de Venta" quantity={stats.numeroPuntosVenta} Icon={FaMapPin} />
@@ -133,7 +132,6 @@ const Inicio = () => {
             </div>
           </section>
         </>
-      )}
     </main>
   );
 };

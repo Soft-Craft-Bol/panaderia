@@ -1,0 +1,58 @@
+.explorador-container {
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.explorador-titulo {
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.nodo {
+  margin-left: var(--space-sm);
+}
+
+.nodo-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.nodo-header:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.icono {
+  margin-right: var(--space-sm);
+}
+
+.nombre {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+}
+
+.directorio .nombre {
+  font-weight: 600;
+  color: var(--color-secondary);
+}
+
+.archivo .nombre {
+  font-weight: normal;
+  color: var(--color-text-secondary);
+}
+
+.nodo-hijos {
+  margin-left: var(--space-md);
+  border-left: 1px solid var(--color-border-light);
+  padding-left: var(--space-sm);
+  margin-top: var(--space-xs);
+}

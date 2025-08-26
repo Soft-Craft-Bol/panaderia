@@ -12,8 +12,10 @@
   }
   .modal-content {
     position: relative;
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 300px;
+    max-height: 300px;
+    height: 100%;
+    width: 100%;
   }
 
 
@@ -32,21 +34,17 @@
     transform: scale(1.05);
   }
 
-  .clickable-photo {
-    max-width: 1000px; 
-    max-height: 670px; 
-    width: auto;
-    height: auto;
-    object-fit: contain; 
-  }
+
 
 .user-management-container {
   padding: clamp(15px, 2vw, 35px);
   margin-top: clamp(10px, 2vh, 20px);
   width: 100%;
   max-width: 1920px;
+  border-radius: 8px;
   margin-left: auto;
   margin-right: auto;
+  background-color: var(--color-bg-primary);
 }
 
 .user-management-header {
@@ -73,74 +71,8 @@
   width: 100%;
 }
 
-.user-management-table table {
-  width: 100%;
-  min-width: 800px;
-  border-collapse: collapse;
-}
-
-.user-management-table th,
-.user-management-table td {
-  padding: clamp(8px, 1.5vh, 15px) clamp(10px, 1.5vw, 15px);
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-}
-
-.user-management-table th {
-  background-color: var(--primary-color-light);
-  color: var(--text-color);
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.user-management-table td {
-  color: var(--text-color);
-}
-
-.user-management-table tr:hover {
-  background-color: var(--primary-color-light);
-}
-
-.user-management-table-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-management-filter {
-  margin-bottom: 15px;
-  width: 100%;
-  max-width: 300px;
-}
-
 .clickable-photo:hover {
   transform: scale(1.05);
-}
-
-@media (max-width: 1400px) {
-  .user-management-table th,
-  .user-management-table td {
-    max-width: 150px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .user-management-container {
-    padding: 15px;
-  }
-  
-  .user-management-table th,
-  .user-management-table td {
-    max-width: 120px;
-  }
 }
 
 @media (max-width: 992px) {
@@ -151,24 +83,6 @@
 
   .user-management-filter {
     max-width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .user-management-table {
-    padding: 10px;
-  }
-
-  .user-management-table th,
-  .user-management-table td {
-    padding: 8px;
-    font-size: 14px;
-    max-width: 100px;
-  }
-
-  .clickable-photo {
-    width: 40px;
-    height: 40px;
   }
 }
 
@@ -187,4 +101,9 @@
   .user-management-filter {
     display: none;
   }
+}
+
+[data-theme="dark"] .user-management-container {
+  background-color: var(--color-bg-secondary);
+  color: var(--text-color);
 }

@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 import CardProducto from '../../components/cardProducto/cardProducto';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
-import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal, quitarPromocion } from '../../service/api';
+import { getStockWithSucursal, deleteItem, getSucursales, sumarCantidadDeProducto, addItemToSucursal, quitarPromocion, getCategorias } from '../../service/api';
 import '../users/ListUser.css';
 import { Toaster, toast } from "sonner";
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useDebounce } from 'use-debounce';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { FiPlus, FiPackage, FiClipboard, FiActivity } from 'react-icons/fi';
+import { Button } from "../../components/buttons/Button";
+import Modal from "../../components/modal/Modal";
+import CategoriaForm from "../categoria/CategoriaForm";
+import FiltersPanel from "../../components/search/FiltersPanel";
 
 const Productos = () => {
   const [showModal, setShowModal] = useState(false);
@@ -19,16 +23,53 @@ const Productos = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sucursales, setSucursales] = useState([]);
   const [cantidades, setCantidades] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
+  const [isCategoriaModalOpen, setIsCategoriaModalOpen] = useState(false);
+  
+  // Estado para los filtros
+  const [filters, setFilters] = useState({
+    searchTerm: '',
+    categoriaId: null,
+    sucursalId: null,
+    conDescuento: null,
+    sortBy: 'descripcion',
+    sortDirection: 'asc'
+  });
+
+  // Estado para el término de búsqueda con debounce
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   const navigate = useNavigate();
   const dataLabels = {
     data1: 'Cantidad General:',
     data2: 'Precio unitario:',
-    data3: 'Código Producto SIN:'
+    data3: 'Código Producto SIN:',
+    data4: 'Categoría:'
   };
 
+  // Configuración de debounce para el término de búsqueda
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(filters.searchTerm);
+    }, 400);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [filters.searchTerm]);
+
+  // Obtener sucursales
+  const { data: sucursalesData = [] } = useQuery({
+    queryKey: ['sucursales'],
+    queryFn: () => getSucursales().then(res => res.data),
+  });
+
+  // Obtener categorías
+  const { data: categorias = [], refetch: refetchCategorias } = useQuery({
+    queryKey: ['categorias'],
+    queryFn: () => getCategorias().then(res => res.data),
+  });
+
+  // Query principal para obtener productos
   const {
     data,
     fetchNextPage,
@@ -36,9 +77,19 @@ const Productos = () => {
     isFetching,
     refetch
   } = useInfiniteQuery({
-    queryKey: ['productos', debouncedSearchTerm],
+    queryKey: ['productos', debouncedSearchTerm, filters.categoriaId, filters.sucursalId, filters.conDescuento, filters.sortBy, filters.sortDirection],
     queryFn: ({ pageParam = 0 }) =>
-      getStockWithSucursal(pageParam, 10, debouncedSearchTerm).then(res => ({
+      getStockWithSucursal(
+        pageParam,
+        10,
+        debouncedSearchTerm,
+        null, // codigo (no usado en tu API original)
+        filters.conDescuento,
+        filters.sucursalId,
+        filters.categoriaId,
+        filters.sortBy,
+        filters.sortDirection
+      ).then(res => ({
         productos: res.data.content,
         nextPage: !res.data.last ? pageParam + 1 : undefined
       })),
@@ -50,18 +101,14 @@ const Productos = () => {
 
   const productos = data?.pages.flatMap(p => p.productos) || [];
 
-  const fetchSucursales = async () => {
-    try {
-      const response = await getSucursales();
-      setSucursales(response.data);
-    } catch (error) {
-      console.error('Error fetching sucursales:', error);
+  const productosPorCategoria = productos.reduce((acc, prod) => {
+    const categoria = prod.categoria || "Sin categoría";
+    if (!acc[categoria]) {
+      acc[categoria] = [];
     }
-  };
-
-  useEffect(() => {
-    fetchSucursales();
-  }, []);
+    acc[categoria].push(prod);
+    return acc;
+  }, {});
 
   const getDescripcionProducto = (codigoProducto) => {
     const producto = productos.find(p => p.codigoProductoSin === codigoProducto);
@@ -77,13 +124,14 @@ const Productos = () => {
     setSelectedProduct(product);
     setIsModalOpen(true);
     const initialCantidades = {};
-    sucursales.forEach((sucursal) => {
+    sucursalesData.forEach((sucursal) => {
       initialCantidades[sucursal.id] = "";
     });
     setCantidades(initialCantidades);
   };
 
   const handleCloseModal = () => {
+    console.log("Modal cerrado");
     setShowModal(false);
     setProductoAEliminar(null);
   };
@@ -145,8 +193,6 @@ const Productos = () => {
     }
   };
 
-
-
   const handleKeyDown = (e) => {
     if (
       !/[0-9]/.test(e.key) &&
@@ -159,41 +205,141 @@ const Productos = () => {
     }
   };
 
-  // Function to check if product has any discount in any branch
   const hasDiscount = (product) => {
     return product.sucursales.some(s => s.tieneDescuento);
   };
 
+  const handleFilterChange = (newFilters) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  };
 
+  const handleResetFilters = () => {
+    setFilters({
+      searchTerm: '',
+      categoriaId: null,
+      sucursalId: null,
+      conDescuento: null,
+      sortBy: 'descripcion',
+      sortDirection: 'asc'
+    });
+  };
+
+  const handleCategoriaCreada = () => {
+    refetchCategorias(); // Recarga las categorías después de agregar una
+    setIsCategoriaModalOpen(false);
+  };
+
+  // Configuración de los filtros
+  const filtersConfig = [
+    {
+      type: 'search',
+      name: 'searchTerm',
+      placeholder: 'Buscar por código o descripción...',
+      config: {
+        debounceTime: 400
+      }
+    },
+    {
+      type: 'select',
+      name: 'categoriaId',
+      label: 'Categoría',
+      config: {
+        options: categorias,
+        valueKey: 'id',
+        labelKey: 'nombre',
+      }
+    },
+    {
+      type: 'select',
+      name: 'sucursalId',
+      label: 'Sucursal',
+      config: {
+        options: sucursalesData,
+        valueKey: 'id',
+        labelKey: 'nombre'
+      }
+    },
+    {
+      type: 'select',
+      name: 'conDescuento',
+      label: 'Con descuento',
+      config: {
+        options: [
+          { id: 'true', nombre: 'Sí' },
+          { id: 'false', nombre: 'No' }
+        ],
+        valueKey: 'id',
+        labelKey: 'nombre'
+      }
+    },
+    {
+      type: 'select',
+      name: 'sort',
+      label: 'Ordenar por',
+      config: {
+        options: [
+          { id: 'descripcion,asc', nombre: 'Nombre (A-Z)' },
+          { id: 'descripcion,desc', nombre: 'Nombre (Z-A)' },
+          { id: 'precioUnitario,asc', nombre: 'Precio (menor a mayor)' },
+          { id: 'precioUnitario,desc', nombre: 'Precio (mayor a menor)' }
+        ],
+        valueKey: 'id',
+        labelKey: 'nombre',
+        onChange: (value) => {
+          if (value) {
+            const [sortBy, sortDirection] = value.split(',');
+            setFilters(prev => ({ ...prev, sortBy, sortDirection }));
+          } else {
+            setFilters(prev => ({ ...prev, sortBy: 'descripcion', sortDirection: 'asc' }));
+          }
+        }
+      }
+    }
+  ];
 
   return (
     <div className="productos-contenedor">
       <Toaster dir="auto" closeButton richColors visibleToasts={2} duration={2000} position="bottom-right" />
-      <h1>Productos en stock</h1>
-      <div className="botones-header">
-        <button className="btn-general1" onClick={() => navigate("/addProduct")}>
-          (+) &emsp; Agregar nuevo
-        </button>
-        <button className="btn-general1" onClick={() => navigate("/insumos")}>
-          🍞 &emsp; Gestionar Insumos
-        </button>
-        <button className="btn-general1" onClick={() => navigate("/recetas")}>
-          📋 &emsp; Gestionar recetas
-        </button>
-        <button className="btn-general1" onClick={() => navigate("/insumos/produccion")}>
-          🍪 &emsp; Producir producto
-        </button>
+      <div className="header-productos">
+        <h1 className="titulo-seccion">
+          <FiPackage style={{ marginRight: '0.5rem' }} />
+          Productos en stock
+        </h1>
+
+        <div className="acciones-productos">
+          <Button variant="primary" onClick={() => navigate("/addProduct")}>
+            <FiPlus />
+            Agregar nuevo
+          </Button>
+
+          <Button variant="primary" onClick={() => navigate("/insumos")}>
+            <FiPackage />
+            Insumos
+          </Button>
+
+          <Button variant="primary" onClick={() => navigate("/recetas")}>
+            <FiClipboard />
+            Recetas
+          </Button>
+
+          <Button variant="primary" onClick={() => navigate("/movimientos")}>
+            <FiActivity />
+            Producir
+          </Button>
+
+          <Button variant="primary" onClick={() => navigate("/movimientos")}>
+            <FiPlus />
+            Crear Nueva Categoria
+          </Button>
+        </div>
       </div>
 
-      <div>
-        <input
-          type="text"
-          placeholder="Buscar por descripción..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </div>
+      <FiltersPanel
+        filtersConfig={filtersConfig}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onResetFilters={handleResetFilters}
+      />
 
       <InfiniteScroll
         dataLength={productos.length}
@@ -207,39 +353,51 @@ const Productos = () => {
         }
       >
         <div className="cardsProducto-contenedor">
-          {productos.map((product) => (
-            <div
-              key={product.id}
-              className={`product-card-container ${hasDiscount(product) ? 'has-discount' : ''}`}
-            >
-              {hasDiscount(product) && (
-                <div className="discount-badge">
-                  ¡EN DESCUENTO!
-                  <button
-                    className="btn-remove-promo"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemovePromocionInit(product);
-                    }}
-                    title="Eliminar promoción"
+          {Object.entries(productosPorCategoria).map(([categoria, productosCategoria]) => (
+            <div key={categoria} className="categoria-section">
+              <h2 className="categoria-titulo">{categoria}</h2>
+              <div className="categoria-grid">
+                {productosCategoria.map((product) => (
+                  <div
+                    key={product.id}
+                    className={`product-card-container ${hasDiscount(product) ? 'has-discount' : ''}`}
                   >
-                    ✕
-                  </button>
-                </div>
-              )}
-              <CardProducto
-                dataLabels={dataLabels}
-                product={product}
-                onEliminar={() => handleOpenModal(product)}
-                onEdit={`/editProduct/${product.id}`}
-                onAdd={() => handleOpenModalAdd(product)}
-                descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
-                onPromocionAplicada={refetch}
-              />
+                    {hasDiscount(product) && (
+                      <div className="discount-badge">
+                        ¡EN DESCUENTO!
+                        <button
+                          className="btn-remove-promo"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemovePromocionInit(product);
+                          }}
+                          title="Eliminar promoción"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                    <CardProducto
+                      dataLabels={dataLabels}
+                      product={product}
+                      onEliminar={() => handleOpenModal(product)}
+                      onEdit={`/editProduct/${product.id}`}
+                      onAdd={() => handleOpenModalAdd(product)}
+                      descripcionProducto={getDescripcionProducto(product.codigoProductoSin)}
+                      onPromocionAplicada={refetch}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
       </InfiniteScroll>
+
+      <Modal isOpen={isCategoriaModalOpen} onClose={() => setIsCategoriaModalOpen(false)}>
+        <h2>Nueva Categoría</h2>
+        <CategoriaForm onSuccess={handleCategoriaCreada} />
+      </Modal>
 
       {showPromoModal && selectedProductForPromo && (
         <div className="modal-promo">
@@ -279,7 +437,7 @@ const Productos = () => {
         <div className="modalCant">
           <div className="modalCant-content">
             <h2>Agregar Cantidad</h2>
-            {sucursales.map((sucursal) => {
+            {sucursalesData.map((sucursal) => {
               const productoEnSucursal = selectedProduct.sucursales.find((s) => s.sucursalId === sucursal.id);
               return (
                 <div key={sucursal.id} className="sucursal-item">
@@ -308,9 +466,14 @@ const Productos = () => {
       )}
 
       <ModalConfirm
-        showModal={showModal}
-        handleCloseModal={handleCloseModal}
-        confirmarAccion={confirmarAccion}
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={confirmarAccion}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que quieres eliminar este producto?"
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        danger
       />
     </div>
   );

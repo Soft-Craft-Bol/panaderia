@@ -1,0 +1,94 @@
+.contacto-detail {
+  padding: 20px;
+  max-width: 800px;
+}
+
+.contacto-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.contacto-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.contacto-info {
+  flex: 1;
+}
+
+.contacto-info h3 {
+  margin: 0;
+  color: #333;
+}
+
+.contacto-meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.contacto-asunto {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.contacto-estado {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.contacto-content {
+  margin-top: 20px;
+}
+
+.contacto-section {
+  margin-bottom: 25px;
+}
+
+.contacto-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.contacto-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contacto-data-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contacto-data-item .icon {
+  color: #666;
+}
+
+.contacto-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}

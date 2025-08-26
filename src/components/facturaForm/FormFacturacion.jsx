@@ -19,6 +19,8 @@ import { generatePDF } from '../../utils/generatePDF';
 import ButtonPrimary from '../buttons/ButtonPrimary';
 import Modal from '../modal/Modal';
 import InputText from '../inputs/InputText';
+import FacturaDetalles from './FacturaDetalles';
+import ClienteForm from './ClienteForm';
 
 const validationSchema = Yup.object().shape({
     nombreRazonSocial: Yup.string().required('Nombre/Razón Social es requerido'),
@@ -27,12 +29,30 @@ const validationSchema = Yup.object().shape({
     complemento: Yup.string(),
     codigoCliente: Yup.string().required('Código de Cliente es requerido'),
     email: Yup.string().email('Email inválido').required('Email es requerido'),
-    celular: Yup.string().matches(/^[0-9]+$/, 'Solo se permiten números').required('Celular es requerido')
+    celular: Yup.string().matches(/^[0-9]+$/, 'Solo se permiten números').required('Celular es requerido'),
+    codigoMetodoPago: Yup.number().required("Método de pago es requerido"),
 });
 
 const validationSchemaVentas = Yup.object({
     metodoPago: Yup.string().required("Método de pago es requerido"),
 });
+
+const metodosPago = [
+    { value: 1, label: "Efectivo" },
+    { value: 2, label: "Tarjeta" },
+    { value: 3, label: "Cheque" },
+    { value: 4, label: "Vales" },
+    { value: 5, label: "Otros" },
+    { value: 6, label: "Pago Posterior" },
+    { value: 7, label: "Transferencia Bancaria" },
+    { value: 8, label: "Depósito en Cuenta" },
+    { value: 9, label: "Transferencia SWIFT" },
+    { value: 27, label: "Gift Card" },
+    { value: 31, label: "QR/Canal de Pago" },
+    { value: 32, label: "Billetera Móvil" },
+    { value: 33, label: "Pago Online" },
+    { value: 295, label: "Débito Automático" }
+];
 
 export default function FormFacturacion() {
     const navigate = useNavigate();
@@ -40,7 +60,7 @@ export default function FormFacturacion() {
     const [editMode, setEditMode] = useState(false);
     const [documentoValue, setDocumentoValue] = useState('');
     const [searchTrigger, setSearchTrigger] = useState(0);
-    const [isContingencia, setIsContingencia] = useState(false);
+    const [isContingencia, setIsContingencia] = useState(true);
     const [showContingenciaModal, setShowContingenciaModal] = useState(false);
     const [facturaData, setFacturaData] = useState(null);
     const [showSendEmailModal, setShowSendEmailModal] = useState(false);
@@ -50,6 +70,8 @@ export default function FormFacturacion() {
     const { productosSeleccionados, sucursalId, puntoVentaId } = location.state || {};
 
     const currentUser = getUser();
+    console.log(currentUser);
+    const cajaId = currentUser?.cajasAbiertas[0]?.id;
     const puntosDeVenta = currentUser?.puntosVenta ? currentUser.puntosVenta[0].id : null;
 
     // Ensure initial values are never null or undefined
@@ -64,9 +86,9 @@ export default function FormFacturacion() {
     };
 
     const initialValuesEmitirFactura = {
-        metodoPago: "",
+        metodoPago: "EFECTIVO",
         cafc: "",
-        isContingencia: false,
+        isContingencia: true,
         items: (productosSeleccionados || []).map(producto => ({
             item: producto.descripcion || '',
             cantidad: producto.quantity || 0,
@@ -85,7 +107,7 @@ export default function FormFacturacion() {
         queryFn: getDocumentoIdentidad,
         select: (response) => response.data
     });
-
+    console.log(documentoIdentidad);
     const { data: clienteEncontrado, isFetching: buscandoCliente } = useQuery({
         queryKey: ['cliente', documentoValue, searchTrigger],
         queryFn: () => apiBuscarCliente(documentoValue),
@@ -130,7 +152,11 @@ export default function FormFacturacion() {
             }
         },
         onError: (error) => {
-            toast.error(`Error al emitir la factura: ${error.message}`);
+            const errorMessage = error.response?.data?.message ||
+                error.message ||
+                'Error desconocido';
+            toast.error(`Error: ${errorMessage}`);
+            console.error('Detalles del error:', error.response?.data || error);
         },
     });
 
@@ -156,7 +182,11 @@ export default function FormFacturacion() {
             }
         },
         onError: (error) => {
-            toast.error(`Error al emitir factura de contingencia: ${error.message}`);
+            const errorMessage = error.response?.data?.message ||
+                error.message ||
+                'Error desconocido';
+            toast.error(`Error: ${errorMessage}`);
+            console.error('Detalles del error:', error.response?.data || error);
         },
     });
 
@@ -208,9 +238,11 @@ export default function FormFacturacion() {
             idPuntoVenta: puntosDeVenta,
             idCliente: client.id,
             tipoComprobante: "FACTURA",
-            metodoPago: values.metodoPago || '',
+            codigoMetodoPago: values.codigoMetodoPago,
             username: currentUser?.username || '',
             usuario: client.nombreRazonSocial || '',
+            cajasId: cajaId,
+            numeroTarjeta: values.numeroTarjeta || null,
             detalle: values.items.map((item) => {
                 const selectedItem = productosSeleccionados.find(p => p.id === item.idProducto);
                 return {
@@ -298,7 +330,6 @@ export default function FormFacturacion() {
 
     const { subtotal, descuentos, total } = calcularTotales(initialValuesEmitirFactura.items);
 
-    // Create a safe client data object for Formik
     const clientInitialValues = clienteEncontrado ? {
         nombreRazonSocial: clienteEncontrado.nombreRazonSocial || '',
         codigoTipoDocumentoIdentidad: clienteEncontrado.codigoTipoDocumentoIdentidad || '',
@@ -315,202 +346,28 @@ export default function FormFacturacion() {
 
             <h2>Formulario de Facturación</h2>
 
-            {/* Sección de datos del cliente */}
-            <div className="seccion-cliente">
-                <h3>Datos del Cliente</h3>
-                <Formik
-                    initialValues={clientInitialValues}
-                    validationSchema={validationSchema}
-                    onSubmit={handleSubmit}
-                    enableReinitialize
-                    key={clienteEncontrado?.id || 'new'} // Force re-mount when client changes
-                >
-                    {({ isSubmitting, errors, touched, values, setFieldValue }) => (
-                        <Form className='cont-new-pat'>
-                            <div className='input-side'>
-                                <div className="input-group">
-                                    <label htmlFor="numeroDocumento">Número de Documento:</label>
-                                    <div className="search-container">
-                                        <InputText
-                                            id="numeroDocumento"
-                                            name="numeroDocumento"
-                                            type="text"
-                                            placeholder="Ingrese número de documento"
-                                            value={values.numeroDocumento}
-                                            onChange={(e) => handleDocumentChange(e.target.value, setFieldValue)}
-                                        />
-                                        <ButtonPrimary
-                                            type="button"
-                                            variant="secondary"
-                                            disabled={buscandoCliente || !documentoValue}
-                                            onClick={() => setSearchTrigger(prev => prev + 1)}
-                                        >
-                                            {buscandoCliente ? 'Buscando...' : 'Buscar'}
-                                        </ButtonPrimary>
-                                    </div>
-                                    <ErrorMessage name="numeroDocumento" component="div" className="error-message" />
-                                </div>
-
-                                {buscandoCliente && <div className="search-status">Buscando cliente...</div>}
-
-                                {clienteEncontrado && (
-                                    <>
-                                        <InputText
-                                            label="Nombre/Razón Social"
-                                            name="nombreRazonSocial"
-                                            type="text"
-                                            placeholder="Ingrese nombre o razón social"
-                                            disabled={!editMode}
-                                            value={values.nombreRazonSocial}
-                                        />
-                                        <InputText
-                                            label="Email"
-                                            name="email"
-                                            type="email"
-                                            placeholder="Ingrese email"
-                                            disabled={!editMode}
-                                            value={values.email}
-                                        />
-                                        <InputText
-                                            label="Número de Celular"
-                                            name="celular"
-                                            type="text"
-                                            placeholder="Ingrese número de celular"
-                                            disabled={!editMode}
-                                            value={values.celular}
-                                        />
-                                    </>
-                                )}
-                                {(!clienteEncontrado || editMode) && (
-                                    <>
-                                        <InputText
-                                            label="Nombre/Razón Social"
-                                            name="nombreRazonSocial"
-                                            type="text"
-                                            placeholder="Ingrese nombre o razón social"
-                                            value={values.nombreRazonSocial}
-                                        />
-                                        <SelectSecondary
-                                            label="Tipo de Documento"
-                                            name="codigoTipoDocumentoIdentidad"
-                                            error={touched.codigoTipoDocumentoIdentidad && errors.codigoTipoDocumentoIdentidad}
-                                            required
-                                            value={values.codigoTipoDocumentoIdentidad}
-                                        >
-                                            <option value="">Seleccione un tipo de documento</option>
-                                            {documentoIdentidad?.map(doc => (
-                                                <option key={doc.id} value={Number(doc.codigoClasificador)}>
-                                                    {doc.descripcion}
-                                                </option>
-                                            ))}
-                                        </SelectSecondary>
-                                        <InputText
-                                            label="Complemento"
-                                            name="complemento"
-                                            type="text"
-                                            placeholder="Ingrese complemento (opcional)"
-                                            value={values.complemento}
-                                        />
-                                        <InputText
-                                            label="Código de Cliente"
-                                            name="codigoCliente"
-                                            type="text"
-                                            placeholder="Ingrese código de cliente"
-                                            value={values.codigoCliente}
-                                        />
-                                        <InputText
-                                            label="Email"
-                                            name="email"
-                                            type="email"
-                                            placeholder="Ingrese email"
-                                            value={values.email}
-                                        />
-                                        <InputText
-                                            label="Número de Celular"
-                                            name="celular"
-                                            type="text"
-                                            placeholder="Ingrese número de celular"
-                                            value={values.celular}
-                                        />
-                                    </>
-                                )}
-                                <div className="form-actions">
-                                    {clienteEncontrado && !editMode && (
-                                        <ButtonPrimary
-                                            type="button"
-                                            variant="secondary"
-                                            onClick={() => setEditMode(true)}
-                                        >
-                                            Editar Datos
-                                        </ButtonPrimary>
-                                    )}
-                                    {editMode && (
-                                        <ButtonPrimary
-                                            type="button"
-                                            variant="secondary"
-                                            onClick={() => setEditMode(false)}
-                                        >
-                                            Cancelar
-                                        </ButtonPrimary>
-                                    )}
-                                    {(editMode || !clienteEncontrado) && (
-                                        <ButtonPrimary
-                                            type="submit"
-                                            disabled={isSubmitting || isSaving}
-                                        >
-                                            {isSaving ? 'Guardando...' : 'Guardar Cliente'}
-                                        </ButtonPrimary>
-                                    )}
-                                </div>
-                            </div>
-                        </Form>
-                    )}
-                </Formik>
-            </div>
+            <ClienteForm
+                initialValues={clientInitialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+                documentoIdentidad={documentoIdentidad}
+                clienteEncontrado={clienteEncontrado}
+                buscandoCliente={buscandoCliente}
+                documentoValue={documentoValue}
+                handleDocumentChange={handleDocumentChange}
+                setSearchTrigger={setSearchTrigger}
+                editMode={editMode}
+                setEditMode={setEditMode}
+                isSaving={isSaving}
+            />
 
             {/* Sección de detalles de la factura */}
-            <div className="seccion-detalles">
-                <h3>Detalles de la Factura</h3>
-                <div className="detalles-tabla">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unitario</th>
-                                <th>Descuento</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {initialValuesEmitirFactura.items.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{item.item}</td>
-                                    <td>{item.cantidad}</td>
-                                    <td>Bs {(item.precioUnitario || 0).toFixed(2)}</td>
-                                    <td>Bs {(item.descuento || 0).toFixed(2)}</td>
-                                    <td>Bs {((item.precioUnitario || 0) * (item.cantidad || 0) - (item.descuento || 0)).toFixed(2)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="resumen-totales">
-                    <div className="total-line">
-                        <span>Subtotal:</span>
-                        <span>Bs {subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="total-line">
-                        <span>Descuentos:</span>
-                        <span>- Bs {descuentos.toFixed(2)}</span>
-                    </div>
-                    <div className="total-line total-final">
-                        <span>Total:</span>
-                        <span>Bs {total.toFixed(2)}</span>
-                    </div>
-                </div>
-            </div>
+            <FacturaDetalles
+                items={initialValuesEmitirFactura.items}
+                subtotal={subtotal}
+                descuentos={descuentos}
+                total={total}
+            />
 
             {/* Sección de método de pago */}
             <div className="seccion-pago">
@@ -518,7 +375,9 @@ export default function FormFacturacion() {
                 <Formik
                     initialValues={{
                         ...initialValuesEmitirFactura,
-                        isContingencia: isContingencia
+                        isContingencia: isContingencia,
+                        codigoMetodoPago: 1,
+                        numeroTarjeta: null
                     }}
                     validationSchema={validationSchemaVentas}
                     onSubmit={handleSubmitVentas}
@@ -528,16 +387,33 @@ export default function FormFacturacion() {
                             <div className="metodo-pago-group">
                                 <SelectSecondary
                                     label="Método de Pago"
-                                    name="metodoPago"
+                                    name="codigoMetodoPago"
                                     required
-                                    value={values.metodoPago}
+                                    value={values.codigoMetodoPago}
+                                    onChange={(e) => {
+                                        const metodoPago = parseInt(e.target.value);
+                                        setFieldValue('codigoMetodoPago', metodoPago);
+                                        if (metodoPago !== 2) {
+                                            setFieldValue('numeroTarjeta', null);
+                                        }
+                                    }}
                                 >
-                                    <option value="">Seleccione un método de pago</option>
-                                    <option value="EFECTIVO">Efectivo</option>
-                                    <option value="TARJETA">Tarjeta</option>
-                                    <option value="TRANSFERENCIA">Transferencia</option>
-                                    <option value="BILLETERA MOVIL – PAGO ONLINE">Qr</option>
+                                    {metodosPago.map((metodo) => (
+                                        <option key={metodo.value} value={metodo.value}>
+                                            {metodo.label}
+                                        </option>
+                                    ))}
                                 </SelectSecondary>
+                                {values.codigoMetodoPago === 2 && (
+                                    <InputText
+                                        label="Número de Tarjeta"
+                                        name="numeroTarjeta"
+                                        type="text"
+                                        placeholder="Ingrese el número de tarjeta"
+                                        value={values.numeroTarjeta || ''}
+                                        onChange={(e) => setFieldValue('numeroTarjeta', e.target.value)}
+                                    />
+                                )}
                             </div>
 
                             <div className="contingencia-options">

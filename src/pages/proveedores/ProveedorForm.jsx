@@ -4,10 +4,12 @@ import * as Yup from 'yup';
 import InputText from '../../components/inputs/InputText';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import SelectPrimary from '../../components/selected/SelectPrimary';
-import { createProveedor } from '../../service/api'; 
+import { createProveedor, updateProveedor } from '../../service/api';
+import { toast, Toaster } from 'sonner';
+import './ProveedorForm.css';
 
-const ProveedorForm = ({ onSuccess, onCancel }) => {
-  // Esquema de validación con Yup
+const ProveedorForm = ({ onSuccess, onCancel, proveedor }) => {
+
   const validationSchema = Yup.object().shape({
     nombreRazonSocial: Yup.string()
       .required('Este campo es requerido')
@@ -19,40 +21,54 @@ const ProveedorForm = ({ onSuccess, onCancel }) => {
       .required('Este campo es requerido')
       .max(200, 'Máximo 200 caracteres'),
     telefono: Yup.number()
-      .required('Este campo es requerido')
+      .nullable()
       .typeError('Debe ser un número')
       .positive('El teléfono debe ser positivo')
       .integer('El teléfono debe ser un número entero'),
     email: Yup.string()
+      .nullable()
       .email('Ingrese un email válido')
-      .required('Este campo es requerido')
       .max(100, 'Máximo 100 caracteres'),
   });
 
-  // Función para manejar el envío del formulario
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    try {
-      await createProveedor(values);
-      resetForm();
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error('Error al registrar proveedor:', error);
-    } finally {
-      setSubmitting(false);
-    }
+     try {
+        const dataToSend = {
+          ...values,
+          telefono: values.telefono || null,
+          email: values.email || null
+        };
+
+        if (proveedor) {
+          await updateProveedor(proveedor.id, dataToSend);
+          toast.success('Proveedor actualizado exitosamente');
+        } else {
+          await createProveedor(dataToSend);
+          toast.success('Proveedor registrado exitosamente');
+        }
+
+        resetForm();
+        onSuccess && onSuccess();
+      } catch (error) {
+        console.error(error);
+        toast.error('Error al guardar proveedor');
+      } finally {
+        setSubmitting(false);
+      }
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container-proveedor">
+      <Toaster />
       <h2>Registrar Nuevo Proveedor</h2>
-      
+
       <Formik
         initialValues={{
-          nombreRazonSocial: '',
-          tipoProveedor: '',
-          direccion: '',
-          telefono: '',
-          email: '',
+          nombreRazonSocial: proveedor?.nombreRazonSocial || '',
+          tipoProveedor: proveedor?.tipoProveedor || '',
+          direccion: proveedor?.direccion || '',
+          telefono: proveedor?.telefono || '',
+          email: proveedor?.email || '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -66,7 +82,7 @@ const ProveedorForm = ({ onSuccess, onCancel }) => {
               required
               placeholder="Ej: Distribuidora de Alimentos S.A."
             />
-            
+
             <SelectPrimary
               label="Tipo de Proveedor"
               name="tipoProveedor"
@@ -76,7 +92,7 @@ const ProveedorForm = ({ onSuccess, onCancel }) => {
               <option value="INDIVIDUAL">Individual</option>
               <option value="EMPRESA">Empresa</option>
             </SelectPrimary>
-            
+
             <InputText
               label="Dirección"
               name="direccion"
@@ -84,35 +100,33 @@ const ProveedorForm = ({ onSuccess, onCancel }) => {
               required
               placeholder="Ej: Av. Principal 123"
             />
-            
+
             <InputText
               label="Teléfono"
               name="telefono"
               type="number"
-              required
               placeholder="Ej: 987654321"
             />
-            
+
             <InputText
               label="Email"
               name="email"
               type="email"
-              required
               placeholder="Ej: contacto@distrialimentos.com"
             />
-            
+
             <div className="form-actions">
-              <ButtonPrimary 
-                type="submit" 
-                variant="primary" 
+              <ButtonPrimary
+                type="submit"
+                variant="primary"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Registrando...' : 'Registrar Proveedor'}
               </ButtonPrimary>
-              
-              <ButtonPrimary 
-                type="button" 
-                variant="secondary" 
+
+              <ButtonPrimary
+                type="button"
+                variant="secondary"
                 onClick={onCancel}
               >
                 Cancelar

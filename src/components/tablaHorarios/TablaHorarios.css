@@ -1,95 +1,146 @@
 @import '../../index.css';
+
 .horarios-container {
-    padding: 20px;
+    padding: var(--space-lg);
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .horarios-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    color: var(--color-text-primary);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--space-sm);
 }
 
 .table-container {
     overflow-x: auto;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-light);
 }
 
 .horarios-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
 }
 
 .horarios-table th,
 .horarios-table td {
-    padding: 12px 16px;
+    padding: var(--space-md) var(--space-lg);
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-light);
 }
 
 .horarios-table th {
-    background-color: #f8f9fa;
+    background-color: var(--color-bg-secondary);
     font-weight: 600;
-    color: #555;
+    color: var(--color-text-secondary);
+    position: sticky;
+    top: 0;
 }
 
 .horarios-table tr:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-bg-tertiary);
 }
 
 .dias-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--space-xs);
 }
 
 .dia-badge {
-    background-color: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.85em;
+    background-color: var(--color-info-light);
+    color: var(--color-info-dark);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.loading-container {
+.loading-container,
+.no-data-message {
     text-align: center;
-    padding: 20px;
-    color: #666;
+    padding: var(--space-xl);
+    color: var(--color-text-secondary);
 }
 
 .error-message {
-    color: #dc3545;
-    padding: 20px;
+    color: var(--color-error);
+    padding: var(--space-xl);
     text-align: center;
+    background-color: var(--color-error-light);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
 }
 
-.no-data-message {
-    text-align: center;
-    color: #666;
-    padding: 20px;
+/* Estilos para acciones/celdas de acción si las tienes */
+.action-cell {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* Efectos de transición */
+.horarios-table tr {
+    transition: background-color var(--transition-fast) ease;
 }
 
 /* Responsive design */
 @media screen and (max-width: 768px) {
     .horarios-container {
-        padding: 10px;
+        padding: var(--space-md);
+    }
+
+    .horarios-title {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--space-md);
     }
 
     .horarios-table th,
     .horarios-table td {
-        padding: 8px;
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--font-size-sm);
     }
 
     .dias-container {
-        display: flex;
         flex-direction: column;
+        gap: 0;
     }
 
     .dia-badge {
-        margin: 2px 0;
+        margin: 1px 0;
+        width: fit-content;
+    }
+
+    .table-container {
+        border-radius: var(--radius-md);
+    }
+}
+
+/* Modo oscuro específico */
+[data-theme="dark"] {
+    .horarios-table th {
+        background-color: var(--color-gray-800);
+        color: var(--color-gray-300);
+    }
+
+    .horarios-table tr:hover {
+        background-color: var(--color-gray-700);
+    }
+
+    .dia-badge {
+        background-color: var(--color-info-dark);
+        color: var(--color-info-light);
+    }
+
+    .table-container {
+        border-color: var(--color-gray-700);
     }
 }

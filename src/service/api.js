@@ -45,6 +45,16 @@ export const fetchProductos = () => api.get('/productos-servicios');
 export const fetchPuntosDeVenta = () => api.get('/puntos-venta');
 export const fetchItems = () => api.get('/items');
 export const getItemID = (id) => api.get(`/items/${id}`);
+export const getItemsWithRecetas = (params = {}) => {
+  return api.get('/sucursal-items/con-recetas', {
+    params: {
+      page: params.page || 0,
+      size: params.size || 10,
+      search: params.search || '',
+      tieneReceta: params.hasRecipes
+    }
+  });
+};
 export const createItem = (data) => api.post('/items', data);
 export const deleteItem = (id) => api.delete(`/items/${id}`);
 export const updateItem = (id, data) => api.put(`/items/${id}`, data);
@@ -54,9 +64,34 @@ export const createItemsBulk = (id) => api.get(`/items/${id}`);
 
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 export const getRoles = () => api.get('/roles');
-export const getUsers = () => api.get('/users');
+export const createRole = (data) => api.post('/roles', data);
+export const getRoleById = (id) => api.get(`/roles/${id}`);
+export const createPermission = (name) => api.post('/roles/permissions', { name });
+export const getPermissions = () => api.get('/roles/permissions');
+export const updateRoleStatus = (roleId, active) => api.patch(`/roles/${roleId}/status?active=${active}`);
+export const updateRolePermissions = (roleId, permissions) => api.put(`/roles/${roleId}/permissions`, { permissionNames: permissions });
+
+export const getUsers = ({ page = 0, size = 10, sort = 'id' }) => {
+  return api.get('/users', {
+    params: {
+      page,
+      size,
+      sort
+    }
+  }).then(response => response.data);
+};
 export const updateUser = (id, data) => api.put(`/users/${id}`, data);
 export const getUserById = (id) => api.get(`/users/${id}`);
+
+//Sincornizacio y generacion de codigos
+export const obtenerCuis = (idPuntoVenta) => api.post(`/codigos/obtener-cuis/${idPuntoVenta}`);
+export const obtenerCufd = (idPuntoVenta) => api.post(`/codigos/obtener-cufd/${idPuntoVenta}`);
+//Sincronizacion
+export const sincronizarParametros = (idPuntoVenta) => api.post(`/sincronizar/parametros/${idPuntoVenta}`);
+export const sincronizarCatalogos = (idPuntoVenta) => api.post(`/sincronizar/catalogos/${idPuntoVenta}`);
+export const sincronizarMensajeServicio = (idPuntoVenta) => api.post(`/sincronizar/mensajes-servicios/${idPuntoVenta}`);
+export const sincronizarFechaHora = (idPuntoVenta) => api.post(`/sincronizar/fecha-hora/${idPuntoVenta}`);
+
 //sucursales
 export const getSucursales = () => api.get('/sucursales');
 export const createSucursal = (data) => api.post('/sucursales',data);
@@ -74,6 +109,60 @@ export const getAllFacturas = (params = {}) => {
   
   return api.get('/ventas/hoy', { params: processedParams });
 };
+export const getVentasConFactura = (
+  fechaDesde = null,
+  fechaHasta = null,
+  estadoFactura = null,
+  metodoPago = null,
+  codigoCliente = null,
+  codigoProducto = null,
+  montoMin = null,
+  montoMax = null,
+  page = 0,
+  size = 10
+) => {
+  const params = new URLSearchParams();
+  
+  if (fechaDesde) params.append('fechaDesde', fechaDesde);
+  if (fechaHasta) params.append('fechaHasta', fechaHasta);
+  if (estadoFactura) params.append('estadoFactura', estadoFactura);
+  if (metodoPago) params.append('metodoPago', metodoPago);
+  if (codigoCliente) params.append('codigoCliente', codigoCliente);
+  if (codigoProducto) params.append('codigoProducto', codigoProducto);
+  if (montoMin) params.append('montoMin', montoMin);
+  if (montoMax) params.append('montoMax', montoMax);
+  
+  params.append('page', page);
+  params.append('size', size);
+  
+  return api.get('/ventas/con-factura', { params });
+};
+export const getVentasSinFactura = (
+  fechaDesde = null,
+  fechaHasta = null,
+  metodoPago = null,
+  codigoCliente = null,
+  codigoProducto = null,
+  montoMin = null,
+  montoMax = null,
+  page = 0,
+  size = 10
+) => {
+  const params = new URLSearchParams();
+  
+  if (fechaDesde) params.append('fechaDesde', fechaDesde);
+  if (fechaHasta) params.append('fechaHasta', fechaHasta);
+  if (metodoPago) params.append('metodoPago', metodoPago);
+  if (codigoCliente) params.append('codigoCliente', codigoCliente);
+  if (codigoProducto) params.append('codigoProducto', codigoProducto);
+  if (montoMin) params.append('montoMin', montoMin);
+  if (montoMax) params.append('montoMax', montoMax);
+  
+  params.append('page', page);
+  params.append('size', size);
+  
+  return api.get('/ventas/sin-factura', { params });
+};
 export const emitirFactura = (data) => api.post('/factura/emitir', data);
 export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
@@ -81,13 +170,29 @@ export const emitirSinFactura = (data) => api.post('/ventas', data);
 
 
 // reservas
-export const reservarProducto = (data) => api.post('/reservas/crear', data);
+export const reservarProducto = (data) => api.post('/reservas', data);
+export const getReservasByFilters = async ({ estado, desde, hasta }) => {
+  const params = new URLSearchParams();
+
+  if (estado) params.append("estado", estado);
+  if (desde) params.append("desde", desde);
+  if (hasta) params.append("hasta", hasta);
+
+  return api.get(`/reservas?${params.toString()}`);
+};
+
 export const getReservas = () => api.get('/reservas/pendientes');
-export const updateReserva = (id) => api.put(`/reservas/verificar/${id}`);
+export const updateReserva = (id, estado, motivo = "") =>
+  api.put(`/reservas/${id}/estado?estado=${estado}${motivo ? `&motivo=${motivo}` : ""}`);
 
 //Despachos
 export const createDespacho = (data) => api.post('/despachos', data);
 export const getDespachos = () => api.get('/despachos');
+export const createDespachoInsumo = (data) => api.post('/despachos-insumos', data);
+export const getDespachoInsumo = () => api.get(`/despachos-insumos`);
+export const getDespachoInsumoById = (id) => api.get(`/despachos-insumos/${id}`);
+export const deleteDespachoInsumo = (id) => api.delete(`/despachos-insumos/${id}`);
+export const recibirDespachoInsumo = (id) => api.post(`/despachos-insumos/${id}/recibir`);
 
 //otrps
 export const createHoario = (data) => api.post('/horarios', data);
@@ -115,39 +220,147 @@ export const topvendidos = () => api.get(`/ventas/mas-vendidos`);
 export const topClientes = () => api.get(`/ventas/clientes-frecuentes`);
 export const buscarCliente = (searchTerm) => api.get(`/clientes/buscar?documento=${searchTerm}`);
 
-//productos para los clientes por sucursal
-export const getStockWithSucursal = (page = 0, size = 10, search = '') => api.get(`/sucursal-items/items-with-sucursales?page=${page}&size=${size}&search=${search}`);
+export const getStockWithSucursal = (
+  page = 0, 
+  size = 10, 
+  search = '',
+  codigo = null,
+  conDescuento = null,
+  sucursalId = null,
+  categoriaId = null,
+  sortBy = 'descripcion',
+  sortDirection = 'asc'
+) => {
+  const params = {
+    page,
+    size,
+    search,
+    codigo,
+    conDescuento,
+    sucursalId,
+    categoriaId,
+    sortBy,
+    sortDirection
+  };
 
+  Object.keys(params).forEach(key => params[key] === null && delete params[key]);
 
+  return api.get(`/sucursal-items/items-with-sucursales`, { params });
+};
+export const getProductosByPuntoVenta = (
+    puntoVentaId, 
+    page = 0, 
+    size = 10, 
+    search = '', 
+    codigoProductoSin = null,
+    conDescuento = null,
+    categoriaId = null,
+    sinStock = false,
+    sort = 'cantidadDisponible,desc'
+) => api.get(`/sucursal-items/by-punto-venta/${puntoVentaId}`, {
+    params: {
+        page,
+        size,
+        search,
+        codigoProductoSin,
+        conDescuento,
+        categoriaId,
+        sinStock,
+        sort
+    }
+});
 export const sumarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/increase?cantidad=${cantidad}`);
 export const restarCantidadDeProducto = (sucursalId, itemId, cantidad) => api.put(`/sucursal-items/sucursal/${sucursalId}/item/${itemId}/decrease?cantidad=${cantidad}`);
 export const getStockBySucursal = (sucursalId) => api.get(`/sucursal-items/sucursal/${sucursalId}`);
 
+//categorias
+export const getCategorias = () => api.get('/categorias');
+export const createCategoria = (data) => api.post('/categorias', data);
+export const updateCategoria = (id, data) => api.put(`/categorias/${id}`, data);
+//http://localhost:8080/api/v1/items/103/categoria?categoriaId=102
+export const asignarCategoriaAItem = (itemId, categoriaId) => api.put(`/items/${itemId}/categoria?categoriaId=${categoriaId}`);
+
 //Insumos
 
-export const getActivos = () => api.get('/insumos');
-export const desactivarInsumo = (id) => api.put(`/insumos/desactivar/${id}`);
-export const getInactivos = () => api.get('/insumos/inactivos');
-export const activarInsumo = (id) => api.put(`/insumos/activar/${id}`);
-export const updateInsumo = (id, data) => api.put(`/insumos/${id}`, data);
-export const insumoPorSucursal = (id) => api.get(`/insumos/sucursal/${id}`);
+// -----------
+
+export const getInsumosById = (id) => api.get(`/insumos/${id}`);
 export const eliminarInsumo = (id) => api.delete(`/insumos/${id}`);
-export const getInsumosAndSuccursales = () => api.get('/sucursal-insumos/insumo-with-sucursales');
-export const getSucursalWithInsumos = () => api.get('/sucursal-insumos');
-export const createSucursalInsumo = (data, idSucursal, idInsumo) => api.post(`/sucursal-insumos/sucursal/${idSucursal}/insumo/${idInsumo}`, data);
-export const createInsumo = (data) => api.post('/insumos', data);
-export const editIns = (id, data) => api.put(`/insumos/${id}`, data);
+export const updateInsumo = (id, data) => api.put(`/insumos/${id}`, data);
+export const crearInsumo = (data) => api.post('/insumos/crear', data);
+export const cambiarEstadoInsumo = (id, activo) => api.patch(`/insumos/${id}/estado?activo=${activo}`);
+export const getInsumos = ({ page = 0, size = 10, nombre = '', tipo = '' }) => api.get('/insumos', {params: { page, size, nombre, tipo } });
+export const getInsumosBySucursal = (idSucursal, soloActivos, { page, size, search }) => {
+  return api.get(`/insumos/sucursal/${idSucursal}`, {
+    params: {
+      activos: soloActivos,
+      page,
+      size,
+      search
+    }
+  }).then(res => res.data);
+};
+export const getInsumosBySucursalExcludingMateriaPrima = (idSucursal, soloActivos, { page, size, search }) => {
+  return api.get(`/insumos/sucursal/${idSucursal}/otros`, {
+    params: {
+      activos: soloActivos,
+      page,
+      size,
+      search
+    }
+  }).then(res => res.data);
+};
+export const getInsumosActivosBySucursal = (idSucursal) => api.get(`/insumos/activos/${idSucursal}`);
+export const asignarInsumoSucursal = (data, idInsumo) => api.post(`/sucursal-insumos/${idInsumo}`, data);
+
+//Insumos genericos
+export const createInsumoGenerico = (data) => api.post('/insumos-genericos', data);
+export const getInsumosGenericos = ({ page = 0, size = 10, nombre = '' }) => api.get('/insumos-genericos', { params: { page, size, nombre } });
+export const asignarInsumosGenericos = (idInsumoGenerico, data) => api.post(`/insumos-genericos/${idInsumoGenerico}/asignar-insumos`, data);
+export const updateAsignacionInsumoGenerico = (genericoId, data) => 
+  api.put(`/insumos-genericos/${genericoId}/actualizar-asignaciones`, data);
+export const deleteInsumoGenerico = (id) => api.delete(`/insumos-genericos/${id}`);
+export const getInsumoGenericoById = (id) => api.get(`/insumos-genericos/${id}`);
+export const updateInsumoGenerico = (id, data) => api.put(`/insumos-genericos/${id}`, data);
+
+export const removerInsumoAsignado = (genericoId, insumoId) => 
+  api.delete(`/insumos-genericos/${genericoId}/remover-insumo/${insumoId}`);
+
+
+//Compras
+export const comprarInsumo = (data) => api.post('/compras-insumos', data);
+export const getComprasInsumos = (params) => api.get('/compras-insumos', { params });
+export const getCompraInsumoById = (id) => api.get(`/compras-insumos/${id}`);
+export const deleteCompraInsumo = (id) => api.delete(`/compras-insumos/${id}`);
+export const updateCompraInsumo = (id, data) => api.put(`/compras-insumos/${id}`, data);
+
 
 
 //Recetas 
+export const getRecetasByPage = ({ page = 0, size = 10, nombre = '', productoId = null }) => api.get('/recetas/list', {
+    params: { 
+
+        page,
+        size,
+        nombre,
+        ...(productoId && { productoId })
+    }
+});
 export const getRecetas = () => api.get('/recetas');
 export const createReceta = (data) => api.post('/recetas', data);
 export const deleteReceta = (id) => api.delete(`/recetas/${id}`);
-export const getRecetaID = (id) => api.get(`/recetas/${id}`);
+export const updateReceta = (id, data) => api.put(`/recetas/${id}`, data);
+export const getRecetasByItem = (itemId) => api.get(`/recetas/producto/${itemId}`);
+export const getRecetaID = (id) => api.get(`/recetas/${id}/detalle`);
 
 //Produccion 
 export const getProduccion = () => api.get('/produccion');
+
+export const getProduccionByFilters = (params) => api.get('/produccion', { params });
 export const createProduccion = (data) => api.post('/produccion', data);
+export const getProduccionById = (id) => api.get(`/produccion/${id}`);
+export const deleteProduccion = (id) => api.delete(`/produccion/${id}`);
+export const updateProduccion = (id, data) => api.put(`/produccion/${id}`, data);
 
 
 //Promociones
@@ -157,8 +370,6 @@ export const deletePromocion = (id) => api.delete(`/promocion/${id}`);
 // Cambia la función deletePromocion para aceptar ambos IDs
 export const quitarPromocion = (itemId, sucursalId) => 
   api.delete(`/promocion/by-item-sucursal?itemId=${itemId}&sucursalId=${sucursalId}`);
-export const sumarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/increase?cantidad=${cantidad}`);
-export const restarCantidadDeInsumo = (sucursalId, insumoId, cantidad) => api.put(`/sucursal-insumos/sucursal/${sucursalId}/insumo/${insumoId}/decrease?cantidad=${cantidad}`);
 
 //eventos y contingencias
 export const getEventos = () => api.get('/eventos');
@@ -175,20 +386,59 @@ export const sendEmail = (data) => api.post('/email/enviar-factura', data);
 //Sales Chart
 export const getSalesChart = () => api.get('/sales-chart');
 
-export const crearInsumo = (data) => api.post('/insumos/crear', data);
-export const asignarInsumoSucursal = (data, idInsumo) => api.post(`/sucursal-insumos/${idInsumo}`, data);
-export const comprarInsumo = (data) => api.post('/compras-insumos', data);
-export const getInsumosById = (id) => api.get(`/insumos/${id}`);
-//http://localhost:8080/api/v1/sucursal-insumos/11/sucursal/1/stock?cantidad=-10
-export const ActualizarStockInsumo = (idSucursal, idInsumo) => api.patch(`/sucursal-insumos/${idInsumo}/sucursal/${idSucursal}/stock`);
-export const getInsumos = () => api.get('/insumos');
-export const getInsumosBySucursal = (idSucursal) => api.get(`/insumos/sucursal/${idSucursal}`);
-
 
 //proveedores
 export const getProveedores = () => api.get('/proveedores');
 export const createProveedor = (data) => api.post('/proveedores/registrar', data);
+export const updateProveedor = (id, data) => api.put(`/proveedores/${id}`, data);
+export const deleteProveedor = (id) => api.delete(`/proveedores/${id}`);
+export const getProveedorById = (id) => api.get(`/proveedores/${id}`);
 
 //cierre de Cajas
 export const getCierreCaja = () => api.get('/cierre-caja');
 export const createCierreCaja = (data) => api.post('/cierre-caja', data);
+export const getCajas = () => api.get('/cajas');
+export const getHistorialCajas = (userId, desde, hasta, page = 0, size = 10) => {
+  const params = { page, size };
+  if (desde) params.desde = desde;
+  if (hasta) params.hasta = hasta;
+
+  return api.get(`/cajas/historial/${userId}`, { params });
+};
+export const abrirCaja = ({ sucursalId, usuarioId, turno, montoInicial }) => {
+  return api.post(`/cajas/abrir`, null, {
+    params: {
+      sucursalId,
+      usuarioId,
+      turno,
+      montoInicial,
+    },
+  });
+};
+export const verificarCajas = (userId) => api.get(`/cajas/abierta/${userId}`);
+export const cerrarCaja = (data) => api.post('/cajas/cerrar', data);
+export const getResumenPagos = (idCaja) => api.get(`/ventas/resumen-pagos?cajaId=${idCaja}`);
+
+//Mermas
+export const registerMerma = (data) => api.post('/mermas', data);
+export const getMermas = (params) => api.get('/mermas', { params });
+
+//contactos 
+export const getContactosByFilters = (params) => {
+  const queryParams = new URLSearchParams();
+  
+  if (params.page !== undefined) queryParams.append('page', params.page);
+  if (params.size !== undefined) queryParams.append('size', params.size);
+  if (params.asunto) queryParams.append('asunto', params.asunto);
+  if (params.atendido) queryParams.append('atendido', params.atendido);
+
+  return api.get(`/contactos?${queryParams.toString()}`);
+};
+export const updateContactoEstado = (id, estado) => {
+  return api.patch(`/contactos/${id}/estado?estado=${estado}`);
+};
+export const createContacto = (data) => api.post('/contactos', data);
+export const deleteContacto = (id) => api.delete(`/contactos/${id}`);
+export const getContactoById = (id) => api.get(`/contactos/${id}`);
+
+export const getArchivos = () => api.get(`/archivos-facturas`);

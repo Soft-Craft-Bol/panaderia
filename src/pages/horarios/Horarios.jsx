@@ -1,31 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { getUsers } from '../../service/api';
+import React, { useState } from 'react';
 import './Horarios.css';
 import ItemHorario from "../../components/horarioItem/itemHorario";
 import TablaHorarios from '../../components/tablaHorarios/TablaHorarios';
 import Modal from '../../components/modal/Modal';
+import BackButton from '../../components/buttons/BackButton';
+import { Button } from '../../components/buttons/Button';
+
 const Horarios = () => {
     const [showModal, setShowModal] = useState(false);
-    const [newPanadero, setNewPanadero] = useState('');
-    const [users, setUsers] = useState([]);
-    const [horarios, setHorarios] = useState([]);
+    const [refreshTable, setRefreshTable] = useState(false);
 
-        useEffect(() => {
-            const fetchUsers = async () => {
-                try {
-                    const response = await getUsers();
-                    const usersWithFullName = response.data.map(user => ({
-                        ...user,
-                        fullName: `${user.firstName} ${user.lastName}`
-                    }));
-                    setUsers(usersWithFullName);
-                } catch (error) {
-                    console.error('Error fetching users:', error);
-                }
-            };
-
-            fetchUsers();
-        }, []);
     const handleCloseModal = () => {
         setShowModal(false);
     };
@@ -34,19 +18,28 @@ const Horarios = () => {
         setShowModal(true);
     };
 
+    const handleRefreshTable = () => {
+        setRefreshTable(prev => !prev); 
+    };
+
     return (
         <div className="horarios-contenedor">
             <div>
+                <BackButton to={"/users"} position='lefth' className='pos'/>
+
                 <h1>Asignación de horarios</h1>
-                <button className="btn-general" onClick={handleOpenModal}>
+                <Button onClick={handleOpenModal}>
                     (+) Agregar nuevo
-                </button>
+                </Button>
             </div>
             <div>
-                <TablaHorarios />
+                <TablaHorarios refreshTrigger={refreshTable} />
             </div>
             <Modal isOpen={showModal} onClose={handleCloseModal}>
-                <ItemHorario onClose={handleCloseModal} />
+                <ItemHorario 
+                    onClose={handleCloseModal}
+                    onSuccess={handleRefreshTable} // Pasamos la función de callback
+                />
             </Modal>
         </div>
     );

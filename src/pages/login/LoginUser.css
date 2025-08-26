@@ -4,24 +4,24 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: white;
+  background-color: var(--color-bg-primary);
   background-image: url("../../assets/img/fondo.webp");
   background-size: cover;
   background-position: center;
-  padding: 1rem;
+  padding: var(--space-md);
 }
 
 .login-form {
-  background-color: rgb(253, 243, 231);
-  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: var(--color-bg-secondary);
+  padding: var(--space-sm) var(--space-lg) var(--space-lg) var(--space-lg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 400px;
-  transition: var(--tran-05);
+  transition: var(--transition-normal);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .logo-fesa {
@@ -31,9 +31,9 @@
   max-width: 100%;
 }
 
-.header-logo{
+.header-logo {
   display: block;
-  margin-top: 2%;
+  margin-top: var(--space-md);
   max-width: 100%;
   height: 80px;
 }
@@ -47,42 +47,42 @@
 .login-form a {
   display: block;
   text-align: right;
-  margin-top: 0.75rem;
-  color: var(--primary-color);
+  margin-top: var(--space-sm);
+  color: var(--color-primary);
   text-decoration: none;
-  transition: var(--tran-03);
-  font-size: 0.9rem;
+  transition: var(--transition-fast);
+  font-size: var(--font-size-sm);
 }
 
 .login-form a:hover {
-  color: var(--color-2);
+  color: var(--color-secondary);
 }
 
 /* Responsive para móviles */
 @media (max-width: 480px) {
   .login-form {
-    padding: 1.2rem;
+    padding: var(--space-md);
     width: 100%;
   }
 
   .login-form h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
   }
 
   .login-form a {
-    font-size: 0.85rem;
+    font-size: var(--font-size-xs);
   }
 
   .btn-general {
-    font-size: 1rem;
-    padding: 0.6rem 1.2rem;
+    font-size: var(--font-size-md);
+    padding: var(--space-sm) var(--space-md);
   }
 
   .logo-fesa {
     height: 60px;
   }
 
-  .header-logo{
+  .header-logo {
     height: 50px;
   }
 }
@@ -92,13 +92,13 @@
   font-family: inherit;
   width: 100%;
   border: 0;
-  border-bottom: 2px solid gray;
+  border-bottom: 2px solid var(--color-border-medium);
   outline: 0;
-  font-size: 1.2rem;
-  color: black;
-  padding: 7px 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  padding: var(--space-xs) 0;
   background: transparent;
-  transition: border-color 0.2s;
+  transition: border-color var(--transition-fast);
 }
 
 .form__field::placeholder {
@@ -106,7 +106,7 @@
 }
 
 .form__field:placeholder-shown ~ .form__label {
-  font-size: 1.3rem;
+  font-size: var(--font-size-lg);
   cursor: text;
   top: 20px;
 }
@@ -115,18 +115,18 @@
   position: absolute;
   top: 0;
   display: block;
-  transition: 0.2s;
-  font-size: 1rem;
-  color: gray;
+  transition: var(--transition-fast);
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
 }
 
 .form__field:focus ~ .form__label {
   position: absolute;
   top: 0;
   display: block;
-  transition: 0.2s;
-  font-size: 1rem;
-  color: var(--primary-color);
+  transition: var(--transition-fast);
+  font-size: var(--font-size-md);
+  color: var(--color-primary);
   font-weight: 700;
 }
 
@@ -134,7 +134,7 @@
   padding-bottom: 6px;
   font-weight: 700;
   border-width: 3px;
-  border-image: linear-gradient(to right, var(--primary-color), black);
+  border-image: linear-gradient(to right, var(--color-primary), var(--color-text-primary));
   border-image-slice: 1;
 }
 
@@ -145,7 +145,34 @@
 }
 
 .error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-xs);
+}
+
+/* Dark theme styles */
+[data-theme="dark"] .login-container {
+  background-color: var(--color-bg-tertiary);
+}
+
+[data-theme="dark"] .login-form {
+  background-color: var(--color-bg-secondary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .form__field {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-border-medium);
+}
+
+[data-theme="dark"] .form__label {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .form__field:focus ~ .form__label {
+  color: var(--color-primary-light);
+}
+
+[data-theme="dark"] .form__field:focus {
+  border-image: linear-gradient(to right, var(--color-primary-light), var(--color-text-primary));
 }

@@ -1,0 +1,13 @@
+.recetas-container {
+  padding: 2rem;
+  background-color: var(--color-bg-primary);
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recetas-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}

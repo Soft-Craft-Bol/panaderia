@@ -1,52 +1,73 @@
 .carrito-lista {
-    position: absolute;
-    top: 100%;
-    right: 10%;
-    width: 300px;
-    background: #333333f0;
-    color: white;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-height: 30em; 
-    overflow-y: auto; 
+  position: absolute;
+  top: 100%;
+  right: 5%;
+  width: 90vw;
+  max-width: 320px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 30em;
+  overflow-y: auto;
+  z-index: 999;
+  transition: all var(--transition-normal) ease-in-out;
 }
 
 .carrito-items {
-    max-height: 250px;
-    overflow-y: auto; 
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
 .carrito-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid gray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
 }
 
 .carrito-cerrar {
-    background: red;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 10px;
+  background: var(--color-error);
+  color: var(--color-text-on-primary);
+  border: none;
+  padding: var(--space-xs) var(--space-md);
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  transition: background var(--transition-fast);
 }
 
+.carrito-cerrar:hover {
+  background: var(--color-error-dark);
+}
 
+/* Scroll personalizado */
 .carrito-items::-webkit-scrollbar {
-	width: 8px; 
-	height: 8px;
+  width: 6px;
+}
+
+.carrito-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.carrito-items::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-dark);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-bg-primary);
+}
+
+/* Responsive adicional si deseas ocultarlo en móviles o adaptarlo más */
+@media (max-width: 480px) {
+  .carrito-lista {
+    right: 2%;
+    width: 95vw;
+    max-width: none;
   }
-  
-  .carrito-items::-webkit-scrollbar-track {
-	background: #f4f4f4; 
-	border-radius: 10px; 
-  }
-  
-  .carrito-items::-webkit-scrollbar-thumb {
-	background-color: #503916; 
-	border-radius: 10px; 
-	border: 2px solid #ffffff; 
-  }
+}

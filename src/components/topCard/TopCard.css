@@ -1,104 +1,133 @@
 .info-card {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--sidebar-color);
-    border-radius: 10px;
-    padding: 12px 16px;
-    width: 100%;
-    max-width: 300px;
-    min-width: 200px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md);
+  width: 100%;
+  max-width: 300px;
+  min-width: 200px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal) ease;
+  color: var(--color-text-primary);
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-title {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  user-select: none;
+}
+
+.card-value {
+  color: var(--color-text-primary);
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Color dinámico para porcentaje: verde si >0, gris si 0, rojo si <0 */
+.card-percentage {
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  margin-left: 6px;
+  user-select: none;
+  color: var(--color-success);
+}
+
+.card-percentage.zero {
+  color: var(--color-text-secondary);
+}
+
+.card-percentage.negative {
+  color: var(--color-error);
+}
+
+.card-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--color-primary-rgb, 247, 152, 74), 0.15);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.card-icon {
+  color: var(--color-primary);
+  font-size: 1.4rem;
+}
+
+/* Modo oscuro */
+[data-theme="dark"] .info-card {
+  background-color: var(--color-bg-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .info-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .card-title {
+  color: var(--color-text-tertiary);
+}
+
+[data-theme="dark"] .card-percentage.zero {
+  color: var(--color-text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .info-card {
+    padding: var(--space-xs) var(--space-sm);
+    min-width: 160px;
   }
-  
-  .info-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
+
   .card-title {
-    color: var(--color-text-secondary);
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: var(--font-size-xs);
   }
-  
+
   .card-value {
-    color: var(--color-text-secondary);
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 700;
+    font-size: var(--font-size-xl);
   }
-  
-  .card-percentage {
-    color: var(--color-green-parameter);
-    font-weight: 600;
-    font-size: 0.8rem;
-    margin-left: 6px;
-  }
-  
+
   .card-icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(var(--primary-color-rgb), 0.1);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
   }
-  
+
   .card-icon {
-    color: var(--primary-color);
     font-size: 1.2rem;
   }
-  
-  /* Modo oscuro específico */
-  [data-theme="dark"] .info-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 480px) {
+  .info-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
   }
-  
-  [data-theme="dark"] .info-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  .card-icon-container {
+    align-self: flex-end;
   }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .info-card {
-      padding: 10px 12px;
-      min-width: 160px;
-    }
-    
-    .card-title {
-      font-size: 0.8rem;
-    }
-    
-    .card-value {
-      font-size: 1.2rem;
-    }
-    
-    .card-icon-container {
-      width: 36px;
-      height: 36px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .info-card {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 12px;
-    }
-    
-    .card-icon-container {
-      align-self: flex-end;
-    }
-  }
+}

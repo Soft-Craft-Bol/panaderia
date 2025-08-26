@@ -41,7 +41,9 @@ const Nosotros = () => {
         <div className="nosotros-image">
           <div className="image-frame">
             {/* Aquí iría tu imagen de la panadería */}
-            <div className="placeholder-image">🍞</div>
+            <div className="placeholder-image">
+              <img src="../../../placeholder-panaderia.jpg" alt="Nuestra Panadería" />
+            </div>
           </div>
         </div>
       </div>

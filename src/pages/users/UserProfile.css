@@ -1,0 +1,226 @@
+.user-profile-container {
+  max-width: 900px;
+  margin: var(--space-xl) auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  animation: fadeIn var(--transition-normal) ease;
+  background-color: var(--color-bg-primary);
+}
+
+.profile-loading,
+.profile-error {
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-xl);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: var(--space-md);
+}
+
+.profile-avatar-container {
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-primary);
+}
+
+.profile-basic-info {
+  flex: 1;
+}
+
+.profile-basic-info h1 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-primary);
+}
+
+.profile-username {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: var(--space-xs) 0;
+}
+
+.profile-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.role-badge {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  font-size: var(--font-size-md);
+  padding: var(--space-xs) var(--space-md);
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-normal) ease;
+}
+
+.tab-button:hover {
+  color: var(--color-primary);
+}
+
+.tab-button.active {
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.profile-content {
+  margin-top: var(--space-lg);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px dashed var(--color-border-light);
+}
+
+.info-label {
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.info-value {
+  color: var(--color-text-secondary);
+}
+
+.horarios-list,
+.puntos-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-md);
+}
+
+.horario-card,
+.punto-card {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-xs);
+}
+
+.horario-header h3 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-primary);
+}
+
+.horario-dates {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.horario-times {
+  margin: var(--space-xs) 0;
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.horario-dias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.dia-badge {
+  background: var(--color-secondary);
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.punto-card h3 {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
+}
+
+.punto-card span {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.no-horarios,
+.no-puntos {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-top: var(--space-md);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark theme styles */
+[data-theme="dark"] .user-profile-container {
+  background: var(--color-bg-secondary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .horario-card,
+[data-theme="dark"] .punto-card {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-dark);
+}
+
+[data-theme="dark"] .info-item {
+  border-bottom-color: var(--color-border-dark);
+}
+
+/* Responsive styles */
+@media screen and (max-width: 600px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-basic-info h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .profile-tabs {
+    flex-wrap: wrap;
+  }
+}

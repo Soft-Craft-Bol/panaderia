@@ -60,7 +60,7 @@ const Table = ({
   pagination,
   onPageChange,
   onRowsPerPageChange,
-  showColumnVisibility = false, 
+  showColumnVisibility = false,
   loading = false,
   storageKey = 'tableHiddenColumns'
 }) => {
@@ -73,13 +73,13 @@ const Table = ({
 
 
   const hasSubColumns = columns.some(column => column.columns);
-  
-  const { 
-    filteredColumns, 
+
+  const {
+    filteredColumns,
     ColumnVisibilityControl: TableColumnVisibilityControl,
     hiddenColumns,
   } = useColumnVisibility(columns, storageKey);
-  
+
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(hiddenColumns));
   }, [hiddenColumns, storageKey]);
@@ -130,9 +130,7 @@ const Table = ({
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={filteredColumns.length} className="empty-cell">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5.99L19.53 19H4.47L12 5.99ZM12 2L1 21H23L12 2ZM13 16H11V18H13V16ZM13 10H11V14H13V10Z" fill="currentColor" />
-                  </svg>
+
                   No hay datos disponibles
                 </td>
               </tr>
@@ -142,15 +140,17 @@ const Table = ({
                   {filteredColumns.map((column, colIndex) => {
                     if (column.columns) {
                       return column.columns.map((subColumn, subIndex) => (
-                        <td key={`${colIndex}-${subIndex}`}>
+                        <td key={`${colIndex}-${subIndex}`} data-label={subColumn.header}>
                           {row[subColumn.accessor] || '-'}
                         </td>
+
                       ));
                     } else {
                       return (
-                        <td key={colIndex}>
+                        <td key={colIndex} data-label={column.header}>
                           {column.render ? column.render(row) : (row[column.accessor] || '-')}
                         </td>
+
                       );
                     }
                   })}

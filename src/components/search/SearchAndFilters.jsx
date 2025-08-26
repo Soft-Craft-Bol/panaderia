@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./SearchAndFilters.css";
+import SearchInput from "./SearchInput";
 
 const SearchAndFilters = ({ columns, onSearch, onFilter }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +22,13 @@ const SearchAndFilters = ({ columns, onSearch, onFilter }) => {
     <div className="search-and-filters">
       {/* Campo de búsqueda global */}
       <div className="search-container">
+      <SearchInput
+        placeholder="Buscar en todas las columnas..."
+        onSearch={handleSearchChange}
+        initialValue={searchTerm}
+        debounceTime={300}
+        className="global-search-input"
+      />
         <input
           type="text"
           placeholder="Buscar en todas las columnas..."

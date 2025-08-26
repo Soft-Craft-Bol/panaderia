@@ -1,0 +1,288 @@
+/* Estilos base del contenedor */
+.receta-detail {
+  padding: 2rem;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-radius: 0.5rem;
+  max-width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+/* Encabezado */
+.receta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-medium);
+}
+
+.receta-header h2 {
+  font-size: 1.75rem;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+/* Contenido principal */
+.receta-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.receta-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-block {
+  margin-bottom: 1.5rem;
+}
+
+.info-block h3 {
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.receta-description,
+.receta-instructions {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-size: 1rem;
+  background: var(--color-bg-secondary);
+  padding: 1rem;
+  border-radius: 0.375rem;
+}
+
+/* Sección de metadatos */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-bg-secondary);
+  border-radius: 0.375rem;
+}
+
+.meta-icon-container {
+  background: var(--color-primary-light);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meta-icon {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+}
+
+.meta-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.meta-value {
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+/* Sección de insumos */
+.insumos-section {
+  margin-top: 1rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h3 {
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.section-icon {
+  color: var(--color-secondary);
+  font-size: 1.25rem;
+}
+
+/* Tarjetas de insumos genéricos */
+.insumo-generico-card {
+  background: var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.insumo-generico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.insumo-generico-nombre {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--color-primary);
+}
+
+.insumo-generico-cantidad {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.insumo-generico-cantidad .cantidad {
+  font-size: 1.25rem;
+}
+
+.insumo-generico-cantidad .unidad {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.insumo-generico-costo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-success);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.costo-icon {
+  font-size: 0.875rem;
+}
+
+/* Opciones específicas */
+.opciones-especificas {
+  margin-top: 1rem;
+}
+
+.opciones-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.opciones-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.opciones-icon {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.opciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.opcion-especifica {
+  background: var(--color-bg-primary);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.opcion-prioridad {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.opcion-info {
+  flex-grow: 1;
+}
+
+.opcion-nombre {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.opcion-detalle {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.opcion-precio {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.sin-opciones {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .receta-detail {
+    padding: 1.25rem;
+  }
+  
+  .meta-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .opciones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insumo-generico-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

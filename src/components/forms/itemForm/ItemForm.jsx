@@ -10,6 +10,7 @@ import uploadImageToCloudinary from '../../../utils/uploadImageToCloudinary ';
 import { handleFileChange } from '../../../utils/handleFileChange';
 import Swal from 'sweetalert2';
 import Modal from '../../modal/Modal';
+import BackButton from '../../buttons/BackButton';
 
 const alerta = (titulo, mensaje, tipo = "success") => {
     Swal.fire({
@@ -43,7 +44,7 @@ const ItemForm = () => {
     const [sucursales, setSucursales] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [itemCreated, setItemCreated] = useState(null);
-    const [cantidades, setCantidades] = useState({}); // Estado para almacenar las cantidades por sucursal
+    const [cantidades, setCantidades] = useState({}); 
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -198,6 +199,7 @@ const ItemForm = () => {
 
     return (
         <>
+        <BackButton onClick={handleCloseModal} />
             <Formik
                 enableReinitialize
                 initialValues={initialValues}

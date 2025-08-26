@@ -1,15 +1,123 @@
-.tabla-eventos td,
-.tabla-eventos th {
-  text-align: center;
-  vertical-align: middle;
+
+/* Contenedor principal */
+.list-event-container {
+  padding: 1rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
-.tabla-eventos td span {
+.list-event-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.list-event-header h1 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.column-control-wrapper {
+  align-self: flex-end;
+}
+
+/* Tabla responsiva */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Estilos para celdas */
+.cell-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.mobile-label {
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+  display: none;
+}
+
+.copyable-text {
   cursor: pointer;
   transition: color 0.2s;
+  color: var(--primary-color);
 }
 
-.tabla-eventos td span:hover {
-  color: #007bff;
+.copyable-text:hover {
   text-decoration: underline;
+}
+
+/* Estilos para móviles */
+@media (max-width: 768px) {
+  .list-event-container {
+    padding: 0.5rem;
+  }
+  
+  .list-event-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .list-event-header h1 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .column-control-wrapper {
+    align-self: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Estilo de tabla para móviles */
+  .mobile-label {
+    display: inline;
+  }
+  
+  /* Ocultar encabezados en móviles */
+  .table-responsive table thead {
+    display: none;
+  }
+  
+  .table-responsive table tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 0.5rem;
+  }
+  
+  .table-responsive table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .table-responsive table td:last-child {
+    border-bottom: none;
+  }
+  
+  .copyable-text {
+    word-break: break-all;
+  }
+}
+
+@media (max-width: 576px) {
+  .list-event-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  .cell-content {
+    padding: 0.3rem;
+  }
 }

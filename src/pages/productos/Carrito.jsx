@@ -1,9 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './Carrito.css';
-import { emitirSinFactura } from '../../service/api';
+import { useNavigate } from 'react-router-dom';
 
-const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, toggleCart, handleFinalizarVenta }) => {
+const Carrito = ({ 
+    cart,
+    vaciarCarrito,
+    isCajaAbierta, 
+    updateQuantity, 
+    handleCheckout, 
+    totalCompra, 
+    isOpen, 
+    toggleCart, 
+    handleFinalizarVenta,
+    cartIndex,
+    cartCount
+}) => {
+  const navigate = useNavigate();
   const removeFromCart = (productId) => {
     updateQuantity(productId, 0);
   };
@@ -19,12 +32,12 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
       <button className="cart-toggle-btn" onClick={toggleCart}>
         {isOpen ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         ) : (
           <>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {totalProductos > 0 && (
               <span className="cart-counter">
@@ -34,15 +47,16 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
           </>
         )}
       </button>
-       <button className="mobile-close-btn" onClick={toggleCart}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-      </button>
 
       <div className="cart-content">
-        <h2 className="cart-title">Carrito de Compras</h2>
-
+      <h2 className="cart-title">Carrito de Compras {cartIndex + 1}</h2>
+<button 
+                        onClick={vaciarCarrito}
+                        className="btn-vaciar-carrito"
+                        disabled={cart.length === 0}
+                    >
+                        Vaciar Carrito
+                    </button>
         {cart.length === 0 ? (
           <div className="cart-empty">
             <p>No hay productos en el carrito</p>
@@ -145,27 +159,40 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
               </div>
 
               <div className="checkout-buttons">
-                <button
-                  className="checkout-btn direct-checkout"
-                  onClick={handleFinalizarVenta}
-                  disabled={cart.length === 0}
-                >
-                  Finalizar Venta
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                </button>
+                {isCajaAbierta ? (
+                  // Mostrar estos botones cuando hay caja abierta
+                  <>
+                    <button
+                      className="checkout-btn direct-checkout"
+                      onClick={handleFinalizarVenta}
+                      disabled={cart.length === 0}
+                    >
+                      Finalizar Venta
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </button>
 
-                <button
-                  className="checkout-btn invoice-checkout"
-                  onClick={handleCheckout}
-                  disabled={cart.length === 0}
-                >
-                  Facturación
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 17L9 12M12 17V12M15 17V12M19 21V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H7C6.46957 3 5.96086 3.21071 5.58579 3.58579C5.21071 3.96086 5 4.46957 5 5V21L8 19L12 21L16 19L19 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
+                    <button
+                      className="checkout-btn invoice-checkout"
+                      onClick={handleCheckout}
+                      disabled={cart.length === 0}
+                    >
+                      Facturación
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 17L9 12M12 17V12M15 17V12M19 21V5C19 4.46957 18.7893 3.96086 18.4142 3.58579C18.0391 3.21071 17.5304 3 17 3H7C6.46957 3 5.96086 3.21071 5.58579 3.58579C5.21071 3.96086 5 4.46957 5 5V21L8 19L12 21L16 19L19 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  </>
+                ) : (
+                  // Mostrar solo este botón cuando no hay caja abierta
+                  <button
+                    className="checkout-btn"
+                    onClick={() => navigate('/cierre-caja')}
+                  >
+                    Apertura Caja
+                  </button>
+                )}
               </div>
             </div>
           </>
@@ -176,13 +203,16 @@ const Carrito = ({ cart, updateQuantity, handleCheckout, totalCompra, isOpen, to
 };
 
 Carrito.propTypes = {
-  cart: PropTypes.array.isRequired,
-  updateQuantity: PropTypes.func.isRequired,
-  handleCheckout: PropTypes.func.isRequired,
-  handleFinalizarVenta: PropTypes.func.isRequired,
-  totalCompra: PropTypes.number.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  toggleCart: PropTypes.func.isRequired
+    cart: PropTypes.array.isRequired,
+    updateQuantity: PropTypes.func.isRequired,
+    handleCheckout: PropTypes.func.isRequired,
+    handleFinalizarVenta: PropTypes.func.isRequired,
+    totalCompra: PropTypes.number.isRequired,
+    isOpen: PropTypes.bool.isRequired,
+    toggleCart: PropTypes.func.isRequired,
+    vaciarCarrito: PropTypes.func.isRequired,
+    cartIndex: PropTypes.number.isRequired,
+    cartCount: PropTypes.number.isRequired
 };
 
 export default Carrito;

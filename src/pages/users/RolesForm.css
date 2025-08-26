@@ -1,48 +1,60 @@
 .roles-form-container {
     max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+    margin: var(--space-lg) auto;
+    padding: var(--space-lg);
+    background-color: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    font-family: var(--font-family);
 }
 
 .roles-form-container h2, 
 .roles-form-container h3 {
     text-align: center;
-    color: #333;
+    color: var(--color-text-primary);
 }
 
 .roles-form-container form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-sm);
 }
 
 .roles-form-container input,
 .roles-form-container select {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: var(--space-sm);
+    margin-top: var(--space-xs);
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.roles-form-container input:focus,
+.roles-form-container select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 .roles-form-container button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px;
+    background-color: var(--color-success);
+    color: var(--color-text-on-primary);
+    padding: var(--space-sm);
     border: none;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    transition: all var(--transition-normal);
 }
 
 .roles-form-container button:hover {
-    background-color: #218838;
+    background-color: var(--color-success-dark);
+    transform: translateY(-1px);
 }
 
 /* Lista de roles */
@@ -52,10 +64,10 @@
 }
 
 .roles-form-container li {
-    background-color: #f8f9fa;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
+    background-color: var(--color-bg-secondary);
+    padding: var(--space-sm);
+    margin: var(--space-xs) 0;
+    border-radius: var(--radius-sm);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -63,75 +75,89 @@
 
 /* Botón eliminar */
 .roles-form-container button.delete-btn {
+    background-color: var(--color-error);
     border: none;
-    padding: 5px 10px;
-    color: white;
-    border-radius: 5px;
+    padding: var(--space-xs) var(--space-sm);
+    color: var(--color-text-on-primary);
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition: all var(--transition-fast);
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .roles-form-container button.delete-btn:hover {
-    background-color: #c82333;
+    background-color: var(--color-error-dark);
+    transform: scale(1.1);
 }
 
-
 .permisos-container {
-    margin-top: 10px;
+    margin-top: var(--space-sm);
 }
 
 .permisos-container h4 {
-    margin-bottom: 5px;
-}
-
-.permisos-container span {
-    margin: 3px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.permisos-container span:hover {
-    background-color: #bbb;
+    margin-bottom: var(--space-xs);
+    color: var(--color-text-primary);
 }
 
 .permiso-item {
     display: inline-flex;
     align-items: center; 
     justify-content: space-between; 
-    background-color: #ddd;
-    padding: 8px 12px;
-    margin: 5px;
-    border-radius: 5px;
+    background-color: var(--color-bg-tertiary);
+    padding: var(--space-xs) var(--space-sm);
+    margin: var(--space-xs);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 16px; 
+    font-size: var(--font-size-sm); 
     min-width: 100px; 
     max-width: fit-content;
+    transition: background-color var(--transition-fast);
+    color: var(--color-text-primary);
 }
 
 .permiso-item:hover {
-    background-color: #bbb;
+    background-color: var(--color-gray-400);
 }
 
 .permiso-item svg {
-    margin-left: 10px; 
+    margin-left: var(--space-sm); 
     cursor: pointer;
-}
-.delete-btn {
-    background-color: #28a745; 
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    transition: transform 0.2s ease-in-out;
-    width: 35px; 
-    height: 35px;
+    color: var(--color-error);
 }
 
-.delete-btn:hover {
-    background-color: #218838; 
-    transform: scale(1.1);
+/* Dark theme styles */
+[data-theme="dark"] .roles-form-container {
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="dark"] .roles-form-container li {
+    background-color: var(--color-gray-800);
+    border: 1px solid var(--color-border-dark);
+}
+
+[data-theme="dark"] .permiso-item {
+    background-color: var(--color-gray-700);
+}
+
+[data-theme="dark"] .permiso-item:hover {
+    background-color: var(--color-gray-600);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .roles-form-container {
+        padding: var(--space-md);
+        margin: var(--space-md) auto;
+    }
+    
+    .permiso-item {
+        width: 100%;
+        max-width: 100%;
+        justify-content: space-between;
+    }
+}

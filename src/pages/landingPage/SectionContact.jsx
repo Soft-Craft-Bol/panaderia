@@ -1,6 +1,6 @@
 import PanaderiaContactForm from './Contacts';
 import Footer from './Footer';
-import NavbarPublic from './NavbarPublic';
+import NavbarPublic from '../../components/sidebar/NavbarPublic';
 
 export default function SectionContact() {
   return (
