@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { getToken } from '../utils/authFunctions';
 //deply
-//const baseURL = "https://api.inpasep.com/api/v1";
-const baseURL = "http://localhost:8080/api/v1";
+const baseURL = "https://api.inpasep.com/api/v1";
+//const baseURL = "http://localhost:8080/api/v1";
 
 const api = axios.create({
     baseURL: baseURL,
@@ -312,7 +312,10 @@ export const getInsumosBySucursalExcludingMateriaPrima = (idSucursal, soloActivo
 };
 export const getInsumosActivosBySucursal = (idSucursal) => api.get(`/insumos/activos/${idSucursal}`);
 export const asignarInsumoSucursal = (data, idInsumo) => api.post(`/sucursal-insumos/${idInsumo}`, data);
-
+export const updateStockMinimo = (idInsumo, idSucursal, stockMinimo) => {
+  return api.patch(`/sucursal-insumos/${idInsumo}/sucursal/${idSucursal}/stock-minimo?stockMinimo=${stockMinimo}`);
+};
+export const asignarInsumosaSucursalMasivo = (data) => api.post('/sucursal-insumos/masivo', data);
 //Insumos genericos
 export const createInsumoGenerico = (data) => api.post('/insumos-genericos', data);
 export const getInsumosGenericos = ({ page = 0, size = 10, nombre = '' }) => api.get('/insumos-genericos', { params: { page, size, nombre } });

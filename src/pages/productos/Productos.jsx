@@ -327,7 +327,7 @@ const Productos = () => {
             Producir
           </Button>
 
-          <Button variant="primary" onClick={() => navigate("/movimientos")}>
+          <Button variant="primary" onClick={() => setIsCategoriaModalOpen(true)}>
             <FiPlus />
             Crear Nueva Categoria
           </Button>
@@ -395,7 +395,6 @@ const Productos = () => {
       </InfiniteScroll>
 
       <Modal isOpen={isCategoriaModalOpen} onClose={() => setIsCategoriaModalOpen(false)}>
-        <h2>Nueva Categoría</h2>
         <CategoriaForm onSuccess={handleCategoriaCreada} />
       </Modal>
 

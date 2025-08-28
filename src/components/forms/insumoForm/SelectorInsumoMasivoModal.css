@@ -1,0 +1,179 @@
+.selector-insumo-masivo-modal {
+  max-width: 800px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.insumos-list-masivo {
+  flex: 1;
+  overflow-y: auto;
+  margin: 15px 0;
+}
+
+.insumo-item-masivo {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  transition: all 0.2s ease;
+}
+
+.insumo-item-masivo.selected {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.insumo-checkbox {
+  margin-top: 5px;
+}
+
+.insumo-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.insumo-info {
+  flex: 1;
+}
+
+.insumo-info h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.insumo-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.insumo-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-group label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+}
+
+.field-group input {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.selected-count {
+  background-color: #e3f2fd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-weight: 500;
+  color: #1976d2;
+}
+
+.modal-actions-masivo {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.filtros {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filtro-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.filtro-select {
+  min-width: 150px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.load-more {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.load-more button {
+  padding: 8px 16px;
+  background-color: #e18921;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.load-more button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.load-more button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .selector-insumo-masivo-modal {
+    max-width: 100%;
+    max-height: 90vh;
+    padding: 10px;
+  }
+
+  .insumo-item-masivo {
+    flex-direction: column; 
+    align-items: stretch;
+  }
+
+  .insumo-fields {
+    min-width: 100%;
+  }
+
+  .filtros {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filtro-input,
+  .filtro-select {
+    min-width: 100%;
+    width: 100%;
+  }
+
+  .modal-actions-masivo {
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .load-more button {
+    width: 100%;
+  }
+}

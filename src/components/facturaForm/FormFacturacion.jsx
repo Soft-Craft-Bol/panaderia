@@ -464,7 +464,9 @@ export default function FormFacturacion() {
                     <p>¿Está seguro que desea emitir esta factura en modo contingencia?</p>
                     <p>Puede proporcionar un CAFC (Código de Autorización de Facturación por Contingencia) si lo tiene disponible.</p>
                     <div className="modal-buttons">
-                        <ButtonPrimary onClick={() => setShowContingenciaModal(false)}>
+                        <ButtonPrimary 
+                        variant='primary'
+                        onClick={() => setShowContingenciaModal(false)}>
                             Confirmar
                         </ButtonPrimary>
                         <ButtonPrimary
@@ -480,7 +482,6 @@ export default function FormFacturacion() {
                 </div>
             </Modal>
 
-            {/* Modal de envío de factura */}
             <Modal isOpen={showSendEmailModal} onClose={() => setShowSendEmailModal(false)}>
                 <div className="modal-content">
                     <h3>Factura Generada</h3>

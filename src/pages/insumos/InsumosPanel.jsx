@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getSucursales } from '../../service/api';
+import { asignarInsumosaSucursalMasivo, getSucursales } from '../../service/api';
 import Modal from '../../components/modal/Modal';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import CrearInsumoForm from './InsumoForm';
@@ -19,6 +19,7 @@ import AsignarInsumosGenericosForm from './AsignarInsumosGenericosForm';
 import InsumosGenericosTable from './InsumosGenericosTable';
 import InsumosSucursalTable from './InsumosSucursalTable';
 import { useInsumosSucursal } from '../../hooks/getInsumosBySucursal';
+import SelectorInsumoMasivoModal from '../../components/forms/insumoForm/SelectorInsumoMasivoModal';
 
 
 const InsumosPanel = () => {
@@ -33,6 +34,7 @@ const InsumosPanel = () => {
     const [modalOpen, setModalOpen] = useState({
         crear: false,
         asignar: false,
+        asignarMasivo: false,
         comprar: false,
         proveedor: false,
         asignarGenerico: false
@@ -66,7 +68,7 @@ const InsumosPanel = () => {
         page - 1,
         rowsPerPage
     );
-    
+
     const insumos = data?.content || [];
     const totalPages = data?.totalPages || 1;
     const totalElements = data?.totalElements || 0;
@@ -93,6 +95,22 @@ const InsumosPanel = () => {
         setSelectedInsumo(insumo);
         setModalOpen(prev => ({ ...prev, comprar: true }));
     };
+
+    const handleAsignacionMasiva = async (insumosData) => {
+  try {
+    const payload = {
+      sucursalId: selectedSucursal,
+      insumos: insumosData
+    };
+    
+    await asignarInsumosaSucursalMasivo(payload);
+    handleModalClose(true);
+    // Mostrar mensaje de éxito
+  } catch (error) {
+    console.error('Error en asignación masiva:', error);
+    // Mostrar mensaje de error
+  }
+};
 
     const renderInsumosSucursal = () => (
         <>
@@ -142,6 +160,9 @@ const InsumosPanel = () => {
                 rowsPerPage={rowsPerPage}
                 totalPages={totalPages}
                 totalElements={totalElements}
+                sucursalId={selectedSucursal}
+                sucursalNombre={sucursales.find(s => s.id === selectedSucursal)?.nombre || 'Sucursal'}
+                onStockMinimoUpdated={refetch}
             />
 
         </>
@@ -174,6 +195,12 @@ const InsumosPanel = () => {
                         variant="primary"
                     >
                         <FaBoxes className="button-icon" /> Asignar Insumos Genéricos
+                    </ButtonPrimary>
+                    <ButtonPrimary
+                        onClick={() => setModalOpen(prev => ({ ...prev, asignarMasivo: true }))}
+                        variant="primary"
+                    >
+                        <FaBoxes className="button-icon" /> Asignar Múltiples Insumos
                     </ButtonPrimary>
 
                     {selectedSucursal && (
@@ -276,6 +303,19 @@ const InsumosPanel = () => {
                         onCancel={() => handleModalClose(false)}
                     />
                 )}
+            </Modal>
+
+            <Modal
+                isOpen={modalOpen.asignarMasivo}
+                onClose={() => handleModalClose(false)}
+                size="xl"
+                closeOnOverlayClick={false}
+            >
+                <SelectorInsumoMasivoModal
+                    onInsumosSelected={handleAsignacionMasiva}
+                    onCancel={() => handleModalClose(false)}
+                    sucursalId={selectedSucursal}
+                />
             </Modal>
         </div>
     );

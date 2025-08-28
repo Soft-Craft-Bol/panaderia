@@ -61,8 +61,6 @@ const CategoriaForm = ({ onSuccess, onCancel }) => {
                 placeholder="Descripción detallada de la categoría"
               />
             </div>
-
-            <div className="form-actions">
               <ButtonPrimary
                 type="submit"
                 variant="primary"
@@ -70,15 +68,6 @@ const CategoriaForm = ({ onSuccess, onCancel }) => {
               >
                 {isSubmitting ? 'Guardando...' : 'Guardar Categoría'}
               </ButtonPrimary>
-
-              <ButtonPrimary
-                type="button"
-                variant="secondary"
-                onClick={onCancel}
-              >
-                Cancelar
-              </ButtonPrimary>
-            </div>
           </Form>
         )}
       </Formik>

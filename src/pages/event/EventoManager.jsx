@@ -18,6 +18,7 @@ const EventoManager = () => {
 
   const currentUser = getUser();
   const puntoVenta = currentUser?.puntosVenta[0]?.id || null;
+  console.log('Punto de Venta:', puntoVenta);
 
   useEffect(() => {
     const handleResize = () => {

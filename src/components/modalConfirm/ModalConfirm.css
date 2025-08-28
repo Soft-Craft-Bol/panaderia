@@ -1,4 +1,4 @@
-.modal-overlay-conf {
+.modal-overlayConf {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,14 +11,14 @@
   backdrop-filter: blur(2px);
 }
 
-.modal-conf {
+.modalConf {
   width: 90%;
   max-width: 500px;
   min-width: 300px;
   animation: modalFadeIn var(--transition-normal) ease-out;
 }
 
-.modal-conf-content {
+.modalConf-content {
   background: var(--color-bg-primary);
   padding: var(--space-xl);
   border-radius: var(--radius-lg);
@@ -27,28 +27,28 @@
   color: var(--color-text-primary);
 }
 
-.modal-conf-title {
+.modalConf-title {
   margin-top: 0;
   margin-bottom: var(--space-md);
   font-size: var(--font-size-2xl);
   color: var(--color-text-primary);
 }
 
-.modal-conf-message {
+.modalConf-message {
   margin-bottom: var(--space-xl);
   color: var(--color-text-secondary);
   font-size: var(--font-size-md);
   line-height: 1.5;
 }
 
-.modal-conf-buttons {
+.modalConf-buttons {
   display: flex;
   justify-content: center;
   gap: var(--space-md);
   flex-wrap: wrap;
 }
 
-.modal-conf-button {
+.modalConf-button {
   padding: var(--space-sm) var(--space-lg);
   border: none;
   border-radius: var(--radius-md);
@@ -59,37 +59,37 @@
   min-width: 120px;
 }
 
-.modal-conf-button:hover {
+.modalConf-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.modal-conf-button:active {
+.modalConf-button:active {
   transform: translateY(0);
 }
 
 /* Botones por tipo */
-.modal-conf-button-primary {
+.modalConf-button-primary {
   background-color: var(--color-success);
   color: var(--color-text-on-primary);
 }
-.modal-conf-button-primary:hover {
+.modalConf-button-primary:hover {
   background-color: var(--color-success-dark);
 }
 
-.modal-conf-button-danger {
+.modalConf-button-danger {
   background-color: var(--color-error);
   color: var(--color-text-on-primary);
 }
-.modal-conf-button-danger:hover {
+.modalConf-button-danger:hover {
   background-color: var(--color-error-dark);
 }
 
-.modal-conf-button-cancel {
+.modalConf-button-cancel {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
 }
-.modal-conf-button-cancel:hover {
+.modalConf-button-cancel:hover {
   background-color: var(--color-bg-tertiary);
 }
 
@@ -106,21 +106,21 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-  .modal-conf {
+  .modalConf {
     width: 95%;
     padding: var(--space-md);
   }
 
-  .modal-conf-content {
+  .modalConf-content {
     padding: var(--space-lg);
   }
 
-  .modal-conf-buttons {
+  .modalConf-buttons {
     flex-direction: column;
     gap: var(--space-sm);
   }
 
-  .modal-conf-button {
+  .modalConf-button {
     width: 100%;
   }
 }

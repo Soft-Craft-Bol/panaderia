@@ -7,10 +7,11 @@ export const Button = ({
   type = 'button', 
   className = '', 
   disabled = false,
+  loading = false,           
   requiredPermissions = [], 
   hiddenWithoutPermission = true,
   children, 
-  ...props 
+  ...rest 
 }) => {
   const { hasPermission } = usePermissions();
   const buttonClass = `button button-${variant} ${className}`.trim();
@@ -21,7 +22,7 @@ export const Button = ({
         className={`${buttonClass} button-disabled`} 
         type={type} 
         disabled={true}
-        {...props}
+        {...rest}
       >
         {children}
       </button>
@@ -32,10 +33,10 @@ export const Button = ({
     <button 
       className={buttonClass} 
       type={type} 
-      disabled={disabled}
-      {...props}
+      disabled={disabled || loading}  
+      {...rest}
     >
-      {children}
+      {loading ? 'Cargando...' : children} 
     </button>
   );
 };
