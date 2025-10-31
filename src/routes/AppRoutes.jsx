@@ -37,6 +37,9 @@ const InsumosPanel = lazy(() => import("../pages/insumos/InsumosPanel"));
 const DashboardMovimientos = lazy(() => import("../pages/mermas/DashboardMovimientos"));
 const UserProfile = lazy(() => import("../pages/users/UserProfile"));
 const RecetasMain = lazy(() => import("../pages/recetas/RecetasMain"));
+const AjustesInventario = lazy(() => import("../pages/ajustes/AjustesInventario"));
+const AjustesInventarioInsumos = lazy(() => import("../pages/ajustes/AjustesInventarioInsumos"));
+const EgresosPanel = lazy(() => import("../pages/egresos/EgresosPanel"));
 
 const AppRoutes = () => (
 
@@ -47,7 +50,8 @@ const AppRoutes = () => (
     
     {/* Rutas privadas */}
     <Route path="/home" element={<PrivateRoute><Inicio /></PrivateRoute>} />
-    <Route path="/configuraciones" element={<PrivateRoute requiredPermissions={["ACCESO_TECNICO", "ADMIN"]}><Configuraciones /></PrivateRoute>} />
+    <Route path="/configuraciones" element={<PrivateRoute requiredPermissions={["ADMIN"]}><Configuraciones /></PrivateRoute>} />
+    <Route path="/ajuste" element={<PrivateRoute><AjustesInventario /></PrivateRoute>} />
     {/*Principal Sidebar*/}
     <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
     <Route path="/registerUser" element={<PrivateRoute><RegisterUser /> </PrivateRoute>} />
@@ -65,7 +69,7 @@ const AppRoutes = () => (
     <Route path="/addProduct" element={<PrivateRoute> <ItemForm /> </PrivateRoute>} />
     <Route path="/editProduct/:id" element={<PrivateRoute>  <ItemForm /> </PrivateRoute>} />
     <Route path="/reservas" element={<PrivateRoute> <ReservaMain /></PrivateRoute>} />
-    <Route path="/productos-ventas" element={<PrivateRoute> <ProductosVentas /> </PrivateRoute>} />
+    <Route path="/punto-ventas" element={<PrivateRoute> <ProductosVentas /> </PrivateRoute>} />
     <Route path="/ventas" element={<PrivateRoute> <VentasMain /> </PrivateRoute>} />
 
 
@@ -76,7 +80,7 @@ const AppRoutes = () => (
     <Route path="/clientes/crear-cliente" element={<PrivateRoute> <ClientForm /> </PrivateRoute>} />
     <Route path="/editClient/:id" element={<PrivateRoute> <ClientForm /> </PrivateRoute>} />
     <Route path="/clientes" element={<PrivateRoute> <Clientes /> </PrivateRoute>} />
-    <Route path="/insumos" element={<PrivateRoute> <InsumosPanel /> </PrivateRoute>} />
+    <Route path="/productos/insumos" element={<PrivateRoute> <InsumosPanel /> </PrivateRoute>} />
 
     <Route path="/recetas" element={<PrivateRoute><RecetasMain /></PrivateRoute>} />
     <Route path="/recetas/crear" element={<PrivateRoute><CrearReceta /></PrivateRoute>} />
@@ -97,8 +101,8 @@ const AppRoutes = () => (
     <Route path="/product" element={<BreadList />} />
     <Route path="/carrito" element={<CarrritoLista />} />
 
-
-
+    <Route path="/egresos" element={<PrivateRoute><EgresosPanel /></PrivateRoute>} />
+    <Route path="/ajustes-inventario-insumos" element={<PrivateRoute><AjustesInventarioInsumos /></PrivateRoute>} />
 
   </Routes>
 );

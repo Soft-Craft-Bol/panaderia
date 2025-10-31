@@ -13,6 +13,7 @@ import { Button } from "../../components/buttons/Button";
 import Modal from "../../components/modal/Modal";
 import CategoriaForm from "../categoria/CategoriaForm";
 import FiltersPanel from "../../components/search/FiltersPanel";
+import RefetchButton from "../../components/buttons/RefetchButton";
 
 const Productos = () => {
   const [showModal, setShowModal] = useState(false);
@@ -225,77 +226,76 @@ const Productos = () => {
   };
 
   const handleCategoriaCreada = () => {
-    refetchCategorias(); // Recarga las categorías después de agregar una
+    refetchCategorias(); 
     setIsCategoriaModalOpen(false);
   };
 
-  // Configuración de los filtros
   const filtersConfig = [
-    {
-      type: 'search',
-      name: 'searchTerm',
-      placeholder: 'Buscar por código o descripción...',
-      config: {
-        debounceTime: 400
-      }
-    },
-    {
-      type: 'select',
-      name: 'categoriaId',
-      label: 'Categoría',
-      config: {
-        options: categorias,
-        valueKey: 'id',
-        labelKey: 'nombre',
-      }
-    },
-    {
-      type: 'select',
-      name: 'sucursalId',
-      label: 'Sucursal',
-      config: {
-        options: sucursalesData,
-        valueKey: 'id',
-        labelKey: 'nombre'
-      }
-    },
-    {
-      type: 'select',
-      name: 'conDescuento',
-      label: 'Con descuento',
-      config: {
-        options: [
-          { id: 'true', nombre: 'Sí' },
-          { id: 'false', nombre: 'No' }
-        ],
-        valueKey: 'id',
-        labelKey: 'nombre'
-      }
-    },
-    {
-      type: 'select',
-      name: 'sort',
-      label: 'Ordenar por',
-      config: {
-        options: [
-          { id: 'descripcion,asc', nombre: 'Nombre (A-Z)' },
-          { id: 'descripcion,desc', nombre: 'Nombre (Z-A)' },
-          { id: 'precioUnitario,asc', nombre: 'Precio (menor a mayor)' },
-          { id: 'precioUnitario,desc', nombre: 'Precio (mayor a menor)' }
-        ],
-        valueKey: 'id',
-        labelKey: 'nombre',
-        onChange: (value) => {
-          if (value) {
-            const [sortBy, sortDirection] = value.split(',');
-            setFilters(prev => ({ ...prev, sortBy, sortDirection }));
-          } else {
-            setFilters(prev => ({ ...prev, sortBy: 'descripcion', sortDirection: 'asc' }));
-          }
+  {
+    type: 'search',
+    name: 'searchTerm',
+    placeholder: 'Buscar por código o descripción...',
+    config: {
+      debounceTime: 400
+    }
+  },
+  {
+    type: 'select',
+    name: 'categoriaId',
+    label: 'Categoría',
+    config: {
+      options: categorias || [], // VALIDACIÓN: Asegurar que sea array
+      valueKey: 'id',
+      labelKey: 'nombre',
+    }
+  },
+  {
+    type: 'select',
+    name: 'sucursalId',
+    label: 'Sucursal',
+    config: {
+      options: sucursalesData || [], // VALIDACIÓN: Asegurar que sea array
+      valueKey: 'id',
+      labelKey: 'nombre'
+    }
+  },
+  {
+    type: 'select',
+    name: 'conDescuento',
+    label: 'Con descuento',
+    config: {
+      options: [
+        { id: 'true', nombre: 'Sí' },
+        { id: 'false', nombre: 'No' }
+      ],
+      valueKey: 'id',
+      labelKey: 'nombre'
+    }
+  },
+  {
+    type: 'select',
+    name: 'sort',
+    label: 'Ordenar por',
+    config: {
+      options: [
+        { id: 'descripcion,asc', nombre: 'Nombre (A-Z)' },
+        { id: 'descripcion,desc', nombre: 'Nombre (Z-A)' },
+        { id: 'precioUnitario,asc', nombre: 'Precio (menor a mayor)' },
+        { id: 'precioUnitario,desc', nombre: 'Precio (mayor a menor)' }
+      ],
+      valueKey: 'id',
+      labelKey: 'nombre',
+      onChange: (value) => {
+        if (value) {
+          const [sortBy, sortDirection] = value.split(',');
+          setFilters(prev => ({ ...prev, sortBy, sortDirection }));
+        } else {
+          setFilters(prev => ({ ...prev, sortBy: 'descripcion', sortDirection: 'asc' }));
         }
       }
     }
-  ];
+  }
+];
 
   return (
     <div className="productos-contenedor">
@@ -309,10 +309,10 @@ const Productos = () => {
         <div className="acciones-productos">
           <Button variant="primary" onClick={() => navigate("/addProduct")}>
             <FiPlus />
-            Agregar nuevo
+            Nuevo Producto
           </Button>
 
-          <Button variant="primary" onClick={() => navigate("/insumos")}>
+          <Button variant="primary" onClick={() => navigate("/productos/insumos")}>
             <FiPackage />
             Insumos
           </Button>
@@ -324,13 +324,14 @@ const Productos = () => {
 
           <Button variant="primary" onClick={() => navigate("/movimientos")}>
             <FiActivity />
-            Producir
+            Movimientos
           </Button>
 
           <Button variant="primary" onClick={() => setIsCategoriaModalOpen(true)}>
             <FiPlus />
             Crear Nueva Categoria
           </Button>
+          <RefetchButton onRefetch={refetch} />
         </div>
       </div>
 

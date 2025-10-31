@@ -169,7 +169,7 @@ const ReservaFormulario = ({ carrito, onReservaExitosa }) => {
                   <option value="">Selecciona un método de pago</option>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="QR">Pago QR</option>
-                  {/* <option value="TARJETA">Tarjeta de Crédito/Débito</option> */}
+                  <option value="TARJETA">Tarjeta de Crédito/Débito</option>
                   <option value="TRANSFERENCIA">Transferencia Bancaria</option>
                 </SelectPrimary>
 

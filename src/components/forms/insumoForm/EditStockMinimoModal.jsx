@@ -47,7 +47,6 @@ const EditStockMinimoModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Editar Stock Mínimo">
-      <div className="edit-stock-minimo-modal">
         <div className="modal-content">
           <p>
             <strong>Insumo:</strong> {insumo.nombre}
@@ -106,7 +105,6 @@ const EditStockMinimoModal = ({
             )}
           </Formik>
         </div>
-      </div>
     </Modal>
   );
 };

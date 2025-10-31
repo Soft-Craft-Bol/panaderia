@@ -13,7 +13,8 @@ const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
     { value: 'l', label: 'Litros' },
     { value: 'ml', label: 'Mililitros' },
     { value: 'unidad', label: 'Unidades' },
-    { value: 'paquete', label: 'Paquetes' }
+    { value: 'paquete', label: 'Paquetes' },
+    { value: 'rollo', label: 'Rollo' }
   ];
 
   const validationSchema = Yup.object().shape({

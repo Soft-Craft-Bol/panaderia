@@ -6,6 +6,7 @@ import './Sucursales.css';
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { Button } from '../../components/buttons/Button';
+import RefetchButton from '../../components/buttons/RefetchButton';
 
 const Sucursales = () => {
     const [sucursales, setSucursales] = useState([]);
@@ -14,18 +15,18 @@ const Sucursales = () => {
 
     const navigate = useNavigate();
     useEffect(() => {
-        const fetchSucursales = async () => {
-            try {
-                const response = await getSucursales();
-                console.log(response);
-                setSucursales(response.data);
-            } catch (error) {
-                console.error('Error fetching sucursales:', error);
-            }
-        };
-
         fetchSucursales();
     }, []);
+
+    const fetchSucursales = async () => {
+        try {
+            const response = await getSucursales();
+            console.log(response);
+            setSucursales(response.data);
+        } catch (error) {
+            console.error('Error fetching sucursales:', error);
+        }
+    };
 
     const handleOpenModal = (sucursal) => {
         setsucursalAEliminar(sucursal);
@@ -61,14 +62,19 @@ const Sucursales = () => {
     console.log(sucursales)
     return (
         <div>
+        <RefetchButton onRefetch={fetchSucursales} />
             <h1>Sucursales</h1>
+
+            
             <Button
                 variant="primary"
-                requiredPermissions={["GESTION_SUCURSALES", "CREATE"]}
+                //requiredPermissions={["GESTION_SUCURSALES", "CREATE"]}
                 onClick={() => navigate("/sucursales/addSucursal")}
             >
                 Registrar nueva Sucursal
             </Button>
+
+            
             <div className="sucursales-list">
                 {sucursales.map(sucursal => (
                     <CardSucursal

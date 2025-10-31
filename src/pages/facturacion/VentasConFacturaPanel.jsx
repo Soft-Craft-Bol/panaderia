@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { 
+import React, { useEffect, useState } from 'react';
+import {
   anularFactura,
   revertirAnulacionFactura,
+  getMotivoAnulacion
 } from '../../service/api';
 import ModalConfirm from '../../components/modalConfirm/ModalConfirm';
 import Table, { useColumnVisibility } from '../../components/table/Table';
 import { toast, Toaster } from 'sonner';
 import { Button } from '../../components/buttons/Button';
-import {   
-  FaFileInvoice, 
+import {
+  FaFileInvoice,
   FaBan,
   FaUndo,
   FaFilter,
@@ -19,7 +20,7 @@ import { useVentasConFactura } from '../../hooks/useVentasConFactura';
 import CustomDatePicker from '../../components/inputs/DatePicker';
 import SelectSecondary from '../../components/selected/SelectSecondary';
 import SearchInput from '../../components/search/SearchInput';
-import ColumnVisibilityControl from '../../components/table/ColumnVisibilityControl';
+import Modal from '../../components/modal/Modal';
 
 const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, isAnulando, isRevirtiendo }) => {
   return (
@@ -61,7 +62,10 @@ const VentasConFacturaPanel = () => {
   const [actionType, setActionType] = useState('');
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
-  
+  const [motivos, setMotivos] = useState([]);
+  const [selectedMotivo, setSelectedMotivo] = useState("");
+
+
   const {
     ventas,
     pagination,
@@ -82,6 +86,18 @@ const VentasConFacturaPanel = () => {
     updateFilters({ estadoFactura: tab === 'todas' ? '' : tab.toUpperCase() });
   };
 
+  useEffect(() => {
+    const fetchMotivos = async () => {
+      try {
+        const { data } = await getMotivoAnulacion();
+        setMotivos(data);
+      } catch (error) {
+        toast.error("Error al cargar motivos de anulación");
+      }
+    };
+    fetchMotivos();
+  }, []);
+
   const handleAnularFactura = async (venta) => {
     if (!venta.factura?.cuf) {
       toast.error("Solo se pueden anular facturas con CUF");
@@ -91,17 +107,17 @@ const VentasConFacturaPanel = () => {
     try {
       const requestData = {
         idPuntoVenta: venta?.puntoVenta?.id,
-        cuf: venta.factura.cuf,  
-        codigoMotivo: 1,
+        cuf: venta.factura.cuf,
+        codigoMotivo: selectedMotivo || 1,
       };
       await anularFactura(requestData);
       toast.success("Factura anulada exitosamente");
       refetch();
     } catch (error) {
-      console.error("Error completo:", error); 
-      const errorMessage = error.response?.data?.message || 
-                         error.message || 
-                         "Error al anular la factura";
+      console.error("Error completo:", error);
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        "Error al anular la factura";
       toast.error(errorMessage);
     } finally {
       setIsAnulando(false);
@@ -119,11 +135,11 @@ const VentasConFacturaPanel = () => {
     try {
       const requestData = {
         idPuntoVenta: venta?.puntoVenta?.id,
-        cuf: venta.factura.cuf,  
+        cuf: venta.factura.cuf,
       };
       await revertirAnulacionFactura(requestData);
       toast.success("Anulación revertida exitosamente");
-      refetch(); 
+      refetch();
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al revertir la anulación");
     } finally {
@@ -168,32 +184,32 @@ const VentasConFacturaPanel = () => {
   };
 
   const columns = [
-    { 
-      header: 'N° Factura', 
+    {
+      header: 'N° Factura',
       accessor: 'facturaNumero',
       render: (row) => row.factura?.numeroFactura || 'N/A'
     },
-    { 
-      header: 'Fecha', 
+    {
+      header: 'Fecha',
       accessor: 'fecha',
-      render: (row) => new Date(row.fecha).toLocaleDateString() 
+      render: (row) => new Date(row.fecha).toLocaleDateString()
     },
-    { 
-      header: 'Cliente', 
+    {
+      header: 'Cliente',
       accessor: 'clienteNombre',
       render: (row) => row.cliente?.nombreRazonSocial || 'Consumidor Final'
     },
-    { 
-      header: 'Monto Total', 
+    {
+      header: 'Monto Total',
       accessor: 'monto',
-      render: (row) => `Bs ${row.monto.toFixed(2)}` 
+      render: (row) => `Bs ${row.monto.toFixed(2)}`
     },
-    { 
-      header: 'Método Pago', 
-      accessor: 'metodoPago' 
+    {
+      header: 'Método Pago',
+      accessor: 'metodoPago'
     },
-    { 
-      header: 'Estado', 
+    {
+      header: 'Estado',
       accessor: 'estadoFactura',
       render: (row) => {
         const estado = row.factura?.estado || row.estado;
@@ -219,10 +235,10 @@ const VentasConFacturaPanel = () => {
     }
   ];
 
-    const {
-      filteredColumns,
-      ColumnVisibilityControl
-    } = useColumnVisibility(columns, "ventasHiddenColumns");
+  const {
+    filteredColumns,
+    ColumnVisibilityControl
+  } = useColumnVisibility(columns, "ventasHiddenColumns");
 
   if (error) {
     return <div className="error-message">Error al cargar las ventas: {error}</div>;
@@ -246,21 +262,20 @@ const VentasConFacturaPanel = () => {
         </div>
       </div>
 
-      {/* Tabs de estado */}
       <div className="tab-container">
-        <button 
+        <button
           className={`tab ${activeTab === 'todas' ? 'active' : ''}`}
           onClick={() => handleTabChange('todas')}
         >
           Todas
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'emitida' ? 'active' : ''}`}
           onClick={() => handleTabChange('emitida')}
         >
           Emitidas
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'anulada' ? 'active' : ''}`}
           onClick={() => handleTabChange('anulada')}
         >
@@ -268,7 +283,6 @@ const VentasConFacturaPanel = () => {
         </button>
       </div>
 
-      {/* Filtros */}
       {showFilters && (
         <div className="filters-panel">
           <div className="filters-header">
@@ -281,7 +295,7 @@ const VentasConFacturaPanel = () => {
               Limpiar Filtros
             </Button>
           </div>
-          
+
           <div className="filters-grid">
             <div className="filter-group">
               <label>Rango de Fechas</label>
@@ -305,6 +319,7 @@ const VentasConFacturaPanel = () => {
             <div className="filter-group">
               <label>Estado Factura</label>
               <SelectSecondary
+                formikCompatible={false}
                 value={filters.estadoFactura}
                 onChange={handleEstadoChange}
               >
@@ -318,6 +333,7 @@ const VentasConFacturaPanel = () => {
               <label>Método de Pago</label>
               <SelectSecondary
                 value={filters.metodoPago}
+                formikCompatible={false}
                 onChange={handleMetodoPagoChange}
               >
                 <option value="">Todos</option>
@@ -371,9 +387,8 @@ const VentasConFacturaPanel = () => {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <ColumnVisibilityControl buttonLabel="Columnas" />
       </div>
-      {/* Tabla */}
       <Table
-        columns={filteredColumns} 
+        columns={filteredColumns}
         data={ventas}
         loading={loading}
         pagination={{
@@ -386,22 +401,69 @@ const VentasConFacturaPanel = () => {
         onRowsPerPageChange={handleSizeChange}
       />
 
-      <ModalConfirm
+      <Modal
         isOpen={confirmActionOpen}
         onClose={() => setConfirmActionOpen(false)}
-        onConfirm={confirmAction}
         title={actionType === 'anular' ? "Anular Factura" : "Revertir Anulación"}
-        message={
-          actionType === 'anular' 
-            ? `¿Está seguro que desea anular la factura #${selectedVenta?.factura?.numeroFactura || selectedVenta?.id}?` 
-            : `¿Está seguro que desea revertir la anulación de la factura #${selectedVenta?.factura?.numeroFactura || selectedVenta?.id}?`
-        }
-        confirmText={actionType === 'anular' ? "Anular" : "Revertir"}
-        cancelText="Cancelar"
-        danger={actionType === 'anular'}
-        warning={actionType === 'revertir'}
-        isLoading={actionType === 'anular' ? isAnulando : isRevirtiendo}
-      />
+        size="md"
+      >
+        {actionType === 'anular' ? (
+          <div>
+            <p>
+              ¿Está seguro que desea anular la factura #
+              {selectedVenta?.factura?.numeroFactura || selectedVenta?.id}?
+            </p>
+
+            <SelectSecondary
+              label="Motivo de Anulación"
+              value={selectedMotivo}
+              formikCompatible={false}
+              onChange={(e) => setSelectedMotivo(e.target.value)}
+            >
+              <option value="">Seleccione un motivo</option>
+              {motivos.map((motivo) => (
+                <option key={motivo.id} value={motivo.codigoClasificador}>
+                  {motivo.descripcion}
+                </option>
+              ))}
+            </SelectSecondary>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                variant="danger"
+                onClick={confirmAction}
+                disabled={isAnulando || !selectedMotivo}
+              >
+                {isAnulando ? "Anulando..." : "Anular"}
+              </Button>
+              <Button variant="secondary" onClick={() => setConfirmActionOpen(false)} style={{ marginLeft: '0.5rem' }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p>
+              ¿Está seguro que desea revertir la anulación de la factura #
+              {selectedVenta?.factura?.numeroFactura || selectedVenta?.id}?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                variant="warning"
+                onClick={confirmAction}
+                disabled={isRevirtiendo}
+              >
+                {isRevirtiendo ? "Revirtiendo..." : "Revertir"}
+              </Button>
+              <Button variant="secondary" onClick={() => setConfirmActionOpen(false)} style={{ marginLeft: '0.5rem' }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+
     </div>
   );
 };

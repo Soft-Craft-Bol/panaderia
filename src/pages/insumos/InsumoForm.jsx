@@ -8,27 +8,27 @@ import SelectPrimary from '../../components/selected/SelectPrimary';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import { FaCamera, FaTimesCircle, FaTrash, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 
-
-const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
-  const [previewImage, setPreviewImage] = useState(insumo?.imagen || null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const isEditing = !!insumo;
-
-  const TIPOS_INSUMO = [
+export const TIPOS_INSUMO = [
     { value: 'MATERIA_PRIMA', label: 'Materia Prima' },
     { value: 'PRODUCTO_TERMINADO', label: 'Producto Terminado' },
     { value: 'EMPAQUE_ETIQUETA', label: 'Empaques y Etiquetas' },
     { value: 'MATERIAL_LIMPIEZA', label: 'Material de Limpieza' }
   ];
 
-  const UNIDADES_MEDIDA = [
+export const UNIDADES_MEDIDA = [
     { value: 'kg', label: 'Kilogramos' },
     { value: 'g', label: 'Gramos' },
     { value: 'l', label: 'Litros' },
     { value: 'ml', label: 'Mililitros' },
     { value: 'unidad', label: 'Unidades' },
-    { value: 'paquete', label: 'Paquetes' }
+    { value: 'paquete', label: 'Paquetes' },
+    { value: 'rollo', label: 'Rollo' }
   ];
+
+const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
+  const [previewImage, setPreviewImage] = useState(insumo?.imagen || null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const isEditing = !!insumo;
 
   const validationSchema = Yup.object().shape({
     nombre: Yup.string()

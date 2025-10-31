@@ -65,7 +65,6 @@ const UnidadesLotesSync = ({ selectedReceta, porcentajeLote, setPorcentajeLote }
       <div className="form-group">
         <label>Unidades totales *</label>
         <input
-          type="number"
           min="1"
           step="1"
           value={unidadesTotales}
@@ -83,7 +82,8 @@ const UnidadesLotesSync = ({ selectedReceta, porcentajeLote, setPorcentajeLote }
 const ProduccionForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const currentUser = getUser();
-  const puntoVentaId = currentUser?.puntosVenta[0]?.id || null;
+  const puntoVentaId = currentUser?.sucursal[0]?.id || null;
+  
   const [insumosSeleccionados, setInsumosSeleccionados] = useState({});
   const [selectedReceta, setSelectedReceta] = useState(null);
   const [modoMezcla, setModoMezcla] = useState(false);

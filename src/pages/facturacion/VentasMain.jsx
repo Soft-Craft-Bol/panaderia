@@ -31,7 +31,7 @@ const VentasMain = () => {
           <Tab 
             label={
               <span className="tab-label">
-                <FaFileInvoiceDollar className="tab-icon" /> Ventas con Factura
+                <FaFileInvoiceDollar className="tab-icon" /> Ventas Facturadas
               </span>
             } 
             value="factura"

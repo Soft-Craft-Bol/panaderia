@@ -5,6 +5,8 @@ import './FiltersPanel.css';
 import { Button } from '../buttons/Button';
 import CustomDatePicker from '../inputs/DatePicker';
 import SelectSecondary from '../selected/SelectSecondary';
+import RangeSlider from '../inputs/RangeSlider';
+import Checkbox from '../inputs/Checkbox';
 
 const FiltersPanel = ({
   filtersConfig,
@@ -15,7 +17,7 @@ const FiltersPanel = ({
   layout = 'auto' // 'auto', 'grid', 'flex-column', 'compact'
 }) => {
   // Manejar cambios en inputs regulares
- const handleInputChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
     if (type === 'checkbox') {
@@ -85,16 +87,18 @@ const FiltersPanel = ({
         
         // Si tiene opciones directas
         if (config.options) {
-          selectOptions = config.options;
+          // VALIDACIÓN CRÍTICA: Asegurar que sea un array
+          selectOptions = Array.isArray(config.options) ? config.options : [];
         }
         // Si tiene configuración de query, cargar datos
         else if (config.queryKey && config.queryFn) {
           const { data } = loadQueryData(config.queryKey, config.queryFn);
-          selectOptions = data || [];
+          // VALIDACIÓN CRÍTICA: Asegurar que data sea un array
+          selectOptions = Array.isArray(data) ? data : [];
         }
         
         // Si hay un onChange personalizado en la configuración, usarlo
-        const handleSelectChange = config.onChange 
+        const handleSelectChangeLocal = config.onChange 
           ? (e) => {
               const value = e.target.value === '' ? null : e.target.value;
               config.onChange(value);
@@ -108,10 +112,10 @@ const FiltersPanel = ({
               <SelectSecondary
                 name={name}
                 value={filters[name] || ''}
-                onChange={handleSelectChange}
+                onChange={handleSelectChangeLocal}
                 formikCompatible={false}
               >
-                <option value="">{placeholder || `Todos los ${label?.toLowerCase() || 'items'}`}</option>
+                <option value="">{placeholder || `Todas las ${label?.toLowerCase() || 'items'}`}</option>
                 {selectOptions.map(option => (
                   <option 
                     key={option[config.valueKey || 'id']} 
@@ -162,7 +166,7 @@ const FiltersPanel = ({
           </div>
         );
       
-      case 'range':
+       case 'range':
         return (
           <div className="filter-group range-group" key={name}>
             {label && <label className="filter-label">{label}</label>}
@@ -171,8 +175,9 @@ const FiltersPanel = ({
               max={config.max || 100}
               value={filters[name] || config.defaultValue || 0}
               onChange={(value) => handleRangeChange(value, name)}
+              step={config.step || 1}
+              showValue={config.showValue !== false}
               className="filter-range"
-              {...config}
             />
             {config.showValues && (
               <div className="range-values">

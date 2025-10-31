@@ -2,6 +2,13 @@ import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 
 export const generateReciboPDF = (ventaData) => {
+  if (!ventaData) {
+    console.error("ventaData es undefined");
+    return;
+  }
+
+  const montoTotal = ventaData.montoTotal || ventaData.monto || 0;
+  
   const pageWidth = 80 * 2.83465; 
   const doc = new jsPDF({
     unit: 'pt',
@@ -29,7 +36,6 @@ export const generateReciboPDF = (ventaData) => {
     }
   };
 
-
   doc.setFontSize(18);
   centerText('RECIBO DE VENTA', yPos);
   yPos += lineHeight;
@@ -50,7 +56,7 @@ export const generateReciboPDF = (ventaData) => {
   doc.setFontSize(12);
   centerText(`Cliente: ${ventaData.cliente}`, yPos);
   yPos += lineHeight;
-  centerText(`Fecha: ${new Date(ventaData.fecha).toLocaleDateString()}`, yPos);
+  centerText(`Fecha: ${new Date(ventaData.fechaEmision).toLocaleDateString()}`, yPos);
   yPos += lineHeight;
 
   centerText(`Vendedor: ${ventaData.vendedor.firstName} ${ventaData.vendedor.lastName}`, yPos);
@@ -63,15 +69,20 @@ export const generateReciboPDF = (ventaData) => {
   centerText('DETALLE DE LA VENTA', yPos);
   yPos += lineHeight;
 
-  ventaData.detalles.forEach((detalle, index) => {
+  const detalles = ventaData.detalles || [];
+  detalles.forEach((detalle, index) => {
     doc.setFontSize(12);
     centerText(`Producto: ${detalle.descripcionProducto}`, yPos);
     yPos += lineHeight;
     centerText(`Cantidad: ${detalle.cantidad}`, yPos);
     yPos += lineHeight;
-    centerText(`Precio Unitario: ${(detalle.monto / detalle.cantidad).toFixed(2)} Bs`, yPos);
+    
+    const precioUnitario = detalle.precioUnitario || 0;
+    const monto = detalle.monto || (precioUnitario * detalle.cantidad);
+    
+    centerText(`Precio Unitario: ${precioUnitario.toFixed(2)} Bs`, yPos);
     yPos += lineHeight;
-    centerText(`Descuento: ${detalle.montoDescuento.toFixed(2)} Bs`, yPos);
+    centerText(`Subtotal: ${monto.toFixed(2)} Bs`, yPos);
     yPos += lineHeight;
 
     addLine(yPos);
@@ -79,7 +90,7 @@ export const generateReciboPDF = (ventaData) => {
   });
 
   doc.setFontSize(14);
-  centerText(`TOTAL: ${ventaData.monto.toFixed(2)} Bs`, yPos);
+  centerText(`TOTAL: ${montoTotal.toFixed(2)} Bs`, yPos);
   yPos += lineHeight;
 
   addLine(yPos);
@@ -90,6 +101,6 @@ export const generateReciboPDF = (ventaData) => {
   yPos += lineHeight;
   centerText('Vuelva pronto', yPos);
 
-  const fileName = `recibo_${ventaData.id}.pdf`;
+  const fileName = `recibo_${ventaData.idVenta || ventaData.id}.pdf`;
   doc.save(fileName);
 };

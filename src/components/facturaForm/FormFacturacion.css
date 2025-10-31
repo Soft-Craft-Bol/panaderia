@@ -1,0 +1,122 @@
+/* Contenedor principal */
+.facturacion-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Título principal */
+.facturacion-container h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xl);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Mensajes de estado de comunicación */
+.success-comunicacion {
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+    background-color: var(--color-success-light);
+    color: var(--color-success-dark);
+    border: 1px solid var(--color-success);
+}
+
+.success-comunicacion:not(:empty) {
+    border: 1px solid var(--color-success);
+}
+
+.error-comunicacion {
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-comunicacion:not(:empty) {
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
+  border: 1px solid var(--color-error);
+}
+
+/* Grupos de formulario */
+.metodo-pago-group,
+.tipo-emision-group,
+.tipo-moneda-group {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+/* Texto informativo */
+.info-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning-dark);
+  background-color: var(--color-warning-light);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-sm);
+}
+
+.factura-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .facturacion-container {
+    padding: var(--space-md);
+  }
+  
+  .factura-buttons {
+    justify-content: center;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Mejoras visuales para los grupos de formulario */
+.metodo-pago-group > *,
+.tipo-emision-group > *,
+.tipo-moneda-group > * {
+  margin-bottom: var(--space-md);
+}
+
+.metodo-pago-group > *:last-child,
+.tipo-emision-group > *:last-child,
+.tipo-moneda-group > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Estilo para el campo CAFC cuando es visible */
+.facturacion-container .input-text-container:has([name="cafc"]) {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background-color: var(--color-warning-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-warning);
+}
+
+.facturacion-container .input-text-container:has([name="cafc"]) label {
+  color: var(--color-warning-dark);
+  font-weight: 600;
+}

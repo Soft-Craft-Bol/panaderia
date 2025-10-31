@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { asignarInsumosaSucursalMasivo, getSucursales } from '../../service/api';
 import Modal from '../../components/modal/Modal';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
-import CrearInsumoForm from './InsumoForm';
+import CrearInsumoForm, { TIPOS_INSUMO, UNIDADES_MEDIDA } from './InsumoForm';
 import AsignarInsumoSucursalForm from './AsignarInsumoSucursalForm';
 import CompraInsumoForm from '../compras/CompraInsumoForm';
 import './InsumosPanel.css';
@@ -20,6 +20,8 @@ import InsumosGenericosTable from './InsumosGenericosTable';
 import InsumosSucursalTable from './InsumosSucursalTable';
 import { useInsumosSucursal } from '../../hooks/getInsumosBySucursal';
 import SelectorInsumoMasivoModal from '../../components/forms/insumoForm/SelectorInsumoMasivoModal';
+import { useNavigate } from 'react-router-dom';
+import FiltersPanel from '../../components/search/FiltersPanel';
 
 
 const InsumosPanel = () => {
@@ -30,6 +32,7 @@ const InsumosPanel = () => {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [activeTab, setActiveTab] = useState('insumos-sucursal');
+    const navigate = useNavigate();
 
     const [modalOpen, setModalOpen] = useState({
         crear: false,
@@ -40,6 +43,12 @@ const InsumosPanel = () => {
         asignarGenerico: false
     });
     const [selectedInsumo, setSelectedInsumo] = useState(null);
+
+    const [filters, setFilters] = useState({
+        nombre: null,
+        tipo: null,
+        unidades: null
+    });
 
     useEffect(() => {
         const fetchSucursales = async () => {
@@ -66,7 +75,8 @@ const InsumosPanel = () => {
         selectedSucursal,
         soloActivos,
         page - 1,
-        rowsPerPage
+        rowsPerPage,
+        filters
     );
 
     const insumos = data?.content || [];
@@ -97,20 +107,31 @@ const InsumosPanel = () => {
     };
 
     const handleAsignacionMasiva = async (insumosData) => {
-  try {
-    const payload = {
-      sucursalId: selectedSucursal,
-      insumos: insumosData
+        try {
+            const payload = {
+                sucursalId: selectedSucursal,
+                insumos: insumosData
+            };
+
+            await asignarInsumosaSucursalMasivo(payload);
+            handleModalClose(true);
+            // Mostrar mensaje de éxito
+        } catch (error) {
+            console.error('Error en asignación masiva:', error);
+            // Mostrar mensaje de error
+        }
     };
-    
-    await asignarInsumosaSucursalMasivo(payload);
-    handleModalClose(true);
-    // Mostrar mensaje de éxito
-  } catch (error) {
-    console.error('Error en asignación masiva:', error);
-    // Mostrar mensaje de error
-  }
-};
+
+    const handleFilterChange = (changedFilter) => {
+        setFilters(prev => ({ ...prev, ...changedFilter }));
+        setPage(1); // Reinicia a la primera página al filtrar
+    };
+
+    const handleResetFilters = () => {
+        setFilters({ nombre: null, tipo: null, unidades: null });
+        setPage(1);
+    };
+
 
     const renderInsumosSucursal = () => (
         <>
@@ -146,6 +167,49 @@ const InsumosPanel = () => {
                 </div>
             </div>
 
+            <FiltersPanel
+                filtersConfig={[
+                    {
+                        type: 'search',
+                        name: 'nombre',
+                        label: 'Buscar Insumo',
+                        placeholder: 'Ej. Harina, Azúcar...',
+                    },
+                    {
+                        type: 'select',
+                        name: 'tipo',
+                        label: 'Tipo de Insumo',
+                        config: {
+                            options: TIPOS_INSUMO.map(opt => ({
+                                id: opt.value,
+                                nombre: opt.label
+                            })),
+                            valueKey: 'id',
+                            labelKey: 'nombre'
+                        }
+                    },
+                    {
+                        type: 'select',
+                        name: 'unidades',
+                        label: 'Unidad de Medida',
+                        config: {
+                            options: UNIDADES_MEDIDA.map(opt => ({
+                                id: opt.value,
+                                nombre: opt.label
+                            })),
+                            valueKey: 'id',
+                            labelKey: 'nombre'
+                        }
+                    }
+                ]}
+
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onResetFilters={handleResetFilters}
+                layout="grid"
+            />
+
+
             <InsumosSucursalTable
                 data={insumos}
                 loading={isLoading}
@@ -177,40 +241,18 @@ const InsumosPanel = () => {
 
                 <div className="action-buttons">
                     <ButtonPrimary
-                        onClick={() => setModalOpen(prev => ({ ...prev, proveedor: true }))}
-                        variant="primary"
-                    >
-                        <FaUserTie className="button-icon" /> Registrar Proveedor
-                    </ButtonPrimary>
-
-                    <ButtonPrimary
-                        onClick={() => setModalOpen(prev => ({ ...prev, crear: true }))}
-                        variant="primary"
-                    >
-                        <FaBoxOpen className="button-icon" /> Crear Insumo
-                    </ButtonPrimary>
-
-                    <ButtonPrimary
-                        onClick={() => setModalOpen(prev => ({ ...prev, asignarGenerico: true }))}
-                        variant="primary"
-                    >
-                        <FaBoxes className="button-icon" /> Asignar Insumos Genéricos
-                    </ButtonPrimary>
-                    <ButtonPrimary
                         onClick={() => setModalOpen(prev => ({ ...prev, asignarMasivo: true }))}
                         variant="primary"
                     >
                         <FaBoxes className="button-icon" /> Asignar Múltiples Insumos
                     </ButtonPrimary>
 
-                    {selectedSucursal && (
-                        <ButtonPrimary
-                            onClick={() => setModalOpen(prev => ({ ...prev, asignar: true }))}
-                            variant="primary"
-                        >
-                            <FaStore className="button-icon" /> Asignar a Sucursal
-                        </ButtonPrimary>
-                    )}
+                    <ButtonPrimary
+                        onClick={() => navigate(`/ajustes-inventario-insumos`)}
+                        variant="primary"
+                    >
+                        <FaList className="button-icon" /> Ajustes de Inventario
+                    </ButtonPrimary>
                 </div>
             </div>
 

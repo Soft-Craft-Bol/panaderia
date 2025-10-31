@@ -1,12 +1,15 @@
 // src/components/caja/AperturaCajaForm.jsx
 import React, { useState } from 'react';
 import './AperturaCajaForm.css';
+import SelectSecondary from '../../components/selected/SelectSecondary';
+import { Button } from '../../components/buttons/Button';
 
 const AperturaCajaForm = ({ sucursal, onAbrir, onCancelar }) => {
   const [montoInicial, setMontoInicial] = useState('');
   const [turno, setTurno] = useState('MAÑANA');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const monto = parseFloat(montoInicial);
@@ -15,10 +18,17 @@ const AperturaCajaForm = ({ sucursal, onAbrir, onCancelar }) => {
       return;
     }
 
-    onAbrir({
-      montoInicial: monto,
-      turno
-    });
+    try {
+      setLoading(true);
+      await onAbrir({
+        montoInicial: monto,
+        turno
+      });
+    } catch (err) {
+      console.error("Error en apertura de caja", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,17 +47,36 @@ const AperturaCajaForm = ({ sucursal, onAbrir, onCancelar }) => {
         </div>
 
         <div className="form-group">
-          <label>Turno:</label>
-          <select value={turno} onChange={(e) => setTurno(e.target.value)}>
+          <SelectSecondary
+            name="turno"
+            value={turno}
+            onChange={(e) => setTurno(e.target.value)}
+            formikCompatible={false}
+          >
             <option value="MAÑANA">Mañana</option>
             <option value="TARDE">Tarde</option>
-            <option value="NOCHE">Noche</option>
-          </select>
+          </SelectSecondary>
         </div>
 
         <div className="form-buttons">
-          <button type="submit" className="btn-abrir">Abrir Caja</button>
-          <button type="button" className="btn-cancelar" onClick={onCancelar}>Cancelar</button>
+          <Button 
+            type="submit" 
+            variant="primary" 
+            className="btn-abrir"
+            loading={loading}  
+          >
+            Abrir Caja
+          </Button>
+          
+          <Button 
+            type="button" 
+            variant="secondary" 
+            className="btn-cancelar"
+            onClick={onCancelar}
+            disabled={loading} 
+          >
+            Cancelar
+          </Button>
         </div>
       </form>
     </div>

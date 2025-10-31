@@ -30,12 +30,12 @@ const validationSchema = Yup.object().shape({
     unidadMedida: Yup.number(),
     codigoProductoSin: Yup.number().required('Código Producto SIN es requerido'),
     codigo: Yup.string()
-    .required('Código del producto es requerido')
-    .min(3, 'Debe tener al menos 3 caracteres'),
+        .required('Código del producto es requerido')
+        .min(3, 'Debe tener al menos 3 caracteres'),
 
 });
 
-const ItemForm = () => {
+const ItemForm = (onSuccess) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [submitError, setSubmitError] = useState(null);
@@ -44,7 +44,7 @@ const ItemForm = () => {
     const [sucursales, setSucursales] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [itemCreated, setItemCreated] = useState(null);
-    const [cantidades, setCantidades] = useState({}); 
+    const [cantidades, setCantidades] = useState({});
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -156,7 +156,7 @@ const ItemForm = () => {
 
             setItemCreated(response.data);
             setIsModalOpen(true);
-
+            onSuccess();
         } catch (error) {
             console.error("Error al guardar el producto:", error);
             setSubmitError("Error al registrar o actualizar el producto. Intente nuevamente.");
@@ -184,7 +184,7 @@ const ItemForm = () => {
                 }
             }
             alerta("Cantidades establecidas exitosamente!", "Guardando...");
-            setIsModalOpen(false); 
+            setIsModalOpen(false);
             navigate("/productos");
         } catch (error) {
             console.error("Error estableciendo cantidades:", error);
@@ -194,12 +194,12 @@ const ItemForm = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        navigate("/productos"); 
+        navigate("/productos");
     };
 
     return (
         <>
-        <BackButton onClick={handleCloseModal} />
+            <BackButton onClick={handleCloseModal} />
             <Formik
                 enableReinitialize
                 initialValues={initialValues}
@@ -258,16 +258,16 @@ const ItemForm = () => {
                                 <ErrorMessage name="unidadMedida" component="div" className="error-message" />
                             </div>
                             <div className="input-group">
-    <label htmlFor="codigo">Código del Producto</label>
-    <Field
-        className="input-card"
-        id="codigo"
-        name="codigo"
-        type="text"
-        placeholder="Ingrese el código interno del producto"
-    />
-    <ErrorMessage name="codigo" component="div" className="error-message" />
-</div>
+                                <label htmlFor="codigo">Código del Producto</label>
+                                <Field
+                                    className="input-card"
+                                    id="codigo"
+                                    name="codigo"
+                                    type="text"
+                                    placeholder="Ingrese el código interno del producto"
+                                />
+                                <ErrorMessage name="codigo" component="div" className="error-message" />
+                            </div>
 
                             <div className="input-group">
                                 <label htmlFor="precioUnitario">Precio Unitario (Bs.)</label>
@@ -294,7 +294,6 @@ const ItemForm = () => {
                     </Form>
                 )}
             </Formik>
-
             <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
                 <h2>Establecer cantidades iniciales en sucursales</h2>
                 {sucursales.map((sucursal) => (
@@ -313,7 +312,6 @@ const ItemForm = () => {
                     <button onClick={handleEstablecerCantidades}>Establecer cantidades</button>
                     <button onClick={handleCloseModal}>Cerrar</button>
                 </div>
-                
             </Modal>
         </>
     );

@@ -153,7 +153,7 @@
 
 .nav-link:hover {
   background: var(--hover-color);
-  color: var(--color-primary); 
+  color: var(--primary-color); 
 }
 
 .nav-link:hover .nav-icon {
@@ -387,3 +387,23 @@
         
     }
   }
+
+.nav-item.active {
+  background-color: var(--primary-color); 
+  border-left: 4px solid var(--secundary-color); 
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.nav-item.active .nav-link:hover{
+  background: var(--primary-color); 
+  color: #fff;
+}
+
+.nav-item.active .nav-link {
+  color: #fff; 
+}
+
+.nav-item.active .nav-icon {
+  color: var(--color-bg-primary);
+}

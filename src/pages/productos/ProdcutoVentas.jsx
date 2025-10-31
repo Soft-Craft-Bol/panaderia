@@ -11,7 +11,6 @@ import { getUser } from "../../utils/authFunctions";
 import { FaCashRegister, FaEnvelope, FaPrint } from "react-icons/fa";
 import ProductoCard from "../../components/card/ProductoCard";
 import SelectSecondary from "../../components/selected/SelectSecondary";
-import SearchInput from "../../components/search/SearchInput";
 import InputText from "../../components/inputs/InputText";
 import { Button } from "../../components/buttons/Button";
 import { generateReciboPDF } from "../../utils/generateReciboPDF";
@@ -19,52 +18,105 @@ import { getCategorias } from "../../service/api";
 import { useQuery } from "@tanstack/react-query";
 import { useCajaActiva } from "../../hooks/useHistorialCajas";
 import FiltrosVentas from "./FiltrosVentas";
-
-const currentUser = getUser();
-console.log("Usuario actual:", currentUser);
-if (!currentUser?.puntosVenta || currentUser.puntosVenta.length === 0) {
-    alert('No cuenta con sucursales asignadas.');
-}
-
-const ID_SUCURSAL_ACTUAL = currentUser.puntosVenta[0].id;
+import RefetchButton from "../../components/buttons/RefetchButton";
 
 const ProductosVentas = () => {
+    const [currentUser, setCurrentUser] = useState(null);
+    const [ID_SUCURSAL_ACTUAL, setID_SUCURSAL_ACTUAL] = useState(null);
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    useEffect(() => {
+        const user = getUser();
+        setCurrentUser(user);
+
+        if (user?.puntosVenta?.length > 0) {
+            setID_SUCURSAL_ACTUAL(user.puntosVenta[0].id);
+        } else {
+            alert('No cuenta con sucursales asignadas.');
+        }
+        setIsInitialized(true);
+    }, []);
+
     const {
         productos,
         searchTerm,
         setSearchTerm,
-        codigoProductoSin,
-        setCodigoProductoSin,
         loadMore,
         hasNextPage,
         isFetching,
         refetch,
         conDescuento,
         setConDescuento,
-        categoriaId,
-        setCategoriaId,
+        categoriaIds,
+        setCategoriaIds,
         sinStock,
         setSinStock,
         sortField,
         setSortField,
         invalidateAndRefetch
     } = useProductos(ID_SUCURSAL_ACTUAL);
+
     const [isCartOpen, setIsCartOpen] = useState(false);
-    //const [cart, setCart] = useState([]);
     const [ventaData, setVentaData] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const navigate = useNavigate();
     const { realizarVenta, isLoading, error, reset } = useVentas();
-    const [metodoPago, setMetodoPago] = useState("EFECTIVO");
+    const [metodoPago, setMetodoPago] = useState("");
     const [montoPagado, setMontoPagado] = useState("");
     const [ventaCompletada, setVentaCompletada] = useState(null);
     const [showReciboModal, setShowReciboModal] = useState(false);
-    const [cajaAbierta, setCajaAbierta] = useState(null);
     const [nombreClienteRecibo, setNombreClienteRecibo] = useState("");
     const [activeCartIndex, setActiveCartIndex] = useState(0);
+    const [pagoCombinado, setPagoCombinado] = useState(false);
+    const [metodosPagoList, setMetodosPagoList] = useState([]);
+
     const [carts, setCarts] = useState([[], [], [], []]);
 
-    const cart = carts[activeCartIndex];
+    useEffect(() => {
+        if (!isInitialized) return;
+
+        try {
+            const storedCarts = localStorage.getItem('ventasCarts');
+            if (storedCarts) {
+                const parsedCarts = JSON.parse(storedCarts);
+                const filledCarts = [];
+                for (let i = 0; i < 4; i++) {
+                    filledCarts[i] = Array.isArray(parsedCarts[i]) ? parsedCarts[i] : [];
+                }
+                setCarts(filledCarts);
+            }
+        } catch (error) {
+            console.error("Error cargando carritos:", error);
+            setCarts([[], [], [], []]);
+        }
+    }, [isInitialized]);
+
+    useEffect(() => {
+        if (!isInitialized || carts.length === 0) return;
+
+        const timer = setTimeout(() => {
+            try {
+                localStorage.setItem('ventasCarts', JSON.stringify(carts));
+            } catch (error) {
+                console.error("Error guardando carritos:", error);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [carts, isInitialized]);
+
+    const cart = useMemo(() => {
+        if (!Array.isArray(carts) || carts.length === 0) {
+            return [];
+        }
+
+        if (activeCartIndex < 0 || activeCartIndex >= carts.length) {
+            return [];
+        }
+
+        const selectedCart = carts[activeCartIndex];
+        return Array.isArray(selectedCart) ? selectedCart : [];
+    }, [carts, activeCartIndex]);
 
     const switchCart = (index) => {
         if (index >= 0 && index < carts.length) {
@@ -77,36 +129,14 @@ const ProductosVentas = () => {
             toast.warning('Solo se permiten hasta 4 carritos simultáneos');
             return;
         }
-        setCarts([...carts, []]);
+        setCarts(prev => [...prev, []]);
     };
-
-    const categories = useMemo(() => [
-        { value: '', label: 'TODAS LAS CATEGORÍAS' },
-        { value: '23410', label: 'GALLETAS' },
-        { value: '23420', label: 'PAN DULCE' },
-        { value: '23430', label: 'PASTELERÍA' },
-        { value: '23490', label: 'PANADERÍA' },
-        { value: '99100', label: 'OTROS' },
-        { value: '234109', label: 'GALLETAS IMPORT.' },
-        { value: '234209', label: 'PAN DULCE IMPORT.' },
-        { value: '234309', label: 'PASTELERÍA IMPORT.' },
-        { value: '234909', label: 'PANADERÍA IMPORT.' },
-        { value: '991009', label: 'OTROS IMPORT.' }
-    ], []);
 
     const {
         data: cajaActiva,
         isLoading: isLoadingCaja,
         refetch: refetchCaja
     } = useCajaActiva(currentUser?.id);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            localStorage.setItem('ventasCarts', JSON.stringify(carts));
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [carts]);
 
     const { data: categoriasData, isLoading: categoriasLoading } = useQuery({
         queryKey: ['categorias'],
@@ -135,14 +165,6 @@ const ProductosVentas = () => {
                 }))
         ];
     }, [categoriasData]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            localStorage.setItem('ventasCarts', JSON.stringify(cart));
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [cart]);
 
     const getCurrentStock = useCallback((product) => {
         return product.cantidadDisponible || 0;
@@ -209,7 +231,7 @@ const ProductosVentas = () => {
     }, [activeCartIndex]);
 
     const vaciarCarrito = useCallback(() => {
-        if (cart.length === 0) {
+        if (!cart || cart.length === 0) {
             toast.info('El carrito ya está vacío');
             return;
         }
@@ -223,15 +245,20 @@ const ProductosVentas = () => {
             });
             toast.success('Carrito vaciado correctamente');
         }
-    }, [activeCartIndex, cart.length]);
-
-    // Modificamos el localStorage para guardar todos los carritos
-
-
-
+    }, [activeCartIndex, cart]);
 
     const handleCheckout = useCallback(async () => {
         try {
+            if (!ID_SUCURSAL_ACTUAL) {
+                toast.error('No se ha seleccionado una sucursal válida');
+                return;
+            }
+
+            if (!cart || cart.length === 0) {
+                toast.error('El carrito está vacío');
+                return;
+            }
+
             const productosConStockVerificado = cart.map(item => {
                 if (item.quantity > item.stockActual) {
                     throw new Error(`No hay suficiente stock para ${item.descripcion}`);
@@ -257,25 +284,55 @@ const ProductosVentas = () => {
         } catch (error) {
             toast.error(error.message);
         }
-    }, [cart, navigate]);
+    }, [cart, navigate, ID_SUCURSAL_ACTUAL]);
 
-    const totalCompra = useMemo(() =>
-        cart.reduce((total, item) =>
-            total + ((item.tieneDescuento ? item.precioConDescuento : item.precioUnitario) * item.quantity)
-            , 0),
-        [cart]);
-    const totalConDescuentos = ventaData?.detalle.reduce((total, item) => {
-        return total + (item.precioUnitario * item.cantidad - item.montoDescuento);
-    }, 0);
+    const totalCompra = useMemo(() => {
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
+            return 0;
+        }
 
+        try {
+            return cart.reduce((total, item) => {
+                if (!item || typeof item.quantity !== 'number') return total;
+
+                const precio = (item.tieneDescuento && item.precioConDescuento)
+                    ? item.precioConDescuento
+                    : (item.precioUnitario || 0);
+
+                return total + (precio * item.quantity);
+            }, 0);
+        } catch (error) {
+            console.error("Error calculating totalCompra:", error);
+            return 0;
+        }
+    }, [cart]);
+
+    const totalConDescuentos = useMemo(() => {
+        if (!ventaData?.detalle || !Array.isArray(ventaData.detalle)) return totalCompra;
+
+        return ventaData.detalle.reduce((total, item) => {
+            return total + (item.precioUnitario * item.cantidad - item.montoDescuento);
+        }, 0);
+    }, [ventaData, totalCompra]);
+
+    // Calcular suma de métodos de pago combinados
+    const sumaPagosCombinados = useMemo(() => {
+        return metodosPagoList.reduce((acc, mp) => acc + (parseFloat(mp.monto) || 0), 0);
+    }, [metodosPagoList]);
+
+    // Calcular diferencia para pagos combinados
+    const diferenciaPagos = useMemo(() => {
+        if (!pagoCombinado) return 0;
+        return totalCompra - sumaPagosCombinados;
+    }, [totalCompra, sumaPagosCombinados, pagoCombinado]);
 
     const cambio = useMemo(() => {
         if (metodoPago !== "EFECTIVO") return "0.00";
 
-        const total = totalConDescuentos || 0;
+        const total = totalConDescuentos || totalCompra || 0;
         const pagado = parseFloat(montoPagado) || total;
         return pagado > total ? (pagado - total).toFixed(2) : "0.00";
-    }, [montoPagado, totalConDescuentos, metodoPago]);
+    }, [montoPagado, totalConDescuentos, totalCompra, metodoPago]);
 
     const productosList = useMemo(() => (
         productos.map(product => (
@@ -288,21 +345,83 @@ const ProductosVentas = () => {
         ))
     ), [productos, addToCart, getCurrentStock]);
 
+    // En la función confirmarVenta, reemplaza esta sección:
 
     const confirmarVenta = async () => {
         try {
-            const result = await realizarVenta(ventaData);
+            if (!ventaData) {
+                toast.error('Error: Datos de venta no disponibles');
+                return;
+            }
+
+            let ventaDataFinal;
+            if (pagoCombinado) {
+                // Validar que hay métodos de pago
+                if (metodosPagoList.length === 0) {
+                    toast.error('Debe agregar al menos un método de pago');
+                    return;
+                }
+
+                // Validar que todos los métodos tienen datos completos
+                const metodosIncompletos = metodosPagoList.filter(mp =>
+                    !mp.metodoPago || mp.monto <= 0
+                );
+                if (metodosIncompletos.length > 0) {
+                    toast.error('Todos los métodos de pago deben tener método y monto válidos');
+                    return;
+                }
+
+                const sumaPagos = metodosPagoList.reduce((acc, mp) => acc + (parseFloat(mp.monto) || 0), 0);
+                if (Math.abs(sumaPagos - totalCompra) > 0.01) { 
+                    toast.error(`Los montos no coinciden. Total: Bs ${totalCompra.toFixed(2)}, Suma pagos: Bs ${sumaPagos.toFixed(2)}, Diferencia: Bs ${Math.abs(sumaPagos - totalCompra).toFixed(2)}`);
+                    return;
+                }
+
+                ventaDataFinal = {
+                    ...ventaData,
+                    metodoPago: metodosPagoList[0]?.metodoPago || "",
+                    metodosPago: metodosPagoList,
+                    montoRecibido: sumaPagos,
+                    montoDevuelto: 0 
+                };
+            } else {
+                if (!metodoPago || metodoPago.trim() === "") {
+                    toast.error('Por favor seleccione un método de pago');
+                    return;
+                }
+
+                ventaDataFinal = {
+                    ...ventaData,
+                    metodoPago,
+                    montoRecibido: metodoPago === "EFECTIVO"
+                        ? parseFloat(montoPagado) || totalCompra
+                        : totalCompra,
+                    montoDevuelto: metodoPago === "EFECTIVO"
+                        ? parseFloat(cambio) || 0
+                        : 0
+                };
+            }
+console.log("Datos de venta final:", ventaDataFinal);
+            const result = await realizarVenta(ventaDataFinal);
 
             if (result.success) {
-                console.log("Venta realizada con éxito:", result.data);
                 toast.success(`Venta exitosa! N° ${result.data.idVenta}`, { duration: 5000 });
                 setVentaCompletada(result.data);
-                setCart([]);
-                localStorage.removeItem('ventasCarts');
+
+                setCarts(prevCarts =>
+                    prevCarts.map((cart, index) =>
+                        index === activeCartIndex ? [] : cart
+                    )
+                );
+
+                const updatedCarts = carts.map((cart, index) =>
+                    index === activeCartIndex ? [] : cart
+                );
+                localStorage.setItem('ventasCarts', JSON.stringify(updatedCarts));
 
                 await invalidateAndRefetch();
 
-                if (nombreClienteRecibo.trim()) {
+                if (ventaData.nombreCliente && ventaData.nombreCliente !== "CONSUMIDOR FINAL") {
                     setShowReciboModal(true);
                 } else {
                     toast.info("Venta completada sin recibo", { duration: 3000 });
@@ -329,8 +448,13 @@ const ProductosVentas = () => {
     };
 
     const handleFinalizarVenta = useCallback(async () => {
-        if (cart.length === 0) {
+        if (!cart || cart.length === 0) {
             toast.error('El carrito está vacío');
+            return;
+        }
+
+        if (!ID_SUCURSAL_ACTUAL) {
+            toast.error('No se ha seleccionado una sucursal válida');
             return;
         }
 
@@ -355,11 +479,11 @@ const ProductosVentas = () => {
                 idCliente: 1,
                 idPuntoVenta: ID_SUCURSAL_ACTUAL,
                 tipoComprobante: "RECIBO",
-                username: currentUser.username,
-                metodoPago,
+                username: currentUser?.username || "admin",
+                metodoPago: metodoPago,
                 montoRecibido: montoRecibidoValue,
                 montoDevuelto: metodoPago === "EFECTIVO" ? parseFloat(cambio) || 0 : 0,
-                cajaId: cajaActiva.id,
+                cajaId: cajaActiva?.id || 0,
                 nombreCliente: nombreClienteRecibo.trim() || "CONSUMIDOR FINAL",
                 detalle: productosConStockVerificado.map(item => {
                     const descuentoUnitario = item.tieneDescuento
@@ -376,13 +500,12 @@ const ProductosVentas = () => {
                 })
             };
 
-            console.log("Datos preparados para venta:", data);
             setVentaData(data);
             setShowConfirmModal(true);
         } catch (error) {
             toast.error(error.message);
         }
-    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo]);
+    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo, ID_SUCURSAL_ACTUAL, cajaActiva]);
 
     const searchInputRef = React.useRef(null);
 
@@ -457,7 +580,6 @@ const ProductosVentas = () => {
         }
     }, [cart, isCartOpen, showConfirmModal, showReciboModal, navigate, handleFinalizarVenta, updateQuantity, handleCheckout]);
 
-
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
         return () => {
@@ -467,14 +589,15 @@ const ProductosVentas = () => {
 
     const resetearFormulario = () => {
         setNombreClienteRecibo("");
-        setMetodoPago("EFECTIVO");
+        setMetodoPago("");
         setMontoPagado("");
         setVentaData(null);
         setVentaCompletada(null);
         setShowConfirmModal(false);
         setShowReciboModal(false);
+        setPagoCombinado(false);
+        setMetodosPagoList([]);
     };
-
 
     const handlePrintReceipt = () => {
         if (!ventaCompletada) {
@@ -497,8 +620,8 @@ const ProductosVentas = () => {
             ...ventaCompletada,
             cliente: nombreClienteRecibo,
             vendedor: {
-                firstName: currentUser.firstName,
-                lastName: currentUser.lastName
+                firstName: currentUser?.firstName || "Usuario",
+                lastName: currentUser?.lastName || "Sistema"
             },
             puntoVenta: {
                 sucursal: {
@@ -510,11 +633,11 @@ const ProductosVentas = () => {
                     telefono: "62982552"
                 }
             },
-            detalles: ventaCompletada.detalles.map(detalle => ({
+            detalles: ventaCompletada.detalles?.map(detalle => ({
                 ...detalle,
                 descripcionProducto: detalle.producto?.descripcion || "Producto sin nombre",
                 monto: detalle.precioUnitario * detalle.cantidad - detalle.montoDescuento
-            }))
+            })) || []
         };
 
         generateReciboPDF(pdfData);
@@ -522,6 +645,13 @@ const ProductosVentas = () => {
         setShowConfirmModal(false);
     };
 
+    if (!currentUser) {
+        return <div>Cargando información del usuario...</div>;
+    }
+
+    if (!ID_SUCURSAL_ACTUAL) {
+        return <div>No tiene sucursales asignadas. Contacte al administrador.</div>;
+    }
 
     return (
         <div className={`ventas-container ${isCartOpen ? 'cart-open' : 'cart-closed'}`}>
@@ -537,6 +667,26 @@ const ProductosVentas = () => {
                 <FaCashRegister className="button-icon" />
                 Cierre de Caja
             </button>
+
+            <RefetchButton
+                onRefetch={invalidateAndRefetch}
+            />
+            <div className="ventaButtons">
+                <Button
+                    className="cierre-caja-button}"
+                    onClick={() => navigate('/ajuste')}
+                >
+                    Ajustes de Inventario
+                </Button>
+
+                <Button
+                    className="cierre-caja-button}"
+                    onClick={() => navigate('/egresos')}
+                >
+                    Egresos
+                </Button>
+            </div>
+
             <div className="cart-switcher">
                 {carts.map((_, index) => (
                     <button
@@ -567,15 +717,12 @@ const ProductosVentas = () => {
                 sortField={sortField}
                 setSortField={setSortField}
                 categoriasOptions={categoriasOptions}
-                categoriaId={categoriaId}
-                setCategoriaId={setCategoriaId}
-                codigoProductoSin={codigoProductoSin}
-                setCodigoProductoSin={setCodigoProductoSin}
+                categoriaIds={categoriaIds}
+                setCategoriaIds={setCategoriaIds}
                 conDescuento={conDescuento}
                 setConDescuento={setConDescuento}
                 sinStock={sinStock}
                 setSinStock={setSinStock}
-                categories={categories}
             />
 
             <div className="ventas-main-content">
@@ -604,49 +751,220 @@ const ProductosVentas = () => {
                 <p>Total a pagar: <strong>Bs {totalCompra.toFixed(2)}</strong></p>
 
                 <div className="modal-field">
-                    <SelectSecondary
-                        name="metodoPago"
-                        label="Método de Pago"
-                        value={metodoPago}
-                        onChange={(e) => setMetodoPago(e.target.value)}
-                        formikCompatible={false}
-                    >
-                        <option value="EFECTIVO">EFECTIVO</option>
-                        <option value="QR">QR</option>
-                        <option value="TARJETA">TARJETA</option>
-                        <option value="TRANSFERENCIA">TRANSFERENCIA</option>
-                    </SelectSecondary>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={pagoCombinado}
+                            onChange={(e) => {
+                                setPagoCombinado(e.target.checked);
+                                if (e.target.checked) {
+                                    // Inicializar con un método de pago
+                                    setMetodosPagoList([{ metodoPago: "", monto: 0 }]);
+                                } else {
+                                    setMetodosPagoList([]);
+                                }
+                            }}
+                        />
+                        Pago combinado
+                    </label>
                 </div>
 
-                {metodoPago === "EFECTIVO" && (
+                {!pagoCombinado && (
                     <>
                         <div className="modal-field">
-                            <InputText
-                                label="Monto recibido (opcional)"
-                                type="number"
-                                formik={false}
-                                value={montoPagado}
-                                onChange={(e) => {
-                                    const value = parseFloat(e.target.value) || 0;
-                                    setMontoPagado(value);
-                                }}
-                                placeholder={`Mínimo Bs ${totalCompra.toFixed(2)}`}
-                            />
-                            <small style={{ color: '#666', fontSize: '0.85em', marginTop: '5px', display: 'block' }}>
-                                💡 Si no ingresa monto, se considerará el pago exacto
-                            </small>
+                            <SelectSecondary
+                                name="metodoPago"
+                                label="Método de Pago *"
+                                value={metodoPago}
+                                onChange={(e) => setMetodoPago(e.target.value)}
+                                formikCompatible={false}
+                                required
+                            >
+                                <option value="" disabled>Seleccione método de pago</option>
+                                <option value="EFECTIVO">EFECTIVO</option>
+                                <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
+                                <option value="TARJETA">TARJETA</option>
+                                <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
+                                <option value="EFECTIVO_PAGO_POSTERIOR">EFECTIVO PAGO POSTERIOR</option>
+                            </SelectSecondary>
                         </div>
 
-                        <div className="modal-field">
-                            <InputText
-                                label="Cambio"
-                                type="text"
-                                formik={false}
-                                readOnly
-                                value={`Bs ${Math.max(0, (parseFloat(montoPagado) || totalCompra) - totalCompra).toFixed(2)}`}
-                            />
-                        </div>
+                        {metodoPago === "EFECTIVO" && (
+                            <>
+                                <div className="modal-field">
+                                    <InputText
+                                        label="Monto recibido (opcional)"
+                                        type="number"
+                                        formik={false}
+                                        value={montoPagado}
+                                        onChange={(e) => {
+                                            const value = parseFloat(e.target.value) || 0;
+                                            setMontoPagado(value);
+                                        }}
+                                        placeholder={`Mínimo Bs ${totalCompra.toFixed(2)}`}
+                                        min={totalCompra}
+                                    />
+                                    <small style={{ color: '#666', fontSize: '0.85em', marginTop: '5px', display: 'block' }}>
+                                        💡 Si no ingresa monto, se considerará el pago exacto
+                                    </small>
+                                </div>
+
+                                <div className="modal-field">
+                                    <InputText
+                                        label="Cambio"
+                                        type="text"
+                                        formik={false}
+                                        readOnly
+                                        value={`Bs ${Math.max(0, (parseFloat(montoPagado) || totalCompra) - totalCompra).toFixed(2)}`}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </>
+                )}
+
+                {pagoCombinado && (
+                    <div className="pago-combinado-section">
+                        <h3 style={{ marginBottom: '15px', color: '#333' }}>Métodos de Pago</h3>
+
+                        {/* Resumen de totales */}
+                        <div className="pago-resumen" style={{
+                            backgroundColor: '#f8f9fa',
+                            padding: '12px',
+                            borderRadius: '6px',
+                            marginBottom: '15px',
+                            border: diferenciaPagos !== 0 ? '2px solid #dc3545' : '2px solid #28a745'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span><strong>Total a pagar:</strong></span>
+                                <span><strong>Bs {totalCompra.toFixed(2)}</strong></span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span>Suma de pagos:</span>
+                                <span style={{ color: sumaPagosCombinados === totalCompra ? '#28a745' : '#dc3545' }}>
+                                    Bs {sumaPagosCombinados.toFixed(2)}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #dee2e6', paddingTop: '5px' }}>
+                                <span><strong>Diferencia:</strong></span>
+                                <span style={{
+                                    color: diferenciaPagos === 0 ? '#28a745' : '#dc3545',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {diferenciaPagos === 0 ? '✓ Correcto' : `Bs ${Math.abs(diferenciaPagos).toFixed(2)} ${diferenciaPagos > 0 ? 'faltante' : 'excedente'}`}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="metodos-pago-list">
+                            {metodosPagoList.map((mp, index) => (
+                                <div key={index} className="pago-item" style={{
+                                    display: 'flex',
+                                    gap: '10px',
+                                    alignItems: 'flex-end',
+                                    marginBottom: '15px',
+                                    padding: '12px',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: '6px',
+                                    backgroundColor: '#fff'
+                                }}>
+                                    <div style={{ flex: '1' }}>
+                                        <SelectSecondary
+                                            value={mp.metodoPago}
+                                            formikCompatible={false}
+                                            label={`Método ${index + 1}`}
+                                            onChange={(e) => {
+                                                const updated = [...metodosPagoList];
+                                                updated[index].metodoPago = e.target.value;
+                                                setMetodosPagoList(updated);
+                                            }}
+                                        >
+                                            <option value="" disabled>Seleccione método</option>
+                                            <option value="EFECTIVO">EFECTIVO</option>
+                                            <option value="TARJETA">TARJETA</option>
+                                            <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
+                                            <option value="DEPOSITO_EN_CUENTA">DEPOSITO EN CUENTA</option>
+                                            <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
+                                            <option value="EFECTIVO_PAGO_POSTERIOR">EFECTIVO PAGO POSTERIOR</option>
+                                        </SelectSecondary>
+                                    </div>
+
+                                    <div style={{ flex: '0 0 120px' }}>
+                                        <InputText
+                                            type="number"
+                                            value={mp.monto || ''}
+                                            formik={false}
+                                            label="Monto"
+                                            onChange={(e) => {
+                                                const updated = [...metodosPagoList];
+                                                updated[index].monto = parseFloat(e.target.value) || 0;
+                                                setMetodosPagoList(updated);
+                                            }}
+                                            placeholder="0.00"
+                                            step="0.01"
+                                            min="0"
+                                        />
+                                    </div>
+
+                                    {(mp.metodoPago === "TARJETA" || mp.metodoPago === "TRANSFERENCIA_BANCARIA") && (
+                                        <div style={{ flex: '0 0 140px' }}>
+                                            <InputText
+                                                type="text"
+                                                placeholder="Referencia"
+                                                formik={false}
+                                                label="Referencia"
+                                                value={mp.referencia || ""}
+                                                onChange={(e) => {
+                                                    const updated = [...metodosPagoList];
+                                                    updated[index].referencia = e.target.value;
+                                                    setMetodosPagoList(updated);
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => {
+                                            setMetodosPagoList(metodosPagoList.filter((_, i) => i !== index));
+                                        }}
+                                        style={{ flexShrink: 0 }}
+                                        disabled={metodosPagoList.length === 1}
+                                    >
+                                        Eliminar
+                                    </Button>
+                                </div>
+                            ))}
+
+                            {metodosPagoList.length < 3 && (
+                                <Button
+                                    onClick={() => setMetodosPagoList([...metodosPagoList, { metodoPago: "", monto: 0 }])}
+                                    style={{ width: '100%', marginBottom: '15px' }}
+                                    variant="secondary"
+                                >
+                                    + Agregar método de pago
+                                </Button>
+                            )}
+
+                            {/* Botón de auto-completar el faltante */}
+                            {diferenciaPagos > 0 && metodosPagoList.length > 0 && (
+                                <Button
+                                    onClick={() => {
+                                        const updated = [...metodosPagoList];
+                                        const lastIndex = updated.length - 1;
+                                        if (updated[lastIndex].metodoPago) {
+                                            updated[lastIndex].monto = (updated[lastIndex].monto || 0) + diferenciaPagos;
+                                            setMetodosPagoList(updated);
+                                        }
+                                    }}
+                                    style={{ width: '100%', marginBottom: '10px' }}
+                                    variant="secondary"
+                                >
+                                    💡 Auto-completar faltante (Bs {diferenciaPagos.toFixed(2)})
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 )}
 
                 <div className="modal-field">
@@ -667,9 +985,13 @@ const ProductosVentas = () => {
                     <Button
                         variant="primary"
                         onClick={confirmarVenta}
-                        disabled={isLoading}
+                        disabled={isLoading || (!pagoCombinado && !metodoPago) || (pagoCombinado && diferenciaPagos !== 0)}
+                        autoFocus
+                        style={{
+                            opacity: (pagoCombinado && diferenciaPagos !== 0) ? 0.6 : 1
+                        }}
                     >
-                        {isLoading ? "Procesando..." : "Finalizar Venta"}
+                        {isLoading ? "Procesando..." : "Confirmar"}
                     </Button>
                     <Button variant="secondary" onClick={() => {
                         setShowConfirmModal(false);
@@ -708,7 +1030,6 @@ const ProductosVentas = () => {
                     <Button
                         variant="secondary"
                         onClick={() => {
-                            // Lógica para enviar por correo
                             toast.success(`Recibo enviado por correo a ${nombreClienteRecibo}`);
                             setShowReciboModal(false);
                             resetearFormulario();

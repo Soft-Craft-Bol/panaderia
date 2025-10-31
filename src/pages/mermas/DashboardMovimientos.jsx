@@ -9,7 +9,6 @@ import ProduccionForm from '../production/ProduccionForm';
 import BackButton from '../../components/buttons/BackButton';
 import { FaIndustry, FaExchangeAlt } from 'react-icons/fa';
 import './DashboardMovimientos.css';
-import MovimientoInsumosForm from '../movimientoInsumos/MovimientoInsumosForm';
 
 const DashboardMovimientos = () => {
   const [activeTab, setActiveTab] = useState('produccion');
@@ -21,8 +20,6 @@ const DashboardMovimientos = () => {
       setModalContent(<ProduccionForm onClose={() => setModalOpen(false)} />);
     } else if (type === 'merma') {
       setModalContent(<MermaForm onClose={() => setModalOpen(false)} />);
-    } else if (type === 'otros') {
-      setModalContent(<MovimientoInsumosForm onClose={() => setModalOpen(false)} />);
     }
     setModalOpen(true);
   };
@@ -32,16 +29,13 @@ const DashboardMovimientos = () => {
       <BackButton position="left" to="/productos" />
 
       <div className="produccion-header">
-        <h1>📊 Gestión de Movimientos</h1>
+        <h1>Gestión de Movimientos</h1>
         <div className="dashboard-actions">
           <Button onClick={() => openModal('produccion')} className="btn-general">
             Registrar Producción
           </Button>
           <Button onClick={() => openModal('merma')} className="btn-general">
             Registrar Merma / Donación
-          </Button>
-          <Button onClick={() => openModal('otros')} className="btn-general">
-            Registrar otros Movimientos
           </Button>
         </div>
 

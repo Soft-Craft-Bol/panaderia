@@ -38,7 +38,7 @@ const ProductoCard = memo(({ product, addToCart, getCurrentStock }) => {
                         className="producto-image"
                         loading="lazy"
                         onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/150?text=Sin+Imagen';
+                            e.target.src = 'https://static.vecteezy.com/system/resources/previews/005/723/771/non_2x/photo-album-icon-image-symbol-or-no-image-flat-design-on-a-white-background-vector.jpg';
                         }}
                     />
                 ) : (

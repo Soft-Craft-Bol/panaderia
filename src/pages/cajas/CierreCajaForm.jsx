@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { getResumenPagos, cerrarCaja } from '../../service/api';
-import { getUser } from '../../utils/authFunctions';
+import { getResumenPagos, cerrarCaja,
+        getResumenProductos, getProductosByPuntoVenta,
+        getStockInicial, getEgresosByCaja } from '../../service/api';
 import { FaCashRegister, FaFileInvoiceDollar, FaMoneyBillWave, FaWallet, FaExchangeAlt, FaPrint, FaSave, FaCalculator, FaFileAlt, FaInfoCircle } from 'react-icons/fa';
 import { MdAttachMoney, MdPointOfSale, MdReceipt } from 'react-icons/md';
 import { generateCierreCajaPDF } from '../../utils/generateCierreCajaPDF';
 import './CierreCajaForm.css';
+import ResumenProductos from './ResumenProductos';
 
-const CierreCajaForm = ({ caja }) => {
-  const currentUser = useMemo(() => getUser(), []);
+const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
   const [formData, setFormData] = useState({
     gastos: '',
     efectivoFinal: '',
@@ -62,7 +63,7 @@ const CierreCajaForm = ({ caja }) => {
   }, [totalContado, totalVentas]);
 
   const handleGuardar = async () => {
-    if (!resumenPagos || !resumenPagos.facturacion || !resumenPagos.sin_facturacion) {
+    if (!resumenPagos) {
       alert('No hay datos de ventas para esta caja');
       return;
     }
@@ -75,6 +76,8 @@ const CierreCajaForm = ({ caja }) => {
       };
 
       const processPagos = (pagos, destino) => {
+        if (!pagos) return;
+        
         Object.entries(pagos).forEach(([metodo, monto]) => {
           if (metodo !== 'subtotal' && monto) {
             const metodoNormalizado = metodo.toLowerCase().replace(' ', '_');
@@ -88,7 +91,7 @@ const CierreCajaForm = ({ caja }) => {
 
       const payload = {
         cajaId: caja.id,
-        usuarioId: currentUser.id,
+        usuarioId: usuario.id,
         efectivoFinal: Number(formData.efectivoFinal) || 0,
         billeteraMovilFinal: Number(formData.billeteraMovilFinal) || 0,
         transferenciaFinal: Number(formData.transferenciaFinal) || 0,
@@ -99,29 +102,63 @@ const CierreCajaForm = ({ caja }) => {
         resumenPagos: formattedResumen
       };
 
-      await cerrarCaja(payload);
+      const res = await cerrarCaja(payload);
+      console.log('Cierre de caja exitoso:', res.data);
+
+      if (onCierreExitoso) {
+        onCierreExitoso();
+      }
       alert('Cierre guardado exitosamente');
     } catch (error) {
       console.error('Error al guardar el cierre:', error);
-      alert(`Error al guardar el cierre: ${error.response?.data?.message || error.message}`);
+      alert(`Error al guardar el cierre: ${error.response?.data || error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleImprimir = () => {
-    const data = {
-      caja: caja.nombre,
-      usuario: currentUser.username,
-      montoInicial: caja.montoInicial.toFixed(2),
-      resumenPagos,
-      totalVentas: totalVentas.toFixed(2),
-      totalContado: totalContado.toFixed(2),
-      diferencia,
-      observaciones: formData.observaciones,
-      fecha: new Date().toLocaleDateString()
-    };
-    generateCierreCajaPDF(data, reportRef.current);
+  const handleImprimir = async () => {
+    try {
+      const productosResponse = await getResumenProductos(caja.id);
+      const resumenProductos = productosResponse.data;
+      
+      const puntoVentaId = usuario?.puntosVenta[0]?.id; 
+      const stockResponse = await getProductosByPuntoVenta(
+        puntoVentaId, 
+        0, 
+        1000,  
+        '', 
+        null,
+        null,
+        [],
+        false,
+        'cantidadDisponible,desc'
+      );
+      const productosStock = stockResponse.data.productos;
+
+      const stockInicialResponse = await getStockInicial(caja.id);
+      const productosStockInicial = stockInicialResponse.data.productos;
+
+      const data = {
+        caja: caja.nombre,
+        usuario: usuario.username,
+        montoInicial: caja.montoInicial.toFixed(2),
+        resumenPagos,
+        resumenProductos, 
+        productosStock,
+        productosStockInicial,
+        totalVentas: totalVentas.toFixed(2),
+        totalContado: totalContado.toFixed(2),
+        diferencia,
+        observaciones: formData.observaciones,
+        fecha: new Date().toLocaleDateString()
+      };
+      
+      generateCierreCajaPDF(data, reportRef.current);
+    } catch (error) {
+      console.error('Error al obtener resumen de productos:', error);
+      alert('Error al generar el PDF: No se pudieron obtener los datos de productos');
+    }
   };
 
   const renderMetodoPago = (metodo, valor) => (
@@ -147,10 +184,14 @@ const CierreCajaForm = ({ caja }) => {
         <FaCashRegister className="header-icon" />
         <h1>Cierre de Caja - {caja.nombre}</h1>
         <div className="user-info">
-          <span>Usuario: {currentUser.username}</span>
+          <span>Usuario: {usuario.username}</span>
+          <button className="btn-close" onClick={onCancelar}>X</button>
         </div>
       </div>
-      <div className="dashboard-card card-inicial">
+      
+      <div className="dashboard-grid">
+        {/* Resumen inicial */}
+        <div className="dashboard-card card-inicial">
           <div className="card-header">
             <FaMoneyBillWave className="card-icon" />
             <h3>Monto Inicial</h3>
@@ -159,10 +200,6 @@ const CierreCajaForm = ({ caja }) => {
             <span className="card-value">Bs. {caja.montoInicial.toFixed(2)}</span>
           </div>
         </div>
-
-      <div className="dashboard-grid">
-        {/* Resumen inicial */}
-        
 
         {/* Resumen de ventas */}
         <div className="dashboard-card card-ventas">
@@ -177,27 +214,31 @@ const CierreCajaForm = ({ caja }) => {
               </div>
             ) : resumenPagos ? (
               <div className="ventas-grid">
-                <div className="ventas-group">
-                  <h4><FaFileAlt /> Con Factura</h4>
-                  {Object.entries(resumenPagos.facturacion)
-                    .filter(([key]) => key !== 'subtotal')
-                    .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
-                  <div className="ventas-total">
-                    <span>TOTAL:</span>
-                    <strong>Bs. {resumenPagos.facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
+                {resumenPagos.facturacion && (
+                  <div className="ventas-group">
+                    <h4><FaFileAlt /> Con Factura</h4>
+                    {Object.entries(resumenPagos.facturacion)
+                      .filter(([key]) => key !== 'subtotal')
+                      .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
+                    <div className="ventas-total">
+                      <span>TOTAL:</span>
+                      <strong>Bs. {resumenPagos.facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="ventas-group">
-                  <h4><FaFileAlt /> Sin Factura</h4>
-                  {Object.entries(resumenPagos.sin_facturacion)
-                    .filter(([key]) => key !== 'subtotal')
-                    .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
-                  <div className="ventas-total">
-                    <span>TOTAL:</span>
-                    <strong>Bs. {resumenPagos.sin_facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
+                {resumenPagos.sin_facturacion && (
+                  <div className="ventas-group">
+                    <h4><FaFileAlt /> Sin Factura</h4>
+                    {Object.entries(resumenPagos.sin_facturacion)
+                      .filter(([key]) => key !== 'subtotal')
+                      .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
+                    <div className="ventas-total">
+                      <span>TOTAL:</span>
+                      <strong>Bs. {resumenPagos.sin_facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="ventas-total-general">
                   <h4><FaInfoCircle /> Total General</h4>
@@ -210,6 +251,11 @@ const CierreCajaForm = ({ caja }) => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Resumen de productos */}
+        <div className="dashboard-card card-productos">
+          <ResumenProductos cajaId={caja.id} />
         </div>
 
         {/* Formulario de cierre */}
@@ -345,6 +391,13 @@ const CierreCajaForm = ({ caja }) => {
           disabled={!resumenPagos}
         >
           <FaPrint /> Generar PDF
+        </button>
+        
+        <button 
+          className="btn btn-cancel"
+          onClick={onCancelar}
+        >
+          Cancelar
         </button>
       </div>
     </div>

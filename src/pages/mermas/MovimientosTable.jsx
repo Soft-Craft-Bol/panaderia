@@ -11,7 +11,7 @@ import { getUser } from '../../utils/authFunctions';
 
 const MovimientosTable = () => {
   const currentUser = getUser();
-  const sucursalId = currentUser?.puntosVenta?.[0]?.id || null;
+  const sucursalId = currentUser?.sucursal[0]?.id || null;
 
   const [filters, setFilters] = useState({
     sucursalId: sucursalId,

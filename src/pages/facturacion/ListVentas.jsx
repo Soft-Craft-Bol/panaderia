@@ -1,15 +1,16 @@
 import { useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import Table, { useColumnVisibility } from "../../components/table/Table";
-import { anularFactura, revertirAnulacionFactura } from "../../service/api";
+import { anularFactura, revertirAnulacionFactura, getMotivoAnulacion } from "../../service/api";
 import { getUser } from "../../utils/authFunctions";
 import { Toaster, toast } from "sonner";
 import { Button } from "../../components/buttons/Button";
-import { FaCloudDownloadAlt } from "react-icons/fa";
+import { FaCloudDownloadAlt, FaBan, FaUndo } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
 import useFacturas from "../../hooks/useFacturas";
 import "./ListVentas.css";
-import ColumnVisibilityControl from "../../components/table/ColumnVisibilityControl";
+import Modal from "../../components/modal/Modal";
+import SelectSecondary from "../../components/selected/SelectSecondary";
 
 const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, isAnulando, isRevirtiendo }) => {
   return (
@@ -21,6 +22,7 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
               variant="danger"
               onClick={() => onAnular(venta)}
               disabled={isAnulando}
+              icon={<FaBan />}
             >
               {isAnulando ? "Anulando..." : "Anular"}
             </Button>
@@ -30,6 +32,7 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
               variant="warning"
               onClick={() => onRevertir(venta)}
               disabled={isRevirtiendo}
+              icon={<FaUndo />}
             >
               {isRevirtiendo ? "Revirtiendo..." : "Revertir"}
             </Button>
@@ -58,8 +61,13 @@ const ListVentas = () => {
   const [pageSize, setPageSize] = useState(10);
 
   // Estados para acciones
+  const [selectedVenta, setSelectedVenta] = useState(null);
+  const [confirmActionOpen, setConfirmActionOpen] = useState(false);
+  const [actionType, setActionType] = useState('');
   const [isAnulando, setIsAnulando] = useState(false);
   const [isRevirtiendo, setIsRevirtiendo] = useState(false);
+  const [motivos, setMotivos] = useState([]);
+  const [selectedMotivo, setSelectedMotivo] = useState("");
 
   // Obtener datos sin filtros
   const {
@@ -73,6 +81,19 @@ const ListVentas = () => {
   const totalElements = facturasData.totalElements || 0;
 
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
+
+  // Cargar motivos de anulación
+  useState(() => {
+    const fetchMotivos = async () => {
+      try {
+        const { data } = await getMotivoAnulacion();
+        setMotivos(data);
+      } catch (error) {
+        toast.error("Error al cargar motivos de anulación");
+      }
+    };
+    fetchMotivos();
+  }, []);
 
   const handleDownload = async (factura) => {
     if (factura?.xmlContent) {
@@ -94,16 +115,21 @@ const ListVentas = () => {
       const requestData = {
         idPuntoVenta: venta.idPuntoVenta,
         cuf: venta.cuf,
-        codigoMotivo: 1,
+        codigoMotivo: selectedMotivo || 1,
       };
       await anularFactura(requestData);
       toast.success("Factura anulada exitosamente");
       queryClient.invalidateQueries(['facturas']);
     } catch (error) {
-      toast.error("Error al anular la factura");
-      console.error("Error:", error);
+      console.error("Error completo:", error);
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        "Error al anular la factura";
+      toast.error(errorMessage);
     } finally {
       setIsAnulando(false);
+      setConfirmActionOpen(false);
+      setSelectedMotivo("");
     }
   };
 
@@ -123,10 +149,27 @@ const ListVentas = () => {
       toast.success("Anulación revertida exitosamente");
       queryClient.invalidateQueries(['facturas']);
     } catch (error) {
-      toast.error("Error al revertir la anulación");
-      console.error("Error:", error);
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        "Error al revertir la anulación";
+      toast.error(errorMessage);
     } finally {
       setIsRevirtiendo(false);
+      setConfirmActionOpen(false);
+    }
+  };
+
+  const handleActionConfirm = (venta, type) => {
+    setSelectedVenta(venta);
+    setActionType(type);
+    setConfirmActionOpen(true);
+  };
+
+  const confirmAction = () => {
+    if (actionType === 'anular') {
+      handleAnularFactura(selectedVenta);
+    } else if (actionType === 'revertir') {
+      handleRevertirFactura(selectedVenta);
     }
   };
 
@@ -239,8 +282,8 @@ const ListVentas = () => {
       render: (venta) => (
         <AccionesVenta
           venta={venta}
-          onAnular={handleAnularFactura}
-          onRevertir={handleRevertirFactura}
+          onAnular={(v) => handleActionConfirm(v, 'anular')}
+          onRevertir={(v) => handleActionConfirm(v, 'revertir')}
           onDownload={handleDownload}
           hasAnyRole={hasAnyRole}
           isAnulando={isAnulando}
@@ -250,16 +293,16 @@ const ListVentas = () => {
     }
   ], [hasAnyRole, isAnulando, isRevirtiendo]);
 
-    const {
-      filteredColumns,
-      ColumnVisibilityControl
-    } = useColumnVisibility(columns, "ventasHiddenColumns");
+  const {
+    filteredColumns,
+    ColumnVisibilityControl
+  } = useColumnVisibility(columns, "ventasHiddenColumns");
 
   if (isError) return <div className="error-message">Error al cargar las ventas</div>;
 
   return (
     <div className="user-management-container">
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="top-right" richColors />
       <div className="user-management-header">
         <h2>Gestión de Ventas</h2>
       </div>
@@ -280,6 +323,72 @@ const ListVentas = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
       />
+
+      <Modal
+        isOpen={confirmActionOpen}
+        onClose={() => {
+          setConfirmActionOpen(false);
+          setSelectedMotivo("");
+        }}
+        title={actionType === 'anular' ? "Anular Factura" : "Revertir Anulación"}
+        size="md"
+      >
+        {actionType === 'anular' ? (
+          <div>
+            <p>
+              ¿Está seguro que desea anular la factura con CUF: {selectedVenta?.cuf}?
+            </p>
+
+            <SelectSecondary
+              label="Motivo de Anulación"
+              value={selectedMotivo}
+              formikCompatible={false}
+              onChange={(e) => setSelectedMotivo(e.target.value)}
+            >
+              <option value="">Seleccione un motivo</option>
+              {motivos.map((motivo) => (
+                <option key={motivo.id} value={motivo.codigoClasificador}>
+                  {motivo.descripcion}
+                </option>
+              ))}
+            </SelectSecondary>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '0.5rem' }}>
+              <Button
+                variant="danger"
+                onClick={confirmAction}
+                disabled={isAnulando || !selectedMotivo}
+              >
+                {isAnulando ? "Anulando..." : "Anular"}
+              </Button>
+              <Button variant="secondary" onClick={() => {
+                setConfirmActionOpen(false);
+                setSelectedMotivo("");
+              }}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p>
+              ¿Está seguro que desea revertir la anulación de la factura con CUF: {selectedVenta?.cuf}?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '0.5rem' }}>
+              <Button
+                variant="warning"
+                onClick={confirmAction}
+                disabled={isRevirtiendo}
+              >
+                {isRevirtiendo ? "Revirtiendo..." : "Revertir"}
+              </Button>
+              <Button variant="secondary" onClick={() => setConfirmActionOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

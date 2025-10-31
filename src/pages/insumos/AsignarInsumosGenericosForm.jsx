@@ -3,8 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { asignarInsumosGenericos, updateAsignacionInsumoGenerico, getInsumoGenericoById } from '../../service/api';
-import Modal from '../../components/modal/Modal';
-import InputText from '../../components/inputs/InputText';
 import SelectorInsumosPaginado from '../../components/selected/SelectorInsumosPaginado';
 import { toast } from 'sonner';
 import { FaPlus, FaTrash } from 'react-icons/fa';
@@ -14,7 +12,6 @@ import SelectorInsumosGenericosPaginado from '../../components/selected/Selector
 import { Button } from '../../components/buttons/Button';
 import './AsignarInsumosGenericosForm.css';
 
-// ESQUEMA DE VALIDACIÓN CORREGIDO
 const validationSchema = Yup.object().shape({
   insumoGenerico: Yup.object()
     .required('Debe seleccionar un insumo genérico'),

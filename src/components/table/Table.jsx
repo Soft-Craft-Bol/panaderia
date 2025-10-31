@@ -51,8 +51,6 @@ export function useColumnVisibility(columns, storageKey = 'tableHiddenColumns') 
   };
 }
 
-
-
 const Table = ({
   columns,
   data,

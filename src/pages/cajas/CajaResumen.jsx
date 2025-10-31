@@ -3,8 +3,6 @@ import './CajaResumen.css';
 
 const CajaResumen = ({ caja }) => {
 
-  const estadoClass = caja.estado ? caja.estado.toLowerCase() : '';
-
   return (
     <div className="caja-resumen">
       <h2>Caja Actual</h2>

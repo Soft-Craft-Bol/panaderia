@@ -16,6 +16,7 @@ import { useProductos } from "../../hooks/useProductos";
 const MermaForm = ({ onClose }) => {
   const currentUser = getUser();
   const puntoVentaId = currentUser?.puntosVenta[0]?.id;
+  const sucursalId = currentUser?.sucursal[0]?.id;
   const registradoPor = currentUser?.username;
 
   const [selectedItem, setSelectedItem] = useState(null);
@@ -58,7 +59,7 @@ const MermaForm = ({ onClose }) => {
   });
 
   const initialValues = {
-    sucursalId: puntoVentaId || "",
+    sucursalId: sucursalId || "",
     registradoPor: registradoPor || "",
     productoTipo: "item",
     productoId: "",
@@ -89,7 +90,7 @@ const MermaForm = ({ onClose }) => {
   const handleSubmit = async (values, { resetForm, setSubmitting }) => {
     try {
       const dto = {
-        sucursalId: values.sucursalId,
+        sucursalId: sucursalId || "",
         insumoId: values.productoTipo === "insumo" ? selectedItem?.id : null,
         itemId: values.productoTipo === "item" ? selectedItem?.id : null,
         cantidad: values.cantidad,

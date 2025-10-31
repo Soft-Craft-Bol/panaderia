@@ -1,19 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import './FormFacturacion.css';
+import React, { useState, useEffect } from 'react';
 import {
-    createClient,
-    getDocumentoIdentidad,
-    buscarCliente as apiBuscarCliente,
     emitirFactura,
     emitirContingencia,
     sendEmail,
+    VerificarComunicacion,
+    getTipoEmision,
+    getTipoMoneda
 } from '../../service/api';
 import { getUser } from "../../utils/authFunctions";
-import { ErrorMessage, Field, Formik, Form } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import SelectSecondary from '../selected/SelectSecondary';
 import { toast, Toaster } from 'sonner';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { generatePDF } from '../../utils/generatePDF';
 import ButtonPrimary from '../buttons/ButtonPrimary';
@@ -21,20 +20,16 @@ import Modal from '../modal/Modal';
 import InputText from '../inputs/InputText';
 import FacturaDetalles from './FacturaDetalles';
 import ClienteForm from './ClienteForm';
-
-const validationSchema = Yup.object().shape({
-    nombreRazonSocial: Yup.string().required('Nombre/Razón Social es requerido'),
-    codigoTipoDocumentoIdentidad: Yup.number().required('Tipo de Documento es requerido'),
-    numeroDocumento: Yup.string().required('Número de Documento es requerido'),
-    complemento: Yup.string(),
-    codigoCliente: Yup.string().required('Código de Cliente es requerido'),
-    email: Yup.string().email('Email inválido').required('Email es requerido'),
-    celular: Yup.string().matches(/^[0-9]+$/, 'Solo se permiten números').required('Celular es requerido'),
-    codigoMetodoPago: Yup.number().required("Método de pago es requerido"),
-});
+import './FormFacturacion.css';
 
 const validationSchemaVentas = Yup.object({
-    metodoPago: Yup.string().required("Método de pago es requerido"),
+    codigoMetodoPago: Yup.number().required("Método de pago es requerido"),
+    codigoTipoMoneda: Yup.number().required("Tipo de moneda es requerido"),
+    cafc: Yup.string().when("codigoTipoEmision", {
+        is: "4",
+        then: (schema) => schema.required("El CAFC es obligatorio en contingencia"),
+        otherwise: (schema) => schema.nullable(),
+    }),
 });
 
 const metodosPago = [
@@ -56,39 +51,43 @@ const metodosPago = [
 
 export default function FormFacturacion() {
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
-    const [editMode, setEditMode] = useState(false);
-    const [documentoValue, setDocumentoValue] = useState('');
-    const [searchTrigger, setSearchTrigger] = useState(0);
-    const [isContingencia, setIsContingencia] = useState(true);
-    const [showContingenciaModal, setShowContingenciaModal] = useState(false);
     const [facturaData, setFacturaData] = useState(null);
     const [showSendEmailModal, setShowSendEmailModal] = useState(false);
-    const [client, setClient] = useState(null);
+    const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+    const [modo, setModo] = useState("EN LINEA");
+    const [codigoEmisionAuto, setCodigoEmisionAuto] = useState("1");
+    const [tipoCambio, setTipoCambio] = useState(1);
+
+    const obtenerTipoCambio = (codigoMoneda) => {
+        // Aquí implementarías la lógica para obtener el tipo de cambio actual
+        // desde una API o base de datos. Por ahora usaremos valores estáticos
+        // para demostración.
+        const cambios = {
+            1: 1,      // BOLIVIANO
+            9: 0.0012, // PESO ARGENTINO
+            23: 0.19,  // REAL BRASILEÑO
+            33: 0.0011,// PESO CHILENO
+            46: 0.14,  // DÓLAR ESTADOUNIDENSE
+            108: 0.00002, // GUARANÍ PARAGUAYO
+            109: 0.038, // NUEVO SOL PERUANO
+            149: 0.000004 // BOLÍVAR FUERTE
+        };
+        return cambios[codigoMoneda] || 1;
+    };
 
     const location = useLocation();
-    const { productosSeleccionados, sucursalId, puntoVentaId } = location.state || {};
+    const { productosSeleccionados } = location.state || {};
 
     const currentUser = getUser();
-    console.log(currentUser);
     const cajaId = currentUser?.cajasAbiertas[0]?.id;
     const puntosDeVenta = currentUser?.puntosVenta ? currentUser.puntosVenta[0].id : null;
 
-    // Ensure initial values are never null or undefined
-    const initialValues = {
-        nombreRazonSocial: '',
-        codigoTipoDocumentoIdentidad: '',
-        numeroDocumento: '',
-        complemento: '',
-        codigoCliente: '',
-        email: '',
-        celular: '',
-    };
-
     const initialValuesEmitirFactura = {
-        metodoPago: "EFECTIVO",
+        codigoMetodoPago: 1,
+        codigoTipoMoneda: 1,
         cafc: "",
-        isContingencia: true,
+        numeroTarjeta: "",
+        codigoTipoEmision: codigoEmisionAuto,
         items: (productosSeleccionados || []).map(producto => ({
             item: producto.descripcion || '',
             cantidad: producto.quantity || 0,
@@ -101,48 +100,45 @@ export default function FormFacturacion() {
         }))
     };
 
-    // Consultas para obtener datos
-    const { data: documentoIdentidad } = useQuery({
-        queryKey: ['documentosIdentidad'],
-        queryFn: getDocumentoIdentidad,
-        select: (response) => response.data
-    });
-    console.log(documentoIdentidad);
-    const { data: clienteEncontrado, isFetching: buscandoCliente } = useQuery({
-        queryKey: ['cliente', documentoValue, searchTrigger],
-        queryFn: () => apiBuscarCliente(documentoValue),
-        enabled: !!documentoValue && documentoValue.length >= 6,
-        select: (response) => response.data
+    const { data: comunicacion, isLoading: loadingComunicacion, isError } = useQuery({
+        queryKey: ['verificarComunicacion'],
+        queryFn: VerificarComunicacion,
     });
 
-    // Mutaciones
-    const { mutate: saveClient, isPending: isSaving } = useMutation({
-        mutationFn: createClient,
-        onSuccess: (data) => {
-            toast.success('Cliente guardado exitosamente');
-            queryClient.invalidateQueries(['cliente']);
-            setEditMode(false);
-            setClient(data.data);
-        },
-        onError: (error) => {
-            toast.error('Error al guardar cliente');
-            console.error('Error submitting form:', error);
-        }
+    const { data: monedas, isLoading: loadingMonedas } = useQuery({
+        queryKey: ['tipoMoneda'],
+        queryFn: getTipoMoneda,
     });
+
+    const { data: emisiones, isLoading: loadingEmisiones } = useQuery({
+        queryKey: ['tipoEmision'],
+        queryFn: getTipoEmision,
+    });
+
+    useEffect(() => {
+        if (isError) {
+            setModo("CONTINGENCIA");
+            setCodigoEmisionAuto("4");
+        } else if (comunicacion?.data?.includes("Error al comunicar con SIAT")) {
+            setModo("FUERA DE LINEA");
+            setCodigoEmisionAuto("2");
+        } else if (comunicacion?.data) {
+            setModo("EN LINEA");
+            setCodigoEmisionAuto("1");
+        }
+    }, [isError, comunicacion]);
 
     const { mutate: emitirFacturaMutation } = useMutation({
         mutationFn: emitirFactura,
         onSuccess: async (response) => {
             const { data } = response;
-            console.log('Factura emitida:', data);
-
             try {
                 const pdfBytes = await generatePDF(data.xmlContent);
                 setFacturaData({
                     ...data,
                     pdfBytes: Array.from(new Uint8Array(pdfBytes)),
-                    clienteNombre: client?.nombreRazonSocial || '',
-                    clienteEmail: client?.email || '',
+                    clienteNombre: clienteSeleccionado?.nombreRazonSocial || '',
+                    clienteEmail: clienteSeleccionado?.email || '',
                 });
                 setShowSendEmailModal(true);
                 toast.success("Factura emitida correctamente");
@@ -164,15 +160,13 @@ export default function FormFacturacion() {
         mutationFn: emitirContingencia,
         onSuccess: async (response) => {
             const { data } = response;
-            console.log('Factura de contingencia emitida:', data);
-
             try {
                 const pdfBytes = await generatePDF(data.xmlContent);
                 setFacturaData({
                     ...data,
                     pdfBytes: Array.from(new Uint8Array(pdfBytes)),
-                    clienteNombre: client?.nombreRazonSocial || '',
-                    clienteEmail: client?.email || '',
+                    clienteNombre: clienteSeleccionado?.nombreRazonSocial || '',
+                    clienteEmail: clienteSeleccionado?.email || '',
                 });
                 setShowSendEmailModal(true);
                 toast.success("Factura de contingencia emitida correctamente");
@@ -190,36 +184,8 @@ export default function FormFacturacion() {
         },
     });
 
-    // Use useCallback to prevent unnecessary re-renders
-    const handleDocumentChange = useCallback((value, setFieldValue) => {
-        setDocumentoValue(value || '');
-        setFieldValue('numeroDocumento', value || '');
-    }, []);
-
-    // Efectos
-    useEffect(() => {
-        if (clienteEncontrado) {
-            setEditMode(false);
-            setClient(clienteEncontrado);
-        }
-    }, [clienteEncontrado]);
-
-    // Handlers
-    const handleSubmit = async (values) => {
-        const clientData = {
-            nombreRazonSocial: values.nombreRazonSocial || '',
-            codigoTipoDocumentoIdentidad: Number(values.codigoTipoDocumentoIdentidad) || 0,
-            numeroDocumento: values.numeroDocumento || '',
-            complemento: values.complemento || '',
-            codigoCliente: values.codigoCliente || '',
-            email: values.email || '',
-            celular: values.celular || ''
-        };
-        saveClient(clientData);
-    };
-
     const handleSubmitVentas = async (values) => {
-        if (!client) {
+        if (!clienteSeleccionado) {
             toast.error('Debe seleccionar o registrar un cliente primero');
             return;
         }
@@ -236,29 +202,25 @@ export default function FormFacturacion() {
 
         const facturaData = {
             idPuntoVenta: puntosDeVenta,
-            idCliente: client.id,
+            idCliente: clienteSeleccionado.id,
             tipoComprobante: "FACTURA",
             codigoMetodoPago: values.codigoMetodoPago,
+            codigoTipoEmision: values.codigoTipoEmision,
             username: currentUser?.username || '',
-            usuario: client.nombreRazonSocial || '',
+            usuario: clienteSeleccionado.nombreRazonSocial || '',
             cajasId: cajaId,
             numeroTarjeta: values.numeroTarjeta || null,
-            detalle: values.items.map((item) => {
-                const selectedItem = productosSeleccionados.find(p => p.id === item.idProducto);
-                return {
-                    idProducto: selectedItem?.id || 0,
-                    cantidad: Number(item.cantidad) || 0,
-                    montoDescuento: Number(item.descuento) || 0,
-                };
-            }),
+            detalle: values.items.map((item) => ({
+                idProducto: item.idProducto,
+                cantidad: Number(item.cantidad) || 0,
+                montoDescuento: Number(item.descuento) || 0,
+            })),
         };
 
-        // Solo agregar cafc si tiene un valor válido (no vacío y no solo espacios en blanco)
-        if (isContingencia && values.cafc && values.cafc.trim() !== '') {
-            facturaData.cafc = values.cafc.trim();
-        }
-
-        if (isContingencia) {
+        if (values.codigoTipoEmision === "4") {
+            if (values.cafc && values.cafc.trim()) {
+                facturaData.cafc = values.cafc.trim();
+            }
             emitirContingenciaMutation(facturaData);
         } else {
             emitirFacturaMutation(facturaData);
@@ -319,26 +281,18 @@ export default function FormFacturacion() {
 
         const subtotal = items.reduce((sum, item) =>
             sum + ((item.precioUnitario || 0) * (item.cantidad || 0)), 0);
-
         const descuentos = items.reduce((sum, item) =>
             sum + (item.descuento || 0), 0);
-
-        const total = subtotal - descuentos;
-
-        return { subtotal, descuentos, total };
+        return { subtotal, descuentos, total: subtotal - descuentos };
     };
 
     const { subtotal, descuentos, total } = calcularTotales(initialValuesEmitirFactura.items);
 
-    const clientInitialValues = clienteEncontrado ? {
-        nombreRazonSocial: clienteEncontrado.nombreRazonSocial || '',
-        codigoTipoDocumentoIdentidad: clienteEncontrado.codigoTipoDocumentoIdentidad || '',
-        numeroDocumento: clienteEncontrado.numeroDocumento || '',
-        complemento: clienteEncontrado.complemento || '',
-        codigoCliente: clienteEncontrado.codigoCliente || '',
-        email: clienteEncontrado.email || '',
-        celular: clienteEncontrado.celular || '',
-    } : initialValues;
+    useEffect(() => {
+  if (initialValuesEmitirFactura.codigoTipoMoneda) {
+    setTipoCambio(obtenerTipoCambio(initialValuesEmitirFactura.codigoTipoMoneda));
+  }
+}, [initialValuesEmitirFactura.codigoTipoMoneda]);
 
     return (
         <div className="facturacion-container">
@@ -346,160 +300,129 @@ export default function FormFacturacion() {
 
             <h2>Formulario de Facturación</h2>
 
-            <ClienteForm
-                initialValues={clientInitialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-                documentoIdentidad={documentoIdentidad}
-                clienteEncontrado={clienteEncontrado}
-                buscandoCliente={buscandoCliente}
-                documentoValue={documentoValue}
-                handleDocumentChange={handleDocumentChange}
-                setSearchTrigger={setSearchTrigger}
-                editMode={editMode}
-                setEditMode={setEditMode}
-                isSaving={isSaving}
-            />
+            {loadingComunicacion && <div className="success-comunicacion">⏳ Verificando comunicación...</div>}
+            {isError && <div className="error-comunicacion">❌ Backend caído → Modo contingencia</div>}
+            {!loadingComunicacion && !isError && comunicacion?.data && (
+                <div className="success-comunicacion">{comunicacion.data}</div>
+            )}
 
-            {/* Sección de detalles de la factura */}
+            <ClienteForm onClienteSeleccionado={setClienteSeleccionado} />
+
             <FacturaDetalles
                 items={initialValuesEmitirFactura.items}
                 subtotal={subtotal}
                 descuentos={descuentos}
                 total={total}
+                codigoMoneda={initialValuesEmitirFactura.codigoTipoMoneda}
+                tipoCambio={tipoCambio}
+                monedas={monedas?.data || []}
             />
+            <Formik
+                initialValues={initialValuesEmitirFactura}
+                validationSchema={validationSchemaVentas}
+                onSubmit={handleSubmitVentas}
+                enableReinitialize={true}
+            >
+                {({ isSubmitting, values, setFieldValue }) => (
+                    <Form>
+                        <div className="metodo-pago-group">
+                            <SelectSecondary
+                                label="Método de Pago"
+                                name="codigoMetodoPago"
+                                required
+                                value={values.codigoMetodoPago}
+                                onChange={(e) => {
+                                    const metodoPago = parseInt(e.target.value);
+                                    setFieldValue('codigoMetodoPago', metodoPago);
+                                    if (metodoPago !== 2) setFieldValue('numeroTarjeta', '');
+                                }}
+                            >
+                                {metodosPago.map((metodo) => (
+                                    <option key={metodo.value} value={metodo.value}>
+                                        {metodo.label}
+                                    </option>
+                                ))}
+                            </SelectSecondary>
+                            {values.codigoMetodoPago === 2 && (
+                                <InputText
+                                    label="Número de Tarjeta"
+                                    name="numeroTarjeta"
+                                    type="text"
+                                    value={values.numeroTarjeta || ''}
+                                    onChange={(e) => setFieldValue('numeroTarjeta', e.target.value)}
+                                />
+                            )}
+                        </div>
 
-            {/* Sección de método de pago */}
-            <div className="seccion-pago">
-                <h3>Método de Pago</h3>
-                <Formik
-                    initialValues={{
-                        ...initialValuesEmitirFactura,
-                        isContingencia: isContingencia,
-                        codigoMetodoPago: 1,
-                        numeroTarjeta: null
-                    }}
-                    validationSchema={validationSchemaVentas}
-                    onSubmit={handleSubmitVentas}
-                >
-                    {({ isSubmitting, values, setFieldValue }) => (
-                        <Form>
-                            <div className="metodo-pago-group">
-                                <SelectSecondary
-                                    label="Método de Pago"
-                                    name="codigoMetodoPago"
-                                    required
-                                    value={values.codigoMetodoPago}
-                                    onChange={(e) => {
-                                        const metodoPago = parseInt(e.target.value);
-                                        setFieldValue('codigoMetodoPago', metodoPago);
-                                        if (metodoPago !== 2) {
-                                            setFieldValue('numeroTarjeta', null);
-                                        }
-                                    }}
-                                >
-                                    {metodosPago.map((metodo) => (
-                                        <option key={metodo.value} value={metodo.value}>
-                                            {metodo.label}
-                                        </option>
-                                    ))}
-                                </SelectSecondary>
-                                {values.codigoMetodoPago === 2 && (
-                                    <InputText
-                                        label="Número de Tarjeta"
-                                        name="numeroTarjeta"
-                                        type="text"
-                                        placeholder="Ingrese el número de tarjeta"
-                                        value={values.numeroTarjeta || ''}
-                                        onChange={(e) => setFieldValue('numeroTarjeta', e.target.value)}
-                                    />
-                                )}
-                            </div>
+                        <div className="tipo-emision-group">
+                            <SelectSecondary
+                                label="Tipo de Emisión"
+                                name="codigoTipoEmision"
+                                required
+                                value={values.codigoTipoEmision}
+                                onChange={(e) => setFieldValue("codigoTipoEmision", e.target.value)}
+                                disabled={isError || comunicacion?.data?.includes("Error al comunicar con SIAT")}
+                            >
+                                {!loadingEmisiones && emisiones?.data?.map((em) => (
+                                    <option key={em.id} value={em.codigoClasificador}>
+                                        {em.descripcion}
+                                    </option>
+                                ))}
+                            </SelectSecondary>
+                            {(isError || comunicacion?.data?.includes("Error al comunicar con SIAT")) && (
+                                <p className="info-text">
+                                    Modo automáticamente establecido a {modo} por problemas de conexión
+                                </p>
+                            )}
+                        </div>
 
-                            <div className="contingencia-options">
-                                <label className="contingencia-label">
-                                    <input
-                                        type="checkbox"
-                                        checked={isContingencia}
-                                        onChange={(e) => {
-                                            const checked = e.target.checked;
-                                            setIsContingencia(checked);
-                                            setFieldValue('isContingencia', checked);
-                                            if (checked) {
-                                                setShowContingenciaModal(true);
-                                            }
-                                        }}
-                                    />
-                                    Emitir en contingencia
-                                </label>
+                        <div className="tipo-moneda-group">
+                            <SelectSecondary
+                                label="Tipo de Moneda"
+                                name="codigoTipoMoneda"
+                                required
+                                value={values.codigoTipoMoneda}
+                                onChange={(e) => setFieldValue("codigoTipoMoneda", parseInt(e.target.value))}
+                            >
+                                {!loadingMonedas && monedas?.data?.map((mon) => (
+                                    <option key={mon.id} value={mon.codigoClasificador}>
+                                        {mon.descripcion}
+                                    </option>
+                                ))}
+                            </SelectSecondary>
+                        </div>
 
-                                {isContingencia && (
-                                    <InputText
-                                        label="CAFC (Código de Autorización de Facturación por Contingencia - Opcional)"
-                                        name="cafc"
-                                        type="text"
-                                        placeholder="Ingrese el CAFC (opcional)"
-                                        value={values.cafc}
-                                    />
-                                )}
-                            </div>
+                        {values.codigoTipoEmision === "4" && (
+                            <InputText
+                                label="CAFC (obligatorio en contingencia)"
+                                name="cafc"
+                                type="text"
+                                placeholder="Ingrese el CAFC"
+                                value={values.cafc}
+                                onChange={(e) => setFieldValue('cafc', e.target.value)}
+                            />
+                        )}
 
-                            <div className="factura-buttons">
-                                <ButtonPrimary
-                                    type="submit"
-                                    disabled={isSubmitting || !client}
-                                >
-                                    {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
-                                </ButtonPrimary>
-                            </div>
-                        </Form>
-                    )}
-                </Formik>
-            </div>
-
-            {/* Modal de confirmación de contingencia */}
-            <Modal isOpen={showContingenciaModal} onClose={() => setShowContingenciaModal(false)}>
-                <div className="modal-content">
-                    <h3>Confirmar Emisión en Contingencia</h3>
-                    <p>¿Está seguro que desea emitir esta factura en modo contingencia?</p>
-                    <p>Puede proporcionar un CAFC (Código de Autorización de Facturación por Contingencia) si lo tiene disponible.</p>
-                    <div className="modal-buttons">
-                        <ButtonPrimary 
-                        variant='primary'
-                        onClick={() => setShowContingenciaModal(false)}>
-                            Confirmar
-                        </ButtonPrimary>
-                        <ButtonPrimary
-                            variant="secondary"
-                            onClick={() => {
-                                setIsContingencia(false);
-                                setShowContingenciaModal(false);
-                            }}
-                        >
-                            Cancelar
-                        </ButtonPrimary>
-                    </div>
-                </div>
-            </Modal>
+                        <div className="factura-buttons">
+                            <ButtonPrimary
+                                type="submit"
+                                disabled={isSubmitting || !clienteSeleccionado}
+                            >
+                                {isSubmitting ? 'Emitiendo...' : 'Emitir Factura'}
+                            </ButtonPrimary>
+                        </div>
+                    </Form>
+                )}
+            </Formik>
 
             <Modal isOpen={showSendEmailModal} onClose={() => setShowSendEmailModal(false)}>
                 <div className="modal-content">
                     <h3>Factura Generada</h3>
                     <p>¿Qué desea hacer con la factura?</p>
                     <div className="modal-buttons">
-                        <ButtonPrimary onClick={handleSendEmail}>
-                            Enviar por Email
-                        </ButtonPrimary>
-                        <ButtonPrimary onClick={handlePrint}>
-                            Imprimir PDF
-                        </ButtonPrimary>
-                        <ButtonPrimary
-                            variant="secondary"
-                            onClick={() => {
-                                setShowSendEmailModal(false);
-                                navigate("/ventas");
-                            }}
-                        >
+                        <ButtonPrimary onClick={handleSendEmail}>Enviar por Email</ButtonPrimary>
+                        <ButtonPrimary onClick={handlePrint}>Descargar PDF</ButtonPrimary>
+                        <ButtonPrimary variant="secondary" onClick={() => navigate("/ventas")}>
                             Salir
                         </ButtonPrimary>
                     </div>

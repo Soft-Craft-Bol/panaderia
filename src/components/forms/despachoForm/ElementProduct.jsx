@@ -2,18 +2,17 @@ import React from "react";
 import SelectorProductosPaginado from "../../selected/SelectorProductosPaginado";
 import { useProductos } from "../../../hooks/useProductos";
 
-const ElementProduct = ({ index, onUpdate, onRemove, isDefault, puntoVentaId, selectedProducto }) => {
-    const productosHook =
-        puntoVentaId != null
-            ? useProductos(puntoVentaId)
-            : {
-                productos: [],
-                loadMore: () => { },
-                hasNextPage: false,
-                isFetching: false,
-                searchTerm: "",
-                setSearchTerm: () => { },
-            };
+const ElementProduct = ({ index, item, onUpdate, onRemove, isDefault, puntoVentaId }) => {
+    const productosHook = puntoVentaId != null
+        ? useProductos(puntoVentaId)
+        : {
+            productos: [],
+            loadMore: () => { },
+            hasNextPage: false,
+            isFetching: false,
+            searchTerm: "",
+            setSearchTerm: () => { },
+        };
 
     const {
         productos,
@@ -25,21 +24,13 @@ const ElementProduct = ({ index, onUpdate, onRemove, isDefault, puntoVentaId, se
 
     return (
         <div className="element-product">
-            {selectedProducto ? (
-                <div className="producto-seleccionado">
-                    <strong>{selectedProducto.descripcion}</strong>
-                    <span style={{ marginLeft: "8px", color: "#666" }}>
-                        ({selectedProducto.cantidad} {selectedProducto.unidades})
-                    </span>
-                </div>
-            ) : (
-                <div className="selector-container">
-                    <SelectorProductosPaginado
+            <div className="selector-container">
+                <SelectorProductosPaginado
                     productos={productos}
-                    value={null}
-                    onChange={(item) => {
-                        if (item) {
-                            onUpdate(index, item.id, 1, item); 
+                    value={item.productoId}
+                    onChange={(selectedItem) => {
+                        if (selectedItem) {
+                            onUpdate(index, selectedItem.id, item.cantidad || 1);
                         }
                     }}
                     onLoadMore={loadMoreProductos}
@@ -50,21 +41,21 @@ const ElementProduct = ({ index, onUpdate, onRemove, isDefault, puntoVentaId, se
                     onSearch={setSearchTerm}
                     disabled={!puntoVentaId}
                 />
-                </div>
-            )}
+            </div>
 
-            {selectedProducto && (
-                <input
-                    type="number"
-                    min="1"
-                    className="despacho-input"
-                    placeholder="Cantidad"
-                    value={selectedProducto.cantidad}
-                    onChange={(e) => {
-                        onUpdate(index, null, e.target.value);
-                    }}
-                />
-            )}
+            <input
+                type="number"
+                step="any"
+                min="0.01"
+                className="despacho-input-number"
+                placeholder="Cantidad"
+                value={item.cantidad || ""}
+                onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    onUpdate(index, item.productoId, isNaN(value) ? "" : value);
+                }}
+            />
+
 
             {!isDefault && (
                 <button

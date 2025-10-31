@@ -10,7 +10,7 @@ export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [conDescuento, setConDescuento] = useState(null);
-    const [categoriaId, setCategoriaId] = useState(null);
+    const [categoriaIds, setCategoriaIds] = useState([]);
     const [sinStock, setSinStock] = useState(false);
     const [sortField, setSortField] = useState('cantidad,desc');
     const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
@@ -30,7 +30,7 @@ export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
             debouncedSearchTerm, 
             debouncedCodigoProductoSin,
             conDescuento,
-            categoriaId,
+            categoriaIds,
             sinStock,
             sortField
         ],
@@ -42,7 +42,7 @@ export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
                 debouncedSearchTerm,
                 debouncedCodigoProductoSin, 
                 conDescuento,
-                categoriaId,
+                categoriaIds,
                 sinStock,
                 sortField 
             ).then(res => ({
@@ -95,8 +95,8 @@ export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
         setMaxPrice,
         conDescuento,
         setConDescuento,
-        categoriaId,
-        setCategoriaId,
+        categoriaIds,
+        setCategoriaIds,
         sinStock,
         setSinStock,
         sortField,

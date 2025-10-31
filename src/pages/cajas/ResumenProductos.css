@@ -1,0 +1,79 @@
+/* Estilos para el resumen de productos */
+.resumen-productos {
+  padding: 10px;
+}
+
+.resumen-totales {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+.productos-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.producto-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.producto-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.producto-nombre {
+  font-weight: 500;
+}
+
+.producto-cantidad {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.producto-total {
+  font-weight: bold;
+}
+
+/* Ajustar el grid para incluir el nuevo componente */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.card-productos {
+  grid-column: span 2;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-productos {
+    grid-column: span 1;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
