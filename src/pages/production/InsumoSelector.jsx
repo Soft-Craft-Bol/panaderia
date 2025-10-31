@@ -17,13 +17,13 @@ const InsumoSelector = ({
   useEffect(() => {
     if (selections.length > 0) {
       const cantidadAjustada = calcularCantidadAjustada();
-      
+
       if (!modoMezcla || selections.length === 1) {
         const nuevasSelecciones = selections.map(item => ({
           ...item,
           cantidadUsada: cantidadAjustada
         }));
-        
+
         setSelections(nuevasSelecciones);
         onSelectionChange(insumo.id, nuevasSelecciones);
       } else {
@@ -34,7 +34,7 @@ const InsumoSelector = ({
             ...item,
             cantidadUsada: item.cantidadUsada * factor
           }));
-          
+
           setSelections(nuevasSelecciones);
           onSelectionChange(insumo.id, nuevasSelecciones);
         }
@@ -97,22 +97,34 @@ const InsumoSelector = ({
   };
 
   const handleCantidadChange = (opcionId, cantidad) => {
-    const cantidadNumerica = parseFloat(cantidad) || 0;
-    
-    if (cantidadNumerica < 0) {
-      toast.error('La cantidad no puede ser negativa');
+    // cantidad viene como string (puede ser "" cuando borras)
+    if (cantidad === "") {
+      const updatedSelections = selections.map(item =>
+        item.id === opcionId
+          ? { ...item, cantidadUsada: "" } // dejamos vacío
+          : item
+      );
+      setSelections(updatedSelections);
+      onSelectionChange(insumo.id, updatedSelections);
+      return;
+    }
+
+    const cantidadNumerica = parseFloat(cantidad);
+
+    if (isNaN(cantidadNumerica) || cantidadNumerica < 0) {
+      toast.error('La cantidad no puede ser negativa o inválida');
       return;
     }
 
     const updatedSelections = selections.map(item =>
-      item.id === opcionId 
+      item.id === opcionId
         ? { ...item, cantidadUsada: cantidadNumerica }
         : item
     );
-    
     setSelections(updatedSelections);
     onSelectionChange(insumo.id, updatedSelections);
   };
+
 
   const cantidadPorLote = insumo.cantidad;
   const cantidadAjustada = calcularCantidadAjustada();
@@ -131,7 +143,7 @@ const InsumoSelector = ({
           </span>
           {!isCompleto && (
             <span className="diferencia">
-              ({diferencia > 0 
+              ({diferencia > 0
                 ? `Faltan: ${diferencia.toFixed(2)}`
                 : `Exceso: ${Math.abs(diferencia).toFixed(2)}`
               })
@@ -139,8 +151,8 @@ const InsumoSelector = ({
           )}
         </h4>
         {modoMezcla && (
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-add-insumo"
             onClick={handleAddInsumo}
             disabled={selections.length >= insumo.opcionesEspecificas.length}
@@ -154,7 +166,7 @@ const InsumoSelector = ({
         {selections.map((opcion) => {
           const opcionOriginal = insumo.opcionesEspecificas.find(o => o.id === opcion.id) || {};
           const porcentaje = (opcion.cantidadUsada / cantidadAjustada) * 100;
-          
+
           return (
             <div key={opcion.uniqueKey} className="opcion-item">
               <div className="opcion-info">
@@ -162,8 +174,8 @@ const InsumoSelector = ({
                   {opcionOriginal.nombre || opcion.nombre}
                 </span>
                 {modoMezcla && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-remove-insumo"
                     onClick={() => handleRemoveInsumo(opcion.id)}
                   >
@@ -171,7 +183,7 @@ const InsumoSelector = ({
                   </button>
                 )}
               </div>
-              
+
               <div className="opcion-details">
                 <span>Bs. {opcionOriginal.precioActual || opcion.precioActual} / {opcionOriginal.unidades || opcion.unidades}</span>
                 {opcionOriginal.stock !== undefined && (
@@ -184,11 +196,12 @@ const InsumoSelector = ({
                 <input
                   type="number"
                   min="0"
-                  step="0.01"
-                  value={opcion.cantidadUsada}
+                  step="any"
+                  value={opcion.cantidadUsada === "" ? "" : opcion.cantidadUsada}
                   onChange={(e) => handleCantidadChange(opcion.id, e.target.value)}
                   disabled={!editable && selections.length === 1}
                 />
+
                 {modoMezcla && (
                   <span className="porcentaje">
                     {porcentaje.toFixed(1)}%

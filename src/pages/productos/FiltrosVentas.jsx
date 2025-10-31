@@ -1,6 +1,4 @@
 import React from 'react';
-import { FaCashRegister } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import SelectSecondary from '../../components/selected/SelectSecondary';
 import SearchInput from '../../components/search/SearchInput';
 import './FiltrosVentas.css';
@@ -11,17 +9,25 @@ const FiltrosVentas = ({
     sortField,
     setSortField,
     categoriasOptions,
-    categoriaId,
-    setCategoriaId,
-    codigoProductoSin,
-    setCodigoProductoSin,
+    categoriaIds,
+    setCategoriaIds,
     conDescuento,
     setConDescuento,
     sinStock,
     setSinStock,
-    categories
 }) => {
-    const navigate = useNavigate();
+
+    const handleCategoryChange = (catValue) => {
+        if (catValue === null) {
+            setCategoriaIds([]);
+            return;
+        }
+        if (categoriaIds.includes(catValue)) {
+            setCategoriaIds(categoriaIds.filter(id => id !== catValue));
+        } else {
+            setCategoriaIds([...categoriaIds, catValue]);
+        }
+    };
 
     return (
         <div className="ventas-header">
@@ -41,21 +47,20 @@ const FiltrosVentas = ({
                             value={sortField}
                             onChange={(e) => setSortField(e.target.value)}
                         >
+                            <option value="descripcion,asc">Nombre (A-Z)</option>
+                            <option value="descripcion,desc">Nombre (Z-A)</option>
                             <option value="cantidadDisponible,desc">Mayor stock</option>
                             <option value="cantidadDisponible,asc">Menor stock</option>
                             <option value="precioUnitario,desc">Precio ↑</option>
                             <option value="precioUnitario,asc">Precio ↓</option>
-                            <option value="descripcion,asc">Nombre (A-Z)</option>
-                            <option value="descripcion,desc">Nombre (Z-A)</option>
                         </SelectSecondary>
 
                         <div className="category-tabs">
                             {categoriasOptions.map(cat => (
                                 <button
-                                    key={cat.value || 'all'}
-                                    className={`category-tab ${!categoriaId && !cat.value ? 'active' : ''} ${categoriaId === cat.value ? 'active' : ''
-                                        }`}
-                                    onClick={() => setCategoriaId(cat.value ? parseInt(cat.value) : null)}
+                                    key={cat.value}
+                                    className={`category-tab ${categoriaIds.includes(cat.value) ? 'active' : ''}`}
+                                    onClick={() => handleCategoryChange(cat.value)}
                                 >
                                     {cat.label}
                                 </button>
@@ -64,20 +69,6 @@ const FiltrosVentas = ({
                     </div>
 
                     <div className="filters-group">
-                        <SelectSecondary
-                            name="codigoProductoSin"
-                            label="Código de Producto"
-                            value={codigoProductoSin}
-                            formikCompatible={false}
-                            onChange={(e) => setCodigoProductoSin(e.target.value)}
-                        >
-                            {categories.map(cat => (
-                                <option key={cat.value} value={cat.value}>
-                                    {cat.label}
-                                </option>
-                            ))}
-                        </SelectSecondary>
-
                         <div className="checkbox-filters">
                             <label className="filter-checkbox">
                                 <input

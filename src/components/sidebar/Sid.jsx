@@ -44,7 +44,8 @@ const SidebarHeader = ({ onToggle, isOpen }) => {
 
 const SidebarLink = ({ to, icon, text, hasPermission }) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const isActive = location.pathname.startsWith(to);
+
   
   if (!hasPermission) return null;
   
@@ -67,7 +68,7 @@ const routePermissions = {
   "/productos": ["GESTION_PRODUCTOS", "VER_INVENTARIO"],
   "/clientes": ["GESTION_CLIENTES"],
   "/sucursales": ["GESTION_SUCURSALES"],
-  "/productos-ventas": ["CREAR_VENTAS"],
+  "/punto-ventas": ["CREAR_VENTAS"],
   "/ventas": ["GESTION_VENTAS"],
   "/despachos": ["GESTION_INGRESOS_SALIDAS"],
   "/reservas": ["RESERVAS"],
@@ -151,10 +152,10 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
             {/* Grupo Operaciones */}
             <li className="nav-group-title">Operaciones</li>
             <SidebarLink 
-              to="/productos-ventas" 
+              to="/punto-ventas" 
               icon={<GiSlicedBread />} 
               text="Punto de Venta" 
-              hasPermission={hasPermission("/productos-ventas")} 
+              hasPermission={hasPermission("/punto-ventas")} 
             />
             <SidebarLink 
               to="/ventas" 

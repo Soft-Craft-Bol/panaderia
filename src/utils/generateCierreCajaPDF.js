@@ -5,7 +5,7 @@ import logoHeader from '../assets/img/inpased.png';
 import backgroundImage from '../assets/img/canasta.png';
 import footerImage from '../assets/img/logo.webp';
 
-export const generateCierreCajaPDF = async (data) => {
+export const generateCierreCajaPDF = async (data, element = null) => {
     const doc = new jsPDF();
 
     // Convertir imágenes a base64
@@ -149,6 +149,160 @@ export const generateCierreCajaPDF = async (data) => {
     const sinFacturaData = filterNonZeroMethods(data.resumenPagos.sin_facturacion);
     if (sinFacturaData.length > 0) {
         createStyledTable('VENTAS SIN FACTURA', sinFacturaData, data.resumenPagos.sin_facturacion.subtotal?.toFixed(2) || '0.00');
+    }
+
+    // Resumen de productos vendidos
+    if (data.resumenProductos) {
+        doc.setFontSize(12);
+        doc.setTextColor(40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESUMEN DE PRODUCTOS VENDIDOS', margin, yPos);
+        yPos += 7;
+
+        // Preparar datos para la tabla de productos
+        const productosData = data.resumenProductos.detallesProductos.map(prod => [
+            prod.descripcionProducto,
+            prod.totalCantidad.toString(),
+            `Bs. ${parseFloat(prod.totalVenta || 0).toFixed(2)}`
+        ]);
+
+        // Ordenar productos por cantidad vendida (descendente)
+        productosData.sort((a, b) => parseInt(b[1]) - parseInt(a[1]));
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Producto', 'Cantidad', 'Total Venta']],
+            body: productosData,
+            foot: [
+                ['TOTAL PRODUCTOS VENDIDOS', data.resumenProductos.totalProductosVendidos.toString(), ''],
+                ['TOTAL VENTAS PRODUCTOS', '', `Bs. ${parseFloat(data.resumenProductos.totalVentas || 0).toFixed(2)}`]
+            ],
+            theme: 'grid',
+            headStyles: {
+                fillColor: [66, 139, 202],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fillColor: [255, 255, 255],
+                textColor: [40, 40, 40],
+                cellPadding: 3
+            },
+            footStyles: {
+                fillColor: [240, 240, 240],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold'
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 2,
+                overflow: 'linebreak',
+                lineWidth: 0.1
+            },
+            margin: { left: margin, right: margin },
+            tableWidth: 'auto',
+            columnStyles: {
+                0: { cellWidth: 'auto', fontStyle: 'bold' },
+                1: { cellWidth: 25, halign: 'center' },
+                2: { cellWidth: 30, halign: 'right' }
+            },
+            didDrawPage: function (data) {
+                // Agregar número de página
+                doc.setFontSize(8);
+                doc.setTextColor(100);
+                doc.text(
+                    `Página ${data.pageNumber} de ${data.pageCount}`,
+                    pageWidth - margin,
+                    pageHeight - 10
+                );
+            }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+    }
+
+    // Stock Inicial
+    if (data.productosStockInicial) {
+        doc.setFontSize(12);
+        doc.setTextColor(40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('STOCK INICIAL EN INVENTARIO', margin, yPos);
+        yPos += 7;
+
+        const stockInicialData = data.productosStockInicial.map(p => [
+            p.codigo,
+            p.descripcion,
+            p.cantidadDisponible.toString()
+        ]);
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Código', 'Descripción', 'Cantidad Inicial']],
+            body: stockInicialData,
+            theme: 'grid',
+            headStyles: { fillColor: [100, 149, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fillColor: [255, 255, 255], textColor: [40, 40, 40], cellPadding: 3 },
+            styles: { fontSize: 8, cellPadding: 2 },
+            margin: { left: margin, right: margin },
+            columnStyles: {
+                0: { cellWidth: 20, halign: 'center' },
+                1: { cellWidth: 'auto', fontStyle: 'bold' },
+                2: { cellWidth: 25, halign: 'center' }
+            }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+    }
+
+
+    if (data.productosStock) {
+        doc.setFontSize(12);
+        doc.setTextColor(40);
+        doc.setFont('helvetica', 'bold');
+        doc.text('STOCK RESTANTE EN INVENTARIO', margin, yPos);
+        yPos += 7;
+
+        // Preparar datos para la tabla de stock
+        const stockData = data.productosStock.map(producto => [
+            producto.codigo,
+            producto.descripcion,
+            producto.cantidadDisponible.toString()
+        ]);
+
+        // Ordenar productos por cantidad disponible (descendente)
+        stockData.sort((a, b) => parseInt(b[2]) - parseInt(a[2]));
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Código', 'Descripción', 'Cantidad Disponible']],
+            body: stockData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [75, 192, 192],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fillColor: [255, 255, 255],
+                textColor: [40, 40, 40],
+                cellPadding: 3
+            },
+            styles: {
+                fontSize: 8,
+                cellPadding: 2,
+                overflow: 'linebreak',
+                lineWidth: 0.1
+            },
+            margin: { left: margin, right: margin },
+            tableWidth: 'auto',
+            columnStyles: {
+                0: { cellWidth: 20, halign: 'center' },
+                1: { cellWidth: 'auto', fontStyle: 'bold' },
+                2: { cellWidth: 25, halign: 'center' }
+            }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
     }
 
     // Observaciones

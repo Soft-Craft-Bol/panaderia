@@ -24,6 +24,7 @@ const ProduccionTable = () => {
   const queryClient = useQueryClient();
   const currentUser = getUser();
   const puntoVentaId = currentUser?.puntosVenta[0]?.id || null;
+  const sucursalId = currentUser?.sucursal[0]?.id || null;
   
   const [recetaSearchTerm, setRecetaSearchTerm] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -89,8 +90,8 @@ const ProduccionTable = () => {
 
   const apiFilters = useMemo(() => ({
     ...filters,
-    sucursalId: puntoVentaId
-  }), [filters, puntoVentaId]);
+    sucursalId: sucursalId
+  }), [filters, sucursalId]);
 
   const { 
     data, 
@@ -98,6 +99,7 @@ const ProduccionTable = () => {
     isError, 
     error 
   } = useProduccion(page, rowsPerPage, apiFilters);
+  console.log("Datos de producción:", data);
 
   const handleDelete = useCallback(async (id) => {
     try {

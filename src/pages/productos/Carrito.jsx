@@ -21,11 +21,23 @@ const Carrito = ({
     updateQuantity(productId, 0);
   };
 
-  const totalConDescuentos = cart.reduce((total, item) => {
-    return total + ((item.tieneDescuento ? item.precioConDescuento : item.precioUnitario) * item.quantity);
-  }, 0);
+  const safeCart = Array.isArray(cart) ? cart : [];
 
-  const totalProductos = cart.reduce((total, item) => total + item.quantity, 0);
+     const totalConDescuentos = safeCart.reduce((total, item) => {
+        if (!item || typeof item.quantity !== 'number') return total;
+        
+        const precio = (item.tieneDescuento && item.precioConDescuento) 
+            ? item.precioConDescuento 
+            : (item.precioUnitario || 0);
+            
+        return total + (precio * item.quantity);
+    }, 0);
+
+    const totalProductos = safeCart.reduce((total, item) => {
+        return total + (typeof item?.quantity === 'number' ? item.quantity : 0);
+    }, 0);
+
+
 
   return (
     <div className={`cart-container ${isOpen ? 'open' : 'closed'}`}>

@@ -46,6 +46,28 @@
   box-shadow: var(--shadow-sm);
 }
 
+.button-warning {
+  background-color: var(--color-warning);
+  color: var(--color-text-on-primary);
+}
+
+.button-warning:hover {
+  background-color: var(--color-warning-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.button-success {
+  background-color: var(--color-success);
+  color: var(--color-text-on-primary);
+}
+
+.button-success:hover {
+  background-color: var(--color-success-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
 .button-danger {
   background-color: var(--color-error);
   color: var(--color-text-on-primary);

@@ -6,7 +6,6 @@ const ModalPromocion = ({ product, onClose, onConfirm }) => {
   const [sucursalId, setSucursalId] = useState('');
   const [precioFinal, setPrecioFinal] = useState(0);
 
-  // Calcular precio final cuando cambie el descuento
   useEffect(() => {
     if (descuento && product.precioUnitario) {
       const descuentoDecimal = parseFloat(descuento) / 100;

@@ -6,11 +6,12 @@ import CierreCajaForm from './CierreCajaForm';
 import CajaResumen from './CajaResumen';
 import Table from '../../components/table/Table';
 import { useHistorialCajas, useCajaActiva } from '../../hooks/useHistorialCajas';
-import { abrirCaja, cerrarCaja } from '../../service/api';
+import { abrirCaja } from '../../service/api';
 import { toast, Toaster } from 'sonner';
 import { debounce } from 'lodash';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import CustomDatePicker from '../../components/inputs/DatePicker';
+import Modal from '../../components/modal/Modal';
 
 const CajaDashboard = () => {
   const [showAperturaForm, setShowAperturaForm] = useState(false);
@@ -18,7 +19,7 @@ const CajaDashboard = () => {
   const [buscar, setBuscar] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [desde, setDesde] = useState(null); // ahora será Date o null
+  const [desde, setDesde] = useState(null); 
   const [hasta, setHasta] = useState(null);
 
   const currentUser = getUser();
@@ -35,7 +36,6 @@ const CajaDashboard = () => {
 
   const formatFechaDesde = desde ? `${desde.toISOString().split("T")[0]}T00:00:00` : null;
   const formatFechaHasta = hasta ? `${hasta.toISOString().split("T")[0]}T23:59:59` : null;
-
 
   const {
     data: historialData,
@@ -60,29 +60,24 @@ const CajaDashboard = () => {
         usuarioId: currentUser.id,
         montoInicial,
         turno,
-        sucursalId: currentUser.puntosVenta[0]?.id,
+        sucursalId: currentUser.sucursal[0]?.id || null,
+        puntoVentaId: currentUser.puntosVenta[0]?.id || null,
       });
       toast.success('Caja abierta correctamente');
       setShowAperturaForm(false);
       refetchCaja();
     } catch (err) {
-      toast.error(`Error al abrir caja: ${err.response?.data?.mensaje || err.message}`);
+      console.error('Error al abrir caja:', err);
+      toast.error(`Error al abrir caja: ${err.response?.data || err.message}`);
     }
   }, [currentUser, refetchCaja]);
 
-  const handleCerrarCaja = useCallback(async (datosCierre) => {
-    try {
-      await cerrarCaja({
-        cajaId: cajaActiva.id,
-        ...datosCierre
-      });
-      toast.success('Caja cerrada correctamente');
-      setShowCierreForm(false);
-      refetchCaja();
-    } catch (err) {
-      toast.error(`Error al cerrar caja: ${err.response?.data?.mensaje || err.message}`);
-    }
-  }, [cajaActiva, refetchCaja]);
+    const handleCierreExitoso = useCallback(() => {
+    setShowCierreForm(false); 
+    refetchCaja(); 
+    //refetchHistorial(); 
+  }, [refetchCaja]);
+
 
   const columnas = useMemo(() => [
     {
@@ -147,22 +142,34 @@ const CajaDashboard = () => {
         </>
       )}
 
-      {showAperturaForm && (
+      <Modal
+        isOpen={showAperturaForm}
+        onClose={() => setShowAperturaForm(false)}
+        title="Abrir Caja"
+        size="md"
+      >
         <AperturaCajaForm
           puntoVenta={currentUser.puntosVenta[0]}
           onAbrir={handleAbrirCaja}
           onCancelar={() => setShowAperturaForm(false)}
         />
-      )}
+      </Modal>
 
-      {showCierreForm && cajaActiva && (
-        <CierreCajaForm
-          caja={cajaActiva}
-          usuario={currentUser}
-          onCerrar={handleCerrarCaja}
-          onCancelar={() => setShowCierreForm(false)}
-        />
-      )}
+      <Modal
+        isOpen={showCierreForm}
+        onClose={() => setShowCierreForm(false)}
+        title="Cerrar Caja"
+        size="lg"
+      >
+        {showCierreForm && cajaActiva && (
+          <CierreCajaForm
+            caja={cajaActiva}
+            usuario={currentUser}
+            onCancelar={() => setShowCierreForm(false)}
+            onCierreExitoso={handleCierreExitoso}
+          />
+        )}
+      </Modal>
 
       <div className="filtros-fecha">
         <div className="filter-group">
@@ -202,7 +209,6 @@ const CajaDashboard = () => {
           Restablecer
         </ButtonPrimary>
       </div>
-
 
       {/* Tabla Historial */}
       <Table

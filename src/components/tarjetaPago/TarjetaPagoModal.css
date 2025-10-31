@@ -1,0 +1,372 @@
+/* TarjetaPagoModal.css */
+.modalTarjeta-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.tarjeta-pago-modalT {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  color: var(--color-text-on-primary);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: var(--color-text-on-primary);
+  font-size: var(--font-size-2xl);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Tarjeta de crédito preview */
+.tarjeta-preview {
+  margin-bottom: var(--space-lg);
+  perspective: 1000px;
+}
+
+.tarjeta {
+  background: linear-gradient(45deg, var(--color-gray-800), var(--color-gray-700));
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform var(--transition-normal) ease;
+  box-shadow: var(--shadow-md);
+}
+
+.tarjeta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(30deg);
+}
+
+.tarjeta.visa { 
+  background: linear-gradient(45deg, #1a1f71, #f7b600); 
+}
+.tarjeta.mastercard { 
+  background: linear-gradient(45deg, #eb001b, #f79e1b); 
+}
+.tarjeta.amex { 
+  background: linear-gradient(45deg, #006fcf, #009cde); 
+}
+.tarjeta.discover { 
+  background: linear-gradient(45deg, #ff6000, #ffcc00); 
+}
+
+.tarjeta-chip {
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(135deg, #c9b037, #d4af37);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.tarjeta-chip::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  border-radius: var(--radius-sm);
+}
+
+.tarjeta-numero {
+  font-size: var(--font-size-lg);
+  letter-spacing: 2px;
+  margin-bottom: var(--space-lg);
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tarjeta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tarjeta-nombre {
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tarjeta-expiracion {
+  font-size: var(--font-size-sm);
+  letter-spacing: 1px;
+}
+
+.tarjeta-logo {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+}
+
+.logo-visa,
+.logo-mastercard,
+.logo-amex,
+.logo-discover {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  font-size: var(--font-size-xs);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.logo-visa { color: #1a1f71; }
+.logo-mastercard { color: #eb001b; }
+.logo-amex { color: #006fcf; }
+.logo-discover { color: #ff6000; }
+
+/* Formulario */
+.tarjeta-form {
+  background: var(--color-bg-primary);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.form-group input {
+  width: 100%;
+  padding: var(--space-md);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  transition: all var(--transition-normal) ease;
+  box-sizing: border-box;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(247, 152, 74, 0.1);
+  transform: translateY(-2px);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.cvv-info {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-xs);
+}
+
+.tipo-tarjeta-options {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radio-option input {
+  margin-right: var(--space-xs);
+  width: auto;
+}
+
+.radio-label {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+/* Botones */
+.form-actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.btn-cancelar, .btn-pagar {
+  flex: 1;
+  padding: var(--space-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+}
+
+.btn-cancelar {
+  background: var(--color-error);
+  color: var(--color-text-on-primary);
+}
+
+.btn-cancelar:hover {
+  background: var(--color-error-dark);
+  transform: translateY(-2px);
+}
+
+.btn-pagar {
+  background: linear-gradient(135deg, var(--color-success), var(--color-success-light));
+  color: var(--color-text-on-primary);
+  box-shadow: 0 4px 15px rgba(39, 192, 47, 0.4);
+}
+
+.btn-pagar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 192, 47, 0.6);
+}
+
+.btn-pagar:active {
+  transform: translateY(0);
+}
+
+/* Info de seguridad */
+.security-info {
+  text-align: center;
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.secure-lock {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-xs);
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tarjeta-pago-modal {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Efecto de hover en la tarjeta */
+.tarjeta:hover {
+  transform: rotateY(10deg) rotateX(5deg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tarjeta-pago-modal {
+    width: 95%;
+    padding: var(--space-lg);
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .tipo-tarjeta-options {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .tarjeta {
+    height: 160px;
+    padding: var(--space-md);
+  }
+  
+  .tarjeta-numero {
+    font-size: var(--font-size-md);
+  }
+}
+
+/* Ajustes para modo oscuro */
+[data-theme="dark"] .tarjeta-form {
+  background: var(--color-bg-secondary);
+}
+
+[data-theme="dark"] .form-group input {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-medium);
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .radio-label {
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--color-text-primary);
+}
+
+[data-theme="dark"] .cvv-info {
+  color: var(--color-text-tertiary);
+}

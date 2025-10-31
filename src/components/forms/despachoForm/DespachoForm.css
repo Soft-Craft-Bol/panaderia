@@ -27,6 +27,19 @@
 }
 
 /* Campos de entrada */
+.despacho-input-number {
+    width: 30%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    transition: all var(--transition-fast);
+    margin-bottom: var(--space-xs);
+}
+
+/* Campos de entrada */
 .despacho-input {
     width: 100%;
     padding: var(--space-sm) var(--space-md);
@@ -39,7 +52,7 @@
     margin-bottom: var(--space-xs);
 }
 
-.despacho-input:focus {
+.despacho-input-number:focus {
     outline: none;
     border-color: var(--color-primary);
     box-shadow: 0 0 0 2px var(--color-primary-light);

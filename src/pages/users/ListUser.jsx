@@ -175,11 +175,15 @@ const UserManagement = () => {
           <Modal isOpen={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
             <h2>Confirmar Eliminación</h2>
             <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-            <div className="user-management-table-actions">
-              <Button  type="danger" onClick={handleDeleteUser}>
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "1rem"
+            }}>
+              <Button variant="danger" onClick={handleDeleteUser}>
                 Confirmar
               </Button>
-              <Button type="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+              <Button variant="secondary" onClick={() => setDeleteConfirmOpen(false)}>
                 Cancelar
               </Button>
             </div>

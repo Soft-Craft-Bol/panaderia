@@ -191,12 +191,6 @@ const ComprasPanel = () => {
         <div className="compras-panel">
             <div className="panel-header">
                 <h2>Compras</h2>
-                <Button
-                    onClick={() => setModalOpen(true)}
-                    variant="primary"
-                >
-                    + Nueva Compra
-                </Button>
             </div>
 
             <div className="filters-toggle">

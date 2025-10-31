@@ -9,6 +9,7 @@
 .selector-container-asignacion {
   display: flex;
   gap: var(--space-md);
+  align-items: flex-start;
 }
 
 .insumo-mini-card {
@@ -20,6 +21,19 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-medium);
   font-size: var(--font-size-sm);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.insumo-mini-card:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.insumo-mini-card > div:first-child {
+  flex: 1;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
 }
 
 .unidad {
@@ -32,12 +46,29 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  justify-content: flex-end; 
+  min-width: 150px; 
+}
+
+.prioridad-edit label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 .prioridad-edit input {
   width: 60px;
+  text-align: right; /* 👈 números alineados a la derecha */
   padding: var(--space-xs);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+}
+
+.prioridad-edit input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 2px var(--color-primary);
 }
 
 .btn-eliminar {
@@ -46,9 +77,30 @@
   color: var(--color-error);
   cursor: pointer;
   font-size: var(--font-size-md);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.btn-eliminar:hover {
+  transform: scale(1.1);
+  color: #d32f2f;
 }
 
 .no-items {
   font-style: italic;
   color: var(--color-text-tertiary);
+  text-align: center;
+  padding: var(--space-sm);
+}
+
+.section-title-asignacion {
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.form-actions-asignacion {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
 }

@@ -87,7 +87,9 @@
 }
 
 .input-side label {
+  display: flex;
   font-size: var(--font-size-sm);
+  justify-content: flex-start;
   font-weight: 600;
   color: var(--color-text-secondary);
 }

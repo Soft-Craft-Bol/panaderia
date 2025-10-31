@@ -1,5 +1,6 @@
 import React from "react";
 import './ModalConfirm.css';
+import { Button } from "../buttons/Button";
 
 const ModalConfirm = ({ 
   isOpen, 
@@ -14,24 +15,24 @@ const ModalConfirm = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay-conf" onClick={onClose}>
-      <div className="modal-conf" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-conf-content">
-          {title && <h2 className="modal-conf-title">{title}</h2>}
-          {message && <p className="modal-conf-message">{message}</p>}
-          <div className="modal-conf-buttons">
-            <button 
-              className={`modal-conf-button ${danger ? "modal-conf-button-danger" : "modal-conf-button-primary"}`}
+    <div className="modal-overlayConf" onClick={onClose}>
+      <div className="modalConf" onClick={(e) => e.stopPropagation()}>
+        <div className="modalConf-content">
+          {title && <h2 className="modalConf-title">{title}</h2>}
+          {message && <p className="modalConf-message">{message}</p>}
+          <div className="modalConf-buttons">
+            <Button
+              variant="success"
               onClick={onConfirm}
             >
               {confirmText}
-            </button>
-            <button 
-              className="modal-conf-button modal-conf-button-cancel"
+            </Button>
+            <Button
+              variant="danger"
               onClick={onClose}
             >
               {cancelText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Table from '../../components/table/Table';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import Modal from '../../components/modal/Modal';
-import InsumoForm from './InsumoForm';
+import InsumoForm, { TIPOS_INSUMO } from './InsumoForm';
 import { FaPlus, FaFilter } from 'react-icons/fa';
 
 import './InsumosTable.css';
@@ -11,12 +11,6 @@ import SearchInput from '../../components/search/SearchInput';
 import ActionButtons from '../../components/buttons/ActionButtons';
 import { useInsumosTable } from '../../hooks/useInsumosTable';
 
-export const TIPOS_INSUMO = [
-  { value: 'MATERIA_PRIMA', label: 'Materia Prima', color: '#1976d2', bg: '#e3f2fd' },
-  { value: 'PRODUCTO_TERMINADO', label: 'Producto Terminado', color: '#388e3c', bg: '#e8f5e9' },
-  { value: 'EMPAQUE_ETIQUETA', label: 'Empaques y Etiquetas', color: '#8e24aa', bg: '#f3e5f5' },
-  { value: 'MATERIAL_LIMPIEZA', label: 'Material de Limpieza', color: '#f57c00', bg: '#fff3e0' },
-];
 
 const InsumosTable = () => {
   const [nombreFilter, setNombreFilter] = useState('');
@@ -38,9 +32,6 @@ const InsumosTable = () => {
     page: page - 1,
     size: rowsPerPage
   });
-
-
-
 
   const insumos = data?.data?.content || [];
   const totalPages = data?.data?.totalPages || 1;

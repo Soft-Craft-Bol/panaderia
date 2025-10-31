@@ -1,9 +1,9 @@
-// components/InsumosSucursalTable.js
-import React from 'react';
-import { FaBoxOpen, FaExclamationTriangle } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaBoxOpen, FaExclamationTriangle, FaEdit } from 'react-icons/fa';
 import { format } from 'date-fns';
 import Table from '../../components/table/Table';
 import './InsumosSucursalTable.css';
+import EditStockMinimoModal from '../../components/forms/insumoForm/EditStockMinimoModal';
 
 const InsumosSucursalTable = ({ 
   data, 
@@ -15,11 +15,33 @@ const InsumosSucursalTable = ({
   page,
   rowsPerPage,
   totalPages,
-  totalElements
+  totalElements,
+  sucursalId,
+  sucursalNombre,
+  onStockMinimoUpdated,
 }) => {
+  const [editingInsumo, setEditingInsumo] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
   const isExpired = (fechaVencimiento) => {
     if (!fechaVencimiento) return false;
     return new Date(fechaVencimiento) < new Date();
+  };
+
+  const handleEditStockMinimo = (insumo) => {
+    setEditingInsumo({
+      ...insumo,
+      sucursalNombre: sucursalNombre
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleStockMinimoUpdated = () => {
+    setEditModalOpen(false);
+    setEditingInsumo(null);
+    if (onStockMinimoUpdated) {
+      onStockMinimoUpdated();
+    }
   };
 
   const columns = [
@@ -46,7 +68,19 @@ const InsumosSucursalTable = ({
     },
     {
       header: 'Stock Mínimo',
-      accessor: 'stockMinimo'
+      accessor: 'stockMinimo',
+      render: (row) => (
+        <div className="stock-minimo-cell">
+          <span>{row.stockMinimo || 'N/A'}</span>
+          <button
+            className="edit-stock-btn"
+            onClick={() => handleEditStockMinimo(row)}
+            title="Editar stock mínimo"
+          >
+            <FaEdit size={14} />
+          </button>
+        </div>
+      )
     },
     {
       header: 'Fecha Vencimiento',
@@ -73,11 +107,15 @@ const InsumosSucursalTable = ({
       header: 'Acciones',
       accessor: 'actions',
       render: (row) => (
-        <button
+        <div className="action-buttons">
+          <button
             className="comprar-button"
             onClick={() => onCompra(row)}
             title="Registrar Compra"
-        >Comprar</button>
+          >
+            Comprar
+          </button>
+        </div>
       )
     }
   ];
@@ -98,6 +136,14 @@ const InsumosSucursalTable = ({
         }}
         onPageChange={onPageChange}
         onRowsPerPageChange={onRowsPerPageChange}
+      />
+
+      <EditStockMinimoModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        insumo={editingInsumo}
+        sucursalId={sucursalId} 
+        onSuccess={handleStockMinimoUpdated}
       />
     </div>
   );

@@ -45,6 +45,32 @@
   background-color: #fee2e2; 
 }
 
+.stock-minimo-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-stock-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.edit-stock-btn:hover {
+  color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .comprar-button{
     background-color: var(--color-primary);
     color: white;

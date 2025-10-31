@@ -39,8 +39,8 @@ const EventoForm = ({ onSuccess, onClose }) => {
             cufdEvento: '',
             fechaHoraInicioEvento: '',
             fechaHoraFinEvento: '',
-            //codigoMotivoEvento: '',
-            codigoMotivoEvento: 3,
+            codigoMotivoEvento: '',
+            //codigoMotivoEvento: 6,
         },
         validationSchema: eventoValidationSchema,
         onSubmit: handleSubmit,
@@ -61,8 +61,8 @@ const EventoForm = ({ onSuccess, onClose }) => {
 
             const payload = {
                 idPuntoVenta: puntoVentaId,
-                //codigoMotivoEvento: Number(values.codigoMotivoEvento),
-                codigoMotivoEvento: 3,
+                codigoMotivoEvento: Number(values.codigoMotivoEvento),
+                //codigoMotivoEvento: 3,
                 descripcion: getDescripcionMotivo(values.codigoMotivoEvento),
                 cufdEvento: values.cufdEvento,
                 fechaHoraInicioEvento: formatDateForBackend(values.fechaHoraInicioEvento),
@@ -70,16 +70,7 @@ const EventoForm = ({ onSuccess, onClose }) => {
             };
             const response = await definirEvento(payload);
             console.log('Respuesta del servidor:', response);
-            const codigoEvento = response.data?.respuestaSiat?.codigoRecepcionEventoSignificativo;
-            /* 
-                        setResultado({
-                            codigoRecepcion: codigoEvento,
-                            mensaje: 'Evento registrado correctamente',
-                            detalles: response,
-                            motivo: getDescripcionMotivo(values.codigoMotivoEvento)
-                        }); */
-
-            
+            const codigoEvento = response.data?.respuestaSiat?.codigoRecepcionEventoSignificativo;  
 
             setShowModal(true);
             formik.resetForm();

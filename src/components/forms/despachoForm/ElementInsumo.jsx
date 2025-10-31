@@ -1,8 +1,8 @@
 import React from "react";
-import { useInsumorSucursalInf } from "../../../hooks/useInsumorSucursalInf";
 import SelectorInsumosSucursalPaginado from "../../selected/SelectorInsumosSucursalPaginado";
+import { useInsumorSucursalInf } from "../../../hooks/useInsumorSucursalInf";
 
-const ElementInsumo = ({ index, onUpdate, onRemove, isDefault, sucursalId, selectedInsumo }) => {
+const ElementInsumo = ({ index, item, onUpdate, onRemove, isDefault, sucursalId }) => {
     const {
         insumos,
         loadMore,
@@ -10,51 +10,52 @@ const ElementInsumo = ({ index, onUpdate, onRemove, isDefault, sucursalId, selec
         isFetchingNextPage,
         searchTerm,
         setSearchTerm,
-    } = useInsumorSucursalInf(sucursalId);
+        isFetching,
+        refetch
+    } = useInsumorSucursalInf(sucursalId, true);
+    console.log("SucursalId en ElementInsumo:", insumos);
+
+    const handleInsumoChange = (insumo) => {
+        if (insumo) {
+            onUpdate(index, 'insumoId', insumo.insumoId);
+            // Si ya hay una cantidad, mantenerla, sino poner 1
+            if (!item.cantidad) {
+                onUpdate(index, 'cantidad', 1);
+            }
+        }
+    };
+
+    const handleCantidadChange = (e) => {
+        const value = parseFloat(e.target.value);
+        onUpdate(index, 'cantidad', isNaN(value) ? "" : value);
+    };
 
     return (
         <div className="element-insumo">
-            {selectedInsumo ? (
-                <div className="insumo-seleccionado">
-                    <strong>{selectedInsumo.nombre}</strong>
-                    <span style={{ marginLeft: "8px" }}>
-                        ({selectedInsumo.cantidad} {selectedInsumo.unidadMedida?.abreviatura || 'unidades'})
-                    </span>
-                </div>
-            ) : (
-                <div className="selector-container">
-                    <SelectorInsumosSucursalPaginado
-                        insumos={insumos}
-                        value={null}
-                        onChange={(insumo) => {
-                            if (insumo) {
-                                onUpdate(index, insumo.insumoId, 1, insumo);
-                            }
-                        }}
-                        onLoadMore={loadMore}
-                        hasNextPage={hasNextPage}
-                        isFetchingNextPage={isFetchingNextPage}
-                        isLoading={false}
-                        placeholder="Buscar insumo..."
-                        onSearch={setSearchTerm}
-                        disabled={!sucursalId}
-                    />
-                </div>
-            )}
-
-            {selectedInsumo && (
-                <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    className="despacho-input"
-                    placeholder="Cantidad"
-                    value={selectedInsumo.cantidad}
-                    onChange={(e) => {
-                        onUpdate(index, null, parseFloat(e.target.value));
-                    }}
+            <div className="selector-container">
+                <SelectorInsumosSucursalPaginado
+                    insumos={insumos}
+                    value={item.insumoId}
+                    onChange={handleInsumoChange}
+                    onLoadMore={loadMore}
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
+                    isLoading={isFetching}
+                    placeholder="Buscar insumo..."
+                    onSearch={setSearchTerm}
+                    disabled={!sucursalId}
                 />
-            )}
+            </div>
+
+            <input
+                type="number"
+                step="any"
+                min="0.01"
+                className="despacho-input-number"
+                placeholder="Cantidad"
+                value={item.cantidad || ""}
+                onChange={handleCantidadChange}
+            />
 
             {!isDefault && (
                 <button

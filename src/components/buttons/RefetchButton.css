@@ -1,0 +1,35 @@
+.refetch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+
+  font-size: 1.2rem; /* tamaño del icono */
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.refetch-btn:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.refetch-btn:active {
+  background-color: var(--color-primary-light);
+  transform: scale(0.95);
+}
+
+.refetch-btn:focus {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
