@@ -7,7 +7,6 @@ import SelectSecondary from '../selected/SelectSecondary';
 import { toast, Toaster } from 'sonner';
 import { useMutation } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
-import { generatePDF } from '../../utils/generatePDF';
 import ButtonPrimary from '../buttons/ButtonPrimary';
 import InputText from '../inputs/InputText';
 import FacturaDetalles from './FacturaDetalles';
@@ -53,9 +52,8 @@ export default function VentaCredito() {
   };
 
   const { mutate: registrarVenta } = useMutation({
-    mutationFn: VentasCredito, // tu endpoint POST /pago-posterior/venta
+    mutationFn: VentasCredito, 
     onSuccess: async (response) => {
-      const { data } = response;
       try {
         toast.success("Venta registrada correctamente");
       } catch (error) {
@@ -114,6 +112,7 @@ export default function VentaCredito() {
     }
 
     registrarVenta(payloadBase);
+
   };
 
   const calcularTotales = (items) => {
@@ -169,7 +168,6 @@ export default function VentaCredito() {
               </SelectSecondary>
             </div>
 
-            {/* Condiciones de crédito o pago posterior */}
             {values.codigoMetodoPago && (
               <div className="credito-condiciones">
                 <h4>

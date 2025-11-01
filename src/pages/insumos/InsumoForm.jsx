@@ -4,9 +4,9 @@ import * as Yup from 'yup';
 import { crearInsumo, updateInsumo, cambiarEstadoInsumo } from '../../service/api';
 import InputText from '../../components/inputs/InputText';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
-import SelectPrimary from '../../components/selected/SelectPrimary';
 import uploadImageToCloudinary from '../../utils/uploadImageToCloudinary ';
 import { FaCamera, FaTimesCircle, FaTrash, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import SelectSecondary from '../../components/selected/SelectSecondary';
 
 export const TIPOS_INSUMO = [
     { value: 'MATERIA_PRIMA', label: 'Materia Prima' },
@@ -178,7 +178,7 @@ const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
                   placeholder="Ej: Harina de trigo"
                 />
 
-                <SelectPrimary
+                <SelectSecondary
                   label="Tipo de Insumo"
                   name="tipo"
                   required
@@ -187,7 +187,7 @@ const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
                   {TIPOS_INSUMO.map(tipo => (
                     <option key={tipo.value} value={tipo.value}>{tipo.label}</option>
                   ))}
-                </SelectPrimary>
+                </SelectSecondary>
 
                 <InputText
                   label="Precio de Presentación"
@@ -212,7 +212,7 @@ const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
                 placeholder="Ej: 25.50"
               />
 
-              <SelectPrimary
+              <SelectSecondary
                 label="Unidad de Medida"
                 name="unidades"
                 required
@@ -221,7 +221,7 @@ const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
                 {UNIDADES_MEDIDA.map(unidad => (
                   <option key={unidad.value} value={unidad.value}>{unidad.label}</option>
                 ))}
-              </SelectPrimary>
+              </SelectSecondary>
             </div>
 
             {isEditing && (
@@ -250,7 +250,7 @@ const InsumoForm = ({ insumo, onSuccess, onCancel }) => {
                 variant="primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Guardando...' : 'Guardar Insumo'}
+                {isSubmitting ? 'Guardando...' : 'Guardar'}
               </ButtonPrimary>
 
               <ButtonPrimary

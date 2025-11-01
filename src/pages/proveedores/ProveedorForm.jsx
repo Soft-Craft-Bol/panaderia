@@ -7,6 +7,7 @@ import SelectPrimary from '../../components/selected/SelectPrimary';
 import { createProveedor, updateProveedor } from '../../service/api';
 import { toast, Toaster } from 'sonner';
 import './ProveedorForm.css';
+import SelectSecondary from '../../components/selected/SelectSecondary';
 
 const ProveedorForm = ({ onSuccess, onCancel, proveedor }) => {
 
@@ -83,7 +84,7 @@ const ProveedorForm = ({ onSuccess, onCancel, proveedor }) => {
               placeholder="Ej: Distribuidora de Alimentos S.A."
             />
 
-            <SelectPrimary
+            <SelectSecondary
               label="Tipo de Proveedor"
               name="tipoProveedor"
               required
@@ -91,7 +92,7 @@ const ProveedorForm = ({ onSuccess, onCancel, proveedor }) => {
               <option value="">Seleccione un tipo</option>
               <option value="INDIVIDUAL">Individual</option>
               <option value="EMPRESA">Empresa</option>
-            </SelectPrimary>
+            </SelectSecondary>
 
             <InputText
               label="Dirección"

@@ -25,7 +25,6 @@ import FiltersPanel from '../../components/search/FiltersPanel';
 
 
 const InsumosPanel = () => {
-    // Estados principales
     const [sucursales, setSucursales] = useState([]);
     const [selectedSucursal, setSelectedSucursal] = useState(null);
     const [soloActivos, setSoloActivos] = useState(true);
