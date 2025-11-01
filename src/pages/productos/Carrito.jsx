@@ -9,7 +9,9 @@ const Carrito = ({
     isCajaAbierta, 
     updateQuantity, 
     handleCheckout, 
-    totalCompra, 
+     totalCompra,
+    totalSinRedondear,
+    diferenciaRedondeo, 
     isOpen, 
     toggleCart, 
     handleFinalizarVenta,
@@ -165,11 +167,30 @@ const Carrito = ({
             </div>
 
             <div className="cart-summary">
-              <div className="cart-total">
-                <span>Total:</span>
-                <span className="total-amount">Bs {totalConDescuentos.toFixed(2)}</span>
-              </div>
+              {diferenciaRedondeo !== 0 && (
+          <div className="redondeo-info" style={{
+            backgroundColor: '#fff3cd',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            marginBottom: '10px',
+            border: '1px solid #ffeaa7',
+            fontSize: '14px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Subtotal:</span>
+              <span>Bs {totalSinRedondear.toFixed(2)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#856404' }}>
+              <span>Ajuste redondeo:</span>
+              <span>Bs {diferenciaRedondeo.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
 
+        <div className="cart-total">
+          <span>Total:</span>
+          <span className="total-amount">Bs {totalCompra.toFixed(2)}</span>
+        </div>
               <div className="checkout-buttons">
                 {isCajaAbierta ? (
                   // Mostrar estos botones cuando hay caja abierta
