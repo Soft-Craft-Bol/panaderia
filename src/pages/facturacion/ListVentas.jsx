@@ -7,6 +7,9 @@ import { Toaster, toast } from "sonner";
 import { Button } from "../../components/buttons/Button";
 import { FaCloudDownloadAlt, FaBan, FaUndo } from "react-icons/fa";
 import { generatePDF } from '../../utils/generatePDF';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 import useFacturas from "../../hooks/useFacturas";
 import "./ListVentas.css";
 import Modal from "../../components/modal/Modal";
@@ -52,6 +55,8 @@ const AccionesVenta = ({ venta, onAnular, onRevertir, onDownload, hasAnyRole, is
   );
 };
 
+
+
 const ListVentas = () => {
   const queryClient = useQueryClient();
   const currentUser = getUser();
@@ -94,6 +99,39 @@ const ListVentas = () => {
     };
     fetchMotivos();
   }, []);
+
+  const exportToPDF = () => {
+  if (!facturas || facturas.length === 0) {
+    toast.error("No hay datos para exportar");
+    return;
+  }
+
+  const doc = new jsPDF("l", "pt", "a4");
+
+  doc.text("Listado de Ventas", 40, 40);
+
+  const tableData = facturas.map((venta) => [
+    venta.idVenta,
+    venta.nombrePuntoVenta || "-",
+    venta.nombreSucursal || "-",
+    new Date(venta.fechaEmision).toLocaleString("es-ES"),
+    venta.tipoComprobante,
+    venta.estado,
+    (venta.detalles || []).reduce((sum, d) => sum + (d.subTotal || 0), 0).toFixed(2),
+    venta.nombreUsuario || "-",
+    (venta.detalles || []).map(d => `${d.descripcion} (${d.cantidad || 1}x Bs ${(d.subTotal || 0).toFixed(2)})`).join(", ")
+  ]);
+
+  doc.autoTable({
+    startY: 60,
+    head: [["ID", "Punto Venta", "Sucursal", "Fecha", "Tipo", "Estado", "Total Bs", "Usuario", "Productos"]],
+    body: tableData,
+    styles: { fontSize: 8 },
+  });
+
+  doc.save(`ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
+};
+
 
   const handleDownload = async (factura) => {
     if (factura?.xmlContent) {
@@ -306,6 +344,9 @@ const ListVentas = () => {
       <div className="user-management-header">
         <h2>Gestión de Ventas</h2>
       </div>
+<Button variant="secondary" onClick={exportToPDF}>
+  Exportar PDF
+</Button>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <ColumnVisibilityControl buttonLabel="Columnas" />

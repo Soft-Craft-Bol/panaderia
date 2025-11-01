@@ -1,8 +1,8 @@
 import axios from 'axios';
 import qs from 'qs';
 //deply
-//const baseURL = "https://api.inpasep.com/api/v1";
-const baseURL = "http://localhost:8080/api/v1";
+const baseURL = "https://api.inpasep.com/api/v1";
+//const baseURL = "http://localhost:8080/api/v1";
 
 const api = axios.create({
     baseURL: baseURL,

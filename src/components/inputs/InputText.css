@@ -80,6 +80,22 @@
   margin-top: var(--space-xs);
   text-align: start;
 }
+/* Quitar flechas de los inputs numéricos (Chrome, Safari, Edge) */
+input[type="number"].no-spinner::-webkit-inner-spin-button,
+input[type="number"].no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Quitar flechas en Firefox */
+input[type="number"].no-spinner {
+  -moz-appearance: textfield;
+}
+
+/* Prevenir scroll accidental */
+input[type="number"].no-spinner:focus {
+  outline: none;
+}
 
 /* ======================== */
 /* Dark Mode Overrides */

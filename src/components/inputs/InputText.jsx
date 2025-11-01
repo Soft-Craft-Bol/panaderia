@@ -49,3 +49,4 @@ function InputText({ label, required, type = "text", formik = true, ...props }) 
 }
 
 export default InputText;
+ 

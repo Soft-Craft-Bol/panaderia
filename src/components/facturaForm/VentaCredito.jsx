@@ -6,10 +6,10 @@ import * as Yup from 'yup';
 import SelectSecondary from '../selected/SelectSecondary';
 import { toast, Toaster } from 'sonner';
 import { useMutation } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ButtonPrimary from '../buttons/ButtonPrimary';
 import InputText from '../inputs/InputText';
-import FacturaDetalles from './FacturaDetalles';
+import FacturaDetalles from './FacturaDetalles';    
 import ClienteForm from './ClienteForm';
 import './FormFacturacion.css';
 
@@ -26,13 +26,14 @@ const validationSchema = Yup.object({
 export default function VentaCredito() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [ventaData, setVentaData] = useState(null);
+  const navigate = useNavigate(); // Agregar navigate
 
   const location = useLocation();
-  const { productosSeleccionados } = location.state || {};
+  const { productosSeleccionados, sucursalId, puntoVentaId: puntoVentaIdFromState, cartIndex = 0 } = location.state || {};
 
   const currentUser = getUser();
   const cajaId = currentUser?.cajasAbiertas?.[0]?.id || null;
-  const puntoVentaId = currentUser?.puntosVenta?.[0]?.id || null;
+  const puntoVentaId = puntoVentaIdFromState || currentUser?.puntosVenta?.[0]?.id || null;
 
   const initialValues = {
     codigoMetodoPago: '',
@@ -56,6 +57,11 @@ export default function VentaCredito() {
     onSuccess: async (response) => {
       try {
         toast.success("Venta registrada correctamente");
+        limpiarCarritoEspecifico();
+        setTimeout(() => {
+          navigate('/punto-ventas'); 
+        }, 1500);
+        
       } catch (error) {
         console.error('Error generando PDF:', error);
         toast.error('Error al generar el PDF');
@@ -67,6 +73,21 @@ export default function VentaCredito() {
       console.error('Detalles del error:', error.response?.data || error);
     },
   });
+
+  const limpiarCarritoEspecifico = () => {
+    try {
+      const storedCarts = localStorage.getItem('ventasCarts');
+      if (storedCarts) {
+        const parsedCarts = JSON.parse(storedCarts);
+        if (Array.isArray(parsedCarts) && parsedCarts[cartIndex]) {
+          parsedCarts[cartIndex] = [];
+          localStorage.setItem('ventasCarts', JSON.stringify(parsedCarts));
+        }
+      }
+    } catch (error) {
+      console.error("Error limpiando carrito:", error);
+    }
+  };
 
   const handleSubmit = (values) => {
     if (!clienteSeleccionado) {
@@ -84,7 +105,6 @@ export default function VentaCredito() {
       return;
     }
 
-    // Construimos el payload según tipo de venta
     const payloadBase = {
       idCliente: clienteSeleccionado.id,
       idPuntoVenta: puntoVentaId,
@@ -99,7 +119,6 @@ export default function VentaCredito() {
       cajaId: cajaId,
     };
 
-    // Campos adicionales según tipo
     if (values.codigoMetodoPago === "CREDITO") {
       payloadBase.esCredito = true;
       payloadBase.diasCredito = values.plazoDias;
@@ -112,7 +131,6 @@ export default function VentaCredito() {
     }
 
     registrarVenta(payloadBase);
-
   };
 
   const calcularTotales = (items) => {
@@ -129,6 +147,27 @@ export default function VentaCredito() {
   return (
     <div className="facturacion-container">
       <Toaster richColors position="top-center" />
+      
+      {/* Botón para volver al punto de venta */}
+      <div className="header-actions">
+        <button 
+          type="button"
+          className="btn-volver"
+          onClick={() => navigate('/punto-ventas')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginBottom: '20px'
+          }}
+        >
+          ← Volver al Punto de Venta
+        </button>
+      </div>
+
       <h2>Venta Crédito / Pago Posterior</h2>
 
       <ClienteForm onClienteSeleccionado={setClienteSeleccionado} />
@@ -203,7 +242,7 @@ export default function VentaCredito() {
                 </div>
 
                 <p>
-                    Fecha de vencimiento:{" "}
+                  Fecha de vencimiento:{" "}
                   {new Date(
                     Date.now() + values.plazoDias * 24 * 60 * 60 * 1000
                   ).toLocaleDateString()}
@@ -218,6 +257,23 @@ export default function VentaCredito() {
               >
                 {isSubmitting ? 'Registrando...' : 'Registrar Venta'}
               </ButtonPrimary>
+              
+              <button 
+                type="button"
+                className="btn-cancelar"
+                onClick={() => navigate('/punto-ventas')}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginLeft: '10px'
+                }}
+              >
+                Cancelar
+              </button>
             </div>
           </Form>
         )}

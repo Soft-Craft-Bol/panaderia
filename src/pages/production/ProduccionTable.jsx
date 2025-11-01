@@ -173,6 +173,7 @@ const ProduccionTable = () => {
         <ActionButtons
           onView={() => handleViewProduccion(row)}
           onEdit={false}
+          showEdit={false}
           onDelete={() => {
             if (window.confirm('¿Estás seguro de eliminar esta producción?')) {
               handleDelete(row.id);
@@ -269,7 +270,7 @@ const ProduccionTable = () => {
       <Table
         columns={columns}
         data={data?.producciones?.content || []}
-        onRowClick={handleViewProduccion}
+        onRowClick={false}
         pagination={{
           currentPage: page + 1,
           totalPages: data?.totalPages || 1,
