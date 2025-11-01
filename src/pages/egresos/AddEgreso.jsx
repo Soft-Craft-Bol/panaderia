@@ -10,7 +10,6 @@ import { useCajaActiva } from "../../hooks/useHistorialCajas";
 import { getUser } from "../../utils/authFunctions";
 
 const EgresoForm = ({ egreso, onSuccess, onCancel }) => {
-    // 🔹 Validación con Yup
     const validationSchema = Yup.object().shape({
         fechaDePago: Yup.date().required("La fecha de pago es obligatoria"),
         descripcion: Yup.string()
@@ -26,7 +25,6 @@ const EgresoForm = ({ egreso, onSuccess, onCancel }) => {
         observaciones: Yup.string().required("Las observaciones son obligatorias"),
     });
 
-    // 🔹 Convertir Date a string YYYY-MM-DD para el backend
     const formatDate = (date) => {
         if (!date) return null;
         return new Date(date).toISOString().split("T")[0];

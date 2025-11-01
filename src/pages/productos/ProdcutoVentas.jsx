@@ -8,7 +8,7 @@ import { useProductos } from "../../hooks/useProductos";
 import { useVentas } from "../../hooks/useVentas";
 import Modal from "../../components/modal/Modal";
 import { getUser } from "../../utils/authFunctions";
-import { FaCashRegister, FaEnvelope, FaPrint } from "react-icons/fa";
+import { FaCashRegister, FaEnvelope, FaPrint, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import ProductoCard from "../../components/card/ProductoCard";
 import SelectSecondary from "../../components/selected/SelectSecondary";
 import InputText from "../../components/inputs/InputText";
@@ -36,6 +36,13 @@ const ProductosVentas = () => {
         }
         setIsInitialized(true);
     }, []);
+
+    const redondearAMultiplo = (valor, multiplo = 0.50) => {
+        return Math.round(valor / multiplo) * multiplo;
+    };
+
+    // Estado para controlar el ajuste manual del redondeo
+    const [ajusteRedondeo, setAjusteRedondeo] = useState(0);
 
     const {
         productos,
@@ -286,7 +293,22 @@ const ProductosVentas = () => {
         }
     }, [cart, navigate, ID_SUCURSAL_ACTUAL]);
 
-    const totalCompra = useMemo(() => {
+    // Función para ajustar el redondeo
+    const ajustarRedondeo = (direccion) => {
+        const incremento = 0.50;
+        if (direccion === 'arriba') {
+            setAjusteRedondeo(prev => prev + incremento);
+        } else if (direccion === 'abajo') {
+            setAjusteRedondeo(prev => prev - incremento);
+        }
+    };
+
+    // Resetear ajuste cuando cambia el carrito
+    useEffect(() => {
+        setAjusteRedondeo(0);
+    }, [activeCartIndex, cart]);
+
+    const totalCompraS = useMemo(() => {
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
             return 0;
         }
@@ -307,6 +329,16 @@ const ProductosVentas = () => {
         }
     }, [cart]);
 
+    // Aplicar redondeo automático + ajuste manual
+    const totalCompra = useMemo(() => {
+        const redondeoAutomatico = redondearAMultiplo(totalCompraS, 0.50);
+        return redondeoAutomatico + ajusteRedondeo;
+    }, [totalCompraS, ajusteRedondeo]);
+
+    const diferenciaRedondeo = useMemo(() => {
+        return totalCompraS - totalCompra;
+    }, [totalCompraS, totalCompra]);
+
     const totalConDescuentos = useMemo(() => {
         if (!ventaData?.detalle || !Array.isArray(ventaData.detalle)) return totalCompra;
 
@@ -323,12 +355,12 @@ const ProductosVentas = () => {
     }, [metodosPagoList]);
 
     const diferenciaPagos = useMemo(() => {
-    if (!pagoCombinado) return 0;
-    const suma = sumaPagosCombinados;
-    const total = totalCompra || 0;
-    const diferencia = total - suma;
-    
-    return Math.round(diferencia * 100) / 100;
+        if (!pagoCombinado) return 0;
+        const suma = sumaPagosCombinados;
+        const total = totalCompra || 0;
+        const diferencia = total - suma;
+        
+        return Math.round(diferencia * 100) / 100;
     }, [totalCompra, sumaPagosCombinados, pagoCombinado]);
 
     const cambio = useMemo(() => {
@@ -350,8 +382,6 @@ const ProductosVentas = () => {
         ))
     ), [productos, addToCart, getCurrentStock]);
 
-    // En la función confirmarVenta, reemplaza esta sección:
-
     const confirmarVenta = async () => {
         try {
             if (!ventaData) {
@@ -361,13 +391,11 @@ const ProductosVentas = () => {
 
             let ventaDataFinal;
             if (pagoCombinado) {
-                // Validar que hay métodos de pago
                 if (metodosPagoList.length === 0) {
                     toast.error('Debe agregar al menos un método de pago');
                     return;
                 }
 
-                // Validar que todos los métodos tienen datos completos
                 const metodosIncompletos = metodosPagoList.filter(mp =>
                     !mp.metodoPago || mp.monto <= 0
                 );
@@ -387,7 +415,9 @@ const ProductosVentas = () => {
                     metodoPago: metodosPagoList[0]?.metodoPago || "",
                     metodosPago: metodosPagoList,
                     montoRecibido: sumaPagos,
-                    montoDevuelto: 0
+                    montoDevuelto: 0,
+                    totalAjustado: totalCompra,
+                    diferenciaRedondeo: diferenciaRedondeo
                 };
             } else {
                 if (!metodoPago || metodoPago.trim() === "") {
@@ -403,7 +433,9 @@ const ProductosVentas = () => {
                         : totalCompra,
                     montoDevuelto: metodoPago === "EFECTIVO"
                         ? parseFloat(cambio) || 0
-                        : 0
+                        : 0,
+                    totalAjustado: totalCompra,
+                    diferenciaRedondeo: diferenciaRedondeo
                 };
             }
             console.log("Datos de venta final:", ventaDataFinal);
@@ -487,6 +519,8 @@ const ProductosVentas = () => {
                 username: currentUser?.username || "admin",
                 metodoPago: metodoPago,
                 montoRecibido: montoRecibidoValue,
+                totalAjustado: totalCompra, 
+                diferenciaRedondeo: diferenciaRedondeo, 
                 montoDevuelto: metodoPago === "EFECTIVO" ? parseFloat(cambio) || 0 : 0,
                 cajaId: cajaActiva?.id || 0,
                 nombreCliente: nombreClienteRecibo.trim() || "CONSUMIDOR FINAL",
@@ -521,7 +555,7 @@ const ProductosVentas = () => {
         } catch (error) {
             toast.error(error.message);
         }
-    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo, ID_SUCURSAL_ACTUAL, cajaActiva]);
+    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo, ID_SUCURSAL_ACTUAL, cajaActiva, totalCompra, diferenciaRedondeo]);
 
     const searchInputRef = React.useRef(null);
 
@@ -613,6 +647,7 @@ const ProductosVentas = () => {
         setShowReciboModal(false);
         setPagoCombinado(false);
         setMetodosPagoList([]);
+        setAjusteRedondeo(0); // Resetear ajuste al resetear formulario
     };
 
     const handlePrintReceipt = () => {
@@ -764,6 +799,81 @@ const ProductosVentas = () => {
                 resetearFormulario();
             }}>
                 <h2>Confirmar Venta</h2>
+                
+                {/* Sección de ajuste de redondeo */}
+                <div className="ajuste-redondeo-section" style={{
+                    backgroundColor: '#e8f4fd',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '15px',
+                    border: '1px solid #b8daff'
+                }}>
+                    <h3 style={{ margin: '0 0 10px 0', color: '#004085', fontSize: '14px' }}>
+                        Ajuste de Redondeo
+                    </h3>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>Subtotal:</span>
+                                <span style={{ fontSize: '12px' }}>Bs {totalCompraS.toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>Redondeo automático:</span>
+                                <span style={{ fontSize: '12px' }}>Bs {redondearAMultiplo(totalCompraS, 0.50).toFixed(2)}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>Ajuste manual:</span>
+                                <span style={{ 
+                                    fontSize: '12px', 
+                                    color: ajusteRedondeo !== 0 ? (ajusteRedondeo > 0 ? '#28a745' : '#dc3545') : '#666',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {ajusteRedondeo >= 0 ? '+' : ''}{ajusteRedondeo.toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                            <Button
+                                variant="secondary"
+                                onClick={() => ajustarRedondeo('arriba')}
+                                style={{ padding: '8px 12px', minWidth: 'auto' }}
+                                title="Aumentar Bs 0.50"
+                            >
+                                <FaArrowUp size={12} />
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => ajustarRedondeo('abajo')}
+                                style={{ padding: '8px 12px', minWidth: 'auto' }}
+                                title="Disminuir Bs 0.50"
+                            >
+                                <FaArrowDown size={12} />
+                            </Button>
+                        </div>
+                    </div>
+                    
+                    {ajusteRedondeo !== 0 && (
+                        <div style={{ 
+                            marginTop: '10px', 
+                            padding: '8px',
+                            backgroundColor: ajusteRedondeo > 0 ? '#d4edda' : '#f8d7da',
+                            border: `1px solid ${ajusteRedondeo > 0 ? '#c3e6cb' : '#f5c6cb'}`,
+                            borderRadius: '4px',
+                            textAlign: 'center'
+                        }}>
+                            <span style={{ 
+                                fontSize: '12px', 
+                                color: ajusteRedondeo > 0 ? '#155724' : '#721c24',
+                                fontWeight: 'bold'
+                            }}>
+                                {ajusteRedondeo > 0 ? '↑ Aumentado' : '↓ Disminuido'} en Bs {Math.abs(ajusteRedondeo).toFixed(2)}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
                 <p>Total a pagar: <strong>Bs {totalCompra.toFixed(2)}</strong></p>
 
                 <div className="modal-field">
@@ -823,7 +933,6 @@ const ProductosVentas = () => {
                                         placeholder={`Mínimo Bs ${totalCompra.toFixed(2)}`}
                                         min={totalCompra}
                                     />
-
                                 </div>
 
                                 <div className="modal-field">
@@ -844,7 +953,6 @@ const ProductosVentas = () => {
                     <div className="pago-combinado-section">
                         <h3 style={{ marginBottom: '15px', color: '#333' }}>Métodos de Pago</h3>
 
-                        {/* Resumen de totales */}
                         <div className="pago-resumen" style={{
                             backgroundColor: '#f8f9fa',
                             padding: '12px',
@@ -933,19 +1041,10 @@ const ProductosVentas = () => {
                                                 label="Referencia"
                                                 value={mp.referencia || ""}
                                                 onChange={(e) => {
-    const updated = [...metodosPagoList];
-    const value = e.target.value;
-    
-    // Si está vacío, lo dejamos vacío temporalmente
-    if (value === '') {
-        updated[index].monto = 0;
-    } else {
-        const numValue = parseFloat(value);
-        updated[index].monto = isNaN(numValue) ? 0 : numValue;
-    }
-    
-    setMetodosPagoList(updated);
-}}
+                                                    const updated = [...metodosPagoList];
+                                                    updated[index].referencia = e.target.value;
+                                                    setMetodosPagoList(updated);
+                                                }}
                                             />
                                         </div>
                                     )}
@@ -974,25 +1073,24 @@ const ProductosVentas = () => {
                             )}
 
                             {diferenciaPagos > 0.01 && metodosPagoList.length > 0 && (
-                            <Button
-                                onClick={() => {
-                                const updated = [...metodosPagoList];
-                                const lastIndex = updated.length - 1;
-                                
-                                if (updated[lastIndex].metodoPago) {
-                                    // Sumamos la diferencia al monto actual
-                                    const montoActual = parseFloat(updated[lastIndex].monto) || 0;
-                                    updated[lastIndex].monto = montoActual + diferenciaPagos;
-                                    setMetodosPagoList(updated);
-                                } else {
-                                    toast.error('Primero seleccione un método de pago para el último item');
-                                }
-                                }}
-                                style={{ width: '100%', marginBottom: '10px' }}
-                                variant="secondary"
-                            >
-                                💡 Auto-completar faltante (Bs {diferenciaPagos.toFixed(2)})
-                            </Button>
+                                <Button
+                                    onClick={() => {
+                                        const updated = [...metodosPagoList];
+                                        const lastIndex = updated.length - 1;
+                                        
+                                        if (updated[lastIndex].metodoPago) {
+                                            const montoActual = parseFloat(updated[lastIndex].monto) || 0;
+                                            updated[lastIndex].monto = montoActual + diferenciaPagos;
+                                            setMetodosPagoList(updated);
+                                        } else {
+                                            toast.error('Primero seleccione un método de pago para el último item');
+                                        }
+                                    }}
+                                    style={{ width: '100%', marginBottom: '10px' }}
+                                    variant="secondary"
+                                >
+                                    💡 Auto-completar faltante (Bs {diferenciaPagos.toFixed(2)})
+                                </Button>
                             )}
                         </div>
                     </div>
@@ -1086,6 +1184,8 @@ const ProductosVentas = () => {
                 handleCheckout={handleCheckout}
                 handleFinalizarVenta={handleFinalizarVenta}
                 totalCompra={totalCompra}
+                totalSinRedondear={totalCompraS}
+                diferenciaRedondeo={diferenciaRedondeo}
                 isOpen={isCartOpen}
                 toggleCart={() => setIsCartOpen(!isCartOpen)}
                 vaciarCarrito={vaciarCarrito}
