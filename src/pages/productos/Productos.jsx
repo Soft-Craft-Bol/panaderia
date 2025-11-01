@@ -262,7 +262,7 @@ const Productos = () => {
   {
     type: 'select',
     name: 'conDescuento',
-    label: 'Con descuento',
+    label: 'Descuento',
     config: {
       options: [
         { id: 'true', nombre: 'Sí' },

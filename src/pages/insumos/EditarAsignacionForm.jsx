@@ -117,7 +117,7 @@ const EditarAsignacionForm = ({  genericoId, asignacionId, onClose }) => {
                 variant="primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                {isSubmitting ? 'Guardando...' : 'Actualizar'}
               </ButtonPrimary>
 
               <ButtonPrimary

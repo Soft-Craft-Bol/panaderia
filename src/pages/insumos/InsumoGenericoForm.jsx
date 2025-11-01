@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { createInsumoGenerico, updateInsumoGenerico } from '../../service/api';
 import InputText from '../../components/inputs/InputText';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
-import SelectPrimary from '../../components/selected/SelectPrimary';
+import SelectSecondary from '../../components/selected/SelectSecondary';
 
 const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
   const UNIDADES_MEDIDA = [
@@ -73,7 +73,7 @@ const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
             </div>
 
             <div className="form-row">
-              <SelectPrimary
+              <SelectSecondary
                 label="Unidad de Medida"
                 name="unidadMedida"
                 required
@@ -82,7 +82,7 @@ const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
                 {UNIDADES_MEDIDA.map(unidad => (
                   <option key={unidad.value} value={unidad.value}>{unidad.label}</option>
                 ))}
-              </SelectPrimary>
+              </SelectSecondary>
             </div>
 
             <div className="form-row">
@@ -102,7 +102,7 @@ const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
                 variant="primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Guardando...' : 'Guardar Insumo Genérico'}
+                {isSubmitting ? 'Guardando...' : 'Guardar'}
               </ButtonPrimary>
 
               <ButtonPrimary
@@ -116,53 +116,6 @@ const InsumoGenericoForm = ({initialData, onSuccess, onCancel }) => {
           </Form>
         )}
       </Formik>
-
-      <style jsx>{`
-        .insumo-generico-form-container {
-          background: var(--color-bg-primary);
-          padding: var(--space-lg);
-          border-radius: var(--radius-md);
-          box-shadow: var(--shadow-md);
-          max-width: 600px;
-          margin: 0 auto;
-        }
-        
-        h2 {
-          color: var(--color-primary);
-          margin-bottom: var(--space-lg);
-          font-size: var(--font-size-xl);
-          text-align: center;
-        }
-        
-        .form {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-md);
-        }
-        
-        .form-row {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-sm);
-        }
-        
-        .form-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: var(--space-sm);
-          margin-top: var(--space-md);
-        }
-        
-        @media (min-width: 768px) {
-          .form-row {
-            flex-direction: row;
-          }
-          
-          .form-row > * {
-            flex: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 };
