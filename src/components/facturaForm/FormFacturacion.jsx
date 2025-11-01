@@ -289,10 +289,10 @@ export default function FormFacturacion() {
     const { subtotal, descuentos, total } = calcularTotales(initialValuesEmitirFactura.items);
 
     useEffect(() => {
-  if (initialValuesEmitirFactura.codigoTipoMoneda) {
-    setTipoCambio(obtenerTipoCambio(initialValuesEmitirFactura.codigoTipoMoneda));
-  }
-}, [initialValuesEmitirFactura.codigoTipoMoneda]);
+        if (initialValuesEmitirFactura.codigoTipoMoneda) {
+            setTipoCambio(obtenerTipoCambio(initialValuesEmitirFactura.codigoTipoMoneda));
+        }
+    }, [initialValuesEmitirFactura.codigoTipoMoneda]);
 
     return (
         <div className="facturacion-container">
@@ -309,6 +309,7 @@ export default function FormFacturacion() {
             <ClienteForm onClienteSeleccionado={setClienteSeleccionado} />
 
             <FacturaDetalles
+                title={"Detalle de la Factura"}
                 items={initialValuesEmitirFactura.items}
                 subtotal={subtotal}
                 descuentos={descuentos}

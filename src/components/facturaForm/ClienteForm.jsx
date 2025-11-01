@@ -217,7 +217,7 @@ export default function ClienteForm({ onClienteSeleccionado }) {
                 </ul>
               )}
 
-              <Form className="cont-new-pat">
+              <Form className="cont-new-pat-cliente">
                 {!editMode && clienteEncontrado && (
                   <>
                     {/* Grupo de Información Básica */}

@@ -1,4 +1,3 @@
-// components/insumosGenericos/InsumoGenericoDetalle.js
 import React from 'react';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
 import InsumoGenericoForm from './InsumoGenericoForm';

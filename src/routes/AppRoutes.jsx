@@ -40,6 +40,7 @@ const RecetasMain = lazy(() => import("../pages/recetas/RecetasMain"));
 const AjustesInventario = lazy(() => import("../pages/ajustes/AjustesInventario"));
 const AjustesInventarioInsumos = lazy(() => import("../pages/ajustes/AjustesInventarioInsumos"));
 const EgresosPanel = lazy(() => import("../pages/egresos/EgresosPanel"));
+const VentaCredito = lazy(() => import("../components/facturaForm/VentaCredito"));
 
 const AppRoutes = () => (
 
@@ -52,6 +53,7 @@ const AppRoutes = () => (
     <Route path="/home" element={<PrivateRoute><Inicio /></PrivateRoute>} />
     <Route path="/configuraciones" element={<PrivateRoute requiredPermissions={["ADMIN"]}><Configuraciones /></PrivateRoute>} />
     <Route path="/ajuste" element={<PrivateRoute><AjustesInventario /></PrivateRoute>} />
+      <Route path="/venta-credito" element={<PrivateRoute><VentaCredito /></PrivateRoute>} />
     {/*Principal Sidebar*/}
     <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
     <Route path="/registerUser" element={<PrivateRoute><RegisterUser /> </PrivateRoute>} />

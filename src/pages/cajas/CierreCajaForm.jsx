@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { getResumenPagos, cerrarCaja,
-        getResumenProductos, getProductosByPuntoVenta,
-        getStockInicial, getEgresosByCaja } from '../../service/api';
+import {
+  getResumenPagos, cerrarCaja,
+  getResumenProductos, getProductosByPuntoVenta,
+  getStockInicial
+} from '../../service/api';
 import { FaCashRegister, FaFileInvoiceDollar, FaMoneyBillWave, FaWallet, FaExchangeAlt, FaPrint, FaSave, FaCalculator, FaFileAlt, FaInfoCircle } from 'react-icons/fa';
 import { MdAttachMoney, MdPointOfSale, MdReceipt } from 'react-icons/md';
 import { generateCierreCajaPDF } from '../../utils/generateCierreCajaPDF';
 import './CierreCajaForm.css';
 import ResumenProductos from './ResumenProductos';
 
-const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
+const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso }) => {
   const [formData, setFormData] = useState({
     gastos: '',
     efectivoFinal: '',
@@ -16,7 +18,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
     transferenciaFinal: '',
     observaciones: ''
   });
-  
+
   const [resumenPagos, setResumenPagos] = useState(null);
   const [loading, setLoading] = useState(false);
   const [calculando, setCalculando] = useState(false);
@@ -47,15 +49,15 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
   };
 
   const totalVentas = useMemo(() => {
-    return resumenPagos 
+    return resumenPagos
       ? (resumenPagos.facturacion?.subtotal || 0) + (resumenPagos.sin_facturacion?.subtotal || 0)
       : 0;
   }, [resumenPagos]);
 
   const totalContado = useMemo(() => {
-    return parseFloat(formData.efectivoFinal || 0) + 
-           parseFloat(formData.billeteraMovilFinal || 0) + 
-           parseFloat(formData.transferenciaFinal || 0);
+    return parseFloat(formData.efectivoFinal || 0) +
+      parseFloat(formData.billeteraMovilFinal || 0) +
+      parseFloat(formData.transferenciaFinal || 0);
   }, [formData.efectivoFinal, formData.billeteraMovilFinal, formData.transferenciaFinal]);
 
   const diferencia = useMemo(() => {
@@ -77,7 +79,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
 
       const processPagos = (pagos, destino) => {
         if (!pagos) return;
-        
+
         Object.entries(pagos).forEach(([metodo, monto]) => {
           if (metodo !== 'subtotal' && monto) {
             const metodoNormalizado = metodo.toLowerCase().replace(' ', '_');
@@ -92,6 +94,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
       const payload = {
         cajaId: caja.id,
         usuarioId: usuario.id,
+        puntoVenta: usuario.puntosVenta[0]?.id || 'N/A',
         efectivoFinal: Number(formData.efectivoFinal) || 0,
         billeteraMovilFinal: Number(formData.billeteraMovilFinal) || 0,
         transferenciaFinal: Number(formData.transferenciaFinal) || 0,
@@ -121,13 +124,13 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
     try {
       const productosResponse = await getResumenProductos(caja.id);
       const resumenProductos = productosResponse.data;
-      
-      const puntoVentaId = usuario?.puntosVenta[0]?.id; 
+
+      const puntoVentaId = usuario?.puntosVenta[0]?.id;
       const stockResponse = await getProductosByPuntoVenta(
-        puntoVentaId, 
-        0, 
-        1000,  
-        '', 
+        puntoVentaId,
+        0,
+        1000,
+        '',
         null,
         null,
         [],
@@ -144,7 +147,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
         usuario: usuario.username,
         montoInicial: caja.montoInicial.toFixed(2),
         resumenPagos,
-        resumenProductos, 
+        resumenProductos,
         productosStock,
         productosStockInicial,
         totalVentas: totalVentas.toFixed(2),
@@ -153,7 +156,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
         observaciones: formData.observaciones,
         fecha: new Date().toLocaleDateString()
       };
-      
+
       generateCierreCajaPDF(data, reportRef.current);
     } catch (error) {
       console.error('Error al obtener resumen de productos:', error);
@@ -182,13 +185,10 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
     <div className="cierre-dashboard" ref={reportRef}>
       <div className="dashboard-header">
         <FaCashRegister className="header-icon" />
-        <h1>Cierre de Caja - {caja.nombre}</h1>
-        <div className="user-info">
-          <span>Usuario: {usuario.username}</span>
-          <button className="btn-close" onClick={onCancelar}>X</button>
-        </div>
+        <h1>{caja.nombre}</h1>
+        <span>Usuario: {usuario.username}</span>
       </div>
-      
+
       <div className="dashboard-grid">
         {/* Resumen inicial */}
         <div className="dashboard-card card-inicial">
@@ -218,7 +218,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
                   <div className="ventas-group">
                     <h4><FaFileAlt /> Con Factura</h4>
                     {Object.entries(resumenPagos.facturacion)
-                      .filter(([key]) => key !== 'subtotal')
+                      .filter(([key, valor]) => key !== 'subtotal' && Number(valor) > 0)
                       .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
                     <div className="ventas-total">
                       <span>TOTAL:</span>
@@ -231,7 +231,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
                   <div className="ventas-group">
                     <h4><FaFileAlt /> Sin Factura</h4>
                     {Object.entries(resumenPagos.sin_facturacion)
-                      .filter(([key]) => key !== 'subtotal')
+                      .filter(([key, valor]) => key !== 'subtotal' && Number(valor) > 0)
                       .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
                     <div className="ventas-total">
                       <span>TOTAL:</span>
@@ -340,12 +340,12 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
               <span>Total Ventas (Sistema)</span>
               <span className="resumen-value">Bs. {totalVentas.toFixed(2)}</span>
             </div>
-            
+
             <div className="resumen-item">
               <span>Total Gastos</span>
               <span className="resumen-value">Bs. {parseFloat(formData.gastos || 0).toFixed(2)}</span>
             </div>
-            
+
             <div className="resumen-subgrid">
               <h4><MdAttachMoney /> Conteo Final</h4>
               <div className="resumen-item">
@@ -365,7 +365,7 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
                 <span className="resumen-value">Bs. {totalContado.toFixed(2)}</span>
               </div>
             </div>
-            
+
             <div className="resumen-item diferencia">
               <span>Diferencia</span>
               <span className={`resumen-value ${diferencia >= 0 ? 'positive' : 'negative'}`}>
@@ -377,23 +377,23 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso  }) => {
       </div>
 
       <div className="dashboard-actions">
-        <button 
+        <button
           className="btn btn-primary btn-icon"
           onClick={handleGuardar}
           disabled={loading}
         >
           <FaSave /> {loading ? 'Guardando...' : 'Guardar Cierre'}
         </button>
-        
-        <button 
+
+        <button
           className="btn btn-secondary btn-icon"
           onClick={handleImprimir}
           disabled={!resumenPagos}
         >
           <FaPrint /> Generar PDF
         </button>
-        
-        <button 
+
+        <button
           className="btn btn-cancel"
           onClick={onCancelar}
         >
