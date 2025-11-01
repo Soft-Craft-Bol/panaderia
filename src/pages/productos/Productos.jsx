@@ -244,7 +244,7 @@ const Productos = () => {
     name: 'categoriaId',
     label: 'Categoría',
     config: {
-      options: categorias || [], // VALIDACIÓN: Asegurar que sea array
+      options: categorias || [], 
       valueKey: 'id',
       labelKey: 'nombre',
     }
@@ -254,7 +254,7 @@ const Productos = () => {
     name: 'sucursalId',
     label: 'Sucursal',
     config: {
-      options: sucursalesData || [], // VALIDACIÓN: Asegurar que sea array
+      options: sucursalesData || [], 
       valueKey: 'id',
       labelKey: 'nombre'
     }

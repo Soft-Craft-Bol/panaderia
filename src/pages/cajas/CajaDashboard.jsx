@@ -8,10 +8,11 @@ import Table from '../../components/table/Table';
 import { useHistorialCajas, useCajaActiva } from '../../hooks/useHistorialCajas';
 import { abrirCaja } from '../../service/api';
 import { toast, Toaster } from 'sonner';
-import { debounce } from 'lodash';
 import ButtonPrimary from '../../components/buttons/ButtonPrimary';
-import CustomDatePicker from '../../components/inputs/DatePicker';
 import Modal from '../../components/modal/Modal';
+import ActionButtons from '../../components/buttons/ActionButtons';
+import CajaDetail from './CajaDetail';
+import FiltersPanel from '../../components/search/FiltersPanel';
 
 const CajaDashboard = () => {
   const [showAperturaForm, setShowAperturaForm] = useState(false);
@@ -19,8 +20,12 @@ const CajaDashboard = () => {
   const [buscar, setBuscar] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [desde, setDesde] = useState(null); 
-  const [hasta, setHasta] = useState(null);
+  const [selectedCajaId, setSelectedCajaId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    desde: null,
+    hasta: null,
+  });
 
   const currentUser = getUser();
   const navigate = useNavigate();
@@ -34,25 +39,27 @@ const CajaDashboard = () => {
   const noCajaAbierta =
     !cajaActiva || cajaActiva?.mensaje === "No tienes caja abierta actualmente.";
 
-  const formatFechaDesde = desde ? `${desde.toISOString().split("T")[0]}T00:00:00` : null;
-  const formatFechaHasta = hasta ? `${hasta.toISOString().split("T")[0]}T23:59:59` : null;
+  const formatFechaDesde = filters.desde ? `${filters.desde}T00:00:00` : null;
+  const formatFechaHasta = filters.hasta ? `${filters.hasta}T23:59:59` : null;
 
-  const {
-    data: historialData,
-    isLoading: isLoadingHistorial
-  } = useHistorialCajas({
-    userId: currentUser?.id,
-    desde: buscar ? formatFechaDesde : null,
-    hasta: buscar ? formatFechaHasta : null,
-    page,
-    size: rowsPerPage,
-    enabled: !!currentUser?.id,
-  });
+const { data: historialData, isLoading: isLoadingHistorial } = useHistorialCajas({
+  userId: currentUser?.id,
+  desde: buscar ? formatFechaDesde : null,
+  hasta: buscar ? formatFechaHasta : null,
+  page,
+  size: rowsPerPage,
+  enabled: !!currentUser?.id,
+});
 
-  const debouncedSetBuscar = useCallback(
-    debounce(() => setBuscar(true), 500),
-    []
-  );
+  const handleViewCaja = (cajaId) => {
+    setSelectedCajaId(cajaId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCajaId(null);
+  };
 
   const handleAbrirCaja = useCallback(async ({ montoInicial, turno }) => {
     try {
@@ -72,14 +79,40 @@ const CajaDashboard = () => {
     }
   }, [currentUser, refetchCaja]);
 
-    const handleCierreExitoso = useCallback(() => {
-    setShowCierreForm(false); 
-    refetchCaja(); 
+  const handleCierreExitoso = useCallback(() => {
+    setShowCierreForm(false);
+    refetchCaja();
     //refetchHistorial(); 
   }, [refetchCaja]);
 
+  const filtersConfig = [
+    {
+      type: 'date',
+      name: 'desde',
+      label: 'Desde',
+      placeholder: 'Seleccione fecha inicial',
+    },
+    {
+      type: 'date',
+      name: 'hasta',
+      label: 'Hasta',
+      placeholder: 'Seleccione fecha final',
+    },
+  ];
 
   const columnas = useMemo(() => [
+    {
+      header: 'ID Caja',
+      accessor: 'id'
+    },
+    {
+      header: 'Nombre Caja',
+      accessor: 'nombre'
+    },
+    {
+      header: 'Sucursal',
+      accessor: 'sucursal'
+    },
     {
       header: 'Estado',
       accessor: 'estado',
@@ -105,7 +138,19 @@ const CajaDashboard = () => {
       accessor: 'fechaCierre',
       render: (row) => row.fechaCierre ? new Date(row.fechaCierre).toLocaleString() : '-'
     },
-    { header: 'Usuario', accessor: 'usuarioApertura.nombre' },
+    { header: 'Usuario', accessor: 'usuarioApertura' },
+    {
+      header: 'Acciones',
+      accessor: 'actions',
+      render: (row) => (
+        <ActionButtons
+          onView={() => handleViewCaja(row.id)}
+          showView={true}
+          showEdit={false}
+          showDelete={false}
+        />
+      )
+    }
   ], []);
 
   if (!currentUser) {
@@ -116,8 +161,6 @@ const CajaDashboard = () => {
   return (
     <div className="caja-dashboard">
       <Toaster position="top-right" richColors />
-      <h1>Gestión de Cajas</h1>
-
       {isLoadingCaja ? (
         <div>Cargando estado de caja...</div>
       ) : noCajaAbierta ? (
@@ -171,46 +214,20 @@ const CajaDashboard = () => {
         )}
       </Modal>
 
-      <div className="filtros-fecha">
-        <div className="filter-group">
-          <label>Desde:</label>
-          <CustomDatePicker
-            selected={desde}
-            onChange={(date) => {
-              setDesde(date);
-              debouncedSetBuscar();
-            }}
-            maxDate={hasta}
-            placeholderText="Seleccione fecha desde"
-          />
-        </div>
+      <FiltersPanel
+        filtersConfig={filtersConfig}
+        filters={filters}
+        onFilterChange={(newFilter) => {
+          setFilters(prev => ({ ...prev, ...newFilter }));
+          setBuscar(true);
+        }}
+        onResetFilters={() => {
+          setFilters({ desde: null, hasta: null });
+          setBuscar(false);
+        }}
+        layout="grid"
+      />
 
-        <div className="filter-group">
-          <label>Hasta:</label>
-          <CustomDatePicker
-            selected={hasta}
-            onChange={(date) => {
-              setHasta(date);
-              debouncedSetBuscar();
-            }}
-            minDate={desde}
-            placeholderText="Seleccione fecha hasta"
-          />
-        </div>
-
-        <ButtonPrimary
-          variant="secondary"
-          onClick={() => {
-            setDesde(null);
-            setHasta(null);
-            setBuscar(false);
-          }}
-        >
-          Restablecer
-        </ButtonPrimary>
-      </div>
-
-      {/* Tabla Historial */}
       <Table
         columns={columnas}
         data={historialData?.content || []}
@@ -226,6 +243,11 @@ const CajaDashboard = () => {
         showColumnVisibility={true}
         storageKey="historialCajasHiddenColumns"
         emptyMessage="No hay registros de cajas para mostrar"
+      />
+      <CajaDetail
+        cajaId={selectedCajaId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
       />
     </div>
   );

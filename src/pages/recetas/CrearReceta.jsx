@@ -12,7 +12,7 @@ import { toast, Toaster } from 'sonner';
 import BackButton from '../../components/buttons/BackButton';
 import { useInsumosGenericos } from '../../hooks/useInsumosGenericos';
 import Modal from '../../components/modal/Modal';
-import { FaFlask, FaWeight, FaBoxes, FaListOl, FaInfoCircle } from 'react-icons/fa';
+import { FaFlask, FaWeight, FaBoxes, FaListOl, FaInfoCircle, FaCopy, FaPaste } from 'react-icons/fa';
 
 const validationSchema = Yup.object().shape({
   nombre: Yup.string().required('El nombre es obligatorio'),
@@ -20,6 +20,9 @@ const validationSchema = Yup.object().shape({
   cantidadUnidades: Yup.number().required('La cantidad es obligatoria').min(1),
   productoId: Yup.number().required('El producto es obligatorio'),
 });
+
+// Clave para almacenar en localStorage
+const COPIED_INGREDIENTS_KEY = 'copied_receta_ingredients';
 
 const CrearReceta = () => {
   const { id } = useParams();
@@ -113,6 +116,67 @@ const CrearReceta = () => {
       }));
     }
   }, [id, isEditing, productoId, nombreProducto]);
+
+  // Función para copiar insumos al portapapeles (localStorage)
+  const copiarInsumos = () => {
+    if (insumosGenericosReceta.length === 0) {
+      toast.warning('No hay insumos para copiar');
+      return;
+    }
+
+    try {
+      // Guardar en localStorage
+      localStorage.setItem(COPIED_INGREDIENTS_KEY, JSON.stringify(insumosGenericosReceta));
+      toast.success(`${insumosGenericosReceta.length} insumos copiados correctamente`);
+    } catch (error) {
+      console.error('Error al copiar insumos:', error);
+      toast.error('Error al copiar los insumos');
+    }
+  };
+
+  // Función para pegar insumos desde el portapapeles (localStorage)
+  const pegarInsumos = () => {
+    try {
+      const insumosCopiados = localStorage.getItem(COPIED_INGREDIENTS_KEY);
+      
+      if (!insumosCopiados) {
+        toast.warning('No hay insumos copiados para pegar');
+        return;
+      }
+
+      const insumosParseados = JSON.parse(insumosCopiados);
+      
+      if (!Array.isArray(insumosParseados) || insumosParseados.length === 0) {
+        toast.warning('No hay insumos válidos para pegar');
+        return;
+      }
+
+      // Verificar si ya hay insumos en la receta actual
+      if (insumosGenericosReceta.length > 0) {
+        // Preguntar si quiere reemplazar o agregar
+        if (window.confirm(`¿Desea reemplazar los ${insumosGenericosReceta.length} insumos actuales por los ${insumosParseados.length} insumos copiados?`)) {
+          setInsumosGenericosReceta(insumosParseados);
+          toast.success(`${insumosParseados.length} insumos pegados correctamente`);
+        }
+      } else {
+        setInsumosGenericosReceta(insumosParseados);
+        toast.success(`${insumosParseados.length} insumos pegados correctamente`);
+      }
+    } catch (error) {
+      console.error('Error al pegar insumos:', error);
+      toast.error('Error al pegar los insumos');
+    }
+  };
+
+  // Verificar si hay insumos copiados disponibles
+  const hayInsumosCopiados = () => {
+    try {
+      const insumosCopiados = localStorage.getItem(COPIED_INGREDIENTS_KEY);
+      return insumosCopiados && JSON.parse(insumosCopiados).length > 0;
+    } catch {
+      return false;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -348,6 +412,31 @@ const CrearReceta = () => {
               <div className="section-header">
                 <FaFlask className="section-icon" />
                 <h3 className="section-title">Insumos Genéricos Requeridos</h3>
+                
+                {/* Botones de Copiar y Pegar */}
+                <div className="copy-paste-actions">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={copiarInsumos}
+                    disabled={insumosGenericosReceta.length === 0}
+                    className="btn-copy"
+                  >
+                    <FaCopy className="action-icon" />
+                    Copiar Insumos ({insumosGenericosReceta.length})
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={pegarInsumos}
+                    disabled={!hayInsumosCopiados()}
+                    className="btn-paste"
+                  >
+                    <FaPaste className="action-icon" />
+                    Pegar Insumos
+                  </Button>
+                </div>
               </div>
 
               <div className="agregar-insumo">

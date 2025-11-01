@@ -25,10 +25,6 @@ const ResumenProductos = ({ cajaId }) => {
     }
   }, [cajaId]);
 
-  if (loading) {
-    return <div className="loading">Cargando productos...</div>;
-  }
-
   if (!resumen) {
     return <div className="no-data">No hay datos de productos</div>;
   }

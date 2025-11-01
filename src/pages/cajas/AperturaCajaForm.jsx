@@ -1,4 +1,3 @@
-// src/components/caja/AperturaCajaForm.jsx
 import React, { useState } from 'react';
 import './AperturaCajaForm.css';
 import SelectSecondary from '../../components/selected/SelectSecondary';

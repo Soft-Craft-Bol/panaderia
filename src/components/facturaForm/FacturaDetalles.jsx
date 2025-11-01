@@ -2,6 +2,7 @@ import Table from "../table/Table";
 import './FacturaDetalle.css';
 
 export default function FacturaDetalles({
+  title,
   items,
   subtotal,
   descuentos,
@@ -10,6 +11,7 @@ export default function FacturaDetalles({
   tipoCambio,
   monedas
 }) {
+  
   const columns = [
     {
       header: "Producto",
@@ -57,7 +59,7 @@ export default function FacturaDetalles({
 
   return (
     <div className="seccion-detalles">
-      <h3>Detalles de la Factura</h3>
+      <h3>{title}</h3>
       {codigoMoneda != 1 && (
         <div className="info-conversion">
           <p>

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import qs from 'qs';
 //deply
-const baseURL = "https://api.inpasep.com/api/v1";
-//const baseURL = "http://localhost:8080/api/v1";
+//const baseURL = "https://api.inpasep.com/api/v1";
+const baseURL = "http://localhost:8080/api/v1";
 
 const api = axios.create({
     baseURL: baseURL,
@@ -178,6 +178,7 @@ export const anularFactura = (data) => api.post('/factura/anular', data);
 export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-anulacion', data);
 export const emitirSinFactura = (data) => api.post('/ventas', data);
 export const anularVentas = (id, data) => api.post(`/ventas/${id}/anular`, data);
+export const VentasCredito = (data) => api.post('/pago-posterior/venta', data);
 
 
 // reservas
@@ -438,7 +439,7 @@ export const getCierreCaja = () => api.get('/cierre-caja');
 export const createCierreCaja = (data) => api.post('/cierre-caja', data);
 export const getCajas = () => api.get('/cajas');
 export const getHistorialCajas = (userId, desde, hasta, page = 0, size = 10) => {
-  const params = { page, size };
+  const params = { page, size, sort: 'fechaApertura,desc' };
   if (desde) params.desde = desde;
   if (hasta) params.hasta = hasta;
 
@@ -457,7 +458,8 @@ export const abrirCaja = ({ sucursalId, puntoVentaId, usuarioId, turno, montoIni
 };
 export const verificarCajas = (userId) => api.get(`/cajas/abierta/${userId}`);
 export const cerrarCaja = (data) => api.post('/cajas/cerrar', data);
-export const getStockInicial = (idCaja) => api.get(`/cajas/${idCaja}`);
+export const getStockInicial = (idCaja) => api.get(`/cajas/stock-inicial/${idCaja}`);
+export const getCajaById = (id) => api.get(`/cajas/resumen/${id}`);
 export const getResumenPagos = (idCaja) => api.get(`/ventas/resumen-pagos?cajaId=${idCaja}`);
 export const getResumenProductos = (idCaja) => api.get(`/ventas/caja/${idCaja}/resumen`);
 export const getEgresosByCaja = (idCaja) => api.get(`/egresos/caja/${idCaja}`);

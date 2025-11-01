@@ -372,7 +372,7 @@ const ProductosVentas = () => {
                 }
 
                 const sumaPagos = metodosPagoList.reduce((acc, mp) => acc + (parseFloat(mp.monto) || 0), 0);
-                if (Math.abs(sumaPagos - totalCompra) > 0.01) { 
+                if (Math.abs(sumaPagos - totalCompra) > 0.01) {
                     toast.error(`Los montos no coinciden. Total: Bs ${totalCompra.toFixed(2)}, Suma pagos: Bs ${sumaPagos.toFixed(2)}, Diferencia: Bs ${Math.abs(sumaPagos - totalCompra).toFixed(2)}`);
                     return;
                 }
@@ -382,7 +382,7 @@ const ProductosVentas = () => {
                     metodoPago: metodosPagoList[0]?.metodoPago || "",
                     metodosPago: metodosPagoList,
                     montoRecibido: sumaPagos,
-                    montoDevuelto: 0 
+                    montoDevuelto: 0
                 };
             } else {
                 if (!metodoPago || metodoPago.trim() === "") {
@@ -401,7 +401,7 @@ const ProductosVentas = () => {
                         : 0
                 };
             }
-console.log("Datos de venta final:", ventaDataFinal);
+            console.log("Datos de venta final:", ventaDataFinal);
             const result = await realizarVenta(ventaDataFinal);
 
             if (result.success) {
@@ -447,7 +447,7 @@ console.log("Datos de venta final:", ventaDataFinal);
         }
     };
 
-    const handleFinalizarVenta = useCallback(async () => {
+    const handleFinalizarVenta = useCallback(async (tipoVenta = null) => {
         if (!cart || cart.length === 0) {
             toast.error('El carrito está vacío');
             return;
@@ -475,7 +475,7 @@ console.log("Datos de venta final:", ventaDataFinal);
                 ? parseFloat(montoPagado) || totalVenta
                 : totalVenta;
 
-            const data = {
+              const data = {
                 idCliente: 1,
                 idPuntoVenta: ID_SUCURSAL_ACTUAL,
                 tipoComprobante: "RECIBO",
@@ -500,8 +500,20 @@ console.log("Datos de venta final:", ventaDataFinal);
                 })
             };
 
-            setVentaData(data);
+            if(!tipoVenta){
+                setVentaData(data);
+            }else if (tipoVenta === 'PAGO_POSTERIOR'){
+                navigate('/venta-credito', {
+                state: {
+                    productosSeleccionados: productosConStockVerificado,
+                    sucursalId: ID_SUCURSAL_ACTUAL,
+                    puntoVentaId: ID_SUCURSAL_ACTUAL,
+                    tipoVenta: tipoVenta
+                }
+            });
+            }
             setShowConfirmModal(true);
+            
         } catch (error) {
             toast.error(error.message);
         }
@@ -751,22 +763,25 @@ console.log("Datos de venta final:", ventaDataFinal);
                 <p>Total a pagar: <strong>Bs {totalCompra.toFixed(2)}</strong></p>
 
                 <div className="modal-field">
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={pagoCombinado}
-                            onChange={(e) => {
-                                setPagoCombinado(e.target.checked);
-                                if (e.target.checked) {
-                                    // Inicializar con un método de pago
-                                    setMetodosPagoList([{ metodoPago: "", monto: 0 }]);
-                                } else {
-                                    setMetodosPagoList([]);
-                                }
-                            }}
-                        />
-                        Pago combinado
-                    </label>
+                    <Button
+                        variant={pagoCombinado ? "primary" : "secondary"}
+                        onClick={() => {
+                            const nuevoValor = !pagoCombinado;
+                            setPagoCombinado(nuevoValor);
+                            setMetodosPagoList(nuevoValor ? [{ metodoPago: "", monto: 0 }] : []);
+                        }}
+                        style={{ flex: 1, padding: '12px' }}
+                    >
+                        {pagoCombinado ? "Pago Combinado ✅" : "Pago Combinado"}
+                    </Button>
+
+                    <Button
+                        variant="secondary"
+                        onClick={() => handleFinalizarVenta("PAGO_POSTERIOR")}
+                        style={{ flex: 1, padding: '12px' }}
+                    >
+                        PAGO POSTERIOR
+                    </Button>
                 </div>
 
                 {!pagoCombinado && (
