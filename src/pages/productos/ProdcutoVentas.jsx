@@ -315,15 +315,20 @@ const ProductosVentas = () => {
         }, 0);
     }, [ventaData, totalCompra]);
 
-    // Calcular suma de métodos de pago combinados
     const sumaPagosCombinados = useMemo(() => {
-        return metodosPagoList.reduce((acc, mp) => acc + (parseFloat(mp.monto) || 0), 0);
+        return metodosPagoList.reduce((acc, mp) => {
+            const monto = parseFloat(mp.monto) || 0;
+            return acc + monto;
+        }, 0);
     }, [metodosPagoList]);
 
-    // Calcular diferencia para pagos combinados
     const diferenciaPagos = useMemo(() => {
-        if (!pagoCombinado) return 0;
-        return totalCompra - sumaPagosCombinados;
+    if (!pagoCombinado) return 0;
+    const suma = sumaPagosCombinados;
+    const total = totalCompra || 0;
+    const diferencia = total - suma;
+    
+    return Math.round(diferencia * 100) / 100;
     }, [totalCompra, sumaPagosCombinados, pagoCombinado]);
 
     const cambio = useMemo(() => {
@@ -475,7 +480,7 @@ const ProductosVentas = () => {
                 ? parseFloat(montoPagado) || totalVenta
                 : totalVenta;
 
-              const data = {
+            const data = {
                 idCliente: 1,
                 idPuntoVenta: ID_SUCURSAL_ACTUAL,
                 tipoComprobante: "RECIBO",
@@ -499,21 +504,20 @@ const ProductosVentas = () => {
                     };
                 })
             };
-
-            if(!tipoVenta){
-                setVentaData(data);
-            }else if (tipoVenta === 'PAGO_POSTERIOR'){
+            console.log("Datos para la venta:", data);
+            setVentaData(data);
+            if (tipoVenta === 'PAGO_POSTERIOR') {
                 navigate('/venta-credito', {
-                state: {
-                    productosSeleccionados: productosConStockVerificado,
-                    sucursalId: ID_SUCURSAL_ACTUAL,
-                    puntoVentaId: ID_SUCURSAL_ACTUAL,
-                    tipoVenta: tipoVenta
-                }
-            });
+                    state: {
+                        productosSeleccionados: productosConStockVerificado,
+                        sucursalId: ID_SUCURSAL_ACTUAL,
+                        puntoVentaId: ID_SUCURSAL_ACTUAL,
+                        tipoVenta: tipoVenta
+                    }
+                });
             }
             setShowConfirmModal(true);
-            
+
         } catch (error) {
             toast.error(error.message);
         }
@@ -819,9 +823,7 @@ const ProductosVentas = () => {
                                         placeholder={`Mínimo Bs ${totalCompra.toFixed(2)}`}
                                         min={totalCompra}
                                     />
-                                    <small style={{ color: '#666', fontSize: '0.85em', marginTop: '5px', display: 'block' }}>
-                                        💡 Si no ingresa monto, se considerará el pago exacto
-                                    </small>
+
                                 </div>
 
                                 <div className="modal-field">
@@ -896,10 +898,10 @@ const ProductosVentas = () => {
                                         >
                                             <option value="" disabled>Seleccione método</option>
                                             <option value="EFECTIVO">EFECTIVO</option>
+                                            <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
                                             <option value="TARJETA">TARJETA</option>
                                             <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
                                             <option value="DEPOSITO_EN_CUENTA">DEPOSITO EN CUENTA</option>
-                                            <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
                                             <option value="EFECTIVO_PAGO_POSTERIOR">EFECTIVO PAGO POSTERIOR</option>
                                         </SelectSecondary>
                                     </div>
@@ -907,12 +909,13 @@ const ProductosVentas = () => {
                                     <div style={{ flex: '0 0 120px' }}>
                                         <InputText
                                             type="number"
-                                            value={mp.monto || ''}
+                                            value={mp.monto === 0 ? '' : mp.monto}
                                             formik={false}
                                             label="Monto"
                                             onChange={(e) => {
                                                 const updated = [...metodosPagoList];
-                                                updated[index].monto = parseFloat(e.target.value) || 0;
+                                                const inputValue = e.target.value;
+                                                updated[index].monto = inputValue === '' ? 0 : parseFloat(inputValue);
                                                 setMetodosPagoList(updated);
                                             }}
                                             placeholder="0.00"
@@ -930,10 +933,19 @@ const ProductosVentas = () => {
                                                 label="Referencia"
                                                 value={mp.referencia || ""}
                                                 onChange={(e) => {
-                                                    const updated = [...metodosPagoList];
-                                                    updated[index].referencia = e.target.value;
-                                                    setMetodosPagoList(updated);
-                                                }}
+    const updated = [...metodosPagoList];
+    const value = e.target.value;
+    
+    // Si está vacío, lo dejamos vacío temporalmente
+    if (value === '') {
+        updated[index].monto = 0;
+    } else {
+        const numValue = parseFloat(value);
+        updated[index].monto = isNaN(numValue) ? 0 : numValue;
+    }
+    
+    setMetodosPagoList(updated);
+}}
                                             />
                                         </div>
                                     )}
@@ -961,22 +973,26 @@ const ProductosVentas = () => {
                                 </Button>
                             )}
 
-                            {/* Botón de auto-completar el faltante */}
-                            {diferenciaPagos > 0 && metodosPagoList.length > 0 && (
-                                <Button
-                                    onClick={() => {
-                                        const updated = [...metodosPagoList];
-                                        const lastIndex = updated.length - 1;
-                                        if (updated[lastIndex].metodoPago) {
-                                            updated[lastIndex].monto = (updated[lastIndex].monto || 0) + diferenciaPagos;
-                                            setMetodosPagoList(updated);
-                                        }
-                                    }}
-                                    style={{ width: '100%', marginBottom: '10px' }}
-                                    variant="secondary"
-                                >
-                                    💡 Auto-completar faltante (Bs {diferenciaPagos.toFixed(2)})
-                                </Button>
+                            {diferenciaPagos > 0.01 && metodosPagoList.length > 0 && (
+                            <Button
+                                onClick={() => {
+                                const updated = [...metodosPagoList];
+                                const lastIndex = updated.length - 1;
+                                
+                                if (updated[lastIndex].metodoPago) {
+                                    // Sumamos la diferencia al monto actual
+                                    const montoActual = parseFloat(updated[lastIndex].monto) || 0;
+                                    updated[lastIndex].monto = montoActual + diferenciaPagos;
+                                    setMetodosPagoList(updated);
+                                } else {
+                                    toast.error('Primero seleccione un método de pago para el último item');
+                                }
+                                }}
+                                style={{ width: '100%', marginBottom: '10px' }}
+                                variant="secondary"
+                            >
+                                💡 Auto-completar faltante (Bs {diferenciaPagos.toFixed(2)})
+                            </Button>
                             )}
                         </div>
                     </div>
@@ -991,9 +1007,6 @@ const ProductosVentas = () => {
                         value={nombreClienteRecibo}
                         onChange={(e) => setNombreClienteRecibo(e.target.value)}
                     />
-                    <small style={{ color: '#666', fontSize: '0.85em', marginTop: '5px', display: 'block' }}>
-                        💡 Solo complete este campo si el cliente solicita un recibo impreso
-                    </small>
                 </div>
 
                 <div className="modal-actions">

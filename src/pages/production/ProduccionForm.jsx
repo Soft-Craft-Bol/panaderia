@@ -16,22 +16,83 @@ import ToggleSwitch from "../../components/toogle/ToggleSwitch";
 const UnidadesLotesSync = ({ selectedReceta, porcentajeLote, setPorcentajeLote }) => {
   const { values, setFieldValue } = useFormikContext();
   const [unidadesTotales, setUnidadesTotales] = useState(selectedReceta?.cantidadUnidades || 0);
+  const [inputValue, setInputValue] = useState(unidadesTotales.toString());
 
   useEffect(() => {
     if (selectedReceta && values.cantidad) {
       const nuevasUnidades = values.cantidad * selectedReceta.cantidadUnidades;
-      setUnidadesTotales(Math.round(nuevasUnidades));
+      setUnidadesTotales(nuevasUnidades);
+      setInputValue(Math.round(nuevasUnidades).toString()); 
       setPorcentajeLote(values.cantidad * 100);
     }
   }, [values.cantidad, selectedReceta]);
 
-  useEffect(() => {
-    if (selectedReceta && unidadesTotales > 0) {
-      const nuevosLotes = unidadesTotales / selectedReceta.cantidadUnidades;
-      setFieldValue('cantidad', parseFloat(nuevosLotes.toFixed(2)));
+  // Manejar cambios en el input de unidades totales
+  const handleUnidadesChange = (e) => {
+    const rawValue = e.target.value;
+    
+    // Permitir campo vacío temporalmente
+    if (rawValue === "") {
+      setInputValue("");
+      return;
+    }
+
+    // Remover caracteres no numéricos excepto puntos y comas
+    const numericValue = rawValue.replace(/[^\d,.]/g, '');
+    
+    // Convertir a número
+    let numero = parseFloat(numericValue.replace(',', '.'));
+    
+    // Validar que sea un número válido y positivo
+    if (isNaN(numero) || numero <= 0) {
+      return;
+    }
+
+    // ✅ NO REDONDEAR - Permitir decimales internamente
+    // Actualizar estados
+    setUnidadesTotales(numero);
+    setInputValue(rawValue); // Mantener lo que el usuario escribió
+    
+    // Sincronizar con lotes
+    if (selectedReceta && selectedReceta.cantidadUnidades > 0) {
+      const nuevosLotes = numero / selectedReceta.cantidadUnidades;
+      setFieldValue('cantidad', parseFloat(nuevosLotes.toFixed(4))); // Más precisión
       setPorcentajeLote(nuevosLotes * 100);
     }
-  }, [unidadesTotales, selectedReceta]);
+  };
+
+  // Manejar cuando el input pierde el foco
+  const handleUnidadesBlur = (e) => {
+    const rawValue = e.target.value;
+    
+    // Si está vacío, restaurar el último valor válido
+    if (rawValue === "" || rawValue === "0") {
+      setInputValue(Math.round(unidadesTotales).toString());
+      return;
+    }
+
+    // ✅ PERMITIR números decimales si el usuario los ingresó
+    let numero = parseFloat(rawValue.replace(/[^\d.]/g, ''));
+    
+    if (isNaN(numero) || numero <= 0) {
+      numero = 1;
+    }
+
+    numero = Math.max(1, numero); // Mínimo 1 unidad
+    
+    // ✅ Redondear solo para validación, pero mantener el valor exacto
+    const numeroRedondeado = Math.round(numero);
+    
+    setUnidadesTotales(numero); // Guardar valor exacto
+    setInputValue(numeroRedondeado.toString()); // Mostrar redondeado
+    
+    // Sincronizar con lotes usando el valor exacto
+    if (selectedReceta && selectedReceta.cantidadUnidades > 0) {
+      const nuevosLotes = numero / selectedReceta.cantidadUnidades;
+      setFieldValue('cantidad', parseFloat(nuevosLotes.toFixed(4)));
+      setPorcentajeLote(nuevosLotes * 100);
+    }
+  };
 
   return (
     <div className="cantidad-controls">
@@ -42,42 +103,58 @@ const UnidadesLotesSync = ({ selectedReceta, porcentajeLote, setPorcentajeLote }
             type="range"
             min="1"
             max="500"
+            step="0.1" // ✅ Permitir decimales en el slider
             value={porcentajeLote}
             onChange={(e) => {
               const porcentaje = parseFloat(e.target.value);
               setPorcentajeLote(porcentaje);
               setFieldValue('cantidad', porcentaje / 100);
+              
+              // Actualizar unidades totales también
+              if (selectedReceta) {
+                const nuevasUnidades = (porcentaje / 100) * selectedReceta.cantidadUnidades;
+                setUnidadesTotales(nuevasUnidades);
+                setInputValue(Math.round(nuevasUnidades).toString());
+              }
             }}
           />
-          <span>{porcentajeLote.toFixed(0)}%</span>
+          <span>{porcentajeLote.toFixed(2)}%</span>
         </div>
       </div>
 
-      <InputText
-        label="Cantidad de lotes"
-        name="cantidad"
-        type="number"
-        required
-        min="0.01"
-        step="0.01"
-      />
+      <div className="form-group">
+        <label>Cantidad de lotes *</label>
+        <input
+          type="number"
+          name="cantidad"
+          value={values.cantidad}
+          onChange={(e) => setFieldValue('cantidad', parseFloat(e.target.value))}
+          className="form-control"
+          min="0.01"
+          step="0.0001" // ✅ Permitir más precisión
+          required
+        />
+      </div>
 
       <div className="form-group">
         <label>Unidades totales *</label>
         <input
-          min="1"
-          step="1"
-          value={unidadesTotales}
-          onChange={(e) => setUnidadesTotales(parseInt(e.target.value) || 0)}
+          type="text"
+          value={inputValue}
+          onChange={handleUnidadesChange}
+          onBlur={handleUnidadesBlur}
           className="form-control"
+          placeholder="Ingrese unidades"
         />
         <small className="form-text text-muted">
           {selectedReceta && `1 lote = ${selectedReceta.cantidadUnidades} unidades`}
+          {values.cantidad && ` | Lotes: ${values.cantidad.toFixed(4)}`}
         </small>
       </div>
     </div>
   );
 };
+
 
 const ProduccionForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,76 +230,77 @@ const ProduccionForm = () => {
     });
   };
 
-  const handleSubmit = async (values, { resetForm, setSubmitting }) => {
-    try {
-      if (!selectedReceta) {
-        toast.error("No se ha seleccionado una receta válida");
-        return;
-      }
-
-      // Validar cantidades de insumos
-      let hasErrors = false;
-      const porcentajesInsumos = [];
-
-      selectedReceta.insumosGenericos?.forEach((insumo) => {
-        const selections = insumosSeleccionados[insumo.id] || [];
-        const totalSeleccionado = selections.reduce(
-          (sum, item) => sum + (item.cantidadUsada || 0),
-          0
-        );
-        const totalRequerido = insumo.cantidad * values.cantidad;
-
-        if (Math.abs(totalSeleccionado - totalRequerido) > 0.01) {
-          toast.error(
-            `La cantidad total para ${insumo.nombre} debe ser ${totalRequerido.toFixed(2)} ${insumo.unidadMedida}. Actual: ${totalSeleccionado.toFixed(2)}`
-          );
-          hasErrors = true;
-        }
-
-        // Preparar porcentajes solo para insumos marcados para mezclar
-        if (modoMezcla && insumosAMezclar.includes(insumo.id) && selections.length > 0) {
-          const totalInsumo = selections.reduce((sum, opcion) => sum + opcion.cantidadUsada, 0);
-          selections.forEach(opcion => {
-            const porcentaje = (opcion.cantidadUsada / totalInsumo) * 100;
-            porcentajesInsumos.push({
-              insumoGenericoId: insumo.id,
-              insumoId: opcion.id,
-              porcentaje: parseFloat(porcentaje.toFixed(2)),
-              cantidadUsada: opcion.cantidadUsada
-            });
-          });
-        }
-      });
-
-      if (hasErrors) {
-        setSubmitting(false);
-        return;
-      }
-
-      const produccionData = {
-        recetaId: Number(values.recetaId),
-        cantidad: values.cantidad,
-        sucursalId: puntoVentaId,
-        observaciones: values.observaciones,
-        ...(modoMezcla && { porcentajesInsumos })
-      };
-console.log("Producción Data:", produccionData);
-      const response = await createProduccion(produccionData);
-      toast.success(response?.data || "Producción registrada correctamente");
-
-      resetForm();
-      setInsumosSeleccionados({});
-      setSelectedReceta(null);
-      setInsumosAMezclar([]);
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data || err?.message || "Error al registrar producción");
-    } finally {
-      setSubmitting(false);
+const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+  try {
+    if (!selectedReceta) {
+      toast.error("No se ha seleccionado una receta válida");
+      return;
     }
-  };
 
-  // Inicializar insumos cuando se selecciona una receta
+    let hasErrors = false;
+    const porcentajesInsumos = [];
+
+    selectedReceta.insumosGenericos?.forEach((insumo) => {
+      const selections = insumosSeleccionados[insumo.id] || [];
+      const totalSeleccionado = selections.reduce(
+        (sum, item) => sum + (item.cantidadUsada || 0),
+        0
+      );
+      const totalRequerido = insumo.cantidad * values.cantidad;
+
+      if (Math.abs(totalSeleccionado - totalRequerido) > 0.01) {
+        toast.error(
+          `La cantidad total para ${insumo.nombre} debe ser ${totalRequerido.toFixed(2)} ${insumo.unidadMedida}. Actual: ${totalSeleccionado.toFixed(2)}`
+        );
+        hasErrors = true;
+      }
+
+      // 🔹 Siempre registrar todos los insumos usados (mezclados o no)
+      if (selections.length > 0) {
+        const totalInsumo = selections.reduce((sum, opcion) => sum + opcion.cantidadUsada, 0);
+        selections.forEach(opcion => {
+          const porcentaje = totalInsumo > 0 ? (opcion.cantidadUsada / totalInsumo) * 100 : 0;
+          porcentajesInsumos.push({
+            insumoGenericoId: insumo.id,
+            insumoId: opcion.id,
+            porcentaje: parseFloat(porcentaje.toFixed(2)),
+            cantidadUsada: opcion.cantidadUsada
+          });
+        });
+      }
+    });
+
+    if (hasErrors) {
+      setSubmitting(false);
+      return;
+    }
+
+    // 🔹 Ahora siempre incluye porcentajesInsumos
+    const produccionData = {
+      recetaId: Number(values.recetaId),
+      cantidad: values.cantidad,
+      sucursalId: puntoVentaId,
+      observaciones: values.observaciones,
+      porcentajesInsumos // <-- siempre se envía
+    };
+
+    console.log("Datos de producción a enviar:", produccionData);
+    const response = await createProduccion(produccionData);
+    toast.success(response?.data || "Producción registrada correctamente");
+
+    resetForm();
+    setInsumosSeleccionados({});
+    setSelectedReceta(null);
+    setInsumosAMezclar([]);
+  } catch (err) {
+    console.error(err);
+    toast.error(err?.response?.data || err?.message || "Error al registrar producción");
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
   useEffect(() => {
     if (selectedReceta) {
       const nuevasSelecciones = {};
