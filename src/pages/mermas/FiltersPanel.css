@@ -44,7 +44,6 @@
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: var(--bg-component-white);
   color: var(--color-text-primary);
   font-size: 0.9rem;
   transition: all var(--main-duration1) ease;
@@ -59,7 +58,6 @@
 .react-datepicker {
   font-family: inherit;
   border: 1px solid #ddd;
-  background-color: var(--bg-component-white);
   color: var(--color-text-primary);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }

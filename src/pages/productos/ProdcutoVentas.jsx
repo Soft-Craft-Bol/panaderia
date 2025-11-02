@@ -37,10 +37,20 @@ const ProductosVentas = () => {
         setIsInitialized(true);
     }, []);
 
-    const redondearAMultiplo = (valor, multiplo = 0.50) => {
-        return Math.round(valor / multiplo) * multiplo;
-    };
+const redondearAMultiplo = (valor, multiplo = 0.50) => {
+    if (typeof valor !== "number" || isNaN(valor)) return 0;
 
+    const resto = valor % multiplo;
+    const haciaAbajo = valor - resto;
+    const haciaArriba = haciaAbajo + multiplo;
+
+    // Si la diferencia con el múltiplo más cercano es <= 0.10, redondea hacia abajo
+    if (resto <= 0.10) {
+        return parseFloat(haciaAbajo.toFixed(2));
+    } else {
+        return parseFloat(haciaArriba.toFixed(2));
+    }
+};
     // Estado para controlar el ajuste manual del redondeo
     const [ajusteRedondeo, setAjusteRedondeo] = useState(0);
 
@@ -911,10 +921,7 @@ const ProductosVentas = () => {
                             >
                                 <option value="" disabled>Seleccione método de pago</option>
                                 <option value="EFECTIVO">EFECTIVO</option>
-                                <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
-                                <option value="TARJETA">TARJETA</option>
-                                <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
-                                <option value="EFECTIVO_PAGO_POSTERIOR">EFECTIVO PAGO POSTERIOR</option>
+                                <option value="BILLETERA_MOVIL">QR-BILLETERA MOVIL</option>
                             </SelectSecondary>
                         </div>
 
@@ -1006,11 +1013,7 @@ const ProductosVentas = () => {
                                         >
                                             <option value="" disabled>Seleccione método</option>
                                             <option value="EFECTIVO">EFECTIVO</option>
-                                            <option value="BILLETERA_MOVIL">BILLETERA MOVIL</option>
-                                            <option value="TARJETA">TARJETA</option>
-                                            <option value="TRANSFERENCIA_BANCARIA">TRANSFERENCIA BANCARIA</option>
-                                            <option value="DEPOSITO_EN_CUENTA">DEPOSITO EN CUENTA</option>
-                                            <option value="EFECTIVO_PAGO_POSTERIOR">EFECTIVO PAGO POSTERIOR</option>
+                                            <option value="BILLETERA_MOVIL">QR-BILLETERA MOVIL</option>
                                         </SelectSecondary>
                                     </div>
 

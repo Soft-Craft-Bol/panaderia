@@ -11,7 +11,7 @@ export const useProductos = (puntoVentaId, initialSearchTerm = '') => {
     const [maxPrice, setMaxPrice] = useState('');
     const [conDescuento, setConDescuento] = useState(null);
     const [categoriaIds, setCategoriaIds] = useState([]);
-    const [sinStock, setSinStock] = useState(false);
+    const [sinStock, setSinStock] = useState(null);
     const [sortField, setSortField] = useState('cantidad,desc');
     const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
     const [debouncedCodigoProductoSin] = useDebounce(codigoProductoSin, 400);
