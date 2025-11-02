@@ -219,7 +219,7 @@ const AjustesInventarioInsumos = () => {
             <div className="inventory-main-content">
                 <div className="inventory-available-products">
                     <h2 className="inventory-section-title">Insumos Disponibles</h2>
-                    
+
                     {isLoading ? (
                         <p className="inventory-loading">Cargando insumos...</p>
                     ) : (
@@ -244,7 +244,7 @@ const AjustesInventarioInsumos = () => {
                                     </div>
                                 ))}
                             </div>
-                            
+
                             {hasNextPage && (
                                 <div className="inventory-load-more">
                                     <Button
@@ -257,7 +257,7 @@ const AjustesInventarioInsumos = () => {
                                     </Button>
                                 </div>
                             )}
-                            
+
                             {insumos.length === 0 && !isLoading && (
                                 <div className="inventory-no-results">
                                     <p>No se encontraron insumos con los filtros aplicados.</p>
@@ -301,12 +301,20 @@ const AjustesInventarioInsumos = () => {
                                             <td>{stockActual}</td>
                                             <td>
                                                 <input
-                                                    type="number"
-                                                    value={cantidadAjuste}
-                                                    onChange={(e) =>
-                                                        actualizarAjuste(insumo.insumoId, 'cantidadAjuste', parseInt(e.target.value) || 0)
-                                                    }
-                                                    placeholder="0"
+                                                    type="number" 
+                                                    step="1"   
+                                                    value={cantidadAjuste === 0 ? '' : cantidadAjuste} 
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                                            actualizarAjuste(
+                                                                insumo.insumoId,
+                                                                'cantidadAjuste',
+                                                                value === '' ? '' : parseFloat(value) || 0
+                                                            );
+                                                        }
+                                                    }}
+                                                    placeholder="0.00" 
                                                     className="inventory-table-input"
                                                 />
                                             </td>
@@ -413,7 +421,7 @@ const AjustesInventarioInsumos = () => {
                     )}
                 </Formik>
             </Modal>
-            <AjustesInsumoList/>
+            <AjustesInsumoList />
         </div>
     );
 };

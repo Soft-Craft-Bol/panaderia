@@ -84,7 +84,6 @@ const ListVentas = () => {
   const facturas = facturasData.content || [];
   const totalPages = facturasData.totalPages || 0;
   const totalElements = facturasData.totalElements || 0;
-
   const hasAnyRole = (...roles) => roles.some((role) => currentUser?.roles.includes(role));
 
   // Cargar motivos de anulación
@@ -351,7 +350,7 @@ const ListVentas = () => {
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
         <ColumnVisibilityControl buttonLabel="Columnas" />
       </div>
-      <Table
+      <Table 
         columns={filteredColumns} 
         data={facturas}
         loading={isLoading}

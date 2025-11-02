@@ -165,7 +165,7 @@ const AjustesInventario = () => {
     return (
         <div className="inventory-adjustment-container">
             <Toaster richColors position="top-center" />
-            <BackButton to = "/punto-ventas"/>
+            <BackButton to="/punto-ventas" />
             <h1 className="inventory-adjustment-title">Ajustes de Inventario</h1>
 
             <div className="inventory-adjustment-header">
@@ -279,11 +279,24 @@ const AjustesInventario = () => {
                                         <td>
                                             <input
                                                 type="number"
+                                                step="1" 
                                                 value={producto.cantidadAjuste}
-                                                onChange={(e) =>
-                                                    actualizarAjuste(producto.id, 'cantidadAjuste', parseInt(e.target.value) || 0)
-                                                }
-                                                placeholder="0"
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value === '' || /^-?\d*\.?\d*$/.test(value)) {
+                                                        actualizarAjuste(
+                                                            producto.id,
+                                                            'cantidadAjuste',
+                                                            value === '' ? '' : parseFloat(value) || 0
+                                                        );
+                                                    }
+                                                }}
+                                                onBlur={(e) => {
+                                                    if (e.target.value === '') {
+                                                        actualizarAjuste(producto.id, 'cantidadAjuste', 0);
+                                                    }
+                                                }}
+                                                placeholder="0" // Placeholder en lugar de valor 0
                                                 className="inventory-table-input"
                                             />
                                         </td>

@@ -149,10 +149,6 @@ const EgresosPanel = () => {
     },
   ];
 
-  if (isError) {
-    return <div>Error al cargar los egresos</div>;
-  }
-
   return (
     <div className="egresos-panel">
       <div className="panel-header">
