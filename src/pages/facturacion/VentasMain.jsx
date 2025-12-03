@@ -7,6 +7,7 @@ import VentasConFacturaPanel from './VentasConFacturaPanel';
 import VentasSinFacturaPanel from './VentasSinFacturaPanel';
 import ExploradorArchivos from '../archivos/ExploradorArchivos';
 import VentasPorFacturar from './VentasPorFacturar';
+import ListVentasCreditoPendientes from './ListaVentasCredito';
 
 const VentasMain = () => {
   const [activeTab, setActiveTab] = useState('hoy');
@@ -14,7 +15,7 @@ const VentasMain = () => {
   return (
     <div className="ventas-main-container">
       <div className="ventas-header">
-        <h1>📊 Gestión de Ventas</h1>
+        <h1>Gestión de Ventas</h1>
         
         <Tabs activeTab={activeTab} onChange={setActiveTab}>
           <Tab 
@@ -48,6 +49,16 @@ const VentasMain = () => {
             value="sin-factura"
           >
             <VentasSinFacturaPanel />
+          </Tab>
+          <Tab 
+            label={
+              <span className="tab-label">
+                <FaFileAlt className="tab-icon" /> Pendientes a Crédito
+              </span>
+            } 
+            value="credito"
+          >
+            <ListVentasCreditoPendientes />
           </Tab>
           <Tab 
             label={

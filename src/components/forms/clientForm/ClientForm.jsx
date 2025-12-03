@@ -6,6 +6,7 @@ import { createClient, getDocumentoIdentidad } from '../../../service/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SelectSecondary from '../../selected/SelectSecondary';
 import '../itemForm/ItemForm.css';
+import BackButton from '../../buttons/BackButton';
 
 const validationSchema = Yup.object().shape({
     nombreRazonSocial: Yup.string().required('Nombre/Razón Social es requerido'),
@@ -63,7 +64,7 @@ const ClientForm = () => {
         codigoCliente: '',
         email: '',
         celular: '',
-        ...prefillData 
+        ...prefillData
     };
 
     const handleSubmit = async (values, { setSubmitting }) => {
@@ -81,16 +82,16 @@ const ClientForm = () => {
             };
             console.log('Datos del cliente a enviar:', clientData);
             const response = await createClient(clientData);
-            
+
             if (response.status === 200 || response.status === 201) {
                 alert('Cliente registrado exitosamente');
-                
+
                 if (redirectTo) {
-                    navigate(redirectTo, { 
-                        state: { 
+                    navigate(redirectTo, {
+                        state: {
                             client: response.data,
                             ...redirectState
-                        } 
+                        }
                     });
                 } else {
                     navigate('/clientes');
@@ -111,125 +112,128 @@ const ClientForm = () => {
     }
 
     return (
-        <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-        >
-            {({ isSubmitting, errors, touched }) => (
-                <Form className='cont-new-pat'>
-                    <div className='img-card'>
-                        <h3>Registro del cliente</h3>
-                        <img
-                            src={imageUrl}
-                            alt="Cliente"
-                            style={{
-                                height: '100%',
-                                width: '80%',
-                                objectFit: 'cover',
-                                objectPosition: 'center',
-                                borderRadius: '30px',
-                            }}
-                        />
-                    </div>
-
-                    <div className='input-side'>
-                        <div className="input-group">
-                            <label htmlFor="nombreRazonSocial">Nombre/Razón Social:</label>
-                            <Field
-                                className="input-card"
-                                id="nombreRazonSocial"
-                                name="nombreRazonSocial"
-                                type="text"
-                                placeholder="Ingrese nombre o razón social"
+        <div>
+            <BackButton to={"/clientes"} />
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleSubmit}
+            >
+                {({ isSubmitting, errors, touched }) => (
+                    <Form className='cont-new-pat'>
+                        <div className='img-card'>
+                            <h3>Registro del cliente</h3>
+                            <img
+                                src={imageUrl}
+                                alt="Cliente"
+                                style={{
+                                    height: '100%',
+                                    width: '80%',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '30px',
+                                }}
                             />
-                            <ErrorMessage name="nombreRazonSocial" component="div" className="error-message" />
                         </div>
 
-                        <SelectSecondary
-    label="Tipo de Documento"
-    name="codigoTipoDocumentoIdentidad"
-    error={touched.codigoTipoDocumentoIdentidad && errors.codigoTipoDocumentoIdentidad}
-    required
->
-    <option value="">Seleccione un tipo de documento</option>
-    {documentosIdentidad.map(doc => {
-        return (
-            <option key={doc.id} value={Number(doc.codigoClasificador)}>
-                {doc.descripcion}
-            </option>
-        );
-    })}
-</SelectSecondary>
-                        <div className="input-group">
-                            <label htmlFor="numeroDocumento">Número de Documento:</label>
-                            <Field
-                                className="input-card"
-                                id="numeroDocumento"
-                                name="numeroDocumento"
-                                type="text"
-                                placeholder="Ingrese número de documento"
-                            />
-                            <ErrorMessage name="numeroDocumento" component="div" className="error-message" />
+                        <div className='input-side'>
+                            <div className="input-group">
+                                <label htmlFor="nombreRazonSocial">Nombre/Razón Social:</label>
+                                <Field
+                                    className="input-card"
+                                    id="nombreRazonSocial"
+                                    name="nombreRazonSocial"
+                                    type="text"
+                                    placeholder="Ingrese nombre o razón social"
+                                />
+                                <ErrorMessage name="nombreRazonSocial" component="div" className="error-message" />
+                            </div>
+
+                            <SelectSecondary
+                                label="Tipo de Documento"
+                                name="codigoTipoDocumentoIdentidad"
+                                error={touched.codigoTipoDocumentoIdentidad && errors.codigoTipoDocumentoIdentidad}
+                                required
+                            >
+                                <option value="">Seleccione un tipo de documento</option>
+                                {documentosIdentidad.map(doc => {
+                                    return (
+                                        <option key={doc.id} value={Number(doc.codigoClasificador)}>
+                                            {doc.descripcion}
+                                        </option>
+                                    );
+                                })}
+                            </SelectSecondary>
+                            <div className="input-group">
+                                <label htmlFor="numeroDocumento">Número de Documento:</label>
+                                <Field
+                                    className="input-card"
+                                    id="numeroDocumento"
+                                    name="numeroDocumento"
+                                    type="text"
+                                    placeholder="Ingrese número de documento"
+                                />
+                                <ErrorMessage name="numeroDocumento" component="div" className="error-message" />
+                            </div>
+
+                            <div className="input-group">
+                                <label htmlFor="complemento">Complemento:</label>
+                                <Field
+                                    className="input-card"
+                                    id="complemento"
+                                    name="complemento"
+                                    type="text"
+                                    placeholder="Ingrese complemento (opcional)"
+                                />
+                                <ErrorMessage name="complemento" component="div" className="error-message" />
+                            </div>
+
+                            <div className="input-group">
+                                <label htmlFor="codigoCliente">Código de Cliente:</label>
+                                <Field
+                                    className="input-card"
+                                    id="codigoCliente"
+                                    name="codigoCliente"
+                                    type="text"
+                                    placeholder="Ingrese código de cliente"
+                                />
+                                <ErrorMessage name="codigoCliente" component="div" className="error-message" />
+                            </div>
+
+                            <div className="input-group">
+                                <label htmlFor="email">Email:</label>
+                                <Field
+                                    className="input-card"
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="Ingrese email"
+                                />
+                                <ErrorMessage name="email" component="div" className="error-message" />
+                            </div>
+
+                            <div className="input-group">
+                                <label htmlFor="celular">Número de Celular:</label>
+                                <Field
+                                    className="input-card"
+                                    id="celular"
+                                    name="celular"
+                                    type="text"
+                                    placeholder="Ingrese número de celular"
+                                />
+                                <ErrorMessage name="celular" component="div" className="error-message" />
+                            </div>
+
+                            {submitError && <div className="error-message">{submitError}</div>}
+
+                            <button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Guardando...' : 'Registrar Cliente'}
+                            </button>
                         </div>
-
-                        <div className="input-group">
-                            <label htmlFor="complemento">Complemento:</label>
-                            <Field
-                                className="input-card"
-                                id="complemento"
-                                name="complemento"
-                                type="text"
-                                placeholder="Ingrese complemento (opcional)"
-                            />
-                            <ErrorMessage name="complemento" component="div" className="error-message" />
-                        </div>
-
-                        <div className="input-group">
-                            <label htmlFor="codigoCliente">Código de Cliente:</label>
-                            <Field
-                                className="input-card"
-                                id="codigoCliente"
-                                name="codigoCliente"
-                                type="text"
-                                placeholder="Ingrese código de cliente"
-                            />
-                            <ErrorMessage name="codigoCliente" component="div" className="error-message" />
-                        </div>
-
-                        <div className="input-group">
-                            <label htmlFor="email">Email:</label>
-                            <Field
-                                className="input-card"
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="Ingrese email"
-                            />
-                            <ErrorMessage name="email" component="div" className="error-message" />
-                        </div>
-
-                        <div className="input-group">
-                            <label htmlFor="celular">Número de Celular:</label>
-                            <Field
-                                className="input-card"
-                                id="celular"
-                                name="celular"
-                                type="text"
-                                placeholder="Ingrese número de celular"
-                            />
-                            <ErrorMessage name="celular" component="div" className="error-message" />
-                        </div>
-
-                        {submitError && <div className="error-message">{submitError}</div>}
-
-                        <button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Guardando...' : 'Registrar Cliente'}
-                        </button>
-                    </div>
-                </Form>
-            )}
-        </Formik>
+                    </Form>
+                )}
+            </Formik>
+        </div>
     );
 };
 

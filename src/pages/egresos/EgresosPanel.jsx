@@ -129,7 +129,7 @@ const EgresosPanel = () => {
   };
 
   const columns = [
-    { header: 'Fecha', accessor: 'fechaDePago', render: (row) => new Date(row.fechaDePago).toLocaleDateString() },
+    { header: 'Fecha', accessor: 'fechaDePago'},
     { header: 'Descripción', accessor: 'descripcion' },
     { header: 'Categoría', accessor: 'gastoEnum' },
     { header: 'Monto', accessor: 'monto', render: (row) => `Bs ${row.monto}` },
