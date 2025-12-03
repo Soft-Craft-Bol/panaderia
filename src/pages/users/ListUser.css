@@ -10,22 +10,8 @@
     align-items: center;
     z-index: 1000;
   }
-  .modal-content {
-    position: relative;
-    max-width: 300px;
-    max-height: 300px;
-    height: 100%;
-    width: 100%;
-  }
 
 
-
-  .modal-content img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-  }
   .chard-paciente-main-cont img {
     cursor: pointer;
     transition: transform 0.3s ease;

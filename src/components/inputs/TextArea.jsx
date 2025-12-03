@@ -1,8 +1,14 @@
+import React from "react";
 import { useField } from "formik";
 import "./TextArea.css";
 
-const TextArea = ({ label, required, rows = 3, ...props }) => {
-  const [field, meta] = useField(props);
+const TextArea = ({ label, required, formik = true, rows = 3, ...props }) => {
+  let field = {};
+  let meta = {};
+
+  if (formik) {
+    [field, meta] = useField(props);
+  }
 
   return (
     <div className="textarea-component">
@@ -10,13 +16,15 @@ const TextArea = ({ label, required, rows = 3, ...props }) => {
         {label}
         {required && <span className="required">*</span>}
       </label>
+
       <textarea
         className="text-area"
-        {...field}
+        {...(formik ? field : {})}
         {...props}
         rows={rows}
       />
-      {meta.touched && meta.error ? (
+
+      {formik && meta.touched && meta.error ? (
         <div className="error-message">{meta.error}</div>
       ) : null}
     </div>

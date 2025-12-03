@@ -47,6 +47,7 @@ const FiltrosVentas = ({
                             value={sortField}
                             onChange={(e) => setSortField(e.target.value)}
                         >
+                        <option value="todos">Seleccione para ordenar</option>
                             <option value="descripcion,asc">Nombre (A-Z)</option>
                             <option value="descripcion,desc">Nombre (Z-A)</option>
                             <option value="cantidadDisponible,desc">Mayor stock</option>

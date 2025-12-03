@@ -4,16 +4,14 @@ import { toast } from "sonner";
 import InputText from "../../components/inputs/InputText";
 import SelectPrimary from "../../components/selected/SelectPrimary";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
-import CustomDatePicker from "../../components/inputs/DatePicker";
 import { createEgreso, updateEgreso } from "../../service/api";
 import { useCajaActiva } from "../../hooks/useHistorialCajas";
 import { getUser } from "../../utils/authFunctions";
+import SelectSecondary from "../../components/selected/SelectSecondary";
 
 const EgresoForm = ({ egreso, onSuccess, onCancel }) => {
     const validationSchema = Yup.object().shape({
-        fechaDePago: Yup.date().required("La fecha de pago es obligatoria"),
         descripcion: Yup.string()
-            .required("La descripción es obligatoria")
             .max(1024, "Máximo 1024 caracteres"),
         gastoEnum: Yup.string().required("Debe seleccionar una categoría de gasto"),
         monto: Yup.number()
@@ -22,13 +20,9 @@ const EgresoForm = ({ egreso, onSuccess, onCancel }) => {
         tipoPagoEnum: Yup.string().required("Debe seleccionar el tipo de pago"),
         pagadoA: Yup.string().max(1024, "Máximo 1024 caracteres"),
         numFacturaComprobante: Yup.string().max(1024, "Máximo 1024 caracteres"),
-        observaciones: Yup.string().required("Las observaciones son obligatorias"),
+        observaciones: Yup.string(),
     });
 
-    const formatDate = (date) => {
-        if (!date) return null;
-        return new Date(date).toISOString().split("T")[0];
-    };
 const currentUser = getUser();
     const {
   data: cajaActiva,
@@ -38,7 +32,6 @@ const currentUser = getUser();
         try {
             const payload = {
                 ...values,
-                fechaDePago: formatDate(values.fechaDePago),
                 cajaId: cajaActiva?.id || null,
             };
 
@@ -64,7 +57,6 @@ const currentUser = getUser();
             <h2>{egreso ? "Editar Egreso" : "Registrar Egreso"}</h2>
             <Formik
                 initialValues={{
-                    fechaDePago: egreso?.fechaDePago ? new Date(egreso.fechaDePago) : new Date(), // 🔹 Por defecto HOY
                     descripcion: egreso?.descripcion || "",
                     gastoEnum: egreso?.gastoEnum || "",
                     monto: egreso?.monto || "",
@@ -78,16 +70,6 @@ const currentUser = getUser();
             >
                 {({ isSubmitting, values, setFieldValue }) => (
                     <Form className="form">
-                        <CustomDatePicker
-                            label="Fecha de Pago"
-                            name="fechaDePago"
-                            selected={values.fechaDePago}
-                            onChange={(date) => setFieldValue("fechaDePago", date)}
-                            required
-                        />
-
-                        <InputText label="Descripción (Motivo)" name="descripcion" type="text" required />
-
                         <SelectPrimary label="Tipo de Gasto" name="gastoEnum" required>
                             <option value="">Seleccione...</option>
                             <option value="GASTOS_ADMINISTRATIVOS">Gastos Administrativos</option>
@@ -98,16 +80,17 @@ const currentUser = getUser();
 
                         <InputText label="Monto" name="monto" type="number" step="0.01" required />
 
-                        <SelectPrimary label="Tipo de Pago" name="tipoPagoEnum" required>
+                        <SelectSecondary label="Tipo de Pago" name="tipoPagoEnum" required>
                             <option value="">Seleccione...</option>
-                            <option value="EFECTIVO">Efectivo</option>
-                            <option value="TRANSFERENCIA">Transferencia</option>
-                            <option value="TARJETA">Tarjeta</option>
-                        </SelectPrimary>
-
+                            <option value="EFECTIVO">EFECTIVO</option>
+                            <option value="BILLETERA_MOVIL">QR-BILLETERA MOVIL</option>
+                        </SelectSecondary>
                         <InputText label="Pagado a" name="pagadoA" type="text" placeholder="Persona o proveedor" />
                         <InputText label="N° Factura / Comprobante" name="numFacturaComprobante" type="text" />
-                        <InputText label="Observaciones" name="observaciones" as="textarea" rows="3" required />
+                        <InputText label="Descripción (Motivo)" name="descripcion" type="text" />
+                        <InputText label="Observaciones" name="observaciones" as="textarea" rows="3"/>
+                        
+
 
                         <div className="form-actions">
                             <ButtonPrimary type="submit" variant="primary" disabled={isSubmitting}>

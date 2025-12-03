@@ -25,8 +25,7 @@ const validationSchema = Yup.object({
 
 export default function VentaCredito() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
-  const [ventaData, setVentaData] = useState(null);
-  const navigate = useNavigate(); // Agregar navigate
+  const navigate = useNavigate();
 
   const location = useLocation();
   const { productosSeleccionados, sucursalId, puntoVentaId: puntoVentaIdFromState, cartIndex = 0 } = location.state || {};
@@ -52,7 +51,27 @@ export default function VentaCredito() {
     })),
   };
 
-  const { mutate: registrarVenta } = useMutation({
+  const redondearAMultiplo = (valor, multiplo = 0.50) => {
+    if (typeof valor !== "number" || isNaN(valor)) return 0;
+
+    const resto = valor % multiplo;
+    const haciaAbajo = valor - resto;
+    const haciaArriba = haciaAbajo + multiplo;
+
+    if (resto <= 0.10) {
+        return parseFloat(haciaAbajo.toFixed(2));
+    } else {
+        return parseFloat(haciaArriba.toFixed(2));
+    }
+  };
+
+  // Usar useMutation con reset
+  const { 
+    mutate: registrarVenta, 
+    isPending: isSubmitting,
+    isError,
+    reset 
+  } = useMutation({
     mutationFn: VentasCredito, 
     onSuccess: async (response) => {
       try {
@@ -65,12 +84,17 @@ export default function VentaCredito() {
       } catch (error) {
         console.error('Error generando PDF:', error);
         toast.error('Error al generar el PDF');
+        // Resetear el estado de la mutación incluso en error parcial
+        setTimeout(() => reset(), 1000);
       }
     },
     onError: (error) => {
       const msg = error.response?.data?.message || error.message || 'Error desconocido';
       toast.error(`Error: ${msg}`);
       console.error('Detalles del error:', error.response?.data || error);
+      
+      // Resetear automáticamente después de 2 segundos para que el botón vuelva a su estado normal
+      setTimeout(() => reset(), 2000);
     },
   });
 
@@ -104,6 +128,8 @@ export default function VentaCredito() {
       toast.error("No se ha configurado un punto de venta");
       return;
     }
+    
+    const { total: totalRedondeado, totalSinRedondear, diferenciaRedondeo } = calcularTotales(values.items);
 
     const payloadBase = {
       idCliente: clienteSeleccionado.id,
@@ -117,6 +143,8 @@ export default function VentaCredito() {
       })),
       metodoPago: values.codigoMetodoPago,
       cajaId: cajaId,
+      totalAjustado: totalRedondeado,
+      diferenciaRedondeo: diferenciaRedondeo
     };
 
     if (values.codigoMetodoPago === "CREDITO") {
@@ -129,20 +157,38 @@ export default function VentaCredito() {
       payloadBase.plazoPagoPosterior = values.plazoDias;
       payloadBase.condicionesPagoPosterior = values.condicionesPagoPosterior || '';
     }
-
+    
+    console.log('Payload de venta a registrar:', payloadBase);
     registrarVenta(payloadBase);
   };
 
   const calcularTotales = (items) => {
     const subtotal = items.reduce(
-      (s, i) => s + (i.precioUnitario || 0) * (i.cantidad || 0),
-      0
+        (s, i) => s + (i.precioUnitario || 0) * (i.cantidad || 0),
+        0
     );
     const descuentos = items.reduce((s, i) => s + (i.montoDescuento || 0), 0);
-    return { subtotal, descuentos, total: subtotal - descuentos };
+    
+    const totalSinRedondear = subtotal - descuentos;
+    const totalRedondeado = redondearAMultiplo(totalSinRedondear, 0.50);
+    
+    return { 
+        subtotal, 
+        descuentos, 
+        total: totalRedondeado,
+        totalSinRedondear,
+        diferenciaRedondeo: totalSinRedondear - totalRedondeado
+    };
   };
 
-  const { subtotal, descuentos, total } = calcularTotales(initialValues.items);
+  const { subtotal, descuentos, total, totalSinRedondear, diferenciaRedondeo } = calcularTotales(initialValues.items); 
+
+  // Determinar el texto del botón
+  const getButtonText = () => {
+    if (isSubmitting) return 'Registrando...';
+    if (isError) return 'Error - Intentar de nuevo';
+    return 'Registrar Venta';
+  };
 
   return (
     <div className="facturacion-container">
@@ -182,13 +228,38 @@ export default function VentaCredito() {
         monedas={[{ id: 1, descripcion: 'BOLIVIANO' }]}
       />
 
+      {diferenciaRedondeo !== 0 && (
+        <div style={{
+            backgroundColor: '#e8f4fd',
+            padding: '10px',
+            borderRadius: '6px',
+            margin: '10px 0',
+            border: '1px solid #b8daff'
+        }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Subtotal sin redondeo:</span>
+                <span>Bs {totalSinRedondear.toFixed(2)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Ajuste por redondeo:</span>
+                <span style={{ color: diferenciaRedondeo > 0 ? '#dc3545' : '#28a745' }}>
+                    {diferenciaRedondeo > 0 ? '-' : '+'}Bs {Math.abs(diferenciaRedondeo).toFixed(2)}
+                </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                <span>Total final:</span>
+                <span>Bs {total.toFixed(2)}</span>
+            </div>
+        </div>
+      )}
+
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue, isSubmitting }) => (
+        {({ values, setFieldValue, isValid, dirty }) => (
           <Form>
             <div className="metodo-pago-group">
               <SelectSecondary
@@ -253,9 +324,10 @@ export default function VentaCredito() {
             <div className="factura-buttons">
               <ButtonPrimary
                 type="submit"
-                disabled={isSubmitting || !clienteSeleccionado}
+                disabled={isSubmitting || !clienteSeleccionado || !isValid || !dirty}
+                className={isError ? 'btn-error' : ''}
               >
-                {isSubmitting ? 'Registrando...' : 'Registrar Venta'}
+                {getButtonText()}
               </ButtonPrimary>
               
               <button 
@@ -278,6 +350,17 @@ export default function VentaCredito() {
           </Form>
         )}
       </Formik>
+
+      {/* Agregar estilos CSS para el estado de error */}
+      <style jsx>{`
+        .btn-error {
+          background-color: #dc3545 !important;
+        }
+        
+        .btn-error:hover {
+          background-color: #c82333 !important;
+        }
+      `}</style>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import LinkButton from "../../components/buttons/LinkButton";
 import { useUsers } from "../../hooks/useUsers";
 import ActionButtons from "../../components/buttons/ActionButtons"; // Importa el componente
 import "./ListUser.css";
+import ButtonPrimary from "../../components/buttons/ButtonPrimary";
 
 const Modal = lazy(() => import("../../components/modal/Modal"));
 
@@ -180,12 +181,12 @@ const UserManagement = () => {
               justifyContent: "center",
               gap: "1rem"
             }}>
-              <Button variant="danger" onClick={handleDeleteUser}>
+              <ButtonPrimary variant="danger" onClick={handleDeleteUser}>
                 Confirmar
-              </Button>
-              <Button variant="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+              </ButtonPrimary>
+              <ButtonPrimary variant="secondary" onClick={() => setDeleteConfirmOpen(false)}>
                 Cancelar
-              </Button>
+              </ButtonPrimary>
             </div>
           </Modal>
         )}

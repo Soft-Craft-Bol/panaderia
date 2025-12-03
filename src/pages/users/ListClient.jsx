@@ -7,6 +7,9 @@ import { Toaster, toast } from "sonner";
 import { Link } from "react-router-dom";
 import LinkButton from "../../components/buttons/LinkButton";
 import "./ListUser.css";
+import ActionButtons from "../../components/buttons/ActionButtons";
+import Modal from "../../components/modal/Modal";
+import ButtonPrimary from "../../components/buttons/ButtonPrimary";
 
 const ListClient = () => {
   const [clients, setClients] = useState([]);
@@ -28,7 +31,7 @@ const ListClient = () => {
   const handleDeleteClient = async () => {
     try {
       await deleteClient(clientToDelete.id);
-      setClients((prevClients) => 
+      setClients((prevClients) =>
         prevClients.filter((client) => client.id !== clientToDelete.id)
       );
       toast.success("Cliente eliminado exitosamente.");
@@ -48,24 +51,24 @@ const ListClient = () => {
   const columns = useMemo(
     () => [
       { header: "ID", accessor: "id" },
-      { 
-        header: "Código Cliente", 
-        accessor: "codigoCliente" 
+      {
+        header: "Código Cliente",
+        accessor: "codigoCliente"
       },
-      { 
-        header: "Nombre/Razón Social", 
-        accessor: "nombreRazonSocial" 
+      {
+        header: "Nombre/Razón Social",
+        accessor: "nombreRazonSocial"
       },
-      { 
-        header: "Tipo Doc.", 
-        accessor: "codigoTipoDocumentoIdentidad" 
+      {
+        header: "Tipo Doc.",
+        accessor: "codigoTipoDocumentoIdentidad"
       },
-      { 
-        header: "Nro. Documento", 
-        accessor: "numeroDocumento" 
+      {
+        header: "Nro. Documento",
+        accessor: "numeroDocumento"
       },
-      { 
-        header: "Email", 
+      {
+        header: "Email",
         accessor: "email",
         render: (row) => row.email || "-"
       },
@@ -76,17 +79,13 @@ const ListClient = () => {
       {
         header: "Acciones",
         render: (row) => (
-          <div className="user-management-table-actions">
-            {/*<Link to={`/editClient/${row.id}`} className="user-management-edit-user">
-              <FaEdit />
-            </Link>  Fredo me dijiste que no es necesario :v*/}
-            <Button
-              type="danger"
-              onClick={() => confirmDeleteClient(row)}
-            >
-              <MdDelete />
-            </Button>
-          </div>
+
+          <ActionButtons
+            showDelete={true}
+            onDelete={() => confirmDeleteClient(row)}
+            showEdit={false}
+            showView={false}
+          />
         ),
       },
     ],
@@ -95,43 +94,41 @@ const ListClient = () => {
 
   return (
     <div className="user-management-container">
-      <Toaster 
-        dir="auto" 
-        closeButton 
-        richColors 
-        visibleToasts={2} 
-        duration={2000} 
-        position="bottom-right" 
+      <Toaster
+        dir="auto"
+        closeButton
+        richColors
+        visibleToasts={2}
+        duration={2000}
+        position="bottom-right"
       />
-      
+
       <div className="user-management-header">
         <h2 className="user-management-title">Todos de Clientes</h2>
         <LinkButton to={`/clientes/crear-cliente`}>Agregar Cliente</LinkButton>
       </div>
-      <Table 
-        columns={columns} 
-        data={clients} 
-        className="user-management-table" 
+      <Table
+        columns={columns}
+        data={clients}
+        className="user-management-table"
       />
-
       {deleteConfirmOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Confirmar Eliminación</h2>
-            <p>¿Estás seguro de que deseas eliminar este cliente?</p>
-            <div className="user-management-table-actions">
-              <Button type="danger" onClick={handleDeleteClient}>
-                Confirmar
-              </Button>
-              <Button 
-                type="secondary" 
-                onClick={() => setDeleteConfirmOpen(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
+        <Modal isOpen={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+          <h2>Confirmar Eliminación</h2>
+          <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem"
+          }}>
+            <ButtonPrimary variant="danger" onClick={handleDeleteClient}>
+              Confirmar
+            </ButtonPrimary>
+            <ButtonPrimary variant="secondary" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancelar
+            </ButtonPrimary>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

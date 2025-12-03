@@ -179,6 +179,8 @@ export const revertirAnulacionFactura = (data) => api.post('/factura/reversion-a
 export const emitirSinFactura = (data) => api.post('/ventas', data);
 export const anularVentas = (id, data) => api.post(`/ventas/${id}/anular`, data);
 export const VentasCredito = (data) => api.post('/pago-posterior/venta', data);
+export const listarVentasCreditoPendientes = (page = 0, size = 10) => api.get(`/pago-posterior/pendientes?page=${page}&size=${size}`);
+export const abonarVentaCredito = (ventaId, data) => api.post(`/pago-posterior/${ventaId}/abonar`, data);
 
 
 // reservas
@@ -199,6 +201,7 @@ export const updateReserva = (id, estado, motivo = "") =>
 
 //Despachos
 export const createDespacho = (data) => api.post('/despachos', data);
+export const anularDespacho = (id) => api.put(`/despachos/anular/${id}`);
 export const getDespachos = (filters = {}) => {
     const params = new URLSearchParams();
     params.append('page', filters.page || 0);
@@ -461,6 +464,7 @@ export const cerrarCaja = (data) => api.post('/cajas/cerrar', data);
 export const getStockInicial = (idCaja) => api.get(`/cajas/stock-inicial/${idCaja}`);
 export const getCajaById = (id) => api.get(`/cajas/resumen/${id}`);
 export const getResumenPagos = (idCaja) => api.get(`/ventas/resumen-pagos?cajaId=${idCaja}`);
+export const getResumenPagosCredito = (idCaja) => api.get(`/cajas/${idCaja}/resumen-pagos`);
 export const getResumenProductos = (idCaja) => api.get(`/ventas/caja/${idCaja}/resumen`);
 export const getEgresosByCaja = (idCaja) => api.get(`/egresos/caja/${idCaja}`);
 

@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Table from "../../components/table/Table";
-import { getDespachos } from "../../service/api";
+import { getDespachos, anularDespacho } from "../../service/api";
 import Modal from "../../components/modal/Modal";
 import FiltersPanel from "../../components/search/FiltersPanel";
+import ActionButtons from "../../components/buttons/ActionButtons";
 
 const Despachos = () => {
   const [pagination, setPagination] = useState({
@@ -23,9 +24,9 @@ const Despachos = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["despachos", pagination, filters],
     queryFn: () => getDespachos({ ...pagination, ...filters }).then(res => res.data),
-    keepPreviousData: true, 
+    keepPreviousData: true,
   });
-
+  console.log(data);
   const filtersConfig = useMemo(() => [
     {
       type: "date",
@@ -58,7 +59,7 @@ const Despachos = () => {
       name: "sucursalOrigen",
       label: "Sucursal Origen",
       config: {
-        options: [], 
+        options: [],
       },
       show: true,
     },
@@ -67,7 +68,7 @@ const Despachos = () => {
       name: "sucursalDestino",
       label: "Sucursal Destino",
       config: {
-        options: [], 
+        options: [],
       },
       show: true,
     },
@@ -84,6 +85,17 @@ const Despachos = () => {
     }
   };
 
+  const { mutate: anular } = useMutation({
+    mutationFn: (id) => anularDespacho(id),
+    onSuccess: () => {
+      alert("Despacho anulado correctamente");
+      queryClient.invalidateQueries(["despachos"]);
+    },
+    onError: (error) => {
+      alert("Error: " + error.response?.data);
+    }
+  });
+
   const closeModal = () => setIsModalOpen(false);
 
   const mappedData = (data?.content || []).map((despacho) => ({
@@ -91,6 +103,7 @@ const Despachos = () => {
     sucursalOrigen: despacho.sucursalOrigen?.nombre || "-",
     destino: despacho.sucursalDestino?.nombre || "-",
     fechaEnvio: despacho.fechaEnvio,
+    anulado: despacho.anulado,
   }));
 
   const columns = [
@@ -99,25 +112,46 @@ const Despachos = () => {
     { header: "Destino", accessor: "destino" },
     { header: "Fecha de Envío", accessor: "fechaEnvio" },
     {
-      header: "Ver productos",
-      accessor: "verProductos",
+      header: "Anulado",
+      accessor: "anulado",
       render: (row) => (
-        <button className="btn-edit" onClick={() => handleVerProductos(row)}>
-          Ver
-        </button>
+        <span
+          style={{
+            padding: "4px 10px",
+            borderRadius: "8px",
+            fontWeight: "bold",
+            fontSize: "12px",
+            color: "white",
+            backgroundColor: row.anulado ? "#e74c3c" : "#2ecc71",
+          }}
+        >
+          {row.anulado ? "Sí" : "No"}
+        </span>
       ),
     },
-  ];
 
+    {
+      header: "Acciones",
+      accessor: "acciones",
+      render: (row) => (
+        <ActionButtons
+          onView={() => handleVerProductos(row)}
+          showEdit={false}
+          showDelete={!row.anulado}
+          onDelete={() => anular(row.id)}
+          deleteTitle="Anular"
+        />
+      ),
+    }
+  ];
   return (
     <div>
       <FiltersPanel
-        filtersConfig={filtersConfig.filter(f => f.show)} // solo los que tengan `show: true`
+        filtersConfig={filtersConfig.filter(f => f.show)}
         filters={filters}
         onFilterChange={(newFilter) => setFilters(prev => ({ ...prev, ...newFilter }))}
         onResetFilters={() => setFilters({})}
       />
-
       <div className="tabla-despachos" style={{ marginTop: "15px" }}>
         <Table
           columns={columns}

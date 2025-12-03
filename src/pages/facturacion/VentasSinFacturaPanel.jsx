@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Table from '../../components/table/Table';
 import { toast, Toaster } from 'sonner';
 import { Button } from '../../components/buttons/Button';
-import { FaFileInvoice, FaPlus, FaFilter, FaFilterCircleXmark } from 'react-icons/fa6';
+import { FaFileInvoice, FaPlus, FaFilter, FaFilterCircleXmark, FaBan } from 'react-icons/fa6';
 import './ListVentas.css';
 import { useVentasSinFactura } from '../../hooks/useVentasSinFactura';
 import { anularVentas } from "../../service/api";
@@ -10,13 +10,22 @@ import Modal from '../../components/modal/Modal';
 import FiltersPanel from '../../components/search/FiltersPanel';
 
 const AccionesVenta = ({ venta, onAnular, isGenerando }) => {
+  // Si el monto es 0, la venta está anulada - no mostrar botón
+  if (venta.monto === 0) {
+    return (
+      <div className="venta-actions">
+        <span className="badge-anulado">Anulado</span>
+      </div>
+    );
+  }
+
   return (
     <div className="venta-actions">
       <Button
         variant="danger"
         onClick={() => onAnular(venta)}
         disabled={isGenerando}
-        icon={<FaPlus />}
+        icon={<FaBan />}
       >
         {isGenerando ? "Anulando..." : "Anular"}
       </Button>
@@ -38,13 +47,18 @@ const VentasSinFacturaPanel = () => {
     error,
     filters,
     handlePageChange,
-    handleSizeChange, // Función para cambiar el tamaño de página
+    handleSizeChange,
     updateFilters,
     resetFilters,
     refetch
   } = useVentasSinFactura();
 
   const handleOpenModal = (venta) => {
+    // Verificar que la venta no esté ya anulada
+    if (venta.monto === 0) {
+      toast.warning("Esta venta ya está anulada");
+      return;
+    }
     setSelectedVenta(venta);
     setIsModalOpen(true);
   };
@@ -58,6 +72,13 @@ const VentasSinFacturaPanel = () => {
   const handleAnularVenta = async () => {
     if (!selectedVenta || motivo.trim() === '') {
       toast.error("Debes ingresar un motivo de anulación");
+      return;
+    }
+
+    // Verificación adicional por si acaso
+    if (selectedVenta.monto === 0) {
+      toast.warning("Esta venta ya está anulada");
+      handleCloseModal();
       return;
     }
 
@@ -79,9 +100,9 @@ const VentasSinFacturaPanel = () => {
     }
   };
 
-  // Función para manejar el cambio de página (convertir de 0-based a 1-based)
+  // Función para manejar el cambio de página
   const handleTablePageChange = (page) => {
-    handlePageChange(page - 1); // La tabla usa páginas 1-based, pero el backend usa 0-based
+    handlePageChange(page - 1);
   };
 
   // Función para manejar el cambio de filas por página
@@ -168,7 +189,13 @@ const VentasSinFacturaPanel = () => {
     { header: 'N° Venta', accessor: 'id', render: (row) => row.id },
     { header: 'Fecha', accessor: 'fecha', render: (row) => new Date(row.fecha).toLocaleDateString() },
     { header: 'Cliente', accessor: 'clienteNombre', render: (row) => row.cliente?.nombreRazonSocial || 'Consumidor Final' },
-    { header: 'Monto Total', accessor: 'monto', render: (row) => `Bs ${row.monto.toFixed(2)}` },
+    { 
+      header: 'Monto Total', 
+      accessor: 'monto', 
+      render: (row) => row.monto === 0 
+        ? <span style={{ color: '#dc3545', fontWeight: 'bold' }}>ANULADO</span>
+        : `Bs ${row.monto.toFixed(2)}`
+    },
     { header: 'Método Pago', accessor: 'metodoPago' },
     { header: 'Tipo Comprobante', accessor: 'tipoComprobante' },
     {
@@ -197,7 +224,6 @@ const VentasSinFacturaPanel = () => {
           <FaFileInvoice /> Ventas sin Facturación
         </h2>
         
-        {/* Botón para mostrar/ocultar filtros */}
         <div className="panel-header-actions">
           <Button
             variant="secondary"
@@ -209,14 +235,13 @@ const VentasSinFacturaPanel = () => {
         </div>
       </div>
 
-      {/* Panel de Filtros - Condicional */}
       {showFilters && (
         <FiltersPanel
           filtersConfig={filtersConfig}
           filters={filters}
           onFilterChange={updateFilters}
           onResetFilters={resetFilters}
-          layout="grid" // Puedes cambiar a 'auto', 'flex-column', 'compact'
+          layout="grid"
         />
       )}
 
@@ -225,17 +250,16 @@ const VentasSinFacturaPanel = () => {
         data={ventas}
         loading={loading}
         pagination={{
-          currentPage: pagination.page + 1, // Convertir de 0-based a 1-based para la tabla
+          currentPage: pagination.page + 1,
           totalPages: pagination.totalPages,
           totalElements: pagination.totalElements,
           rowsPerPage: pagination.size
         }}
         onPageChange={handleTablePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
-        storageKey="ventas-sin-factura-table" // Clave única para guardar configuración de columnas
+        storageKey="ventas-sin-factura-table"
       />
 
-      {/* Modal de anulación */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

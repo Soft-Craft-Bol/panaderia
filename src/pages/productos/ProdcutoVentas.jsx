@@ -8,7 +8,7 @@ import { useProductos } from "../../hooks/useProductos";
 import { useVentas } from "../../hooks/useVentas";
 import Modal from "../../components/modal/Modal";
 import { getUser } from "../../utils/authFunctions";
-import { FaCashRegister, FaEnvelope, FaPrint, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaCashRegister, FaEnvelope, FaPrint, FaArrowUp, FaArrowDown, FaPercent, FaDollarSign } from "react-icons/fa";
 import ProductoCard from "../../components/card/ProductoCard";
 import SelectSecondary from "../../components/selected/SelectSecondary";
 import InputText from "../../components/inputs/InputText";
@@ -53,6 +53,11 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
 };
     // Estado para controlar el ajuste manual del redondeo
     const [ajusteRedondeo, setAjusteRedondeo] = useState(0);
+
+    // Estados para el descuento
+    const [tipoDescuento, setTipoDescuento] = useState(""); // "porcentaje" o "monto"
+    const [valorDescuento, setValorDescuento] = useState("");
+    const [descuentoAplicado, setDescuentoAplicado] = useState(0);
 
     const {
         productos,
@@ -134,6 +139,65 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
         const selectedCart = carts[activeCartIndex];
         return Array.isArray(selectedCart) ? selectedCart : [];
     }, [carts, activeCartIndex]);
+
+    // PRIMERO: Declarar totalCompraS ANTES de calcularDescuento
+    const totalCompraS = useMemo(() => {
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
+            return 0;
+        }
+
+        try {
+            return cart.reduce((total, item) => {
+                if (!item || typeof item.quantity !== 'number') return total;
+
+                const precio = (item.tieneDescuento && item.precioConDescuento)
+                    ? item.precioConDescuento
+                    : (item.precioUnitario || 0);
+
+                return total + (precio * item.quantity);
+            }, 0);
+        } catch (error) {
+            console.error("Error calculating totalCompra:", error);
+            return 0;
+        }
+    }, [cart]);
+
+    // Función para calcular el descuento - AHORA SÍ PUEDE USAR totalCompraS
+    const calcularDescuento = useCallback(() => {
+        if (!tipoDescuento || !valorDescuento) return 0;
+
+        const valor = parseFloat(valorDescuento);
+        if (isNaN(valor) || valor <= 0) return 0;
+
+        if (tipoDescuento === "porcentaje") {
+            // Limitar el porcentaje máximo a 100%
+            const porcentaje = Math.min(valor, 100);
+            return (totalCompraS * porcentaje) / 100;
+        } else if (tipoDescuento === "monto") {
+            // Limitar el monto máximo al total de la compra
+            return Math.min(valor, totalCompraS);
+        }
+
+        return 0;
+    }, [tipoDescuento, valorDescuento, totalCompraS]);
+
+    // Aplicar descuento cuando cambian los valores
+    useEffect(() => {
+        const descuento = calcularDescuento();
+        setDescuentoAplicado(descuento);
+    }, [calcularDescuento]);
+
+    // SEGUNDO: Ahora sí podemos declarar totalCompra que depende de descuentoAplicado
+    // Aplicar redondeo automático + ajuste manual - descuento
+    const totalCompra = useMemo(() => {
+        const subtotalConDescuento = totalCompraS - descuentoAplicado;
+        const redondeoAutomatico = redondearAMultiplo(subtotalConDescuento, 0.50);
+        return Math.max(0, redondeoAutomatico + ajusteRedondeo);
+    }, [totalCompraS, descuentoAplicado, ajusteRedondeo]);
+
+    const diferenciaRedondeo = useMemo(() => {
+        return (totalCompraS - descuentoAplicado) - totalCompra;
+    }, [totalCompraS, descuentoAplicado, totalCompra]);
 
     const switchCart = (index) => {
         if (index >= 0 && index < carts.length) {
@@ -316,38 +380,11 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
     // Resetear ajuste cuando cambia el carrito
     useEffect(() => {
         setAjusteRedondeo(0);
+        // Resetear descuento cuando cambia el carrito
+        setTipoDescuento("");
+        setValorDescuento("");
+        setDescuentoAplicado(0);
     }, [activeCartIndex, cart]);
-
-    const totalCompraS = useMemo(() => {
-        if (!cart || !Array.isArray(cart) || cart.length === 0) {
-            return 0;
-        }
-
-        try {
-            return cart.reduce((total, item) => {
-                if (!item || typeof item.quantity !== 'number') return total;
-
-                const precio = (item.tieneDescuento && item.precioConDescuento)
-                    ? item.precioConDescuento
-                    : (item.precioUnitario || 0);
-
-                return total + (precio * item.quantity);
-            }, 0);
-        } catch (error) {
-            console.error("Error calculating totalCompra:", error);
-            return 0;
-        }
-    }, [cart]);
-
-    // Aplicar redondeo automático + ajuste manual
-    const totalCompra = useMemo(() => {
-        const redondeoAutomatico = redondearAMultiplo(totalCompraS, 0.50);
-        return redondeoAutomatico + ajusteRedondeo;
-    }, [totalCompraS, ajusteRedondeo]);
-
-    const diferenciaRedondeo = useMemo(() => {
-        return totalCompraS - totalCompra;
-    }, [totalCompraS, totalCompra]);
 
     const totalConDescuentos = useMemo(() => {
         if (!ventaData?.detalle || !Array.isArray(ventaData.detalle)) return totalCompra;
@@ -427,7 +464,10 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                     montoRecibido: sumaPagos,
                     montoDevuelto: 0,
                     totalAjustado: totalCompra,
-                    diferenciaRedondeo: diferenciaRedondeo
+                    diferenciaRedondeo: diferenciaRedondeo,
+                    descuentoGlobal: descuentoAplicado,
+                    tipoDescuento: tipoDescuento,
+                    valorDescuento: valorDescuento
                 };
             } else {
                 if (!metodoPago || metodoPago.trim() === "") {
@@ -445,7 +485,10 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                         ? parseFloat(cambio) || 0
                         : 0,
                     totalAjustado: totalCompra,
-                    diferenciaRedondeo: diferenciaRedondeo
+                    diferenciaRedondeo: diferenciaRedondeo,
+                    descuentoGlobal: descuentoAplicado,
+                    tipoDescuento: tipoDescuento,
+                    valorDescuento: valorDescuento
                 };
             }
             console.log("Datos de venta final:", ventaDataFinal);
@@ -534,6 +577,9 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                 montoDevuelto: metodoPago === "EFECTIVO" ? parseFloat(cambio) || 0 : 0,
                 cajaId: cajaActiva?.id || 0,
                 nombreCliente: nombreClienteRecibo.trim() || "CONSUMIDOR FINAL",
+                descuentoGlobal: descuentoAplicado,
+                tipoDescuento: tipoDescuento,
+                valorDescuento: valorDescuento,
                 detalle: productosConStockVerificado.map(item => {
                     const descuentoUnitario = item.tieneDescuento
                         ? (item.precioUnitario - item.precioConDescuento)
@@ -565,7 +611,7 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
         } catch (error) {
             toast.error(error.message);
         }
-    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo, ID_SUCURSAL_ACTUAL, cajaActiva, totalCompra, diferenciaRedondeo]);
+    }, [cart, currentUser, metodoPago, montoPagado, cambio, nombreClienteRecibo, ID_SUCURSAL_ACTUAL, cajaActiva, totalCompra, diferenciaRedondeo, descuentoAplicado, tipoDescuento, valorDescuento]);
 
     const searchInputRef = React.useRef(null);
 
@@ -657,7 +703,11 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
         setShowReciboModal(false);
         setPagoCombinado(false);
         setMetodosPagoList([]);
-        setAjusteRedondeo(0); // Resetear ajuste al resetear formulario
+        setAjusteRedondeo(0);
+        // Resetear descuento
+        setTipoDescuento("");
+        setValorDescuento("");
+        setDescuentoAplicado(0);
     };
 
     const handlePrintReceipt = () => {
@@ -698,7 +748,10 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                 ...detalle,
                 descripcionProducto: detalle.producto?.descripcion || "Producto sin nombre",
                 monto: detalle.precioUnitario * detalle.cantidad - detalle.montoDescuento
-            })) || []
+            })) || [],
+            descuentoGlobal: descuentoAplicado,
+            tipoDescuento: tipoDescuento,
+            valorDescuento: valorDescuento
         };
 
         generateReciboPDF(pdfData);
@@ -810,6 +863,7 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
             }}>
                 <h2>Confirmar Venta</h2>
                 
+             
                 {/* Sección de ajuste de redondeo */}
                 <div className="ajuste-redondeo-section" style={{
                     backgroundColor: '#e8f4fd',
@@ -828,9 +882,19 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                                 <span style={{ fontSize: '12px', color: '#666' }}>Subtotal:</span>
                                 <span style={{ fontSize: '12px' }}>Bs {totalCompraS.toFixed(2)}</span>
                             </div>
+                            {descuentoAplicado > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                    <span style={{ fontSize: '12px', color: '#666' }}>Descuento:</span>
+                                    <span style={{ fontSize: '12px', color: '#dc3545' }}>-Bs {descuentoAplicado.toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span style={{ fontSize: '12px', color: '#666' }}>Subtotal con descuento:</span>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold' }}>Bs {(totalCompraS - descuentoAplicado).toFixed(2)}</span>
+                            </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                                 <span style={{ fontSize: '12px', color: '#666' }}>Redondeo automático:</span>
-                                <span style={{ fontSize: '12px' }}>Bs {redondearAMultiplo(totalCompraS, 0.50).toFixed(2)}</span>
+                                <span style={{ fontSize: '12px' }}>Bs {redondearAMultiplo(totalCompraS - descuentoAplicado, 0.50).toFixed(2)}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ fontSize: '12px', color: '#666' }}>Ajuste manual:</span>
@@ -884,7 +948,34 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                     )}
                 </div>
 
-                <p>Total a pagar: <strong>Bs {totalCompra.toFixed(2)}</strong></p>
+                <div style={{ 
+                    backgroundColor: '#f8f9fa', 
+                    padding: '15px', 
+                    borderRadius: '8px', 
+                    marginBottom: '15px',
+                    border: '2px solid #28a745'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Total a pagar:</span>
+                        <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#28a745' }}>
+                            Bs {totalCompra.toFixed(2)}
+                        </span>
+                    </div>
+                    {descuentoAplicado > 0 && (
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            marginTop: '5px',
+                            fontSize: '12px',
+                            color: '#666'
+                        }}>
+                            <span>Ahorro del cliente:</span>
+                            <span style={{ color: '#dc3545', fontWeight: 'bold' }}>
+                                Bs {descuentoAplicado.toFixed(2)}
+                            </span>
+                        </div>
+                    )}
+                </div>
 
                 <div className="modal-field">
                     <Button
@@ -1110,6 +1201,96 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                     />
                 </div>
 
+                   {/* Sección de Descuento */}
+                <div className="descuento-section" style={{
+                    backgroundColor: '#fff3cd',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    marginBottom: '15px',
+                    border: '1px solid #ffeaa7'
+                }}>
+                    <h3 style={{ margin: '0 0 10px 0', color: '#856404', fontSize: '14px' }}>
+                        Aplicar Descuento
+                    </h3>
+                    
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                        <div style={{ flex: '1' }}>
+                            <SelectSecondary
+                                name="tipoDescuento"
+                                label="Tipo de Descuento"
+                                value={tipoDescuento}
+                                onChange={(e) => {
+                                    setTipoDescuento(e.target.value);
+                                    setValorDescuento("");
+                                }}
+                                formikCompatible={false}
+                            >
+                                <option value="">Sin descuento</option>
+                                <option value="porcentaje">Porcentaje (%)</option>
+                                <option value="monto">Monto fijo (Bs)</option>
+                            </SelectSecondary>
+                        </div>
+
+                        {tipoDescuento && (
+                            <div style={{ flex: '1' }}>
+                                <InputText
+                                    label={tipoDescuento === "porcentaje" ? "Porcentaje %" : "Monto Bs"}
+                                    type="number"
+                                    formik={false}
+                                    value={valorDescuento}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (tipoDescuento === "porcentaje") {
+                                            // Limitar porcentaje entre 0 y 100
+                                            const porcentaje = Math.min(100, Math.max(0, parseFloat(value) || 0));
+                                            setValorDescuento(porcentaje.toString());
+                                        } else {
+                                            // Limitar monto máximo al total de la compra
+                                            const monto = parseFloat(value) || 0;
+                                            setValorDescuento(monto.toString());
+                                        }
+                                    }}
+                                    placeholder={tipoDescuento === "porcentaje" ? "0-100%" : "0.00"}
+                                    min="0"
+                                    max={tipoDescuento === "porcentaje" ? "100" : undefined}
+                                    step={tipoDescuento === "porcentaje" ? "1" : "0.01"}
+                                />
+                            </div>
+                        )}
+
+                        {tipoDescuento && (
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setTipoDescuento("");
+                                    setValorDescuento("");
+                                    setDescuentoAplicado(0);
+                                }}
+                                style={{ flexShrink: 0, marginBottom: '16px' }}
+                                title="Quitar descuento"
+                            >
+                                ✕
+                            </Button>
+                        )}
+                    </div>
+
+                    {descuentoAplicado > 0 && (
+                        <div style={{ 
+                            marginTop: '10px', 
+                            padding: '8px',
+                            backgroundColor: '#d1ecf1',
+                            border: '1px solid #bee5eb',
+                            borderRadius: '4px',
+                            textAlign: 'center'
+                        }}>
+                            <span style={{ fontSize: '12px', color: '#0c5460', fontWeight: 'bold' }}>
+                                Descuento aplicado: Bs {descuentoAplicado.toFixed(2)}
+                                {tipoDescuento === "porcentaje" && ` (${valorDescuento}%)`}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
                 <div className="modal-actions">
                     <Button
                         variant="primary"
@@ -1139,6 +1320,9 @@ const redondearAMultiplo = (valor, multiplo = 0.50) => {
                 <p>Venta N°: <strong>{ventaCompletada?.id}</strong></p>
                 <p>Cliente: <strong>{nombreClienteRecibo}</strong></p>
                 <p>Total: <strong>Bs {ventaCompletada?.totalVenta?.toFixed(2)}</strong></p>
+                {descuentoAplicado > 0 && (
+                    <p>Descuento aplicado: <strong style={{ color: '#dc3545' }}>Bs {descuentoAplicado.toFixed(2)}</strong></p>
+                )}
 
                 <p style={{ marginBottom: '20px', color: '#666' }}>
                     Seleccione cómo desea entregar el recibo al cliente:

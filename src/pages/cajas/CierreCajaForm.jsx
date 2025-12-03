@@ -1,16 +1,25 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  getResumenPagos, cerrarCaja,
-  getResumenProductos, getProductosByPuntoVenta,
+  getResumenPagos,
+  getResumenPagosCredito,
+  cerrarCaja,
+  getResumenProductos,
+  getProductosByPuntoVenta,
   getStockInicial
 } from '../../service/api';
-import { FaCashRegister, FaFileInvoiceDollar, FaMoneyBillWave, FaWallet, FaExchangeAlt, FaPrint, FaSave, FaCalculator, FaFileAlt, FaInfoCircle } from 'react-icons/fa';
-import { MdAttachMoney, MdPointOfSale, MdReceipt } from 'react-icons/md';
+
+import { FaCashRegister, FaFileInvoiceDollar, FaWallet, FaExchangeAlt, FaPrint, FaSave } from 'react-icons/fa';
+import { MdAttachMoney, MdPointOfSale, MdCreditCard, MdAccountBalanceWallet } from 'react-icons/md';
+
 import { generateCierreCajaPDF } from '../../utils/generateCierreCajaPDF';
 import './CierreCajaForm.css';
 import ResumenProductos from './ResumenProductos';
+import { Button } from '../../components/buttons/Button';
+import TextArea from '../../components/inputs/TextArea';
+import InputText from '../../components/inputs/InputText';
 
 const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso }) => {
+
   const [formData, setFormData] = useState({
     gastos: '',
     efectivoFinal: '',
@@ -20,385 +29,421 @@ const CierreCajaForm = ({ caja, usuario, onCancelar, onCierreExitoso }) => {
   });
 
   const [resumenPagos, setResumenPagos] = useState(null);
+  const [resumenCredito, setResumenCredito] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [calculando, setCalculando] = useState(false);
+
   const reportRef = useRef();
 
   useEffect(() => {
-    const fetchResumenPagos = async () => {
+    (async () => {
       try {
-        setCalculando(true);
-        const response = await getResumenPagos(caja.id);
-        setResumenPagos(response.data);
-      } catch (error) {
-        console.error('Error al obtener el resumen de pagos:', error);
-      } finally {
-        setCalculando(false);
+        const res = await getResumenPagos(caja.id);
+        setResumenPagos(res.data);
+      } catch (e) {
+        console.error("Error resumen ventas:", e);
       }
-    };
-
-    fetchResumenPagos();
+    })();
   }, [caja.id]);
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await getResumenPagosCredito(caja.id);
+        setResumenCredito(res.data);
+      } catch (e) {
+        console.error("Error resumen crédito:", e);
+      }
+    })();
+  }, [caja.id]);
+
+  const handleChange = e => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const totalVentas = useMemo(() => {
-    return resumenPagos
-      ? (resumenPagos.facturacion?.subtotal || 0) + (resumenPagos.sin_facturacion?.subtotal || 0)
-      : 0;
+  const subtotalFact = resumenPagos?.facturacion?.subtotal || 0;
+  const subtotalSinFact = resumenPagos?.sin_facturacion?.subtotal || 0;
+
+  const totalVentas = useMemo(() => subtotalFact + subtotalSinFact, [subtotalFact, subtotalSinFact]);
+
+  const totalPagoPosterior = useMemo(() => {
+    return (resumenPagos?.facturacion?.pago_posterior || 0) +
+      (resumenPagos?.sin_facturacion?.pago_posterior || 0);
   }, [resumenPagos]);
 
+  const totalAbonos = resumenCredito?.totalGeneral || 0;
+
+  const getTotalPorMetodoPago = (metodo) => {
+    let total = 0;
+
+    // Sumar de ventas con factura
+    if (resumenPagos?.facturacion?.[metodo]) {
+      total += resumenPagos.facturacion[metodo] || 0;
+    }
+
+    // Sumar de ventas sin factura
+    if (resumenPagos?.sin_facturacion?.[metodo]) {
+      total += resumenPagos.sin_facturacion[metodo] || 0;
+    }
+
+    return total;
+  };
+
+  // Obtener total por método de pago específico
+  const totalEfectivoVentas = useMemo(() => getTotalPorMetodoPago('efectivo'), [resumenPagos]);
+  const totalBilleteraMovilVentas = useMemo(() => getTotalPorMetodoPago('billetera_movil'), [resumenPagos]);
+  const totalTransferenciaVentas = useMemo(() => getTotalPorMetodoPago('transferencia'), [resumenPagos]);
+
+  const getTotalAbonosPorMetodo = (metodo) => {
+    if (!resumenCredito?.resumenMetodos) return 0;
+
+    const metodoEncontrado = resumenCredito.resumenMetodos.find(
+      item => item.metodoPago.toLowerCase() === metodo.toLowerCase()
+    );
+
+    return metodoEncontrado ? metodoEncontrado.total : 0;
+  };
+
+  const totalEfectivoAbonos = useMemo(() => getTotalAbonosPorMetodo('EFECTIVO'), [resumenCredito]);
+  const totalBilleteraMovilAbonos = useMemo(() => getTotalAbonosPorMetodo('BILLETERA MOVIL'), [resumenCredito]);
+  const totalTransferenciaAbonos = useMemo(() => getTotalAbonosPorMetodo('TRANSFERENCIA'), [resumenCredito]);
+
+  const totalEfectivoGeneral = useMemo(() =>
+    totalEfectivoVentas + totalEfectivoAbonos,
+    [totalEfectivoVentas, totalEfectivoAbonos]
+  );
+
+  const totalBilleteraMovilGeneral = useMemo(() =>
+    totalBilleteraMovilVentas + totalBilleteraMovilAbonos,
+    [totalBilleteraMovilVentas, totalBilleteraMovilAbonos]
+  );
+
+  const totalTransferenciaGeneral = useMemo(() =>
+    totalTransferenciaVentas + totalTransferenciaAbonos,
+    [totalTransferenciaVentas, totalTransferenciaAbonos]
+  );
+
+  const totalSistema = useMemo(() => {
+    return totalVentas - totalPagoPosterior + totalAbonos - (parseFloat(formData.gastos || 0));
+  }, [totalVentas, totalPagoPosterior, totalAbonos, formData.gastos]);
+
   const totalContado = useMemo(() => {
-    return parseFloat(formData.efectivoFinal || 0) +
+    return (
+      parseFloat(formData.efectivoFinal || 0) +
       parseFloat(formData.billeteraMovilFinal || 0) +
-      parseFloat(formData.transferenciaFinal || 0);
-  }, [formData.efectivoFinal, formData.billeteraMovilFinal, formData.transferenciaFinal]);
+      parseFloat(formData.transferenciaFinal || 0)
+    );
+  }, [formData]);
 
   const diferencia = useMemo(() => {
-    return (totalContado - totalVentas).toFixed(2);
-  }, [totalContado, totalVentas]);
+    return (totalContado - totalSistema).toFixed(2);
+  }, [totalContado, totalSistema]);
+
+  const limpiarResumenPagos = (resumen) => {
+    const limpio = {};
+    for (const tipo in resumen) {
+      limpio[tipo] = { ...resumen[tipo] };
+      delete limpio[tipo].subtotal;
+      delete limpio[tipo].total;
+      delete limpio[tipo].general;
+    }
+    return limpio;
+  };
 
   const handleGuardar = async () => {
-    if (!resumenPagos) {
-      alert('No hay datos de ventas para esta caja');
-      return;
-    }
+    if (!resumenPagos) return alert("No hay datos de ventas");
 
     setLoading(true);
     try {
-      const formattedResumen = {
-        facturacion: {},
-        sin_facturacion: {}
-      };
-
-      const processPagos = (pagos, destino) => {
-        if (!pagos) return;
-
-        Object.entries(pagos).forEach(([metodo, monto]) => {
-          if (metodo !== 'subtotal' && monto) {
-            const metodoNormalizado = metodo.toLowerCase().replace(' ', '_');
-            destino[metodoNormalizado] = Number(monto);
-          }
-        });
-      };
-
-      processPagos(resumenPagos.facturacion, formattedResumen.facturacion);
-      processPagos(resumenPagos.sin_facturacion, formattedResumen.sin_facturacion);
-
       const payload = {
         cajaId: caja.id,
         usuarioId: usuario.id,
-        puntoVenta: usuario.puntosVenta[0]?.id || 'N/A',
+        puntoVenta: usuario.puntosVenta[0]?.id || null,
+
+        gastos: Number(formData.gastos) || 0,
         efectivoFinal: Number(formData.efectivoFinal) || 0,
         billeteraMovilFinal: Number(formData.billeteraMovilFinal) || 0,
         transferenciaFinal: Number(formData.transferenciaFinal) || 0,
-        gastos: Number(formData.gastos) || 0,
-        totalSistema: totalVentas,
+
+        totalSistema,
+        totalContado,
         diferencia: Number(diferencia),
-        observaciones: formData.observaciones || '',
-        resumenPagos: formattedResumen
+        observaciones: formData.observaciones,
+
+        resumenPagos: limpiarResumenPagos(resumenPagos),
+
+        resumenMetodosPago: {
+          efectivo: totalEfectivoGeneral,
+          billeteraMovil: totalBilleteraMovilGeneral,
+          transferencia: totalTransferenciaGeneral,
+          pagoPosterior: totalPagoPosterior
+        },
+
+        resumenAbonos: resumenCredito
       };
 
+      console.log("Payload cierre caja:", payload);
       const res = await cerrarCaja(payload);
-      console.log('Cierre de caja exitoso:', res.data);
+      console.log("Cierre guardado:", res.data);
+      onCierreExitoso?.();
+      alert("Cierre guardado correctamente");
 
-      if (onCierreExitoso) {
-        onCierreExitoso();
-      }
-      alert('Cierre guardado exitosamente');
-    } catch (error) {
-      console.error('Error al guardar el cierre:', error);
-      alert(`Error al guardar el cierre: ${error.response?.data || error.message}`);
-    } finally {
-      setLoading(false);
+    } catch (e) {
+      console.error(e);
+      alert("Error al guardar cierre");
     }
+    setLoading(false);
   };
+
 
   const handleImprimir = async () => {
     try {
       const productosResponse = await getResumenProductos(caja.id);
-      const resumenProductos = productosResponse.data;
-
-      const puntoVentaId = usuario?.puntosVenta[0]?.id;
-      const stockResponse = await getProductosByPuntoVenta(
-        puntoVentaId,
-        0,
-        1000,
-        '',
-        null,
-        null,
-        [],
-        false,
-        'cantidadDisponible,desc'
-      );
-      const productosStock = stockResponse.data.productos;
-
+      const stockResponse = await getProductosByPuntoVenta(usuario.puntosVenta[0]?.id, 0, 1000, '', null, null, [], false, 'cantidadDisponible,desc');
       const stockInicialResponse = await getStockInicial(caja.id);
-      const productosStockInicial = stockInicialResponse.data.productos;
 
       const data = {
         caja: caja.nombre,
         usuario: usuario.username,
         montoInicial: caja.montoInicial.toFixed(2),
         resumenPagos,
-        resumenProductos,
-        productosStock,
-        productosStockInicial,
-        totalVentas: totalVentas.toFixed(2),
-        totalContado: totalContado.toFixed(2),
+        resumenProductos: productosResponse.data,
+        productosStock: stockResponse.data.productos,
+        productosStockInicial: stockInicialResponse.data.productos,
+        totalVentas,
+        totalAbonos,
+        totalSistema,
+        totalContado,
         diferencia,
         observaciones: formData.observaciones,
-        fecha: new Date().toLocaleDateString()
+        fecha: new Date().toLocaleString(),
+        // Nuevos datos para el PDF
+        resumenMetodosPago: {
+          efectivo: totalEfectivoGeneral,
+          billeteraMovil: totalBilleteraMovilGeneral,
+          transferencia: totalTransferenciaGeneral,
+          pagoPosterior: totalPagoPosterior
+        },
+        resumenMetodosPagoDetalle: {
+          ventasEfectivo: totalEfectivoVentas,
+          ventasBilleteraMovil: totalBilleteraMovilVentas,
+          ventasTransferencia: totalTransferenciaVentas,
+          abonosEfectivo: totalEfectivoAbonos,
+          abonosBilleteraMovil: totalBilleteraMovilAbonos,
+          abonosTransferencia: totalTransferenciaAbonos
+        },
+        resumenAbonos: resumenCredito
       };
 
       generateCierreCajaPDF(data, reportRef.current);
-    } catch (error) {
-      console.error('Error al obtener resumen de productos:', error);
-      alert('Error al generar el PDF: No se pudieron obtener los datos de productos');
+
+    } catch (e) {
+      console.error(e);
+      alert("Error generando PDF");
     }
   };
 
-  const renderMetodoPago = (metodo, valor) => (
-    <div className="metodo-pago-item" key={metodo}>
-      <div className="metodo-icon">
-        {metodo === 'efectivo' && <MdAttachMoney />}
-        {metodo === 'billetera_movil' && <FaWallet />}
-        {metodo === 'transferencia' && <FaExchangeAlt />}
-        {metodo === 'tarjeta' && <MdPointOfSale />}
-        {metodo === 'pago_online' && <FaFileInvoiceDollar />}
-        {metodo.includes('factura') && <MdReceipt />}
-      </div>
-      <div className="metodo-info">
-        <span className="metodo-nombre">{metodo.replace('_', ' ').toUpperCase()}</span>
-        <span className="metodo-valor">Bs. {parseFloat(valor || 0).toFixed(2)}</span>
-      </div>
-    </div>
-  );
-
   return (
     <div className="cierre-dashboard" ref={reportRef}>
-      <div className="dashboard-header">
-        <FaCashRegister className="header-icon" />
+
+      <header className="dashboard-header">
+        <FaCashRegister />
         <h1>{caja.nombre}</h1>
         <span>Usuario: {usuario.username}</span>
-      </div>
+      </header>
 
       <div className="dashboard-grid">
-        {/* Resumen inicial */}
-        <div className="dashboard-card card-inicial">
-          <div className="card-header">
-            <FaMoneyBillWave className="card-icon" />
-            <h3>Monto Inicial</h3>
-          </div>
-          <div className="card-content">
-            <span className="card-value">Bs. {caja.montoInicial.toFixed(2)}</span>
-          </div>
-        </div>
 
-        {/* Resumen de ventas */}
-        <div className="dashboard-card card-ventas">
-          <div className="card-header">
-            <MdPointOfSale className="card-icon" />
-            <h3>Resumen de Ventas</h3>
-          </div>
-          <div className="card-content">
-            {calculando ? (
-              <div className="loading-content">
-                <span>Calculando ventas...</span>
+        <section className="dashboard-card">
+          <h3><MdAttachMoney /> Monto Inicial</h3>
+          <strong>Bs. {caja.montoInicial.toFixed(2)}</strong>
+        </section>
+
+        <section className="dashboard-card">
+          <h3><MdPointOfSale /> Resumen de Ventas</h3>
+
+          {!resumenPagos && <p>Cargando...</p>}
+
+          {resumenPagos && (
+            <>
+              <p><strong>Total con factura:</strong> Bs. {subtotalFact.toFixed(2)}</p>
+              <p><strong>Total sin factura:</strong> Bs. {subtotalSinFact.toFixed(2)}</p>
+              <p><strong>Pago posterior:</strong> Bs. {totalPagoPosterior.toFixed(2)}</p>
+              <p><strong>Abonos hoy:</strong> Bs. {totalAbonos.toFixed(2)}</p>
+
+              <hr />
+              <h4>Total ventas del día:</h4>
+              <strong>Bs. {totalVentas.toFixed(2)}</strong>
+            </>
+          )}
+        </section>
+
+        <section className="dashboard-card">
+          <h3><MdCreditCard /> Métodos de Pago - Ventas</h3>
+
+          {resumenPagos && (
+            <>
+              <div className="metodo-pago-item">
+                <span><MdAttachMoney /> Efectivo:</span>
+                <strong>Bs. {totalEfectivoVentas.toFixed(2)}</strong>
               </div>
-            ) : resumenPagos ? (
-              <div className="ventas-grid">
-                {resumenPagos.facturacion && (
-                  <div className="ventas-group">
-                    <h4><FaFileAlt /> Con Factura</h4>
-                    {Object.entries(resumenPagos.facturacion)
-                      .filter(([key, valor]) => key !== 'subtotal' && Number(valor) > 0)
-                      .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
-                    <div className="ventas-total">
-                      <span>TOTAL:</span>
-                      <strong>Bs. {resumenPagos.facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
+
+              <div className="metodo-pago-item">
+                <span><MdAccountBalanceWallet /> Billetera Móvil:</span>
+                <strong>Bs. {totalBilleteraMovilVentas.toFixed(2)}</strong>
+              </div>
+
+              <div className="metodo-pago-item">
+                <span><FaExchangeAlt /> Transferencia:</span>
+                <strong>Bs. {totalTransferenciaVentas.toFixed(2)}</strong>
+              </div>
+
+              <div className="metodo-pago-item">
+                <span><FaFileInvoiceDollar /> Pago Posterior:</span>
+                <strong>Bs. {totalPagoPosterior.toFixed(2)}</strong>
+              </div>
+            </>
+          )}
+        </section>
+
+        <section className="dashboard-card">
+          <h3><FaWallet /> Métodos de Pago - Abonos</h3>
+
+          {!resumenCredito && <p>Cargando abonos...</p>}
+
+          {resumenCredito && (
+            <>
+              {resumenCredito.resumenMetodos && resumenCredito.resumenMetodos.length > 0 ? (
+                <>
+                  {resumenCredito.resumenMetodos.map((item, index) => (
+                    <div key={index} className="metodo-pago-item">
+                      <span>
+                        {item.metodoPago === 'EFECTIVO' && <MdAttachMoney />}
+                        {item.metodoPago === 'BILLETERA MOVIL' && <MdAccountBalanceWallet />}
+                        {item.metodoPago === 'TRANSFERENCIA' && <FaExchangeAlt />}
+                        {item.metodoPago}:
+                      </span>
+                      <strong>Bs. {item.total.toFixed(2)}</strong>
                     </div>
+                  ))}
+
+                  <hr />
+                  <div className="metodo-pago-item total">
+                    <span>Total Abonos:</span>
+                    <strong>Bs. {resumenCredito.totalGeneral.toFixed(2)}</strong>
                   </div>
-                )}
-
-                {resumenPagos.sin_facturacion && (
-                  <div className="ventas-group">
-                    <h4><FaFileAlt /> Sin Factura</h4>
-                    {Object.entries(resumenPagos.sin_facturacion)
-                      .filter(([key, valor]) => key !== 'subtotal' && Number(valor) > 0)
-                      .map(([metodo, valor]) => renderMetodoPago(metodo, valor))}
-                    <div className="ventas-total">
-                      <span>TOTAL:</span>
-                      <strong>Bs. {resumenPagos.sin_facturacion.subtotal?.toFixed(2) || '0.00'}</strong>
-                    </div>
-                  </div>
-                )}
-
-                <div className="ventas-total-general">
-                  <h4><FaInfoCircle /> Total General</h4>
-                  <span>Bs. {totalVentas.toFixed(2)}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="no-data">
-                No hay datos disponibles para esta caja
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Resumen de productos */}
+                </>
+              ) : (
+                <p>No hay abonos registrados</p>
+              )}
+            </>
+          )}
+        </section>
         <div className="dashboard-card card-productos">
           <ResumenProductos cajaId={caja.id} />
         </div>
 
-        {/* Formulario de cierre */}
-        <div className="dashboard-card card-formulario">
-          <div className="card-header">
-            <FaCalculator className="card-icon" />
-            <h3>Datos de Cierre</h3>
+        <section className="dashboard-card">
+          <h3>Datos para el cierre</h3>
+
+          <InputText
+            label="Gastos"
+            name="gastos"
+            type="number"
+            value={formData.gastos}
+            formik={false}
+            onChange={handleChange}
+          />
+          <InputText
+            label="Efectivo Final"
+            name="efectivoFinal"
+            type="number"
+            value={formData.efectivoFinal}
+            formik={false}
+            onChange={handleChange}
+          />
+
+          <InputText
+            label="Billetera Móvil Final"
+            name="billeteraMovilFinal"
+            type="number"
+            value={formData.billeteraMovilFinal}
+            formik={false}
+            onChange={handleChange}
+          />
+
+          <InputText
+            label="Transferencias Finales"
+            name="transferenciaFinal"
+            type="number"
+            value={formData.transferenciaFinal}
+            formik={false}
+            onChange={handleChange}
+          />
+          <TextArea
+            label="Observaciones"
+            name="observaciones"
+            formik={false}
+            rows={3}
+            value={formData.observaciones}
+            onChange={handleChange}
+          />
+
+        </section>
+
+        <section className="dashboard-card">
+          <h3><FaFileInvoiceDollar /> Resumen Final</h3>
+
+          <div className="metodo-pago-item">
+            <span>Total sistema:</span>
+            <strong>Bs. {totalSistema.toFixed(2)}</strong>
           </div>
-          <div className="card-content">
-            <div className="form-group">
-              <label><FaMoneyBillWave /> Gastos del Turno</label>
-              <input
-                type="number"
-                name="gastos"
-                value={formData.gastos}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="Total de gastos"
-              />
-            </div>
 
-            <div className="form-group">
-              <label><MdAttachMoney /> Efectivo en Caja</label>
-              <input
-                type="number"
-                name="efectivoFinal"
-                value={formData.efectivoFinal}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="Ingrese el monto contado"
-              />
-            </div>
-
-            <div className="form-group">
-              <label><FaWallet /> Billetera Móvil</label>
-              <input
-                type="number"
-                name="billeteraMovilFinal"
-                value={formData.billeteraMovilFinal}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="Total billetera móvil"
-              />
-            </div>
-
-            <div className="form-group">
-              <label><FaExchangeAlt /> Transferencias</label>
-              <input
-                type="number"
-                name="transferenciaFinal"
-                value={formData.transferenciaFinal}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                placeholder="Total transferencias"
-              />
-            </div>
-
-            <div className="form-group">
-              <label><FaFileAlt /> Observaciones</label>
-              <textarea
-                name="observaciones"
-                value={formData.observaciones}
-                onChange={handleChange}
-                placeholder="Notas relevantes del turno..."
-              />
-            </div>
+          <div className="metodo-pago-item">
+            <span>Total contado:</span>
+            <strong>Bs. {totalContado.toFixed(2)}</strong>
           </div>
-        </div>
 
-        {/* Resumen final */}
-        <div className="dashboard-card card-resumen">
-          <div className="card-header">
-            <FaFileInvoiceDollar className="card-icon" />
-            <h3>Resumen Final</h3>
+          <div className="metodo-pago-item">
+            <span>Diferencia:</span>
+            <strong style={{ color: diferencia >= 0 ? 'green' : 'red' }}>
+              Bs. {diferencia}
+            </strong>
           </div>
-          <div className="card-content">
-            <div className="resumen-item">
-              <span>Total Ventas (Sistema)</span>
-              <span className="resumen-value">Bs. {totalVentas.toFixed(2)}</span>
-            </div>
 
-            <div className="resumen-item">
-              <span>Total Gastos</span>
-              <span className="resumen-value">Bs. {parseFloat(formData.gastos || 0).toFixed(2)}</span>
-            </div>
+          <hr />
 
-            <div className="resumen-subgrid">
-              <h4><MdAttachMoney /> Conteo Final</h4>
-              <div className="resumen-item">
-                <span>Efectivo</span>
-                <span className="resumen-value">Bs. {parseFloat(formData.efectivoFinal || 0).toFixed(2)}</span>
-              </div>
-              <div className="resumen-item">
-                <span>Billetera Móvil</span>
-                <span className="resumen-value">Bs. {parseFloat(formData.billeteraMovilFinal || 0).toFixed(2)}</span>
-              </div>
-              <div className="resumen-item">
-                <span>Transferencias</span>
-                <span className="resumen-value">Bs. {parseFloat(formData.transferenciaFinal || 0).toFixed(2)}</span>
-              </div>
-              <div className="resumen-item total">
-                <span>TOTAL CONTADO</span>
-                <span className="resumen-value">Bs. {totalContado.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="resumen-item diferencia">
-              <span>Diferencia</span>
-              <span className={`resumen-value ${diferencia >= 0 ? 'positive' : 'negative'}`}>
-                Bs. {diferencia}
-              </span>
-            </div>
+          <h4>Totales por Método (Sistema)</h4>
+          <div className="metodo-pago-item">
+            <span><MdAttachMoney /> Efectivo total:</span>
+            <strong>Bs. {totalEfectivoGeneral.toFixed(2)}</strong>
           </div>
-        </div>
+
+          <div className="metodo-pago-item">
+            <span><MdAccountBalanceWallet /> Billetera Móvil total:</span>
+            <strong>Bs. {totalBilleteraMovilGeneral.toFixed(2)}</strong>
+          </div>
+
+          <div className="metodo-pago-item">
+            <span><FaExchangeAlt /> Transferencia total:</span>
+            <strong>Bs. {totalTransferenciaGeneral.toFixed(2)}</strong>
+          </div>
+        </section>
+
       </div>
 
       <div className="dashboard-actions">
-        <button
-          className="btn btn-primary btn-icon"
-          onClick={handleGuardar}
-          disabled={loading}
-        >
-          <FaSave /> {loading ? 'Guardando...' : 'Guardar Cierre'}
-        </button>
+        <Button variant='primary' onClick={handleGuardar} disabled={loading}>
+          <FaSave /> Guardar Cierre
+        </Button>
 
-        <button
-          className="btn btn-secondary btn-icon"
-          onClick={handleImprimir}
-          disabled={!resumenPagos}
-        >
-          <FaPrint /> Generar PDF
-        </button>
+        <Button variant='secundary' onClick={handleImprimir} disabled={!resumenPagos}>
+          <FaPrint /> Imprimir PDF
+        </Button>
 
-        <button
-          className="btn btn-cancel"
-          onClick={onCancelar}
-        >
+        <Button variant='danger' onClick={onCancelar}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </div>
   );
